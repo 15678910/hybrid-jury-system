@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import Poster from './Poster'
 
 export default function App() {
     const [activeSection, setActiveSection] = useState('home');
@@ -54,8 +55,15 @@ export default function App() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [showAdminLogin, setShowAdminLogin] = useState(false);
     const [adminPassword, setAdminPassword] = useState('');
+    const [showPosterModal, setShowPosterModal] = useState(false);
 
-    const ADMIN_PASSWORD = 'qkffhckwlakfk!#%'; // 실제 사용시 더 강력한 인증 시스템 필요
+    const ADMIN_PASSWORD = 'admin2025'; // 실제 사용시 더 강력한 인증 시스템 필요
+
+    // 페이지 첫 로드 시 자동으로 포스터 모달 열기
+    useEffect(() => {
+        // 항상 자동 팝업 (모든 URL에서 작동)
+        setShowPosterModal(true);
+    }, []);
 
     // 초기 데이터 로드 및 통계 업데이트
     useEffect(() => {
@@ -592,6 +600,12 @@ export default function App() {
                             <button onClick={() => scrollToSection('constitution')} className="hover:text-blue-600 transition font-medium">헌법적 근거</button>
                             <button onClick={() => scrollToSection('bill')} className="hover:text-blue-600 transition font-medium">법안 제안</button>
                             <button 
+                                onClick={() => setShowPosterModal(true)} 
+                                className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition font-bold"
+                            >
+                                🎵 포스터 보기
+                            </button>
+                            <button 
                                 onClick={() => scrollToSection('signature')} 
                                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-bold"
                             >
@@ -674,22 +688,32 @@ export default function App() {
                     <p className="text-lg md:text-xl mb-8 max-w-3xl mx-auto">
                         '모든 권력은 국민으로부터 나온다'는 헌법 제1조 2항의 정신을 사법에서 실현합니다.
                     </p>
-                    <button 
-                        onClick={() => scrollToSection('signature')}
-                        className="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105"
-                    >
-                        준비위원으로 참여하기
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <button 
+                            onClick={() => scrollToSection('signature')}
+                            className="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105"
+                        >
+                            준비위원으로 참여하기
+                        </button>
+                        <button 
+                            onClick={() => window.open('/proposal', '_blank')}
+                            className="bg-orange-500 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-orange-600 transition transform hover:scale-105"
+                        >
+                            제안서 및 법률안
+                        </button>
+                    </div>
                 </div>
             </section>
 
             {/* 국민 동의 */}
             <section className="py-20 px-4 bg-white">
                 <div className="container mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">국민의 77.8%가 동의한 사법개혁</h2>
-                    <p class="mt-4 text-lg text-center text-gray-600">
-                    2005년 사법제도개혁추진위원회(사개추위)의 여론조사 결과, 국민 대다수가 사법 절차에 시민의 참여가 필요하다고 응답했습니다. 이는 사법부에 대한 국민적 신뢰가 낮으며, 재판 과정에 국민의 상식이 반영되기를 강력히 원한다는 것을 보여줍니다.
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-6">국민의 77.8%가 동의한 사법개혁</h2>
+                    
+                    <p className="text-center text-gray-700 text-lg mb-12 max-w-4xl mx-auto leading-relaxed">
+                        2005년 사법제도개혁추진위원회(사개추위)의 여론조사 결과, 국민 대다수가 사법 절차에 시민의 참여가 필요하다고 응답했습니다. 이는 사법부에 대한 국민적 신뢰가 낮으며, 재판 과정에 국민의 상식이 반영되기를 강력히 원한다는 것을 보여줍니다.
                     </p>
+                    
                     <div className="flex flex-col md:flex-row items-center justify-center gap-12 max-w-5xl mx-auto">
                         {/* 도넛 차트 */}
                         <div className="relative w-64 h-64">
@@ -708,14 +732,14 @@ export default function App() {
                             <div className="bg-blue-50 p-6 rounded-lg">
                                 <h3 className="font-bold text-lg mb-2">국민참여배심제의 한계</h3>
                                 <p className="text-gray-700 text-sm">
-                                    2007년 도입된 '국민참여재판'은 배심원의 평결이 법관을 기속하지 않는 '권고적 효력'에 그쳐, 시민 참여의 본질을 실현하지 못했습니다. 또한, 피고인이 거부하면 열릴 수 없어 제도 자체가 유명무실해지고 있습니다.
+                                    2007년 도입된 '국민참여재판'은 배심원의 평결이 법관을 기속하지 않아 유명무실합니다.
                                 </p>
                             </div>
 
                             <div className="bg-green-50 p-6 rounded-lg">
                                 <h3 className="font-bold text-lg mb-2">이제는 '혼합형 참심제'</h3>
                                 <p className="text-gray-700 text-sm">
-                                    직업 법관과 시민 참심법관이 '함께' 평의하고 '동등하게' 판결하는 혼합형 참심제만이 사법 민주화를 위한 유일하고 현실적인 대안입니다.
+                                    직업 법관과 시민 참심원이 '함께' 평의하고 '동등하게' 판결하는 진정한 시민 참여를 실현합니다.
                                 </p>
                             </div>
                         </div>
@@ -728,11 +752,11 @@ export default function App() {
                 <div className="container mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">제안 모델: 혼합형 참심 재판부</h2>
                     <p className="text-center text-gray-600 mb-12">
-                        독일, 프랑스, 일본 모델을 참고하여, 직업법관이 참심법관을 압도할 수 없는 구조(예: 3:6 또는 3:9)를 제안합니다.
+                        독일, 프랑스 등 유럽을 참고하여 3:6 구성을 제안합니다.
                     </p>
 
                     <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
-                        <h3 className="text-2xl font-bold text-center mb-8">재판부 구성 (예시: 제안 법률안 제5조)</h3>
+                        <h3 className="text-2xl font-bold text-center mb-8">재판부 구성(예시: 법률안 제5조)</h3>
                         
                         <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-8">
                             {/* 직업법관 */}
@@ -752,7 +776,7 @@ export default function App() {
 
                             {/* 시민 참심원 */}
                             <div className="text-center">
-                                <div className="text-xl font-bold text-gray-700 mb-4">시민 참심원</div>
+                                <div className="text-xl font-bold text-gray-700 mb-4">시민법관</div>
                                 <div className="grid grid-cols-3 gap-2">
                                     {[1, 2, 3, 4, 5, 6].map(i => (
                                         <div key={i} className="w-20 h-20 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm">
@@ -765,11 +789,12 @@ export default function App() {
                         </div>
 
                         <div className="bg-gray-50 p-6 rounded-lg">
-                            <h4 className="font-bold mb-3">핵심 원칙 (제안 법률안 제6조, 제25조)</h4>
+                            <h4 className="font-bold mb-3">핵심 원칙</h4>
                             <ul className="space-y-2 text-gray-700 text-sm">
                                 <li>• <strong>동등한 권한:</strong> 직업법관과 참심법관 전원이 동등한 1표씩 행사.</li>
                                 <li>• <strong>함께 심리:</strong> 사실인정(유/무죄)과 양형(형량) 모두를 함께 평의.</li>
                                 <li>• <strong>기속력 있는 평결:</strong> 유죄 판결 시, 과반수 외 '직업법관 1명 이상+참심법관 1명 이상'의 찬성을 동시 요구. (특별다수결)</li>
+                                <li>• <strong>무작위 선발:</strong> 대표성 담보</li>
                             </ul>
                         </div>
                     </div>
@@ -787,7 +812,7 @@ export default function App() {
                     {/* 국가 탭 */}
                     <div className="max-w-5xl mx-auto mb-8">
                         <div className="flex flex-wrap gap-2 justify-center border-b border-gray-300">
-                            {['독일', '스웨덴', '핀란드', '노르웨이', '프랑스', '덴마크', '일본'].map(country => (
+                            {['독일', '스웨덴', '핀란드', '노르웨이', '프랑스', '덴마크', '일본', 'EU'].map(country => (
                                 <button
                                     key={country}
                                     onClick={() => setSelectedCountry(country)}
@@ -809,24 +834,24 @@ export default function App() {
                             <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
                                 <h3 className="text-2xl font-bold mb-4 text-blue-600">독일: 참심법원 (Schöffengericht)</h3>
                                 <p className="text-gray-700 mb-6">
-                                    독일은 1924년 바이마르 헌법 제정시 참심제를 진정하여 가장 성공적으로 운영 중인 국가입니다. 직업법관과 참심원이 모든 결정에 동등하게 참여합니다.
+                                    독일은 1924년 배심제를 폐지하고 참심제로 전환하여 가장 성공적으로 운영 중인 국가입니다. 직업법관과 참심법관이 모든 권한을 동등하게 행사합니다.
                                 </p>
                                 <div className="space-y-4">
                                     <div className="flex">
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">구성:</div>
-                                        <div className="text-gray-700">직업법관 1인 + 참심원 2인 (사안에 따라 3인 + 2인). (시인의 따라 직업법관 1인 + 참심원 2인, 또는 5인)</div>
+                                        <div className="text-gray-700">지방법원(Landgericht) 1심 기준 직업법관 3인 + 참심법관 2인. (사안에 따라 직업법관 1인 + 참심법관 2인 구성도 있음)</div>
                                     </div>
                                     <div className="flex">
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">선발:</div>
-                                        <div className="text-gray-700">지방 의회 추천 목록 기반 선출 방식. 정치적 중립성을 위한 장치 마련.</div>
+                                        <div className="text-gray-700">지방의회 추천 목록을 기반으로 법원의 선발위원회에서 선출 (임기 5년).</div>
                                     </div>
                                     <div className="flex">
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">권한:</div>
-                                        <div className="text-gray-700">사실인정 + 법률 적용 + 양형 결정 (모든 단계에 동등 참여)</div>
+                                        <div className="text-gray-700">유/무죄 및 양형 결정에 대해 직업법관과 참심법관이 동등한 1표를 행사.</div>
                                     </div>
                                     <div className="flex">
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">평결:</div>
-                                        <div className="text-gray-700">2/3 다수결. 직업법관과 참심원의 균형있는 합의 보장.</div>
+                                        <div className="text-gray-700">재판부 구성원 3분의 2 이상의 다수결로 결정. 직업법관만으로는 유죄 판결이 불가능한 구조.</div>
                                     </div>
                                 </div>
                             </div>
@@ -1002,6 +1027,49 @@ export default function App() {
                                 </div>
                             </div>
                         )}
+
+                        {selectedCountry === 'EU' && (
+                            <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
+                                <h3 className="text-2xl font-bold mb-4 text-blue-600">EU: 유럽연합의 시민 참여 사법제도</h3>
+                                <p className="text-gray-700 mb-6">
+                                    유럽연합 회원국 대다수가 다양한 형태의 시민 참여 사법제도를 운영하고 있으며, 이는 유럽 사법 전통의 핵심입니다.
+                                </p>
+                                <div className="space-y-6">
+                                    <div className="bg-blue-50 p-6 rounded-lg">
+                                        <h4 className="font-bold text-lg mb-3 text-blue-700">📊 현황</h4>
+                                        <ul className="space-y-2 text-gray-700">
+                                            <li>• EU 27개 회원국 중 다수가 참심제 또는 배심제 운영</li>
+                                            <li>• 독일, 프랑스, 스웨덴, 핀란드, 덴마크, 노르웨이 등 전통적 참심제 국가</li>
+                                            <li>• 오스트리아, 벨기에, 이탈리아, 스페인 등도 유사 제도 보유</li>
+                                        </ul>
+                                    </div>
+
+                                    <div className="bg-green-50 p-6 rounded-lg">
+                                        <h4 className="font-bold text-lg mb-3 text-green-700">🎯 공통 특징</h4>
+                                        <ul className="space-y-2 text-gray-700">
+                                            <li>• <strong>민주적 정당성:</strong> 시민 참여를 통한 사법의 민주화</li>
+                                            <li>• <strong>혼합 재판부:</strong> 직업법관과 시민이 함께 판단</li>
+                                            <li>• <strong>형사사건 중심:</strong> 주로 중대 형사사건에 적용</li>
+                                            <li>• <strong>동등한 권한:</strong> 사실인정, 법률적용, 양형에 모두 참여</li>
+                                        </ul>
+                                    </div>
+
+                                    <div className="bg-purple-50 p-6 rounded-lg">
+                                        <h4 className="font-bold text-lg mb-3 text-purple-700">✅ 성공 요인</h4>
+                                        <ul className="space-y-2 text-gray-700">
+                                            <li>• 오랜 역사와 전통 (일부 국가는 100년 이상)</li>
+                                            <li>• 체계적인 교육 및 지원 시스템</li>
+                                            <li>• 명확한 법적 근거와 절차</li>
+                                            <li>• 높은 국민적 신뢰와 참여율</li>
+                                        </ul>
+                                    </div>
+
+                                    <div className="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400">
+                                        <p className="text-sm text-blue-800">🇪🇺 유럽의 성공적인 시민 참여 사법제도는 한국형 혼합형 참심제 도입의 중요한 국제적 모범 사례입니다.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>
@@ -1015,29 +1083,28 @@ export default function App() {
                         <div className="bg-white p-8 rounded-lg shadow-lg">
                             <h3 className="text-xl font-bold mb-4 text-blue-600">사법 신뢰 회복 및 투명성</h3>
                             <p className="text-gray-700">
-                                시민이 직접 재판 과정과 판결 선고에 참여함으로써 '그들만의 재판'이라는 불신을 해소합니다. 재판 과정에서 오고 가는 말을 국민의 눈높이에서 이해하고 판단함으로써 사법 절차의 투명성을 획기적으로 높이고, 판결 결과에 대한 국민적 신뢰를 회복할 수 있습니다.
+                                사법이 직업 법관 과료만 운영되는 폐쇄적 구조에서 시민이 참여하는 개방적 구조로 전환하여 
+                                사법에 대한 국민의 신뢰를 높이고 투명성을 강화합니다.
                             </p>
                         </div>
 
                         <div className="bg-white p-8 rounded-lg shadow-lg">
                             <h3 className="text-xl font-bold mb-4 text-blue-600">국민의 건전한 상식 반영</h3>
                             <p className="text-gray-700">
-                                직업 법관의 법률적 전문성에 더해, 다양한 삶의 경험과 상식을 가진 시민 참심법관의 시각이 판결에 반영됩니다. 이는 법조 엘리트주의를 극복하고, 현실과 동떨어진 판결이 아닌 국민의 법 감정에 부합하는 상식적인 결론을 도출하는 데 기여합니다.
+                                직업 법관의 전문성과 시민의 상식이 결합하여 더 균형잡힌 판결을 내릴 수 있습니다.
                             </p>
                         </div>
 
                         <div className="bg-white p-8 rounded-lg shadow-lg md:col-span-2">
                             <h3 className="text-xl font-bold mb-4 text-blue-600">헌법적 근거: "헌법 개정 없이 가능"</h3>
                             <p className="text-gray-700 mb-4">
-                                현행 헌법은 법관으로 구성된 법원이 재판권을 행사한다고 규정합니다(제101조).
+                                혼합형 참심제 도입의 가장 큰 우려는 헌법 제27조 1항("모든 국민은... 법관에 의하여 법률에 의한 재판을 받을 권리를 가진다")과의 충돌입니다.
                             </p>
                             <p className="text-gray-700 mb-4">
-                                하지만 헌법 제27조 3항은 "재판의 심리와 판결은 공개한다"고 명시하고 있어, 
-                                시민의 참여가 재판 공개의 연장선상에서 가능합니다.
+                                그러나 헌법 제101조 3항은 "법관의 자격은 법률로 정한다"고 명시하고 있습니다. 이는 '법관'의 범위를 정하는 권한이 입법부인 국회에 있음을 의미합니다.
                             </p>
                             <p className="text-gray-700 font-semibold">
-                                따라서 국회가 '참심법원' 또는 '시민참여법원'을 법률로 설치하면, 시민 참심원이 
-                                사실인정, 양형, 판결에 참여할 수 있습니다. <strong>법률 개정만으로 도입 가능합니다.</strong>
+                                따라서 국회가 '법원조직법' 또는 '신규 특별법'을 개정·제정하여 '참심법관'의 자격, 선임 절차, 권한과 의무를 명확히 규정한다면, 시민 참심법관 역시 헌법이 정한 '법관'의 범주에 포함시킬 수 있습니다. <strong>이는 헌법 개정 없이 법률 개정만으로도 도입이 가능함을 의미합니다.</strong>
                             </p>
                         </div>
                     </div>
@@ -1047,23 +1114,34 @@ export default function App() {
             {/* 법안 제안 */}
             <section id="bill" className="py-20 px-4 bg-white">
                 <div className="container mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">혼합형 참심제 제안 법률안 (요지)</h2>
-                    <p className="text-center text-gray-600 mb-8">
-                        새로 제안된 '20251027 법률안'은 혼합형 참심제 도입을 위한 구체적인 내용을 담고 있습니다.
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">혼합형 참심제도 제안 법률안(요지)</h2>
+                    <p className="text-center text-gray-600 mb-6">
+                        새로 제안된 '제안 법률안'은 혼합형 참심제 도입을 위한 구체적인 내용을 담고 있습니다.
                     </p>
+                    
+                    <div className="text-center mb-8">
+                        <button 
+                            onClick={() => window.open('/proposal', '_blank')}
+                            className="bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition transform hover:scale-105 shadow-lg"
+                        >
+                            제안서 및 법률안 원문(PDF)
+                        </button>
+                    </div>
 
                     <div className="max-w-4xl mx-auto">
                         <div className="bg-gray-50 p-8 rounded-lg">
-                            <h3 className="text-xl font-bold mb-6 text-blue-600">혼합형 참심제 운영에 관한 제안 법률안(가칭)</h3>
+                            <h3 className="text-xl font-bold mb-6 text-blue-600">혼합형 참심제 운용에 관한 법률안 (가칭)</h3>
                             
                             <div className="space-y-4">
                                 {[
-                                    { num: 1, title: '목적 (제1조)', desc: '시민이 참심원으로서 재판에 참여하여 사법의 민주성과 신뢰성을 높이는 것을 목적으로 함' },
-                                    { num: 2, title: '적용 범위 (제3조)', desc: '1심 중대 형사사건에 적용. 피고인이 원하지 않을 경우 제외' },
-                                    { num: 3, title: '재판부 구성 (제5조)', desc: '직업법관 3인 + 시민참심원 6인 (총 9인)' },
-                                    { num: 4, title: '참심원 권한 (제6조)', desc: '사실인정, 양형, 판결에서 직업법관과 동등한 1표 보유' },
-                                    { num: 5, title: '선발 (제8조~제12조)', desc: '무작위 추첨 + 면접을 통한 공정한 선발' },
-                                    { num: 6, title: '평의 (제23조)', desc: '투표다수결. 유죄 인정시 3분의 2 이상 찬성 필요' }
+                                    { num: 1, title: '목적 (제1조)', desc: '국민이 참심법관으로 참여, 직업법관과 함께 재판권을 행사. 사법의 민주적 정당성, 투명성, 신뢰 증진을 목적으로 함.' },
+                                    { num: 2, title: '적용 범위 (제3조)', desc: '1심 중대 형사사건 (예: 법정합의부 사건, 사형, 무기 또는 단기 1년 이상 징역 사건). 피고인 자백 여부와 무관.' },
+                                    { num: 3, title: '재판부 구성 (제5조)', desc: '직업법관 3인 + 참심법관 6인 (필요시 9인까지 증가 가능). 참심원이 다수를 구성.' },
+                                    { num: 4, title: '참심법관 권한 (제6조)', desc: '직업법관과 동등한 권한 (질문권, 평의, 표결권). 사실인정, 법령 적용, 유/무죄 및 양형에 모두 참여.' },
+                                    { num: 5, title: '선발 (제8조~제12조)', desc: '무작위 추출 + 심사 + 기피 절차. 만 25세 이상 국민 명부에서 선정. 스웨덴식 정당 추천 배제.' },
+                                    { num: 6, title: '임기 (제14조)', desc: '사건별 선임. (독일/스웨덴식 장기 임기 아님). 국민 참여 기회를 극대화하고 부담 감소.' },
+                                    { num: 7, title: '평결 (제25조)', desc: '특별다수결. 과반수 찬성 + 유죄 판결 시 \'직업법관 1명 이상\' 및 \'참심법관 1명 이상\' 찬성 모두 요구.' },
+                                    { num: 8, title: '절차 (제23조)', desc: '집중심리 및 연일 개정 권장. 재판장의 이해돕기 설명. 재판절차 이해 가능하게 국민 참여 보장.' }
                                 ].map((item) => (
                                     <div key={item.num} className="flex gap-4 items-start">
                                         <div className="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
@@ -1130,35 +1208,6 @@ export default function App() {
                                 />
                             </div>
 
-                            {/* SNS 자동 가입 */}
-                            <div>
-                                <label className="block font-bold mb-3">SNS 커뮤니티 자동 가입 (선택)</label>
-                                <div className="flex gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => toggleSNS('telegram')}
-                                        className={`flex-1 py-3 rounded-lg font-bold transition ${
-                                            formData.sns.includes('telegram')
-                                                ? 'bg-blue-500 text-white'
-                                                : 'bg-gray-200 text-gray-700'
-                                        }`}
-                                    >
-                                        📱 텔레그램
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => toggleSNS('kakao')}
-                                        className={`flex-1 py-3 rounded-lg font-bold transition ${
-                                            formData.sns.includes('kakao')
-                                                ? 'bg-yellow-400 text-gray-800'
-                                                : 'bg-gray-200 text-gray-700'
-                                        }`}
-                                    >
-                                        💬 카카오톡
-                                    </button>
-                                </div>
-                            </div>
-
                             {/* 제출 버튼 */}
                             <button
                                 type="submit"
@@ -1167,6 +1216,9 @@ export default function App() {
                                 참여하기
                             </button>
                         </form>
+
+                        {/* 카카오톡 오픈채팅 */}
+                        
                     </div>
                 </div>
             </section>
@@ -1175,7 +1227,7 @@ export default function App() {
             <section id="stats" className="py-20 px-4 bg-white">
                 <div className="container mx-auto">
                     <div className="flex justify-between items-center mb-12 max-w-4xl mx-auto">
-                        <h2 className="text-3xl md:text-4xl font-bold">실시간 참여 현황</h2>
+                        <h2 className="text-3xl md:text-4xl font-bold">실시간 참가 현황</h2>
                         {isAdmin && (
                             <button
                                 onClick={downloadExcel}
@@ -1187,7 +1239,7 @@ export default function App() {
                     </div>
                     
                     {/* 통계 */}
-                    <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
+                    <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
                         <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-8 rounded-xl shadow-lg">
                             <div className="text-5xl font-bold mb-2 text-center">{stats.individual}</div>
                             <div className="text-xl text-center mb-4">개인</div>
@@ -1214,10 +1266,6 @@ export default function App() {
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-8 rounded-xl shadow-lg text-center">
-                            <div className="text-5xl font-bold mb-2">{stats.total}</div>
-                            <div className="text-xl">총 지지</div>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -1225,9 +1273,16 @@ export default function App() {
             {/* 푸터 */}
             <footer className="bg-gray-900 text-gray-400 py-6 px-4">
                 <div className="container mx-auto text-center">
-                    <p>© 주권자사법개혁추진준비위원회</p>
+                    <p>© 주권자사법개혁추진위원회(준)</p>
                 </div>
             </footer>
+
+            {/* 포스터 모달 */}
+            {showPosterModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 overflow-auto">
+                    <Poster onClose={() => setShowPosterModal(false)} />
+                </div>
+            )}
 
             {/* 플로팅 챗봇 버튼 */}
             <button

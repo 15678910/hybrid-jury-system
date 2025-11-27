@@ -3,6 +3,10 @@
     {
       "source": "/share",
       "destination": "/share.html"
+    },
+    {
+      "source": "/proposal",
+      "destination": "/proposal.html"
     }
   ]
 }
