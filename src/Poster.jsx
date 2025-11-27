@@ -1,19 +1,22 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 function Poster({ onClose }) {
   const audioRef = useRef(null)
-  const [audioError, setAudioError] = useState(false)
 
   useEffect(() => {
     // 자동 재생 시도
     const playAudio = async () => {
       try {
         if (audioRef.current) {
+          // 음소거로 먼저 재생 시도 (브라우저 정책 우회)
+          audioRef.current.muted = true
           await audioRef.current.play()
+          // 성공하면 음소거 해제
+          audioRef.current.muted = false
         }
       } catch (error) {
         console.log('자동 재생 실패:', error)
-        setAudioError(true)
+        // 실패해도 버튼 없이 진행
       }
     }
 
@@ -40,12 +43,13 @@ function Poster({ onClose }) {
         ref={audioRef} 
         loop
         preload="auto"
+        autoPlay
       >
         <source src="/시민법정_참심제_reggae1.mp3" type="audio/mpeg" />
       </audio>
 
-      {/* 작은 모달 컨텐츠 */}
-      <div className="bg-black rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
+      {/* 작은 모달 컨텐츠 - 2/3 크기 */}
+      <div className="bg-black rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 relative">
         {/* 닫기 버튼 */}
         {onClose && (
           <button
@@ -64,18 +68,6 @@ function Poster({ onClose }) {
             className="w-full h-auto rounded-lg shadow-xl"
           />
         </div>
-
-        {/* 음악 재생 안내 (자동재생 실패 시) */}
-        {audioError && (
-          <div className="text-center mb-4">
-            <button
-              onClick={() => audioRef.current?.play()}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200"
-            >
-              🎵 음악 재생하기
-            </button>
-          </div>
-        )}
 
         {/* 참여하기 버튼 */}
         <div className="text-center mb-4">
