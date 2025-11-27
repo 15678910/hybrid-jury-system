@@ -37,29 +37,38 @@ function Poster({ onClose }) {
   }
 
   // 모달 클릭 시 음악 재생
-  const handleModalClick = () => {
-    if (audioRef.current && audioRef.current.paused) {
-      audioRef.current.play().catch(err => console.log('재생 실패:', err))
+  const handleModalClick = (e) => {
+    // X 버튼 클릭은 제외
+    if (e.target.tagName === 'BUTTON' || e.target.textContent === '✕') {
+      return
+    }
+    
+    if (audioRef.current) {
+      if (audioRef.current.paused) {
+        audioRef.current.muted = false
+        audioRef.current.play().catch(err => console.log('재생 실패:', err))
+      }
     }
   }
 
   return (
     <div 
       className="flex items-center justify-center p-4 min-h-screen"
-      onClick={handleModalClick}
     >
       {/* 배경 음악 */}
       <audio 
         ref={audioRef} 
         loop
         preload="auto"
-        autoPlay
       >
         <source src="/시민법정_참심제_reggae1.mp3" type="audio/mpeg" />
       </audio>
 
       {/* 작은 모달 컨텐츠 - 2/3 크기 */}
-      <div className="bg-black rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 relative">
+      <div 
+        className="bg-black rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 relative"
+        onClick={handleModalClick}
+      >
         {/* 닫기 버튼 */}
         {onClose && (
           <button
