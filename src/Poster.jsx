@@ -36,8 +36,18 @@ function Poster({ onClose }) {
     }, 100)
   }
 
+  // 모달 클릭 시 음악 재생
+  const handleModalClick = () => {
+    if (audioRef.current && audioRef.current.paused) {
+      audioRef.current.play().catch(err => console.log('재생 실패:', err))
+    }
+  }
+
   return (
-    <div className="flex items-center justify-center p-4 min-h-screen">
+    <div 
+      className="flex items-center justify-center p-4 min-h-screen"
+      onClick={handleModalClick}
+    >
       {/* 배경 음악 */}
       <audio 
         ref={audioRef} 
