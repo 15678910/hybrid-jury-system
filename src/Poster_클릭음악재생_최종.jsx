@@ -61,7 +61,7 @@ function Poster({ onClose }) {
         loop
         preload="auto"
       >
-        <source src="/music.mp3" type="audio/mpeg" />
+        <source src="/시민법정_참심제_reggae1.mp3" type="audio/mpeg" />
       </audio>
 
       {/* 작은 모달 컨텐츠 - 2/3 크기 */}
