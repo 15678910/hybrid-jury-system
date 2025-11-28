@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Poster from './Poster'
+import Resources from './resources'
 
 export default function App() {
     const [activeSection, setActiveSection] = useState('home');
@@ -599,6 +600,7 @@ export default function App() {
                             <button onClick={() => scrollToSection('cases')} className="hover:text-blue-600 transition font-medium">해외 사례</button>
                             <button onClick={() => scrollToSection('constitution')} className="hover:text-blue-600 transition font-medium">헌법적 근거</button>
                             <button onClick={() => scrollToSection('bill')} className="hover:text-blue-600 transition font-medium">법안 제안</button>
+                            <button onClick={() => scrollToSection('resources')} className="hover:text-blue-600 transition font-medium">자료실</button>
                             <button 
                                 onClick={() => setShowPosterModal(true)} 
                                 className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition font-bold"
@@ -1393,6 +1395,11 @@ export default function App() {
                     </div>
                 </div>
             )}
+
+            {/* 자료실 섹션 */}
+            <section id="resources" className="py-20 px-4">
+                <Resources />
+            </section>
         </div>
     );
 }
