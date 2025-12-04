@@ -58,12 +58,23 @@ export default function App() {
     const [adminPassword, setAdminPassword] = useState('');
     const [showPosterModal, setShowPosterModal] = useState(false);
 
-    const ADMIN_PASSWORD = 'admin2025'; // 실제 사용시 더 강력한 인증 시스템 필요
+    const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin2025'; // 환경변수 사용
 
     // 페이지 첫 로드 시 자동으로 포스터 모달 열기
     useEffect(() => {
-        // 항상 자동 팝업 (모든 URL에서 작동)
-        setShowPosterModal(true);
+        // URL 파라미터로 관리자 접근 확인 (먼저)
+        const params = new URLSearchParams(window.location.search);
+        const adminParam = params.get('admin');
+        
+        console.log('Admin param:', adminParam); // 디버깅용
+        
+        if (adminParam === 'secret2024') {
+            console.log('Opening admin login modal'); // 디버깅용
+            setShowAdminLogin(true);
+        } else {
+            // 관리자가 아닐 때만 포스터 팝업
+            setShowPosterModal(true);
+        }
     }, []);
 
     // 초기 데이터 로드 및 통계 업데이트
@@ -1395,10 +1406,10 @@ export default function App() {
                     </div>
                 </div>
             )}
-
+            
             {/* 자료실 섹션 */}
             <section id="resources" className="py-20 px-4">
-                <Resources />
+              <Resources />
             </section>
         </div>
     );

@@ -117,11 +117,11 @@ const Resources = () => {
 
     const categories = [
         { id: 'all', name: '전체', icon: '📚' },
-        { id: 'korea', name: '한국', icon: '🇰🇷' },
-        { id: 'europe', name: '유럽', icon: '🇪🇺' },
-        { id: 'sweden', name: '스웨덴', icon: '🇸🇪' },
-        { id: 'finland', name: '핀란드', icon: '🇫🇮' },
-        { id: 'germany', name: '독일', icon: '🇩🇪' }
+        { id: 'korea', name: '한국', icon: '🏛️' },
+        { id: 'europe', name: '유럽', icon: '⚖️' },
+        { id: 'sweden', name: '스웨덴', icon: '📋' },
+        { id: 'finland', name: '핀란드', icon: '📑' },
+        { id: 'germany', name: '독일', icon: '📜' }
     ];
 
     const filteredResources = selectedCategory === 'all' 
@@ -182,9 +182,6 @@ const Resources = () => {
                             <div className="text-4xl">
                                 {getFileIcon(resource.file)}
                             </div>
-                            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                                {resource.language}
-                            </span>
                         </div>
                         
                         <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">

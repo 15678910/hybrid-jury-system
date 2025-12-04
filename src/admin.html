@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 로그인</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+        <div class="text-center mb-8">
+            <div class="text-6xl mb-4">🔐</div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">관리자 로그인</h1>
+            <p class="text-gray-600">혼합형 참심제 관리자 페이지</p>
+        </div>
+        
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <input
+                type="password"
+                id="password"
+                placeholder="비밀번호를 입력하세요"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                required
+                autofocus
+            />
+            <button
+                type="submit"
+                class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-bold hover:from-blue-700 hover:to-purple-700 transition"
+            >
+                로그인
+            </button>
+        </form>
+        
+        <div class="mt-6 text-center">
+            <a 
+                href="/"
+                class="text-sm text-gray-600 hover:text-gray-900 transition"
+            >
+                ← 메인 페이지로 돌아가기
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            const password = document.getElementById('password').value;
+            
+            // 환경변수에서 비밀번호 가져오기 (클라이언트에서는 불가능하므로 하드코딩)
+            const correctPassword = 'MyStr0ng!P@ssw0rd#2024';
+            
+            if (password === correctPassword) {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                window.location.href = '/admin-dashboard.html';
+            } else {
+                alert('비밀번호가 틀렸습니다.');
+                document.getElementById('password').value = '';
+            }
+        }
+    </script>
+</body>
+</html>

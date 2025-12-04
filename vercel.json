@@ -1,12 +1,13 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "vite",
   "rewrites": [
     {
-      "source": "/share",
-      "destination": "/share.html"
-    },
-    {
-      "source": "/proposal",
-      "destination": "/proposal.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
