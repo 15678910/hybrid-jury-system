@@ -64,11 +64,11 @@ export default function App() {
     useEffect(() => {
         // URL 파라미터로 관리자 접근 확인 (먼저)
         const params = new URLSearchParams(window.location.search);
-        const adminParam = params.get('admin');
+        const adminParam = params.get('key');
         
-        console.log('Admin param:', adminParam); // 디버깅용
+        console.log('Admin key:', adminParam); // 디버깅용
         
-        if (adminParam === 'secret2024') {
+        if (adminParam === 'admin999') {
             console.log('Opening admin login modal'); // 디버깅용
             setShowAdminLogin(true);
         } else {
