@@ -57,6 +57,7 @@ export default function App() {
     const [showAdminLogin, setShowAdminLogin] = useState(false);
     const [adminPassword, setAdminPassword] = useState('');
     const [showPosterModal, setShowPosterModal] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin2025'; // 환경변수 사용
 
@@ -606,6 +607,8 @@ export default function App() {
                         <div className="text-2xl font-bold text-blue-600 cursor-pointer" onClick={() => scrollToSection('necessity')}>
                             ⚖️ 사법개혁
                         </div>
+                        
+                        {/* 데스크톱 메뉴 */}
                         <div className="hidden md:flex space-x-6 text-sm items-center">
                             <button onClick={() => scrollToSection('necessity')} className="hover:text-blue-600 transition font-medium">도입 필요성</button>
                             <button onClick={() => scrollToSection('cases')} className="hover:text-blue-600 transition font-medium">해외 사례</button>
@@ -624,23 +627,70 @@ export default function App() {
                             >
                                 참여하기
                             </button>
-                            {isAdmin ? (
-                                <button 
-                                    onClick={handleAdminLogout}
-                                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition text-xs"
-                                >
-                                    로그아웃
-                                </button>
-                            ) : (
-                                <button 
-                                    onClick={() => setShowAdminLogin(true)}
-                                    className="text-gray-400 hover:text-gray-600 transition text-xs"
-                                >
-                                    관리자
-                                </button>
-                            )}
                         </div>
+                        
+                        {/* 모바일 햄버거 버튼 */}
+                        <button 
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="md:hidden text-gray-600 hover:text-blue-600 transition p-2"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {mobileMenuOpen ? (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                )}
+                            </svg>
+                        </button>
                     </nav>
+                    
+                    {/* 모바일 메뉴 드롭다운 */}
+                    {mobileMenuOpen && (
+                        <div className="md:hidden bg-white border-t border-gray-200 py-4 space-y-2">
+                            <button 
+                                onClick={() => { scrollToSection('necessity'); setMobileMenuOpen(false); }} 
+                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                            >
+                                도입 필요성
+                            </button>
+                            <button 
+                                onClick={() => { scrollToSection('cases'); setMobileMenuOpen(false); }} 
+                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                            >
+                                해외 사례
+                            </button>
+                            <button 
+                                onClick={() => { scrollToSection('constitution'); setMobileMenuOpen(false); }} 
+                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                            >
+                                헌법적 근거
+                            </button>
+                            <button 
+                                onClick={() => { scrollToSection('bill'); setMobileMenuOpen(false); }} 
+                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                            >
+                                법안 제안
+                            </button>
+                            <button 
+                                onClick={() => { scrollToSection('resources'); setMobileMenuOpen(false); }} 
+                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                            >
+                                자료실
+                            </button>
+                            <button 
+                                onClick={() => { setShowPosterModal(true); setMobileMenuOpen(false); }} 
+                                className="block w-full text-left px-4 py-2 bg-purple-600 text-white hover:bg-purple-700 transition font-bold"
+                            >
+                                🎵 포스터 보기
+                            </button>
+                            <button 
+                                onClick={() => { scrollToSection('signature'); setMobileMenuOpen(false); }} 
+                                className="block w-full text-left px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 transition font-bold"
+                            >
+                                참여하기
+                            </button>
+                        </div>
+                    )}
                 </div>
             </header>
 
