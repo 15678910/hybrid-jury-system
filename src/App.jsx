@@ -609,7 +609,7 @@ export default function App() {
                         </div>
                         
                         {/* 데스크톱 메뉴 */}
-                        <div className="hidden md:flex space-x-6 text-sm items-center">
+                        <div className="hidden lg:flex space-x-6 text-sm items-center">
                             <button onClick={() => scrollToSection('necessity')} className="hover:text-blue-600 transition font-medium">도입 필요성</button>
                             <button onClick={() => scrollToSection('cases')} className="hover:text-blue-600 transition font-medium">해외 사례</button>
                             <button onClick={() => scrollToSection('constitution')} className="hover:text-blue-600 transition font-medium">헌법적 근거</button>
@@ -632,7 +632,8 @@ export default function App() {
                         {/* 모바일 햄버거 버튼 */}
                         <button 
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden text-gray-600 hover:text-blue-600 transition p-2"
+                            className="lg:hidden text-gray-600 hover:text-blue-600 transition p-2"
+                            aria-label="메뉴"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {mobileMenuOpen ? (
@@ -646,7 +647,7 @@ export default function App() {
                     
                     {/* 모바일 메뉴 드롭다운 */}
                     {mobileMenuOpen && (
-                        <div className="md:hidden bg-white border-t border-gray-200 py-4 space-y-2">
+                        <div className="lg:hidden bg-white border-t border-gray-200 py-4 space-y-2">
                             <button 
                                 onClick={() => { scrollToSection('necessity'); setMobileMenuOpen(false); }} 
                                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
