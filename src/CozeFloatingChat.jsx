@@ -27,6 +27,7 @@ export default function CozeFloatingChat() {
       {/* 플로팅 버튼 */}
       <button
         onClick={() => setOpen(true)}
+        title="시민법정 AI 상담 열기"
         className="
           fixed bottom-6 right-6 
           bg-blue-600 hover:bg-blue-700
@@ -62,16 +63,29 @@ export default function CozeFloatingChat() {
         `}
       >
         {/* 헤더 */}
-        <div className="bg-blue-600 text-white px-4 py-3 flex justify-between items-center">
-          <span className="font-bold">시민참여 법률 상담</span>
-          <button onClick={() => setOpen(false)} className="text-xl font-bold">
-            ×
-          </button>
+        <div
+            className="bg-blue-600 text-white px-4 py-3 flex justify-between items-center"
+            >
+            <span className="font-bold text-lg">
+                시민법정 AI 상담
+            </span>
+
+            <button
+                onClick={() => setOpen(false)}
+                className="text-xl font-bold hover:text-gray-200"
+            >
+                ✕
+            </button>
         </div>
 
-        {/* Coze 챗봇 영역 */}
-        <div id="coze-chat-container" className="w-full h-full"></div>
-      </div>
-    </>
-  );
-}
+        {/* 설명 박스 (신규 추가) */}
+        <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200 bg-gray-50">
+        혼합형 참심제, 시민법관 제도 무엇이든 물어보세요
+        </div>
+
+            {/* Coze 챗봇 영역 */}
+            <div id="coze-chat-container" className="w-full h-full"></div>        
+        </div>
+        </>
+    );
+    }

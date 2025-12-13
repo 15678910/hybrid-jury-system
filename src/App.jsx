@@ -967,17 +967,7 @@ export default function App() {
                 </div>
             )}
 
-            {/* 플로팅 챗봇 버튼 */}
-            <button
-                onClick={() => setShowChatbot(true)}
-                className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center text-2xl z-40"
-                title="AI 상담사"
-            >
-                💬
-            </button>
-
-
-            
+                      
             {/* 자료실 섹션 */}
             <section id="resources" className="py-20 px-4">
               <Resources />

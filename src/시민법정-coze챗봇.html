@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시민법정 - AI 상담사</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #4a5568;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 50px 0;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feature-desc {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 50px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            border: none;
+            margin-top: 30px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.5);
+        }
+
+        .info-section {
+            margin-top: 50px;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 15px;
+            text-align: left;
+        }
+
+        .info-section h2 {
+            color: #2d3748;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .info-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-section li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            color: #4a5568;
+            font-size: 1.05rem;
+        }
+
+        .info-section li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 25px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Coze 챗봇 커스터마이징 */
+        .coze-chat-widget {
+            position: fixed !important;
+            bottom: 30px !important;
+            right: 30px !important;
+            z-index: 9999 !important;
+        }
+
+        /* 챗봇 버튼 펄스 애니메이션 */
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .coze-chat-widget {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚖️ 시민법정</h1>
+        <p class="subtitle">
+            혼합형 참심제에 대해 궁금하신가요?<br>
+            AI 상담사가 24시간 실시간으로 답변해드립니다.
+        </p>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <div class="feature-title">PDF 기반 답변</div>
+                <div class="feature-desc">16개의 전문 자료를 학습한 정확한 답변</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <div class="feature-title">웹 검색 연동</div>
+                <div class="feature-desc">실시간 최신 정보까지 함께 제공</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <div class="feature-title">자연스러운 대화</div>
+                <div class="feature-desc">AI가 맥락을 이해하고 친절하게 답변</div>
+            </div>
+        </div>
+
+        <button class="cta-button" onclick="openChat()">
+            💬 AI 상담사와 대화 시작하기
+        </button>
+
+        <div class="info-section">
+            <h2>💡 이런 질문을 해보세요</h2>
+            <ul>
+                <li>혼합형 참심제가 무엇인가요?</li>
+                <li>국민참여재판과 어떻게 다른가요?</li>
+                <li>헌법 개정 없이 도입 가능한가요?</li>
+                <li>다른 나라의 평신도 판사 제도는 어떤가요?</li>
+                <li>참심법관의 자격 요건은 무엇인가요?</li>
+                <li>재판 절차는 어떻게 진행되나요?</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 40px; padding: 20px; background: #fff5f5; border-radius: 10px; border-left: 4px solid #fc8181;">
+            <p style="color: #c53030; font-weight: 600; margin-bottom: 10px;">🎯 팁: 우측 하단 챗봇 버튼을 클릭하세요!</p>
+            <p style="color: #742a2a; font-size: 0.95rem;">
+                페이지 어디서든 우측 하단 보라색 버튼을 클릭하면 AI 상담사와 대화할 수 있습니다.
+            </p>
+        </div>
+    </div>
+
+    <!-- ✅ Coze AI 챗봇 SDK -->
+    <script>
+        // SDK 로드 완료를 기다리는 함수
+        function loadCozeSDK() {
+            const script = document.createElement('script');
+            script.src = 'https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/0.1.0-beta.5/libs/oversea/index.js';
+            script.onload = function() {
+                console.log('✅ Coze SDK 로드 완료');
+                initializeCozeChat();
+            };
+            script.onerror = function() {
+                console.error('❌ Coze SDK 로드 실패');
+                alert('챗봇을 불러올 수 없습니다. 인터넷 연결을 확인해주세요.');
+            };
+            document.body.appendChild(script);
+        }
+
+        // Coze 챗봇 초기화
+        function initializeCozeChat() {
+            try {
+                new CozeWebSDK.WebChatClient({
+                    config: {
+                        bot_id: '7580759900293578757', // 시민법정 봇 ID
+                    },
+                    componentProps: {
+                        title: '시민법정 AI 상담사',
+                        icon: '⚖️',
+                        welcome: '안녕하세요! 혼합형 참심제에 대해 무엇이든 물어보세요. 📚',
+                        placeholder: '질문을 입력하세요...',
+                    }
+                });
+                console.log('✅ Coze 챗봇 초기화 완료!');
+            } catch (error) {
+                console.error('❌ 챗봇 초기화 오류:', error);
+            }
+        }
+
+        // 버튼 클릭 시 챗봇 열기 함수
+        function openChat() {
+            // 잠시 후 챗봇 버튼 찾기 (DOM 로드 대기)
+            setTimeout(function() {
+                // Coze 챗봇 iframe 또는 버튼 찾기
+                const cozeButton = document.querySelector('iframe[title*="chat"]') ||
+                                 document.querySelector('[class*="coze"]') ||
+                                 document.querySelector('[id*="coze"]');
+                
+                if (cozeButton) {
+                    // iframe인 경우 부모 요소 클릭
+                    if (cozeButton.tagName === 'IFRAME') {
+                        const parent = cozeButton.parentElement;
+                        if (parent) parent.click();
+                    } else {
+                        cozeButton.click();
+                    }
+                    console.log('✅ 챗봇 열기 시도');
+                } else {
+                    console.log('💬 우측 하단 보라색 버튼을 클릭해주세요!');
+                    // 사용자에게 직접 클릭 안내
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed;
+                        bottom: 120px;
+                        right: 30px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        padding: 15px 25px;
+                        border-radius: 50px;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                        z-index: 9998;
+                        animation: bounce 1s infinite;
+                        font-weight: 600;
+                    `;
+                    notification.innerHTML = '👇 아래 버튼을 클릭하세요!';
+                    document.body.appendChild(notification);
+                    
+                    // 3초 후 안내 제거
+                    setTimeout(() => notification.remove(), 3000);
+                }
+            }, 500);
+        }
+
+        // 페이지 로드 시 SDK 로드
+        window.addEventListener('load', loadCozeSDK);
+    </script>
+
+    <style>
+        /* 바운스 애니메이션 */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</body>
+</html>

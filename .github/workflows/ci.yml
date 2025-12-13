@@ -2,29 +2,56 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-      - dev
+    branches: [ main, dev ]
   pull_request:
-    branches:
-      - main
+    branches: [ main, dev ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
+
+    env:
+      # 레포지토리 Settings > Secrets and variables > Actions 에서
+      # TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID 를 만들어 두세요.
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 22
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      # 필요하면 test 단계도 추가
+      # - name: Run tests
+      #   run: npm test -- --watch=false
+
+      - name: Build project
         run: npm run build
+
+      # ====== 여기서부터 텔레그램 실패 알림 ======
+      - name: Notify Telegram on failure
+        if: failure() && env.TELEGRAM_CHAT_ID != '' && env.TELEGRAM_CHAT_ID != ''
+        run: |
+          TEXT="🚨 GitHub Actions 빌드/테스트 실패 알림
+
+레포지토리 : ${{ github.repository }}
+브랜치     : ${{ github.ref_name }}
+워크플로   : ${{ github.workflow }}
+잡 ID      : ${{ github.job }}
+커밋 SHA   : ${{ github.sha }}
+작성자     : ${{ github.actor }}
+
+로그 보기:
+https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          curl -sS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${TEXT}"
