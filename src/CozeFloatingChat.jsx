@@ -10,15 +10,16 @@ export default function CozeFloatingChat() {
         onClick={() => setOpen(true)}
         title="시민법정 AI 상담 열기"
         className="
-          fixed bottom-6 right-6 
+          fixed bottom-4 right-4 md:bottom-6 md:right-6
           bg-blue-600 hover:bg-blue-700
-          text-white shadow-xl rounded-full w-16 h-16
+          text-white shadow-xl rounded-full 
+          w-14 h-14 md:w-16 md:h-16
           flex items-center justify-center
           border-4 border-white transition
           z-[9999]
         "
         style={{
-          fontSize: "24px",
+          fontSize: "20px",
           boxShadow: "0 6px 20px rgba(0,0,0,0.2)",
         }}
       >
@@ -36,7 +37,12 @@ export default function CozeFloatingChat() {
       {/* 챗봇 팝업 */}
       <div
         className={`
-          fixed bottom-24 right-6 w-[380px] h-[520px]
+          fixed 
+          bottom-20 right-2 left-2
+          md:bottom-24 md:right-6 md:left-auto
+          w-auto md:w-[380px] 
+          h-[85vh] md:h-[600px]
+          max-h-[700px]
           bg-white rounded-2xl shadow-2xl border border-gray-200
           overflow-hidden z-[9999] transition-all duration-300
           ${open ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}
@@ -44,7 +50,7 @@ export default function CozeFloatingChat() {
       >
         {/* 헤더 */}
         <div className="bg-blue-600 text-white px-4 py-3 flex justify-between items-center">
-          <span className="font-bold text-lg">
+          <span className="font-bold text-base md:text-lg">
             시민법정 AI 상담
           </span>
 
@@ -57,19 +63,43 @@ export default function CozeFloatingChat() {
         </div>
 
         {/* 설명 박스 */}
-        <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200 bg-gray-50">
+        <div className="px-3 py-2 text-xs md:text-sm text-gray-700 border-b border-gray-200 bg-gray-50">
           혼합형 참심제, 시민법관 제도 무엇이든 물어보세요
         </div>
 
-        {/* ✅ Coze 챗봇 iframe (SDK 대신) */}
-        {open && (
-          <iframe
-            src="https://www.coze.com/s/Za8u8mfpo/"
-            className="w-full h-full border-0"
-            title="Coze AI 챗봇"
-            allow="microphone; camera"
+        {/* Coze 챗봇 영역 */}
+        <div 
+          className="relative w-full bg-white" 
+          style={{ 
+            height: 'calc(100% - 88px)',
+            overflow: 'hidden'
+          }}
+        >
+          {/* iframe - 원래 높이로 (입력창 보임) */}
+          {open && (
+            <iframe
+              src="https://www.coze.com/s/Za8u6ba19/"
+              className="w-full border-0"
+              title="Coze AI 챗봇"
+              allow="microphone; camera"
+              style={{
+                height: '100%',      // 원래대로
+                marginTop: '0',      // 원래대로
+                marginBottom: '0'    // 원래대로
+              }}
+            />
+          )}
+          
+          {/* "Get started" 버튼 가리기 */}
+          <div 
+            className="absolute bottom-0 left-0 right-0 h-12 bg-white"
+            style={{ 
+              background: 'linear-gradient(to top, white 60%, transparent)',
+              pointerEvents: 'none',
+              zIndex: 10
+            }}
           />
-        )}
+        </div>
       </div>
     </>
   );
