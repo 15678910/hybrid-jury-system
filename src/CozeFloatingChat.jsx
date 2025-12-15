@@ -62,39 +62,35 @@ export default function CozeFloatingChat() {
           </button>
         </div>
 
-        {/* 설명 박스 */}
-        <div className="px-3 py-2 text-xs md:text-sm text-gray-700 border-b border-gray-200 bg-gray-50">
-          혼합형 참심제, 시민법관 제도 무엇이든 물어보세요
-        </div>
-
         {/* Coze 챗봇 영역 */}
-        <div 
-          className="relative w-full bg-white" 
-          style={{ 
-            height: 'calc(100% - 88px)',
+        <div
+          className="relative w-full bg-white"
+          style={{
+            height: 'calc(100% - 60px)',
             overflow: 'hidden'
           }}
         >
-          {/* iframe - 원래 높이로 (입력창 보임) */}
+          {/* iframe - 위로 이동시켜 헤더 숨기기 */}
           {open && (
             <iframe
-              src="https://www.coze.com/s/Za8u6ba19/"
+              src="https://www.coze.com/s/Za8uUqrEo/"
               className="w-full border-0"
               title="Coze AI 챗봇"
               allow="microphone; camera"
               style={{
-                height: '100%',      // 원래대로
-                marginTop: '0',      // 원래대로
-                marginBottom: '0'    // 원래대로
+                height: 'calc(100% + 50px)',
+                marginTop: '-50px',
+                marginBottom: '0'
               }}
             />
           )}
-          
-          {/* "Get started" 버튼 가리기 */}
-          <div 
-            className="absolute bottom-0 left-0 right-0 h-12 bg-white"
-            style={{ 
-              background: 'linear-gradient(to top, white 60%, transparent)',
+
+          {/* 하단 가리개 - 영어 텍스트 숨기기 */}
+          <div
+            className="absolute bottom-0 left-0 right-0"
+            style={{
+              height: '120px',
+              background: 'linear-gradient(to top, white 95%, transparent)',
               pointerEvents: 'none',
               zIndex: 10
             }}
