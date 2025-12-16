@@ -5,27 +5,22 @@ export default function CozeFloatingChat() {
 
   return (
     <>
-      {/* 플로팅 버튼 - 이모지 사용 */}
+      {/* 플로팅 버튼 */}
       <button
         onClick={() => setOpen(true)}
         title="시민법정 AI 상담 열기"
         className="
           fixed bottom-4 right-4 md:bottom-6 md:right-6
-          hover:scale-125
-          w-16 h-16 md:w-20 md:h-20
-          rounded-full
-          bg-blue-600
+          bg-blue-600 hover:bg-blue-700
+          text-white shadow-xl rounded-full 
+          w-14 h-14 md:w-16 md:h-16
           flex items-center justify-center
-          transition-transform duration-300 ease-out
+          border-4 border-white transition
           z-[9999]
-          border-0
-          cursor-pointer
         "
         style={{
-          boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2)',
-          padding: 0,
-          outline: 'none',
-          fontSize: '2rem',
+          fontSize: "20px",
+          boxShadow: "0 6px 20px rgba(0,0,0,0.2)",
         }}
       >
         ⚖️
