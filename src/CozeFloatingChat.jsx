@@ -1,107 +1,106 @@
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
 
-export default function CozeFloatingChat() {
-  const [open, setOpen] = useState(false);
+export default function CozeFloatingChat({ botId }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
+  // botId가 없으면 기본값 사용
+  const chatBotId = botId || '7580759900293578757';
+  const iframeUrl = `https://www.coze.com/web/chatbot-launcher/${chatBotId}`;
 
   return (
     <>
-      {/* 플로팅 버튼 - 이모지 사용 */}
-      <button
-        onClick={() => setOpen(true)}
-        title="시민법정 AI 상담 열기"
-        className="
-          fixed bottom-4 right-4 md:bottom-6 md:right-6
-          hover:scale-125
-          w-16 h-16 md:w-20 md:h-20
-          rounded-full
-          bg-blue-600
-          flex items-center justify-center
-          transition-transform duration-300 ease-out
-          z-[9999]
-          border-0
-          cursor-pointer
-        "
-        style={{
-          boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2)',
-          padding: 0,
-          outline: 'none',
-          fontSize: '2rem',
-        }}
-      >
-        ⚖️
-      </button>
-
-      {/* 배경 오버레이 */}
-      {open && (
-        <div
-          onClick={() => setOpen(false)}
-          className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm z-[9998]"
-        />
+      {/* 챗봇 버튼 */}
+      {!isOpen && (
+        <button
+          onClick={handleToggle}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 z-50"
+          aria-label="챗봇 열기"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+            />
+          </svg>
+        </button>
       )}
 
-      {/* 챗봇 팝업 */}
-      <div
-        className={`
-          fixed 
-          bottom-20 right-2 left-2
-          md:bottom-24 md:right-6 md:left-auto
-          w-auto md:w-[380px] 
-          h-[85vh] md:h-[600px]
-          max-h-[700px]
-          bg-white rounded-2xl shadow-2xl border border-gray-200
-          overflow-hidden z-[9999] transition-all duration-300
-          ${open ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}
-        `}
-      >
-        {/* 헤더 */}
-        <div className="bg-blue-600 text-white px-4 py-3 flex justify-between items-center">
-          <span className="font-bold text-base md:text-lg">
-            시민법정 AI 상담
-          </span>
-
-          <button
-            onClick={() => setOpen(false)}
-            className="text-xl font-bold hover:text-gray-200"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Coze 챗봇 영역 */}
+      {/* 챗봇 창 */}
+      {isOpen && (
         <div
-          className="relative w-full bg-white"
-          style={{
-            height: 'calc(100% - 60px)',
-            overflow: 'hidden'
-          }}
+          className={`fixed ${
+            isMobile
+              ? 'inset-0 z-50'
+              : 'bottom-6 right-6 z-50 w-96 h-[600px]'
+          } bg-white rounded-lg shadow-2xl overflow-hidden flex flex-col`}
         >
-          {/* iframe - 위로 이동시켜 헤더 숨기기 */}
-          {open && (
-            <iframe
-              src="https://www.coze.com/s/Za8uUqrEo/"
-              className="w-full border-0"
-              title="Coze AI 챗봇"
-              allow="microphone; camera"
-              style={{
-                height: 'calc(100% + 50px)',
-                marginTop: '-50px',
-                marginBottom: '0'
-              }}
-            />
-          )}
+          {/* 헤더 */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="font-semibold">시민법정 챗봇</span>
+            </div>
+            <button
+              onClick={handleClose}
+              className="hover:bg-white/20 rounded-full p-1 transition-colors"
+              aria-label="챗봇 닫기"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
 
-          {/* 하단 가리개 - 영어 텍스트 숨기기 */}
-          <div
-            className="absolute bottom-0 left-0 right-0"
-            style={{
-              height: '120px',
-              background: 'linear-gradient(to top, white 95%, transparent)',
-              pointerEvents: 'none',
-              zIndex: 10
-            }}
-          />
+          {/* 챗봇 iframe */}
+          <div className="flex-1 relative">
+            <iframe
+              src={iframeUrl}
+              className="absolute inset-0 w-full h-full border-0"
+              allow="microphone"
+              title="Coze Chatbot"
+            />
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

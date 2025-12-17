@@ -1,157 +1,152 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FAQMatcher } from '../lib/faqMatcher';
 import faqData from '../data/faq.json';
 
 export default function FAQTest() {
   const [matcher, setMatcher] = useState(null);
   const [question, setQuestion] = useState('');
-  const [result, setResult] = useState(null);
-  const [matches, setMatches] = useState([]);
+  const [results, setResults] = useState([]);
+  const [stats, setStats] = useState(null);
 
   useEffect(() => {
-    setMatcher(new FAQMatcher(faqData));
+    const faqMatcher = new FAQMatcher(faqData);
+    setMatcher(faqMatcher);
+    setStats(faqMatcher.getStats());
   }, []);
 
-  const handleSearch = () => {
-    if (!matcher || !question) return;
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!matcher || !question.trim()) {
+      setResults([]);
+      return;
+    }
 
-    const match = matcher.findMatch(question);
-    const allMatches = matcher.findMatches(question);
-
-    setResult(match);
-    setMatches(allMatches);
+    const matches = matcher.findMatches(question, 3);
+    setResults(matches);
   };
 
-  if (!matcher) return <div className="p-8">Loading...</div>;
-
-  const stats = matcher.getStats();
+  const handleQuestionClick = (q) => {
+    setQuestion(q);
+    if (matcher) {
+      const matches = matcher.findMatches(q, 3);
+      setResults(matches);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* 헤더 */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
             FAQ 매칭 테스트
           </h1>
-          <div className="text-sm text-gray-600">
-            총 {stats.total}개 FAQ | 카테고리 {stats.categories}개 | 
-            우선순위 높음 {stats.byPriority.high}개
-          </div>
+          {stats && (
+            <p className="text-gray-600">
+              총 {stats.totalFAQs}개 FAQ | 카테고리: {stats.categories.join(', ')} | 우선순위 높음 5개
+            </p>
+          )}
         </div>
 
-        {/* 검색 */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            질문 입력:
-          </label>
-          <div className="flex gap-2">
+        {/* 질문 입력 */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4">질문 입력:</h2>
+          <form onSubmit={handleSearch} className="space-y-4">
             <input
               type="text"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="예: 혼합형 참심제가 무엇인가요?"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <button
-              onClick={handleSearch}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+              type="submit"
+              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
             >
               검색
             </button>
-          </div>
+          </form>
         </div>
 
-        {/* 최적 매칭 결과 */}
-        {result && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <span className="inline-block px-3 py-1 bg-green-600 text-white text-xs rounded-full mb-2">
-                  최적 매칭
-                </span>
-                <h3 className="text-lg font-bold text-gray-900">
-                  {result.question}
-                </h3>
-              </div>
-              <span className="text-sm text-gray-500">
-                {result.category} | Priority {result.priority}
-              </span>
-            </div>
-            <div className="prose prose-sm max-w-none">
-              <div className="whitespace-pre-line text-gray-700">
-                {result.answer}
-              </div>
-            </div>
-            <div className="mt-4 text-sm text-gray-500">
-              출처: {result.source}
-            </div>
-          </div>
-        )}
-
-        {/* 기타 매칭 결과 */}
-        {matches.length > 0 && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">
-              기타 관련 FAQ ({matches.length}개)
-            </h3>
-            <div className="space-y-3">
-              {matches.map((faq) => (
-                <div
-                  key={faq.id}
-                  className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition"
-                >
-                  <div className="flex items-start justify-between">
-                    <h4 className="font-medium text-gray-900">
-                      {faq.question}
-                    </h4>
-                    <span className="text-xs text-gray-500 ml-4">
-                      {faq.category}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 매칭 없음 */}
-        {question && !result && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-            <p className="text-yellow-800">
-              매칭되는 FAQ가 없습니다. AI가 답변하겠습니다.
-            </p>
-          </div>
-        )}
-
         {/* 예시 질문 */}
-        <div className="bg-white rounded-lg shadow p-6 mt-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">
-            예시 질문:
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4">예시 질문:</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {[
               '혼합형 참심제가 무엇인가요?',
               '한국에서 시행되고 있나요?',
               '시민법관은 어떻게 선발되나요?',
-              '참심제와 배심제의 차이는?',
               '헌법 개정이 필요한가요?',
-              '독일은 어떻게 운영하나요?'
-            ].map((q) => (
+              '독일은 어떻게 운영하나요?',
+              '참심제와 배심제의 차이는?'
+            ].map((q, idx) => (
               <button
-                key={q}
-                onClick={() => {
-                  setQuestion(q);
-                  setTimeout(handleSearch, 100);
-                }}
-                className="text-left px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition"
+                key={idx}
+                onClick={() => handleQuestionClick(q)}
+                className="text-left px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
               >
                 {q}
               </button>
             ))}
           </div>
         </div>
+
+        {/* 검색 결과 */}
+        {results.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold text-gray-900">
+              검색 결과 ({results.length}개)
+            </h2>
+            {results.map((faq) => (
+              <div key={faq.id} className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-start justify-between mb-3">
+                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
+                    {faq.category}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    우선순위: {faq.priority}
+                  </span>
+                </div>
+                
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  {faq.question}
+                </h3>
+                
+                <div className="prose prose-sm max-w-none text-gray-700 mb-4 whitespace-pre-line">
+                  {faq.answer}
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                  <span className="text-sm text-gray-500">
+                    출처: {faq.source}
+                  </span>
+                  <div className="flex gap-2">
+                    {faq.keywords.slice(0, 5).map((keyword, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded"
+                      >
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* 검색했지만 결과 없음 */}
+        {question && results.length === 0 && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+            <p className="text-yellow-800">
+              '{question}'에 대한 FAQ를 찾을 수 없습니다.
+            </p>
+            <p className="text-sm text-yellow-600 mt-2">
+              다른 키워드로 검색해보시거나, 예시 질문을 참고해주세요.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

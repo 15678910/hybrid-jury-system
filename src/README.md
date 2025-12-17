@@ -1,106 +1,210 @@
-# 포스터 모달 기능 추가 완료
+# 혼합형 참심제 프로젝트 - 누락 파일 복구
 
-## 작업 내용
+## 📦 생성된 파일 목록
 
-### 1. Poster.jsx 수정사항
-- ✅ **누락된 `audioRef` 추가**: `const audioRef = useRef(null)` 
-- ✅ **onClose props 추가**: 모달 닫기 기능 지원
-- ✅ **닫기 버튼 추가**: 우측 상단에 X 버튼
-- ✅ **참여하기 버튼 개선**: 클릭 시 모달을 닫고 참여하기 섹션으로 스크롤
+### 1. **faqMatcher.js** - FAQ 매칭 시스템
+- **위치**: `src/lib/faqMatcher.js`
+- **설명**: 키워드 기반 FAQ 검색 및 매칭 로직
+- **기능**:
+  - 질문에서 키워드 자동 추출
+  - 우선순위 기반 매칭 점수 계산
+  - 최적 FAQ 찾기
+  - 관련 FAQ 목록 반환
+  - 카테고리별 필터링
 
-### 2. App.jsx 수정사항
-- ✅ **showPosterModal state 추가**: 포스터 모달 표시 여부 관리
-- ✅ **네비게이션에 "포스터 보기" 버튼 추가**: 
-  - 위치: 헌법적 근거와 법안 제안 사이
-  - 스타일: 보라색 배경 (bg-purple-600)
-  - 아이콘: 📋
-- ✅ **포스터 모달 렌더링**: 
-  - 전체 화면 오버레이 (bg-black bg-opacity-90)
-  - z-index: 50
-  - Poster 컴포넌트에 onClose 콜백 전달
+### 2. **Poster.jsx** - 포스터 모달 컴포넌트
+- **위치**: `src/components/Poster.jsx`
+- **설명**: 첫 방문 시 보여지는 소개 포스터 팝업
+- **기능**:
+  - 3개의 슬라이드 포스터
+  - 이전/다음 네비게이션
+  - 서명/자세히보기 버튼
+  - 반응형 디자인
 
-## 주요 기능
+### 3. **Resources.jsx** - 자료실 컴포넌트
+- **위치**: `src/components/Resources.jsx` 
+- **설명**: 법률안, 연구자료, 해외사례 등 다운로드 자료실
+- **기능**:
+  - 카테고리별 필터링 (법률안, 연구, 해외사례, 언론)
+  - 자료 카드 레이아웃
+  - 다운로드 기능
+  - 태그 시스템
 
-### 포스터 모달 동작
-1. 네비게이션의 "📋 포스터 보기" 버튼 클릭
-2. 전체 화면 모달로 포스터 표시
-3. 배경 음악 자동 재생 시도
-4. 우측 상단 X 버튼으로 모달 닫기
-5. "💪 지금 참여하기" 버튼 클릭 시:
-   - 모달 자동 닫기
-   - 참여하기 섹션으로 부드러운 스크롤
+### 4. **FAQTest.jsx** - FAQ 테스트 페이지 (수정됨)
+- **위치**: `src/components/FAQTest.jsx`
+- **설명**: FAQ 매칭 시스템 테스트 UI
+- **수정 사항**: UTF-8 인코딩 문제 해결
 
-### 사용자 경험 개선
-- 모달 배경: 반투명 검정색으로 콘텐츠 강조
-- 음악 자동재생 실패 시 수동 재생 버튼 제공
-- 부드러운 스크롤 애니메이션
-- 반응형 디자인 (모바일/태블릿/데스크톱)
-
-## 파일 위치
-
-프로젝트 루트 디렉토리에 다음 파일들을 배치하세요:
-
-```
-hybrid-jury-system/
-├── src/
-│   ├── App.jsx          (업데이트됨)
-│   └── Poster.jsx       (업데이트됨)
-├── public/
-│   ├── 참심제_웹자보qrcode.png
-│   └── 시민법정_참심제_reggae1.mp3
-└── package.json
-```
-
-## 설치 및 실행
-
-```bash
-# 프로젝트 디렉토리로 이동
-cd C:\Users\lacoi\Desktop\hybrid-jury-system
-
-# 업데이트된 파일 복사
-# App.jsx와 Poster.jsx를 src/ 폴더에 복사
-
-# 개발 서버 실행
-npm run dev
-
-# 또는 빌드
-npm run build
-```
-
-## 테스트 체크리스트
-
-- [ ] 포스터 모달이 정상적으로 열리는지 확인
-- [ ] 배경 음악이 자동 재생되는지 확인
-- [ ] X 버튼으로 모달이 닫히는지 확인
-- [ ] "지금 참여하기" 버튼 클릭 시:
-  - [ ] 모달이 닫히는지
-  - [ ] 참여하기 섹션으로 스크롤되는지
-- [ ] 반응형 디자인 확인 (모바일/태블릿/데스크톱)
-- [ ] 포스터 이미지가 정상적으로 로드되는지 확인
-
-## 주의사항
-
-1. **public 폴더 파일**: 
-   - `참심제_웹자보qrcode.png` 파일이 public 폴더에 있어야 함
-   - `시민법정_참심제_reggae1.mp3` 파일이 public 폴더에 있어야 함
-
-2. **브라우저 자동재생 정책**:
-   - 일부 브라우저는 자동재생을 차단할 수 있음
-   - 이 경우 사용자가 수동으로 재생 버튼 클릭 필요
-
-3. **배포 시**:
-   - Vite의 base 경로 설정 확인
-   - 정적 파일 경로가 올바른지 확인
-
-## 다음 단계 (선택사항)
-
-- [ ] 모바일 햄버거 메뉴에도 포스터 보기 추가
-- [ ] 포스터 이미지 로딩 상태 표시
-- [ ] 음악 재생/일시정지 토글 버튼 추가
-- [ ] 포스터 확대/축소 기능
-- [ ] 소셜 미디어 공유 버튼 추가
+### 5. **CozeFloatingChat.jsx** - 챗봇 컴포넌트 (개선됨)
+- **위치**: `src/components/CozeFloatingChat.jsx`
+- **설명**: Coze AI 챗봇 플로팅 버튼
+- **개선 사항**: 
+  - `botId` prop을 동적으로 활용
+  - 접근성(aria-label) 추가
+  - URL 동적 생성
 
 ---
 
-작업 완료일: 2025-11-27
-작업자: Claude
+## 🔧 설치 방법
+
+### 1. 파일 배치
+```bash
+# 프로젝트 루트에서
+
+# 라이브러리 파일
+mkdir -p src/lib
+cp faqMatcher.js src/lib/
+
+# 컴포넌트 파일들
+cp Poster.jsx src/components/
+cp Resources.jsx src/components/
+cp FAQTest.jsx src/components/
+cp CozeFloatingChat.jsx src/components/
+```
+
+### 2. 디렉토리 구조
+```
+src/
+├── components/
+│   ├── App.jsx (기존)
+│   ├── Poster.jsx (새로 추가)
+│   ├── Resources.jsx (새로 추가)
+│   ├── FAQTest.jsx (업데이트)
+│   └── CozeFloatingChat.jsx (업데이트)
+├── lib/
+│   └── faqMatcher.js (새로 추가)
+└── data/
+    └── faq.json (기존)
+```
+
+---
+
+## ✅ 사용 방법
+
+### FAQMatcher 사용 예시
+```javascript
+import { FAQMatcher } from './lib/faqMatcher';
+import faqData from './data/faq.json';
+
+// 초기화
+const matcher = new FAQMatcher(faqData);
+
+// 질문 매칭
+const result = matcher.findMatch('혼합형 참심제가 무엇인가요?');
+console.log(result.question, result.answer);
+
+// 여러 관련 FAQ 찾기
+const matches = matcher.findMatches('시민법관', 5);
+
+// 통계 확인
+const stats = matcher.getStats();
+console.log(`총 ${stats.total}개 FAQ`);
+```
+
+### Coze 챗봇 사용
+```javascript
+// App.jsx에서
+<CozeFloatingChat botId="7580759900293578757" />
+
+// 또는 다른 botId 사용
+<CozeFloatingChat botId="your-bot-id" />
+```
+
+---
+
+## 🎨 추가 설정 필요 사항
+
+### 1. 포스터 이미지 추가
+`Poster.jsx`에서 포스터 이미지를 추가하려면:
+```javascript
+// public/posters/ 폴더에 이미지 저장 후
+const posters = [
+  {
+    id: 1,
+    title: '혼합형 참심제란?',
+    image: '/posters/poster1.jpg', // 실제 이미지 경로
+    alt: '혼합형 참심제 설명 포스터'
+  },
+  // ...
+];
+```
+
+### 2. 자료실 PDF 파일 추가
+`Resources.jsx`에서 실제 다운로드 가능한 파일 링크:
+```javascript
+// public/documents/ 폴더에 PDF 저장 후
+const resources = [
+  {
+    id: 1,
+    link: '/documents/law-proposal.pdf', // 실제 파일 경로
+    // ...
+  }
+];
+```
+
+### 3. 환경 변수 설정
+`.env` 파일에 추가:
+```bash
+VITE_ADMIN_PASSWORD=your-secure-password
+```
+
+---
+
+## 🐛 문제 해결
+
+### 1. FAQ 매칭이 작동하지 않을 때
+- `faqMatcher.js`가 `src/lib/` 폴더에 있는지 확인
+- import 경로가 올바른지 확인: `import { FAQMatcher } from '../lib/faqMatcher'`
+
+### 2. 포스터가 표시되지 않을 때
+- `Poster.jsx`가 import 되었는지 확인
+- `showPosterModal` state가 제대로 관리되는지 확인
+
+### 3. 자료실 다운로드 문제
+- PDF 파일들이 `public/documents/` 폴더에 있는지 확인
+- 파일 경로가 올바른지 확인
+
+### 4. 챗봇이 표시되지 않을 때
+- Coze URL이 올바른지 확인: `https://www.coze.com/s/{botId}/`
+- z-index 충돌 확인 (현재 z-[9999] 사용)
+
+---
+
+## 📋 체크리스트
+
+파일 설치 후 확인사항:
+
+- [ ] `faqMatcher.js`가 `src/lib/`에 있음
+- [ ] `Poster.jsx`, `Resources.jsx`가 `src/components/`에 있음
+- [ ] `FAQTest.jsx`, `CozeFloatingChat.jsx` 업데이트됨
+- [ ] App.jsx에서 모든 컴포넌트가 import됨
+- [ ] 포스터 이미지 준비 (선택사항)
+- [ ] 자료실 PDF 파일 준비 (선택사항)
+- [ ] 환경 변수 설정 (VITE_ADMIN_PASSWORD)
+- [ ] 개발 서버 재시작 (`npm run dev`)
+
+---
+
+## 💡 추가 개선 제안
+
+1. **포스터 이미지**: 디자이너와 협업하여 전문 포스터 제작
+2. **자료실 PDF**: 실제 법률안, 연구 자료 PDF 준비
+3. **FAQ 확장**: faq.json에 더 많은 질문 추가
+4. **다국어 지원**: i18n 라이브러리로 영어/한국어 지원
+5. **분석 추적**: Google Analytics로 사용자 행동 추적
+
+---
+
+## 📞 지원
+
+문제가 발생하면:
+1. 콘솔 에러 메시지 확인
+2. 파일 경로가 올바른지 확인
+3. import 구문이 정확한지 확인
+4. 필요시 개발 서버 재시작
+
+---
+
+## 📄 라이선스
+
+이 프로젝트는 주권자사법개혁추진위원회(준)의 소유입니다.

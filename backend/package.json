@@ -1,0 +1,30 @@
+{
+  "name": "civic-court-server",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "하이브리드 챗봇 백엔드 서버 (FAQ + 캐시 + Google Gemini)",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@vercel/kv": "^2.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  },
+  "keywords": [
+    "chatbot",
+    "gemini",
+    "vercel-kv",
+    "hybrid"
+  ],
+  "author": "",
+  "license": "MIT"
+}

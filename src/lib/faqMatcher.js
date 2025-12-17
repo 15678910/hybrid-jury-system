@@ -1,180 +1,128 @@
 /**
- * FAQ 매칭 시스템
- * - 질문 정규화
- * - 키워드 매칭
- * - 점수 계산
- * - 연관 FAQ 찾기
+ * FAQ Matcher
+ * 키워드 기반 FAQ 매칭 시스템
  */
 
 export class FAQMatcher {
   constructor(faqData) {
-    this.faqs = faqData.faqs;
+    this.faqs = faqData.faqs || [];
     this.version = faqData.version;
+    this.lastUpdated = faqData.lastUpdated;
   }
 
   /**
-   * 질문 정규화
-   * - 소문자 변환
-   * - 특수문자 제거
-   * - 공백 정리
+   * 질문에서 키워드 추출
    */
-  normalizeQuestion(question) {
-    return question
+  extractKeywords(question) {
+    // 특수문자 제거하고 공백으로 분리
+    const normalized = question
       .toLowerCase()
-      .replace(/[?!.,;~`]/g, ' ')
-      .replace(/\s+/g, ' ')
+      .replace(/[?!.,;:]/g, ' ')
       .trim();
+    
+    return normalized.split(/\s+/).filter(word => word.length > 0);
   }
 
   /**
-   * FAQ 매칭 (핵심 로직)
-   * 점수 계산 방식:
-   * - 키워드 완전 매칭: 15점
-   * - 키워드 부분 매칭: 10점
-   * - 질문 단어 매칭: 3점
-   * - 우선순위 가중치: x (3 - priority)
+   * FAQ와 질문의 매칭 점수 계산
    */
-  findMatch(userQuestion, threshold = 15) {
-    if (!userQuestion || userQuestion.trim().length === 0) {
+  calculateMatchScore(faq, questionKeywords) {
+    let score = 0;
+    const faqKeywords = faq.keywords.map(k => k.toLowerCase());
+    
+    // 1. 직접 키워드 매칭 (가중치: 10점)
+    for (const qWord of questionKeywords) {
+      for (const faqWord of faqKeywords) {
+        if (qWord.includes(faqWord) || faqWord.includes(qWord)) {
+          score += 10;
+        }
+      }
+    }
+
+    // 2. 질문 텍스트 자체와 매칭 (가중치: 5점)
+    const faqQuestion = faq.question.toLowerCase();
+    for (const qWord of questionKeywords) {
+      if (faqQuestion.includes(qWord)) {
+        score += 5;
+      }
+    }
+
+    // 3. 우선순위 보너스
+    if (faq.priority === 1) {
+      score += 2;
+    }
+
+    return score;
+  }
+
+  /**
+   * 질문에 맞는 FAQ 찾기
+   */
+  findMatch(question, threshold = 5) {
+    const questionKeywords = this.extractKeywords(question);
+    
+    if (questionKeywords.length === 0) {
       return null;
     }
 
-    const normalized = this.normalizeQuestion(userQuestion);
-    const words = normalized.split(' ').filter(w => w.length > 1);
-    
-    // 각 FAQ에 대해 점수 계산
-    const scores = this.faqs.map(faq => {
-      let score = 0;
-      
-      // 1. 키워드 매칭
-      faq.keywords.forEach(keyword => {
-        const normalizedKeyword = keyword.toLowerCase();
-        
-        // 완전 매칭 (단어 경계)
-        const regex = new RegExp(`\\b${normalizedKeyword}\\b`, 'i');
-        if (regex.test(normalized)) {
-          score += 15;
-        }
-        // 부분 매칭
-        else if (normalized.includes(normalizedKeyword)) {
-          score += 10;
-        }
-      });
-      
-      // 2. 질문 내 단어 매칭
-      const faqQuestionNorm = this.normalizeQuestion(faq.question);
-      words.forEach(word => {
-        if (faqQuestionNorm.includes(word)) {
-          score += 3;
-        }
-      });
-      
-      // 3. 우선순위 가중치 (priority 1이 가장 높음)
-      const priorityMultiplier = 4 - faq.priority; // 1->3, 2->2, 3->1
-      score *= priorityMultiplier;
-      
-      return { faq, score };
-    });
-    
-    // 가장 높은 점수 찾기
-    const best = scores.reduce((max, item) => 
-      item.score > max.score ? item : max
-    );
-    
-    // 임계값 이상이면 반환
-    if (best.score >= threshold) {
-      return best.faq;
-    }
-    
-    return null;
+    const matches = this.faqs.map(faq => ({
+      faq,
+      score: this.calculateMatchScore(faq, questionKeywords)
+    }))
+    .filter(match => match.score >= threshold)
+    .sort((a, b) => b.score - a.score);
+
+    return matches.length > 0 ? matches[0].faq : null;
   }
 
   /**
-   * 여러 FAQ 매칭 (검색 결과용)
+   * 여러 개의 매칭 결과 반환
    */
-  findMatches(userQuestion, maxResults = 5) {
-    if (!userQuestion || userQuestion.trim().length === 0) {
+  findMatches(question, limit = 3, threshold = 5) {
+    const questionKeywords = this.extractKeywords(question);
+    
+    if (questionKeywords.length === 0) {
       return [];
     }
 
-    const normalized = this.normalizeQuestion(userQuestion);
-    const words = normalized.split(' ').filter(w => w.length > 1);
-    
-    // 점수 계산
-    const scores = this.faqs.map(faq => {
-      let score = 0;
-      
-      faq.keywords.forEach(keyword => {
-        const normalizedKeyword = keyword.toLowerCase();
-        if (normalized.includes(normalizedKeyword)) {
-          score += 10;
-        }
-      });
-      
-      const faqQuestionNorm = this.normalizeQuestion(faq.question);
-      words.forEach(word => {
-        if (faqQuestionNorm.includes(word)) {
-          score += 3;
-        }
-      });
-      
-      score *= (4 - faq.priority);
-      
-      return { faq, score };
-    });
-    
-    // 점수 높은 순으로 정렬
-    return scores
-      .filter(item => item.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, maxResults)
-      .map(item => item.faq);
+    const matches = this.faqs.map(faq => ({
+      faq,
+      score: this.calculateMatchScore(faq, questionKeywords)
+    }))
+    .filter(match => match.score >= threshold)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit);
+
+    return matches.map(m => m.faq);
   }
 
   /**
-   * 연관 FAQ 가져오기
+   * 관련 FAQ 찾기 (relatedIds 기반)
    */
-  getRelated(faqId, maxResults = 3) {
+  getRelatedFAQs(faqId, limit = 3) {
     const faq = this.faqs.find(f => f.id === faqId);
-    if (!faq || !faq.relatedIds || faq.relatedIds.length === 0) {
+    if (!faq || !faq.relatedIds) {
       return [];
     }
-    
+
     return faq.relatedIds
-      .slice(0, maxResults)
       .map(id => this.faqs.find(f => f.id === id))
-      .filter(Boolean);
+      .filter(f => f !== undefined)
+      .slice(0, limit);
   }
 
   /**
    * 카테고리별 FAQ 가져오기
    */
-  getByCategory(category) {
+  getFAQsByCategory(category) {
     return this.faqs.filter(faq => faq.category === category);
   }
 
   /**
-   * 모든 카테고리 가져오기
+   * 모든 카테고리 목록
    */
   getCategories() {
-    const categories = new Set(this.faqs.map(f => f.category));
-    return Array.from(categories);
-  }
-
-  /**
-   * ID로 FAQ 가져오기
-   */
-  getById(id) {
-    return this.faqs.find(f => f.id === id);
-  }
-
-  /**
-   * 인기 FAQ (priority 1) 가져오기
-   */
-  getPopular(limit = 5) {
-    return this.faqs
-      .filter(f => f.priority === 1)
-      .slice(0, limit);
+    return [...new Set(this.faqs.map(faq => faq.category))];
   }
 
   /**
@@ -182,33 +130,12 @@ export class FAQMatcher {
    */
   getStats() {
     return {
-      total: this.faqs.length,
-      categories: this.getCategories().length,
-      byPriority: {
-        high: this.faqs.filter(f => f.priority === 1).length,
-        medium: this.faqs.filter(f => f.priority === 2).length,
-        low: this.faqs.filter(f => f.priority === 3).length
-      },
-      version: this.version
+      totalFAQs: this.faqs.length,
+      categories: this.getCategories(),
+      version: this.version,
+      lastUpdated: this.lastUpdated
     };
   }
 }
 
-/**
- * 싱글톤 인스턴스 생성 헬퍼
- */
-let instance = null;
-
-export function createFAQMatcher(faqData) {
-  if (!instance) {
-    instance = new FAQMatcher(faqData);
-  }
-  return instance;
-}
-
-export function getFAQMatcher() {
-  if (!instance) {
-    throw new Error('FAQMatcher not initialized. Call createFAQMatcher first.');
-  }
-  return instance;
-}
+export default FAQMatcher;
