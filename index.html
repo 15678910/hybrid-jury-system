@@ -5,32 +5,50 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- ✅ 검색엔진 최적화 (SEO) -->
     <title>시민법정 - 주권자에 의한 사법개혁 (혼합형 참심제)</title>
     <meta name="description" content="헌법 개정 없이 가능한 사법개혁! 시민이 판사가 되는 혼합형 참심제 도입을 위한 시민법정입니다." />
     <meta name="keywords" content="시민법정, 사법개혁, 참심제, 혼합형참심제, 국민참여재판" />
     
-    <!-- ✅ SNS 공유 정보 -->
     <meta property="og:title" content="시민법정" />
     <meta property="og:description" content="주권자에 의한 사법개혁, 혼합형 참심제" />
     <meta property="og:image" content="https://www.xn--lg3b0kt4n41f.kr/og-image.png" />
+
+    <!-- Coze 기본 버튼 숨기기 -->
+    <!-- Coze 버튼 스타일 변경 -->
+    <style>
+      /* Coze 기본 버튼 스타일 덮어쓰기 */
+      body > div:not(#root) button {
+        background: linear-gradient(to right, #2563eb, #9333ea) !important;
+        width: 56px !important;
+        height: 56px !important;
+        border-radius: 50% !important;
+      }
+      /* Coze 버튼 내부 아이콘/이미지 숨기기 */
+      body > div:not(#root) button > * {
+        display: none !important;
+      }
+      /* 저울 이모지 추가 */
+      body > div:not(#root) button::after {
+        content: '⚖️';
+        font-size: 24px;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
 
-    <!-- ✅ Coze AI 챗봇 (PDF + 구글검색 기능 탑재) -->
-    <!-- 사용자님이 만드신 '시민법정' 봇을 웹사이트에 연결합니다 -->
+    <!-- Coze AI 챗봇 SDK -->
     <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/0.1.0-beta.5/libs/oversea/index.js"></script>
     <script>
-        new CozeWebSDK.WebChatClient({
-          config: {
-            bot_id: '7580759900293578757', // 사용자님의 시민법정 봇 ID
-          },
-          componentProps: {
-            title: '시민법정 AI 상담사',
-          }
-        });
+      window.cozeClient = new CozeWebSDK.WebChatClient({
+        config: {
+          bot_id: '7580759900293578757',
+        },
+        componentProps: {
+          title: '시민법정 AI 상담사',
+        }
+      });
     </script>
   </body>
 </html>
