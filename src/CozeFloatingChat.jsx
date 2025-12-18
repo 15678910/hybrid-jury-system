@@ -141,10 +141,14 @@ export default function FloatingChat() {
       {/* 플로팅 버튼 */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 z-50 flex items-center justify-center text-2xl ${isOpen ? 'rotate-0' : ''}`}
+        className={`fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 z-50 flex items-center justify-center ${isOpen ? 'rotate-0' : ''}`}
         aria-label={isOpen ? '챗봇 닫기' : '챗봇 열기'}
       >
-        {isOpen ? '✕' : '⚖️'}
+        {isOpen ? (
+          <span className="text-2xl">✕</span>
+        ) : (
+          <img src="/chatbot-icon.png" alt="챗봇" className="w-8 h-8" />
+        )}
       </button>
 
       {/* 챗봇 모달 */}
@@ -153,8 +157,7 @@ export default function FloatingChat() {
           {/* 헤더 */}
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-base">시민법정 AI 상담사</h3>
-              <p className="text-xs text-blue-100">혼합형 참심제 안내</p>
+              <h3 className="font-bold text-base">시민법정 참심제 AI 상담</h3>
             </div>
             <button
               onClick={() => setIsOpen(false)}
