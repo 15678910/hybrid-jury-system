@@ -57,7 +57,7 @@ export class FAQMatcher {
 
   /**
    * 질문에 맞는 FAQ 찾기
-   * threshold를 높여서 더 정확한 매칭만 허용
+   * 국가별 상세 질문은 PDF 검색으로 넘김
    */
   findMatch(question, threshold = 20) {
     const questionKeywords = this.extractKeywords(question);
@@ -67,19 +67,26 @@ export class FAQMatcher {
     }
 
     // 특정 국가명이 포함된 질문은 FAQ에서 제외 (PDF에서 찾아야 함)
-    const countryKeywords = ['독일', '스웨덴', '핀란드', '노르웨이', '프랑스', '덴마크', '일본', '유럽'];
+    const countryKeywords = ['독일', '스웨덴', '핀란드', '노르웨이', '프랑스', '덴마크', '일본', '유럽', '미국', '영국', '호주'];
     const hasCountryKeyword = countryKeywords.some(country =>
       question.includes(country)
     );
 
-    // 역사, 배경, 사례 등 상세 질문은 PDF로
-    const detailKeywords = ['역사', '배경', '사례', '구체적', '자세히', '어떻게 운영'];
+    // 국가명이 포함되면 무조건 PDF 검색으로 (FAQ 스킵)
+    if (hasCountryKeyword) {
+      console.log('국가명 감지, FAQ 스킵:', question);
+      return null;
+    }
+
+    // 역사, 배경, 사례, 운영 등 상세 질문은 PDF로
+    const detailKeywords = ['역사', '배경', '사례', '구체적', '자세히', '운영', '도입', '발전', '변화', '현황', '통계'];
     const hasDetailKeyword = detailKeywords.some(keyword =>
       question.includes(keyword)
     );
 
-    // 국가별 상세 질문은 FAQ 스킵
-    if (hasCountryKeyword && hasDetailKeyword) {
+    // 상세 키워드가 있으면 PDF 검색으로
+    if (hasDetailKeyword) {
+      console.log('상세 키워드 감지, FAQ 스킵:', question);
       return null;
     }
 
