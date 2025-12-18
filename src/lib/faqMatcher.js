@@ -66,10 +66,13 @@ export class FAQMatcher {
       return null;
     }
 
+    // 질문을 소문자로 변환하고 공백 정규화
+    const normalizedQuestion = question.toLowerCase().replace(/\s+/g, '');
+
     // 특정 국가명이 포함된 질문은 FAQ에서 제외 (PDF에서 찾아야 함)
-    const countryKeywords = ['독일', '스웨덴', '핀란드', '노르웨이', '프랑스', '덴마크', '일본', '유럽', '미국', '영국', '호주'];
+    const countryKeywords = ['독일', '스웨덴', '핀란드', '노르웨이', '프랑스', '덴마크', '일본', '유럽', '미국', '영국', '호주', 'eu'];
     const hasCountryKeyword = countryKeywords.some(country =>
-      question.includes(country)
+      normalizedQuestion.includes(country.toLowerCase())
     );
 
     // 국가명이 포함되면 무조건 PDF 검색으로 (FAQ 스킵)
@@ -79,7 +82,7 @@ export class FAQMatcher {
     }
 
     // 역사, 배경, 사례, 운영 등 상세 질문은 PDF로
-    const detailKeywords = ['역사', '배경', '사례', '구체적', '자세히', '운영', '도입', '발전', '변화', '현황', '통계'];
+    const detailKeywords = ['역사', '배경', '사례', '구체적', '자세히', '운영', '도입', '발전', '변화', '현황', '통계', '나라', '국가'];
     const hasDetailKeyword = detailKeywords.some(keyword =>
       question.includes(keyword)
     );
