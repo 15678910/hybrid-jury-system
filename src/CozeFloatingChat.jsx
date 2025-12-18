@@ -68,33 +68,7 @@ export default function FloatingChat() {
     setIsLoading(true);
 
     try {
-      // 1단계: FAQ 매칭 시도
-      const faqMatch = matcher?.findMatch(currentInput);
-
-      if (faqMatch) {
-        // FAQ에서 찾았으면 즉시 반환
-        const relatedFaqs = matcher?.getRelatedFAQs(faqMatch.id, 2) || [];
-
-        let responseContent = faqMatch.answer;
-
-        // 관련 질문은 별도로 표시하지 않음
-
-        const faqResponse = {
-          role: 'assistant',
-          content: responseContent,
-          source: 'faq',
-          faqId: faqMatch.id,
-          category: faqMatch.category,
-          relatedFaqs: relatedFaqs,
-          timestamp: new Date()
-        };
-
-        setMessages(prev => [...prev, faqResponse]);
-        setIsLoading(false);
-        return;
-      }
-
-      // 2단계: PDF 벡터 검색
+      // 1단계: PDF 벡터 검색 (우선)
       let pdfResults = [];
       if (vectorSearch) {
         try {
@@ -105,8 +79,8 @@ export default function FloatingChat() {
         }
       }
 
-      // PDF에서 높은 점수로 찾았으면 AI 없이 직접 답변 (비용 절감)
-      if (pdfResults.length > 0 && pdfResults[0].score >= 0.1) {
+      // PDF에서 찾았으면 직접 답변 (AI 없이)
+      if (pdfResults.length > 0 && pdfResults[0].score >= 0.05) {
         const topResult = pdfResults[0];
         const sourceLabel = vectorSearch.getSourceLabel(topResult.source);
 
@@ -121,7 +95,25 @@ export default function FloatingChat() {
         return;
       }
 
-      // 3단계: PDF 점수가 낮거나 없으면 AI API 호출
+      // 2단계: PDF에서 못 찾으면 FAQ 매칭 (단순 질문만)
+      const faqMatch = matcher?.findMatch(currentInput);
+
+      if (faqMatch) {
+        const faqResponse = {
+          role: 'assistant',
+          content: faqMatch.answer,
+          source: 'faq',
+          faqId: faqMatch.id,
+          category: faqMatch.category,
+          timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, faqResponse]);
+        setIsLoading(false);
+        return;
+      }
+
+      // 3단계: PDF도 FAQ도 없으면 AI API 호출 (최소화)
       const pdfContext = pdfResults.length > 0
         ? pdfResults.map((r, i) => `[참고자료 ${i+1}]\n${r.text}`).join('\n\n')
         : null;
@@ -143,7 +135,7 @@ export default function FloatingChat() {
           const aiResponse = {
             role: 'assistant',
             content: data.answer,
-            source: pdfContext ? 'pdf' : 'ai',
+            source: 'ai',
             timestamp: new Date()
           };
           setMessages(prev => [...prev, aiResponse]);
