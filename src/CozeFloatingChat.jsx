@@ -38,8 +38,11 @@ export default function FloatingChat() {
     }]);
   }, []);
 
+  const messagesContainerRef = useRef(null);
+
   useEffect(() => {
-    scrollToBottom();
+    // 새 메시지가 추가되면 해당 메시지의 시작 부분으로 스크롤
+    scrollToLatestQuestion();
   }, [messages]);
 
   useEffect(() => {
@@ -48,8 +51,16 @@ export default function FloatingChat() {
     }
   }, [isOpen]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToLatestQuestion = () => {
+    // 마지막 질문 위치로 스크롤 (답변이 아래에 보이도록)
+    if (messagesContainerRef.current) {
+      const container = messagesContainerRef.current;
+      const questions = container.querySelectorAll('[data-type="question"]');
+      if (questions.length > 0) {
+        const lastQuestion = questions[questions.length - 1];
+        lastQuestion.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -274,12 +285,12 @@ export default function FloatingChat() {
           </div>
 
           {/* 메시지 영역 */}
-          <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
+          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
             {messages.map((message, index) => (
               <div key={index}>
                 {/* 사용자 질문 - 상단에 눈에 띄게 (고정 스타일) */}
                 {message.role === 'user' && (
-                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl px-4 py-3 mb-3 shadow-md">
+                  <div data-type="question" className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl px-4 py-3 mb-3 shadow-md">
                     <div className="flex items-center gap-2 mb-1.5">
                       <span className="text-white text-sm">🔍</span>
                       <span className="text-[11px] text-blue-100 font-medium">질문</span>
