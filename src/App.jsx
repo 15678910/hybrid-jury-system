@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import Poster from './Poster'
-import Resources from './resources'
 import CozeFloatingChat from "./CozeFloatingChat";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import HybridChat from './pages/HybridChat'
+import FAQTest from './pages/FAQTest'
 
 
 export default function App() {
@@ -215,7 +217,7 @@ export default function App() {
 
 
     return (
-        <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
             {/* 헤더 */}
             <header className="bg-white shadow-md fixed top-0 w-full z-50">
                 <div className="container mx-auto px-4">
@@ -230,7 +232,7 @@ export default function App() {
                             <button onClick={() => scrollToSection('cases')} className="hover:text-blue-600 transition font-medium">해외 사례</button>
                             <button onClick={() => scrollToSection('constitution')} className="hover:text-blue-600 transition font-medium">헌법적 근거</button>
                             <button onClick={() => scrollToSection('bill')} className="hover:text-blue-600 transition font-medium">법안 제안</button>
-                            <button onClick={() => scrollToSection('resources')} className="hover:text-blue-600 transition font-medium">자료실</button>
+                            
                             <button 
                                 onClick={() => setShowPosterModal(true)} 
                                 className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition font-bold"
@@ -288,12 +290,7 @@ export default function App() {
                             >
                                 법안 제안
                             </button>
-                            <button 
-                                onClick={() => { scrollToSection('resources'); setMobileMenuOpen(false); }} 
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
-                            >
-                                자료실
-                            </button>
+                            
                             <button 
                                 onClick={() => { setShowPosterModal(true); setMobileMenuOpen(false); }} 
                                 className="block w-full text-left px-4 py-2 bg-purple-600 text-white hover:bg-purple-700 transition font-bold"
@@ -376,7 +373,7 @@ export default function App() {
                             준비위원으로 참여하기
                         </button>
                         <button 
-                            onClick={() => window.open('/proposal', '_blank')}
+                            onClick={() => window.location.href = '/proposal.html'}
                             className="bg-orange-500 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-orange-600 transition transform hover:scale-105"
                         >
                             제안서 및 법률안
@@ -801,7 +798,7 @@ export default function App() {
                     
                     <div className="text-center mb-8">
                         <button 
-                            onClick={() => window.open('/proposal', '_blank')}
+                            onClick={() => window.location.href = '/proposal.html'}
                             className="bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition transform hover:scale-105 shadow-lg"
                         >
                             제안서 및 법률안 원문(PDF)
@@ -949,9 +946,8 @@ export default function App() {
                     </div>
                 </div>
             </section>
-            {/* === Coze Floating Chatbot === */}
-            <CozeFloatingChat botId="7580759900293578757" />
-
+            {/* === 플로팅 챗봇 === */}
+            <CozeFloatingChat />
 
             {/* 푸터 */}
             <footer className="bg-gray-900 text-gray-400 py-6 px-4">
@@ -962,16 +958,11 @@ export default function App() {
 
             {/* 포스터 모달 */}
             {showPosterModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 overflow-auto">
-                    <Poster onClose={() => setShowPosterModal(false)} />
-                </div>
-            )}
+            <div className="fixed inset-0 bg-black bg-opacity-0 z-50 overflow-auto">
+                <Poster key={Date.now()} onClose={() => setShowPosterModal(false)} />
+            </div>
+        )}
 
-                      
-            {/* 자료실 섹션 */}
-            <section id="resources" className="py-20 px-4">
-              <Resources />
-            </section>
         </div>
     );
 }
