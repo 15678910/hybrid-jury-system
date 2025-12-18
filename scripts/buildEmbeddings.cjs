@@ -8,7 +8,7 @@ const path = require('path');
 
 const rootDir = path.join(__dirname, '..');
 
-// PDF 파일 목록 (한국어 번역본 우선)
+// PDF 파일 목록 (한국어만)
 const PDF_FILES = [
   // 한국어 번역본
   'Characteristics of European Union Justice_kr.pdf',
@@ -19,9 +19,10 @@ const PDF_FILES = [
   'Sanni Tolonen_fin_kr.pdf',
   'ssrn-2665612eu_kr.pdf',
   'TIV_Lautamies_esite_A5_FIN_kr.pdf',
-  // 원본 (번역본 없는 경우)
+  // 한국어 원본
   'korea_mixed_jury_system.pdf',
-  'proposal.pdf'
+  'proposal.pdf',
+  '형사재판절차에 있어서 배심 및 참심제도의 도입방안.pdf'
 ];
 
 // 청크 크기 설정
