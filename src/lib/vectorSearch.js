@@ -114,14 +114,17 @@ class VectorSearch {
 
   /**
    * 관련 청크 검색
+   * threshold를 0.01로 낮춰서 더 많은 결과 반환
    */
-  search(query, topK = 3, threshold = 0.1) {
+  search(query, topK = 3, threshold = 0.01) {
     if (!this.isLoaded) {
       console.warn('벡터 검색 데이터가 로드되지 않았습니다.');
       return [];
     }
 
     const queryVector = this.textToVector(query);
+    console.log('검색 쿼리:', query);
+    console.log('쿼리 벡터 non-zero 요소:', queryVector.filter(v => v > 0).length);
 
     const results = this.chunks.map(chunk => {
       const chunkVector = this.embeddingMap.get(chunk.id);
@@ -141,6 +144,11 @@ class VectorSearch {
     .filter(r => r.score >= threshold)
     .sort((a, b) => b.score - a.score)
     .slice(0, topK);
+
+    console.log('검색 결과 수:', results.length);
+    if (results.length > 0) {
+      console.log('상위 결과:', results[0].chunk.source, '점수:', results[0].score);
+    }
 
     return results.map(r => ({
       ...r.chunk,
