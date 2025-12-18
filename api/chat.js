@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     // PDF 문맥이 있으면 포함
     let prompt;
@@ -76,11 +76,19 @@ ${context}
     });
 
   } catch (error) {
-    console.error('API 오류:', error);
+    console.error('API 오류:', error.message || error);
+
+    // API 키 관련 오류 처리
+    const errorMsg = error.message || String(error);
+    if (errorMsg.includes('leaked') || errorMsg.includes('API key')) {
+      return res.status(500).json({
+        error: 'API 키를 갱신해야 합니다. 관리자에게 문의하세요.'
+      });
+    }
 
     return res.status(500).json({
       error: '답변 생성 중 오류가 발생했습니다.',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: errorMsg
     });
   }
 }
