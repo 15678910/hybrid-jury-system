@@ -192,19 +192,55 @@ export default function FloatingChat() {
 
   const getSourceBadge = (source) => {
     const badges = {
-      faq: { text: 'FAQ', color: 'bg-green-500' },
-      pdf: { text: 'PDF', color: 'bg-blue-500' },
-      ai: { text: 'AI', color: 'bg-purple-500' },
-      system: { text: '안내', color: 'bg-gray-500' },
-      error: { text: '오류', color: 'bg-red-500' }
+      faq: { text: 'FAQ', color: 'bg-emerald-500', icon: '📋' },
+      pdf: { text: '문서', color: 'bg-blue-500', icon: '📄' },
+      ai: { text: 'AI', color: 'bg-purple-500', icon: '✨' },
+      system: { text: '안내', color: 'bg-gray-500', icon: '💬' },
+      error: { text: '오류', color: 'bg-red-500', icon: '⚠️' }
     };
 
     const badge = badges[source] || badges.system;
     return (
-      <span className={`text-[10px] px-1.5 py-0.5 rounded text-white ${badge.color}`}>
+      <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full text-white ${badge.color}`}>
+        <span>{badge.icon}</span>
         {badge.text}
       </span>
     );
+  };
+
+  // 텍스트 포맷팅 - 가독성 향상
+  const formatContent = (content, source) => {
+    if (!content) return null;
+
+    // 소스 라벨 제거 (별도로 표시)
+    let text = content.replace(/^\[.*?\]\n\n/, '');
+
+    // 줄바꿈으로 단락 분리
+    const paragraphs = text.split('\n\n').filter(p => p.trim());
+
+    return paragraphs.map((para, idx) => {
+      // 불릿 포인트 처리
+      if (para.includes('•') || para.includes('-')) {
+        const items = para.split(/[•\-]/).filter(item => item.trim());
+        return (
+          <ul key={idx} className="list-none space-y-1 my-2">
+            {items.map((item, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className="text-blue-500 mt-0.5">•</span>
+                <span>{item.trim()}</span>
+              </li>
+            ))}
+          </ul>
+        );
+      }
+
+      // 일반 단락
+      return (
+        <p key={idx} className={idx > 0 ? 'mt-2' : ''}>
+          {para}
+        </p>
+      );
+    });
   };
 
   const quickQuestions = [
@@ -243,59 +279,63 @@ export default function FloatingChat() {
           </div>
 
           {/* 메시지 영역 */}
-          <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
+          <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
             {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[85%] rounded-2xl px-3 py-2 ${
-                    message.role === 'user'
-                      ? 'bg-blue-600 text-white rounded-br-md'
-                      : 'bg-gray-100 text-gray-900 rounded-bl-md'
-                  }`}
-                >
-                  {message.role === 'assistant' && (
-                    <div className="flex items-center gap-1.5 mb-1">
-                      {getSourceBadge(message.source)}
-                      {message.category && (
-                        <span className="text-[10px] text-gray-500">
-                          {message.category}
-                        </span>
+              <div key={index}>
+                {/* 사용자 질문 - 상단에 눈에 띄게 */}
+                {message.role === 'user' && (
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-r-lg px-3 py-2 mb-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-blue-600 text-sm">🔍</span>
+                      <span className="text-[10px] text-blue-600 font-medium">질문</span>
+                    </div>
+                    <p className="text-[14px] font-medium text-gray-800">{message.content}</p>
+                  </div>
+                )}
+
+                {/* AI 답변 - 카드 형태로 정돈 */}
+                {message.role === 'assistant' && (
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    {/* 답변 헤더 */}
+                    <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-100">
+                      <div className="flex items-center gap-2">
+                        {getSourceBadge(message.source)}
+                        {message.category && (
+                          <span className="text-[10px] text-gray-500">{message.category}</span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-gray-400">
+                        {message.timestamp.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+
+                    {/* 답변 본문 */}
+                    <div className="px-3 py-3">
+                      <div className="text-[13px] leading-[1.7] text-gray-700">
+                        {formatContent(message.content, message.source)}
+                      </div>
+
+                      {/* 환영 메시지 아래 자주 묻는 질문 */}
+                      {message.source === 'system' && index === 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <p className="text-[11px] text-gray-500 mb-2 font-medium">자주 묻는 질문</p>
+                          <div className="grid grid-cols-1 gap-1.5">
+                            {quickQuestions.map((q, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => handleQuickQuestion(q)}
+                                className="text-[12px] px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all text-left flex items-center gap-2"
+                              >
+                                <span className="text-gray-400">→</span>
+                                {q}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       )}
                     </div>
-                  )}
-
-                  <div className="text-[13px] leading-relaxed whitespace-pre-line">
-                    {message.content}
                   </div>
-
-                  {/* 환영 메시지 아래 자주 묻는 질문 */}
-                  {message.source === 'system' && index === 0 && (
-                    <div className="mt-3 pt-2 border-t border-gray-200">
-                      <p className="text-[11px] text-gray-500 mb-2">자주 묻는 질문:</p>
-                      <div className="flex flex-col gap-1.5">
-                        {quickQuestions.map((q, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => handleQuickQuestion(q)}
-                            className="text-[11px] px-2 py-1.5 bg-white border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors text-left"
-                          >
-                            {q}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className={`text-[10px] mt-1 ${message.role === 'user' ? 'text-blue-200' : 'text-gray-400'}`}>
-                    {message.timestamp.toLocaleTimeString('ko-KR', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </div>
-                </div>
+                )}
               </div>
             ))}
 
