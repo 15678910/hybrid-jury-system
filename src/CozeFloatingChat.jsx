@@ -94,20 +94,38 @@ export default function FloatingChat() {
         return;
       }
 
-      // 2단계: PDF 벡터 검색으로 문맥 추출
-      let pdfContext = null;
+      // 2단계: PDF 벡터 검색
+      let pdfResults = [];
       if (vectorSearch) {
         try {
-          pdfContext = vectorSearch.getContextString(currentInput, 3);
-          if (pdfContext) {
-            console.log('PDF 문맥 검색 성공');
-          }
+          pdfResults = vectorSearch.search(currentInput, 3, 0.01);
+          console.log('PDF 검색 결과:', pdfResults.length, '개');
         } catch (err) {
           console.log('PDF 검색 오류:', err);
         }
       }
 
-      // 3단계: AI API 호출 (PDF 문맥 포함)
+      // PDF에서 높은 점수로 찾았으면 AI 없이 직접 답변 (비용 절감)
+      if (pdfResults.length > 0 && pdfResults[0].score >= 0.1) {
+        const topResult = pdfResults[0];
+        const sourceLabel = vectorSearch.getSourceLabel(topResult.source);
+
+        const pdfResponse = {
+          role: 'assistant',
+          content: `[${sourceLabel}]\n\n${topResult.text}`,
+          source: 'pdf',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, pdfResponse]);
+        setIsLoading(false);
+        return;
+      }
+
+      // 3단계: PDF 점수가 낮거나 없으면 AI API 호출
+      const pdfContext = pdfResults.length > 0
+        ? pdfResults.map((r, i) => `[참고자료 ${i+1}]\n${r.text}`).join('\n\n')
+        : null;
+
       try {
         const response = await fetch('/api/chat', {
           method: 'POST',
