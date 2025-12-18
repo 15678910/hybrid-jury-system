@@ -84,9 +84,23 @@ export default function FloatingChat() {
         const topResult = pdfResults[0];
         const sourceLabel = vectorSearch.getSourceLabel(topResult.source);
 
+        // 같은 문서의 연속된 청크들을 합쳐서 더 완전한 답변 제공
+        let combinedText = topResult.text;
+        const topSource = topResult.source;
+
+        // 같은 문서에서 연속된 청크 찾기 (최대 2개 추가)
+        const topIndex = parseInt(topResult.id.split('-').pop()) || 0;
+        for (let i = 1; i <= 2; i++) {
+          const nextChunkId = `${topSource}-${topIndex + i}`;
+          const nextChunk = vectorSearch.getChunkById(nextChunkId);
+          if (nextChunk) {
+            combinedText += '\n\n' + nextChunk.text;
+          }
+        }
+
         const pdfResponse = {
           role: 'assistant',
-          content: `[${sourceLabel}]\n\n${topResult.text}`,
+          content: `[${sourceLabel}]\n\n${combinedText}`,
           source: 'pdf',
           timestamp: new Date()
         };

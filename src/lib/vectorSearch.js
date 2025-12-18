@@ -195,6 +195,13 @@ class VectorSearch {
   }
 
   /**
+   * ID로 청크 찾기
+   */
+  getChunkById(chunkId) {
+    return this.chunks.find(c => c.id === chunkId);
+  }
+
+  /**
    * 통계 정보
    */
   getStats() {
