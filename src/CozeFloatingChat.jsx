@@ -79,48 +79,7 @@ export default function FloatingChat() {
     setIsLoading(true);
 
     try {
-      // 1단계: PDF 벡터 검색 (우선)
-      let pdfResults = [];
-      if (vectorSearch) {
-        try {
-          pdfResults = vectorSearch.search(currentInput, 3, 0.01);
-          console.log('PDF 검색 결과:', pdfResults.length, '개');
-        } catch (err) {
-          console.log('PDF 검색 오류:', err);
-        }
-      }
-
-      // PDF에서 찾았으면 직접 답변 (AI 없이)
-      if (pdfResults.length > 0 && pdfResults[0].score >= 0.05) {
-        const topResult = pdfResults[0];
-        const sourceLabel = vectorSearch.getSourceLabel(topResult.source);
-
-        // 같은 문서의 연속된 청크들을 합쳐서 더 완전한 답변 제공
-        let combinedText = topResult.text;
-        const topSource = topResult.source;
-
-        // 같은 문서에서 연속된 청크 찾기 (최대 2개 추가)
-        const topIndex = parseInt(topResult.id.split('-').pop()) || 0;
-        for (let i = 1; i <= 2; i++) {
-          const nextChunkId = `${topSource}-${topIndex + i}`;
-          const nextChunk = vectorSearch.getChunkById(nextChunkId);
-          if (nextChunk) {
-            combinedText += '\n\n' + nextChunk.text;
-          }
-        }
-
-        const pdfResponse = {
-          role: 'assistant',
-          content: `[${sourceLabel}]\n\n${combinedText}`,
-          source: 'pdf',
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, pdfResponse]);
-        setIsLoading(false);
-        return;
-      }
-
-      // 2단계: PDF에서 못 찾으면 FAQ 매칭 (단순 질문만)
+      // 1단계: FAQ 매칭 (단순 질문만 - 빠른 응답)
       const faqMatch = matcher?.findMatch(currentInput);
 
       if (faqMatch) {
@@ -138,9 +97,21 @@ export default function FloatingChat() {
         return;
       }
 
-      // 3단계: PDF도 FAQ도 없으면 Google Gemini API 호출 (무료 티어)
+      // 2단계: PDF 검색 + AI 요약 (더 많은 청크를 AI에게 전달)
+      let pdfResults = [];
+      if (vectorSearch) {
+        try {
+          // 더 많은 청크 검색 (10개)
+          pdfResults = vectorSearch.search(currentInput, 10, 0.01);
+          console.log('PDF 검색 결과:', pdfResults.length, '개');
+        } catch (err) {
+          console.log('PDF 검색 오류:', err);
+        }
+      }
+
+      // PDF 검색 결과가 있으면 AI에게 요약 요청
       const pdfContext = pdfResults.length > 0
-        ? pdfResults.map((r, i) => `[참고자료 ${i+1}]\n${r.text}`).join('\n\n')
+        ? pdfResults.map((r, i) => `[출처: ${vectorSearch.getSourceLabel(r.source)}]\n${r.text}`).join('\n\n---\n\n')
         : null;
 
       try {
@@ -155,7 +126,7 @@ export default function FloatingChat() {
           const aiResponse = {
             role: 'assistant',
             content: data.answer,
-            source: 'ai',
+            source: pdfContext ? 'ai' : 'ai', // PDF 기반이든 아니든 AI 표시
             timestamp: new Date()
           };
           setMessages(prev => [...prev, aiResponse]);
