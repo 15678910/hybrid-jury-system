@@ -28,22 +28,36 @@ export class FAQMatcher {
    */
   calculateMatchScore(faq, questionKeywords) {
     let score = 0;
+    let matchedKeywordCount = 0;
     const faqKeywords = faq.keywords.map(k => k.toLowerCase());
-    
-    // 1. 직접 키워드 매칭 (가중치: 10점)
+
+    // 일반적인 단어는 제외 (너무 광범위한 매칭 방지)
+    const commonWords = ['참심제', '배심제', '무엇', '어떻게', '왜', '언제', '어디', '누가'];
+
+    // 1. 직접 키워드 매칭 (가중치: 10점, 정확한 매칭만)
     for (const qWord of questionKeywords) {
       for (const faqWord of faqKeywords) {
-        if (qWord.includes(faqWord) || faqWord.includes(qWord)) {
-          score += 10;
+        // 정확한 매칭 또는 포함 관계 (단, 2글자 이상)
+        if (qWord.length >= 2 && faqWord.length >= 2) {
+          if (qWord === faqWord) {
+            score += 15; // 정확한 매칭
+            matchedKeywordCount++;
+          } else if (qWord.includes(faqWord) && faqWord.length >= 3) {
+            score += 8; // 부분 매칭 (긴 키워드만)
+            matchedKeywordCount++;
+          } else if (faqWord.includes(qWord) && qWord.length >= 3) {
+            score += 8;
+            matchedKeywordCount++;
+          }
         }
       }
     }
 
-    // 2. 질문 텍스트 자체와 매칭 (가중치: 5점)
+    // 2. 질문 텍스트 자체와 매칭 (가중치: 3점, 긴 단어만)
     const faqQuestion = faq.question.toLowerCase();
     for (const qWord of questionKeywords) {
-      if (faqQuestion.includes(qWord)) {
-        score += 5;
+      if (qWord.length >= 3 && faqQuestion.includes(qWord) && !commonWords.includes(qWord)) {
+        score += 3;
       }
     }
 
@@ -52,13 +66,18 @@ export class FAQMatcher {
       score += 2;
     }
 
+    // 4. 최소 2개 이상의 키워드가 매칭되어야 유효
+    if (matchedKeywordCount < 2) {
+      score = Math.min(score, 15); // 1개만 매칭되면 점수 제한
+    }
+
     return score;
   }
 
   /**
    * 질문에 맞는 FAQ 찾기
    */
-  findMatch(question, threshold = 5) {
+  findMatch(question, threshold = 20) {
     const questionKeywords = this.extractKeywords(question);
     
     if (questionKeywords.length === 0) {
