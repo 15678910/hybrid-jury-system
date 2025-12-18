@@ -57,11 +57,29 @@ export class FAQMatcher {
 
   /**
    * 질문에 맞는 FAQ 찾기
+   * threshold를 높여서 더 정확한 매칭만 허용
    */
-  findMatch(question, threshold = 5) {
+  findMatch(question, threshold = 20) {
     const questionKeywords = this.extractKeywords(question);
-    
+
     if (questionKeywords.length === 0) {
+      return null;
+    }
+
+    // 특정 국가명이 포함된 질문은 FAQ에서 제외 (PDF에서 찾아야 함)
+    const countryKeywords = ['독일', '스웨덴', '핀란드', '노르웨이', '프랑스', '덴마크', '일본', '유럽'];
+    const hasCountryKeyword = countryKeywords.some(country =>
+      question.includes(country)
+    );
+
+    // 역사, 배경, 사례 등 상세 질문은 PDF로
+    const detailKeywords = ['역사', '배경', '사례', '구체적', '자세히', '어떻게 운영'];
+    const hasDetailKeyword = detailKeywords.some(keyword =>
+      question.includes(keyword)
+    );
+
+    // 국가별 상세 질문은 FAQ 스킵
+    if (hasCountryKeyword && hasDetailKeyword) {
       return null;
     }
 
