@@ -18,7 +18,7 @@ export default function FloatingChat() {
     // 초기 환영 메시지
     setMessages([{
       role: 'assistant',
-      content: '안녕하세요! 시민법정 AI 상담사입니다.\n혼합형 참심제에 대해 궁금하신 점을 물어보세요.',
+      content: '안녕하세요! 시민법정 AI 상담사입니다.\n참심제에 대해 무엇이든 물어보세요.',
       source: 'system',
       timestamp: new Date()
     }]);
@@ -63,12 +63,7 @@ export default function FloatingChat() {
 
         let responseContent = faqMatch.answer;
 
-        if (relatedFaqs.length > 0) {
-          responseContent += '\n\n---\n**관련 질문:**';
-          relatedFaqs.forEach(faq => {
-            responseContent += `\n• ${faq.question}`;
-          });
-        }
+        // 관련 질문은 별도로 표시하지 않음
 
         const faqResponse = {
           role: 'assistant',
@@ -85,10 +80,36 @@ export default function FloatingChat() {
         return;
       }
 
-      // 2단계: FAQ에서 못 찾으면 일반 응답
+      // 2단계: FAQ에서 못 찾으면 AI API 호출
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ question: currentInput }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const aiResponse = {
+            role: 'assistant',
+            content: data.answer,
+            source: 'ai',
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, aiResponse]);
+          setIsLoading(false);
+          return;
+        }
+      } catch (apiError) {
+        console.log('AI API 호출 실패, 안내 메시지로 대체:', apiError);
+      }
+
+      // 3단계: AI API도 실패하면 안내 메시지
       const fallbackResponse = {
         role: 'assistant',
-        content: '해당 질문에 대한 정확한 답변을 찾지 못했습니다.\n\n아래 주제에 대해 질문해 보세요:\n• 참심제가 무엇인가요?\n• 참심제와 배심제의 차이점\n• 헌법 개정이 필요한가요?\n• 시민법관 선발 방법\n• 시민법관의 권한과 보수',
+        content: '해당 질문에 대한 답변을 찾지 못했습니다.\n\n아래 주제에 대해 질문해 보세요:\n• 참심제가 무엇인가요?\n• 참심제와 배심제의 차이점\n• 헌법 개정이 필요한가요?\n• 시민법관 선발 방법\n• 시민법관의 권한과 보수',
         source: 'system',
         timestamp: new Date()
       };
@@ -118,6 +139,7 @@ export default function FloatingChat() {
   const getSourceBadge = (source) => {
     const badges = {
       faq: { text: 'FAQ', color: 'bg-green-500' },
+      ai: { text: 'AI', color: 'bg-purple-500' },
       system: { text: '안내', color: 'bg-gray-500' },
       error: { text: '오류', color: 'bg-red-500' }
     };
@@ -133,7 +155,9 @@ export default function FloatingChat() {
   const quickQuestions = [
     '참심제가 무엇인가요?',
     '헌법 개정이 필요한가요?',
-    '시민법관은 어떻게 선발되나요?'
+    '시민법관은 어떻게 선발되나요?',
+    '참심제와 배심제의 차이는?',
+    '시민법관의 권한은 무엇인가요?'
   ];
 
   return (
@@ -144,7 +168,7 @@ export default function FloatingChat() {
         className={`fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 z-50 flex items-center justify-center text-2xl ${isOpen ? 'rotate-0' : ''}`}
         aria-label={isOpen ? '챗봇 닫기' : '챗봇 열기'}
       >
-        {isOpen ? '✕' : '⚖️'}
+        ⚖️
       </button>
 
       {/* 챗봇 모달 */}
@@ -162,24 +186,6 @@ export default function FloatingChat() {
               ✕
             </button>
           </div>
-
-          {/* 빠른 질문 버튼 */}
-          {messages.length <= 2 && (
-            <div className="px-3 py-2 bg-gray-50 border-b border-gray-100">
-              <p className="text-[11px] text-gray-500 mb-1.5">자주 묻는 질문:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {quickQuestions.map((q, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleQuickQuestion(q)}
-                    className="text-[11px] px-2 py-1 bg-white border border-gray-200 rounded-full hover:bg-blue-50 hover:border-blue-300 transition-colors"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* 메시지 영역 */}
           <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
@@ -209,6 +215,24 @@ export default function FloatingChat() {
                   <div className="text-[13px] leading-relaxed whitespace-pre-line">
                     {message.content}
                   </div>
+
+                  {/* 환영 메시지 아래 자주 묻는 질문 */}
+                  {message.source === 'system' && index === 0 && (
+                    <div className="mt-3 pt-2 border-t border-gray-200">
+                      <p className="text-[11px] text-gray-500 mb-2">자주 묻는 질문:</p>
+                      <div className="flex flex-col gap-1.5">
+                        {quickQuestions.map((q, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => handleQuickQuestion(q)}
+                            className="text-[11px] px-2 py-1.5 bg-white border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors text-left"
+                          >
+                            {q}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div className={`text-[10px] mt-1 ${message.role === 'user' ? 'text-blue-200' : 'text-gray-400'}`}>
                     {message.timestamp.toLocaleTimeString('ko-KR', {
