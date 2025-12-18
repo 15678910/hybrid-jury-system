@@ -63,26 +63,6 @@
             gap: 8px;
         }
 
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #2563eb;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #6b7280;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #4b5563;
-            transform: translateY(-2px);
-        }
-
         .btn-success {
             background: #10b981;
             color: white;
@@ -106,42 +86,6 @@
             border-radius: 12px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
             overflow: hidden;
-        }
-
-        .pdf-controls {
-            background: #f3f4f6;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .pdf-controls button {
-            padding: 8px 16px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-
-        .pdf-controls button:hover {
-            background: #2563eb;
-        }
-
-        .pdf-controls button:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-        }
-
-        .pdf-controls span {
-            color: #374151;
-            font-weight: 600;
         }
 
         .pdf-frame {
@@ -185,6 +129,31 @@
             text-decoration: underline;
         }
 
+        /* 모바일용 PDF 열기 버튼 */
+        .mobile-pdf-btn {
+            display: none;
+            width: 100%;
+            padding: 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .mobile-pdf-btn:hover {
+            background: #2563eb;
+        }
+
+        /* 데스크톱에서는 iframe, 모바일에서는 버튼 */
+        .desktop-only {
+            display: block;
+        }
+
         @media (max-width: 768px) {
             .title {
                 font-size: 1.2rem;
@@ -194,8 +163,13 @@
                 justify-content: center;
             }
 
-            .pdf-frame {
-                height: 60vh;
+            .mobile-pdf-btn {
+                display: block;
+                margin-bottom: 20px;
+            }
+
+            .desktop-only {
+                display: none;
             }
         }
     </style>
@@ -206,9 +180,6 @@
         <div class="header-content">
             <div class="title">🏛️ 혼합형 참심제 제안서 및 법률안</div>
             <div class="buttons">
-                <a href="/" class="btn btn-secondary">
-                    ← 홈으로
-                </a>
                 <a href="/proposal.pdf" download class="btn btn-success">
                     📥 다운로드
                 </a>
@@ -229,8 +200,13 @@
             </p>
         </div>
 
-        <!-- PDF Viewer -->
-        <div class="pdf-viewer">
+        <!-- 모바일용 PDF 열기 버튼 -->
+        <a href="/proposal.pdf" target="_blank" class="mobile-pdf-btn">
+            📄 PDF 문서 열기
+        </a>
+
+        <!-- PDF Viewer - 데스크톱 전용 -->
+        <div class="pdf-viewer desktop-only">
             <iframe 
                 src="/proposal.pdf" 
                 class="pdf-frame"

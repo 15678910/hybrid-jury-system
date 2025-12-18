@@ -13,42 +13,9 @@
     <meta property="og:description" content="주권자에 의한 사법개혁, 혼합형 참심제" />
     <meta property="og:image" content="https://www.xn--lg3b0kt4n41f.kr/og-image.png" />
 
-    <!-- Coze 기본 버튼 숨기기 -->
-    <!-- Coze 버튼 스타일 변경 -->
-    <style>
-      /* Coze 기본 버튼 스타일 덮어쓰기 */
-      body > div:not(#root) button {
-        background: linear-gradient(to right, #2563eb, #9333ea) !important;
-        width: 56px !important;
-        height: 56px !important;
-        border-radius: 50% !important;
-      }
-      /* Coze 버튼 내부 아이콘/이미지 숨기기 */
-      body > div:not(#root) button > * {
-        display: none !important;
-      }
-      /* 저울 이모지 추가 */
-      body > div:not(#root) button::after {
-        content: '⚖️';
-        font-size: 24px;
-      }
-    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-
-    <!-- Coze AI 챗봇 SDK -->
-    <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/0.1.0-beta.5/libs/oversea/index.js"></script>
-    <script>
-      window.cozeClient = new CozeWebSDK.WebChatClient({
-        config: {
-          bot_id: '7580759900293578757',
-        },
-        componentProps: {
-          title: '시민법정 AI 상담사',
-        }
-      });
-    </script>
   </body>
 </html>
