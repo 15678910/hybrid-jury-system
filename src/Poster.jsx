@@ -51,8 +51,8 @@ function Poster({ onClose }) {
   }
 
   return (
-    <div className="flex items-center justify-center p-2 min-h-screen">
-      <div className="bg-black rounded-2xl shadow-2xl max-w-md w-full p-5 relative">
+    <div className="flex items-center justify-center p-4 h-screen">
+      <div className="bg-black rounded-2xl shadow-2xl w-full max-w-[380px] max-h-[90vh] p-4 relative flex flex-col">
         <button
           onClick={handleClose}
           className="absolute top-2 right-3 text-white hover:text-gray-300 text-2xl font-bold transition z-10"
@@ -60,12 +60,12 @@ function Poster({ onClose }) {
           ✕
         </button>
 
-        <div className="mb-4 mt-6">
+        <div className="flex-1 mt-8 mb-3 flex flex-col justify-center">
           <img
             src="/참심제_웹자보qrcode.png"
             alt="참심제 포스터"
             onClick={handleImageClick}
-            className="w-full h-auto rounded-lg shadow-xl cursor-pointer hover:opacity-90 transition"
+            className="w-full h-auto max-h-[65vh] object-contain rounded-lg shadow-xl cursor-pointer hover:opacity-90 transition"
           />
           <p
             onClick={handleImageClick}
@@ -78,7 +78,7 @@ function Poster({ onClose }) {
         <div className="text-center">
           <button
             onClick={handleParticipate}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-2.5 px-8 rounded-xl text-base transition duration-200 shadow-lg transform hover:scale-105 w-full"
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-2 px-6 rounded-xl text-sm transition duration-200 shadow-lg transform hover:scale-105 w-full"
           >
             💪 지금 참여하기
           </button>
