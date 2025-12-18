@@ -127,53 +127,20 @@ export default function FloatingChat() {
         return;
       }
 
-      // 3단계: PDF도 FAQ도 없으면 Perplexity API 호출 (웹 검색 + 요약)
+      // 3단계: PDF도 FAQ도 없으면 Google Gemini API 호출 (무료 티어)
       const pdfContext = pdfResults.length > 0
         ? pdfResults.map((r, i) => `[참고자료 ${i+1}]\n${r.text}`).join('\n\n')
         : null;
 
       try {
-        // Perplexity API 우선 시도
-        const response = await fetch('/api/perplexity', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            question: currentInput,
-            context: pdfContext
-          }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          let content = data.answer;
-
-          // 출처가 있으면 추가
-          if (data.citations && data.citations.length > 0) {
-            content += '\n\n📎 참고: ' + data.citations.slice(0, 2).join(', ');
-          }
-
-          const aiResponse = {
-            role: 'assistant',
-            content,
-            source: 'ai',
-            timestamp: new Date()
-          };
-          setMessages(prev => [...prev, aiResponse]);
-          setIsLoading(false);
-          return;
-        }
-
-        // Perplexity 실패시 Google API로 폴백
-        const fallbackResponse = await fetch('/api/chat', {
+        const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ question: currentInput, context: pdfContext }),
         });
 
-        if (fallbackResponse.ok) {
-          const data = await fallbackResponse.json();
+        if (response.ok) {
+          const data = await response.json();
           const aiResponse = {
             role: 'assistant',
             content: data.answer,
