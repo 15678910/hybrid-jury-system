@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { FAQMatcher } from './lib/faqMatcher';
+import { getVectorSearch } from './lib/vectorSearch';
 import faqData from './data/faq.json';
 
 export default function FloatingChat() {
@@ -8,12 +9,25 @@ export default function FloatingChat() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [matcher, setMatcher] = useState(null);
+  const [vectorSearch, setVectorSearch] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
   useEffect(() => {
     const faqMatcher = new FAQMatcher(faqData);
     setMatcher(faqMatcher);
+
+    // 벡터 검색 비동기 초기화
+    const initVectorSearch = async () => {
+      try {
+        const vs = await getVectorSearch();
+        setVectorSearch(vs);
+        console.log('벡터 검색 초기화 완료:', vs.getStats());
+      } catch (err) {
+        console.log('벡터 검색 초기화 실패:', err);
+      }
+    };
+    initVectorSearch();
 
     // 초기 환영 메시지
     setMessages([{
@@ -80,14 +94,30 @@ export default function FloatingChat() {
         return;
       }
 
-      // 2단계: FAQ에서 못 찾으면 AI API 호출
+      // 2단계: PDF 벡터 검색으로 문맥 추출
+      let pdfContext = null;
+      if (vectorSearch) {
+        try {
+          pdfContext = vectorSearch.getContextString(currentInput, 3);
+          if (pdfContext) {
+            console.log('PDF 문맥 검색 성공');
+          }
+        } catch (err) {
+          console.log('PDF 검색 오류:', err);
+        }
+      }
+
+      // 3단계: AI API 호출 (PDF 문맥 포함)
       try {
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ question: currentInput }),
+          body: JSON.stringify({
+            question: currentInput,
+            context: pdfContext
+          }),
         });
 
         if (response.ok) {
@@ -95,7 +125,7 @@ export default function FloatingChat() {
           const aiResponse = {
             role: 'assistant',
             content: data.answer,
-            source: 'ai',
+            source: pdfContext ? 'pdf' : 'ai',
             timestamp: new Date()
           };
           setMessages(prev => [...prev, aiResponse]);
@@ -139,6 +169,7 @@ export default function FloatingChat() {
   const getSourceBadge = (source) => {
     const badges = {
       faq: { text: 'FAQ', color: 'bg-green-500' },
+      pdf: { text: 'PDF', color: 'bg-blue-500' },
       ai: { text: 'AI', color: 'bg-purple-500' },
       system: { text: '안내', color: 'bg-gray-500' },
       error: { text: '오류', color: 'bg-red-500' }
