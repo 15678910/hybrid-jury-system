@@ -277,14 +277,14 @@ export default function FloatingChat() {
           <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
             {messages.map((message, index) => (
               <div key={index}>
-                {/* 사용자 질문 - 상단에 눈에 띄게 */}
+                {/* 사용자 질문 - 상단에 눈에 띄게 (고정 스타일) */}
                 {message.role === 'user' && (
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-r-lg px-3 py-2 mb-2">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-blue-600 text-sm">🔍</span>
-                      <span className="text-[10px] text-blue-600 font-medium">질문</span>
+                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl px-4 py-3 mb-3 shadow-md">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-white text-sm">🔍</span>
+                      <span className="text-[11px] text-blue-100 font-medium">질문</span>
                     </div>
-                    <p className="text-[14px] font-medium text-gray-800">{message.content}</p>
+                    <p className="text-[15px] font-semibold text-white leading-relaxed">{message.content}</p>
                   </div>
                 )}
 
