@@ -94,19 +94,35 @@ class VectorSearch {
   }
 
   /**
-   * 키워드 기반 매칭 점수 계산
+   * 키워드 기반 매칭 점수 계산 (텍스트 내용도 검색)
    */
   keywordMatchScore(query, chunk) {
     const queryWords = query.toLowerCase().match(/[가-힣]{2,}|[a-zA-Z]{3,}/g) || [];
     const chunkKeywords = chunk.keywords || [];
+    const chunkText = (chunk.text || '').toLowerCase();
 
     let score = 0;
+
+    // 1. 키워드 배열에서 매칭
     queryWords.forEach(qWord => {
       chunkKeywords.forEach(kWord => {
         if (qWord.includes(kWord) || kWord.includes(qWord)) {
           score += 1;
         }
       });
+    });
+
+    // 2. 청크 텍스트에서 직접 매칭 (국가명 등 중요 키워드)
+    const importantKeywords = ['핀란드', '독일', '스웨덴', '프랑스', '일본', '덴마크', '노르웨이', '유럽', '한국', '배심', '참심', '시민법관', '혼합형'];
+    queryWords.forEach(qWord => {
+      // 질문에 중요 키워드가 있고, 청크 텍스트에도 있으면 높은 점수
+      if (importantKeywords.some(k => qWord.includes(k) || k.includes(qWord))) {
+        if (chunkText.includes(qWord)) {
+          score += 3; // 중요 키워드 매칭시 높은 점수
+        }
+      } else if (chunkText.includes(qWord)) {
+        score += 0.5; // 일반 키워드 매칭
+      }
     });
 
     return score;
@@ -130,14 +146,14 @@ class VectorSearch {
       const chunkVector = this.embeddingMap.get(chunk.id);
       if (!chunkVector) return { chunk, score: 0 };
 
-      // 벡터 유사도 (70%)
+      // 벡터 유사도 (50%)
       const vectorScore = this.cosineSimilarity(queryVector, chunkVector);
 
-      // 키워드 매칭 점수 (30%)
+      // 키워드 매칭 점수 (50%) - 국가명 등 정확한 매칭이 중요
       const keywordScore = this.keywordMatchScore(query, chunk) * 0.1;
 
-      // 종합 점수
-      const totalScore = vectorScore * 0.7 + keywordScore * 0.3;
+      // 종합 점수 (키워드 가중치 높임)
+      const totalScore = vectorScore * 0.5 + keywordScore * 0.5;
 
       return { chunk, score: totalScore };
     })
