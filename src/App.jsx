@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import Poster from './Poster'
-import CozeFloatingChat from "./CozeFloatingChat";
 import { Link } from 'react-router-dom'
 
 // 카카오톡 아이콘
@@ -1029,8 +1028,6 @@ export default function App() {
                     </div>
                 </div>
             </section>
-            {/* === 플로팅 챗봇 === */}
-            <CozeFloatingChat />
 
             {/* SNS 공유 섹션 */}
             <section className="py-12 px-4 bg-gradient-to-r from-slate-800 to-slate-900">

@@ -116,9 +116,6 @@ export default function BlogPost() {
     });
     const categories = ['참심제 소개', '해외 사례', '사법개혁', '공지사항', '인터뷰', '뉴스'];
 
-    // Firestore 글인지 확인 (샘플 글은 수정 불가)
-    const isFirestorePost = post && !post.isSample && typeof post.id === 'string' && !post.id.startsWith('sample-') && isNaN(parseInt(post.id));
-
     useEffect(() => {
         const fetchPost = async () => {
             try {
@@ -246,17 +243,6 @@ export default function BlogPost() {
         alert('텍스트가 복사되었습니다! 인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
     };
 
-    // 수정 모달 열기
-    const openEditModal = () => {
-        setEditForm({
-            title: post.title,
-            summary: post.summary || '',
-            content: post.content,
-            category: post.category
-        });
-        setShowEditModal(true);
-    };
-
     // 작성자 코드 검증
     const verifyWriterCode = async () => {
         if (!writerCode.trim()) {
@@ -357,19 +343,9 @@ export default function BlogPost() {
 
                     {/* 글 헤더 */}
                     <header className="mb-8">
-                        <div className="flex items-start justify-between">
-                            <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full mb-4">
-                                {post.category}
-                            </span>
-                            {isFirestorePost && (
-                                <button
-                                    onClick={openEditModal}
-                                    className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
-                                >
-                                    수정
-                                </button>
-                            )}
-                        </div>
+                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full mb-4">
+                            {post.category}
+                        </span>
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                             {post.title}
                         </h1>
@@ -384,19 +360,79 @@ export default function BlogPost() {
                     <div className="bg-white rounded-xl shadow-md p-6 md:p-10 mb-8">
                         <div className="prose prose-lg max-w-none">
                             {post.content.split('\n').map((line, index) => {
+                                // 링크 변환 함수: [텍스트](URL) 또는 URL 자체를 링크로 변환
+                                const renderWithLinks = (text) => {
+                                    // 마크다운 링크 [텍스트](URL) 패턴 - 괄호 안의 URL을 더 정확하게 매칭
+                                    const markdownLinkRegex = /\[([^\]]+)\]\(([^)\s]+)\)/g;
+                                    // URL 패턴 (마크다운 링크가 아닌 경우)
+                                    const urlRegex = /(https?:\/\/[^\s<]+)/g;
+
+                                    // 먼저 마크다운 링크를 처리
+                                    let parts = [];
+                                    let lastIndex = 0;
+
+                                    // 마크다운 링크 찾기
+                                    const mdMatches = [...text.matchAll(markdownLinkRegex)];
+
+                                    if (mdMatches.length > 0) {
+                                        mdMatches.forEach((m, i) => {
+                                            // 링크 이전 텍스트
+                                            if (m.index > lastIndex) {
+                                                parts.push(text.slice(lastIndex, m.index));
+                                            }
+                                            // 링크
+                                            parts.push(
+                                                <a key={`md-${i}`} href={m[2]} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                                    {m[1]}
+                                                </a>
+                                            );
+                                            lastIndex = m.index + m[0].length;
+                                        });
+                                        // 나머지 텍스트
+                                        if (lastIndex < text.length) {
+                                            parts.push(text.slice(lastIndex));
+                                        }
+                                        return parts;
+                                    }
+
+                                    // 마크다운 링크가 없으면 일반 URL 처리
+                                    lastIndex = 0;
+                                    const urlMatches = [...text.matchAll(urlRegex)];
+
+                                    if (urlMatches.length > 0) {
+                                        urlMatches.forEach((m, i) => {
+                                            if (m.index > lastIndex) {
+                                                parts.push(text.slice(lastIndex, m.index));
+                                            }
+                                            parts.push(
+                                                <a key={`url-${i}`} href={m[0]} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                                    {m[0]}
+                                                </a>
+                                            );
+                                            lastIndex = m.index + m[0].length;
+                                        });
+                                        if (lastIndex < text.length) {
+                                            parts.push(text.slice(lastIndex));
+                                        }
+                                        return parts;
+                                    }
+
+                                    return text;
+                                };
+
                                 if (line.startsWith('## ')) {
-                                    return <h2 key={index} className="text-xl font-bold text-gray-900 mt-6 mb-3">{line.replace('## ', '')}</h2>;
+                                    return <h2 key={index} className="text-xl font-bold text-gray-900 mt-6 mb-3">{renderWithLinks(line.replace('## ', ''))}</h2>;
                                 }
                                 if (line.startsWith('- ')) {
-                                    return <li key={index} className="text-gray-700 ml-4">{line.replace('- ', '')}</li>;
+                                    return <li key={index} className="text-gray-700 ml-4">{renderWithLinks(line.replace('- ', ''))}</li>;
                                 }
                                 if (line.match(/^\d+\./)) {
-                                    return <li key={index} className="text-gray-700 ml-4 list-disc">{line.replace(/^\d+\.\s*/, '')}</li>;
+                                    return <li key={index} className="text-gray-700 ml-4 list-disc">{renderWithLinks(line.replace(/^\d+\.\s*/, ''))}</li>;
                                 }
                                 if (line.trim() === '') {
                                     return <br key={index} />;
                                 }
-                                return <p key={index} className="text-gray-700 mb-4 leading-relaxed">{line}</p>;
+                                return <p key={index} className="text-gray-700 mb-4 leading-relaxed">{renderWithLinks(line)}</p>;
                             })}
                         </div>
                     </div>
