@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import Poster from './Poster'
 import CozeFloatingChat from "./CozeFloatingChat";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import HybridChat from './pages/HybridChat'
-import FAQTest from './pages/FAQTest'
+import { Link } from 'react-router-dom'
 
 // 카카오톡 아이콘
 const KakaoIcon = ({ className = "w-6 h-6" }) => (
@@ -291,15 +289,16 @@ export default function App() {
                             <button onClick={() => scrollToSection('cases')} className="hover:text-blue-600 transition font-medium">해외 사례</button>
                             <button onClick={() => scrollToSection('constitution')} className="hover:text-blue-600 transition font-medium">헌법적 근거</button>
                             <button onClick={() => scrollToSection('bill')} className="hover:text-blue-600 transition font-medium">법안 제안</button>
-                            
-                            <button 
-                                onClick={() => setShowPosterModal(true)} 
+                            <Link to="/blog" className="hover:text-blue-600 transition font-medium">블로그</Link>
+
+                            <button
+                                onClick={() => setShowPosterModal(true)}
                                 className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition font-bold"
                             >
                                 🎵 포스터 보기
                             </button>
-                            <button 
-                                onClick={() => scrollToSection('signature')} 
+                            <button
+                                onClick={() => scrollToSection('signature')}
                                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-bold"
                             >
                                 참여하기
@@ -343,15 +342,22 @@ export default function App() {
                             >
                                 헌법적 근거
                             </button>
-                            <button 
-                                onClick={() => { scrollToSection('bill'); setMobileMenuOpen(false); }} 
+                            <button
+                                onClick={() => { scrollToSection('bill'); setMobileMenuOpen(false); }}
                                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
                             >
                                 법안 제안
                             </button>
-                            
-                            <button 
-                                onClick={() => { setShowPosterModal(true); setMobileMenuOpen(false); }} 
+                            <Link
+                                to="/blog"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                            >
+                                블로그
+                            </Link>
+
+                            <button
+                                onClick={() => { setShowPosterModal(true); setMobileMenuOpen(false); }}
                                 className="block w-full text-left px-4 py-2 bg-purple-600 text-white hover:bg-purple-700 transition font-bold"
                             >
                                 🎵 포스터 보기

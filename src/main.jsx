@@ -5,6 +5,8 @@ import App from './App.jsx'
 import Admin from './Admin.jsx'
 import HybridChat from './pages/HybridChat'
 import FAQTest from './pages/FAQTest'
+import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -15,6 +17,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/admin" element={<Admin />} />
         <Route path="/chat" element={<HybridChat />} />
         <Route path="/faq-test" element={<FAQTest />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:id" element={<BlogPost />} />
       </Routes>
     </HashRouter>
   </React.StrictMode>,
