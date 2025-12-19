@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { db } from './lib/firebase';
 
 export default function Admin() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -6,14 +8,211 @@ export default function Admin() {
     const [signatures, setSignatures] = useState([]);
     const [stats, setStats] = useState({ total: 0, individual: 0, organization: 0 });
 
+    // 작성자 코드 관리
+    const [writerCodes, setWriterCodes] = useState([]);
+    const [newCode, setNewCode] = useState('');
+    const [newName, setNewName] = useState('');
+    const [loadingCodes, setLoadingCodes] = useState(false);
+
+    // 글/동영상 관리
+    const [posts, setPosts] = useState([]);
+    const [videos, setVideos] = useState([]);
+    const [samplePosts, setSamplePosts] = useState([]);
+    const [sampleVideos, setSampleVideos] = useState([]);
+    const [loadingPosts, setLoadingPosts] = useState(false);
+    const [loadingVideos, setLoadingVideos] = useState(false);
+
+    // 샘플 데이터 정의
+    const initialSamplePosts = [
+        { id: 'sample-1', title: '참심제란 무엇인가?', author: '시민법정', category: '참심제 소개' },
+        { id: 'sample-2', title: '독일 참심제의 성공 사례', author: '시민법정', category: '해외 사례' },
+        { id: 'sample-3', title: '왜 지금 사법개혁이 필요한가', author: '시민법정', category: '사법개혁' }
+    ];
+
+    const initialSampleVideos = [
+        { id: 'sample-video-1', title: 'Why Finland And Denmark Are Happier Than The U.S.', category: '해외 사례' }
+    ];
+
     // 로그인 확인
     useEffect(() => {
         const adminSession = sessionStorage.getItem('adminLoggedIn');
         if (adminSession === 'true') {
             setIsLoggedIn(true);
             loadSignatures();
+            loadWriterCodes();
+            loadPosts();
+            loadVideos();
+            loadSampleData();
         }
     }, []);
+
+    // 샘플 데이터 로드 (삭제되지 않은 것만)
+    const loadSampleData = () => {
+        const deletedPosts = JSON.parse(localStorage.getItem('deletedSamplePosts') || '[]');
+        const deletedVideos = JSON.parse(localStorage.getItem('deletedSampleVideos') || '[]');
+
+        setSamplePosts(initialSamplePosts.filter(p => !deletedPosts.includes(p.id)));
+        setSampleVideos(initialSampleVideos.filter(v => !deletedVideos.includes(v.id)));
+    };
+
+    // 샘플 글 삭제
+    const deleteSamplePost = (id) => {
+        if (!confirm('정말 이 샘플 글을 삭제하시겠습니까?')) return;
+        const deleted = JSON.parse(localStorage.getItem('deletedSamplePosts') || '[]');
+        deleted.push(id);
+        localStorage.setItem('deletedSamplePosts', JSON.stringify(deleted));
+        loadSampleData();
+        alert('샘플 글이 삭제되었습니다.');
+    };
+
+    // 샘플 동영상 삭제
+    const deleteSampleVideo = (id) => {
+        if (!confirm('정말 이 샘플 동영상을 삭제하시겠습니까?')) return;
+        const deleted = JSON.parse(localStorage.getItem('deletedSampleVideos') || '[]');
+        deleted.push(id);
+        localStorage.setItem('deletedSampleVideos', JSON.stringify(deleted));
+        loadSampleData();
+        alert('샘플 동영상이 삭제되었습니다.');
+    };
+
+    // 샘플 데이터 복원
+    const restoreSampleData = () => {
+        if (!confirm('모든 샘플 데이터를 복원하시겠습니까?')) return;
+        localStorage.removeItem('deletedSamplePosts');
+        localStorage.removeItem('deletedSampleVideos');
+        loadSampleData();
+        alert('샘플 데이터가 복원되었습니다.');
+    };
+
+    // 글 불러오기
+    const loadPosts = async () => {
+        setLoadingPosts(true);
+        try {
+            const postsRef = collection(db, 'posts');
+            const snapshot = await getDocs(postsRef);
+            const postsData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setPosts(postsData);
+        } catch (error) {
+            console.error('Error loading posts:', error);
+        } finally {
+            setLoadingPosts(false);
+        }
+    };
+
+    // 동영상 불러오기
+    const loadVideos = async () => {
+        setLoadingVideos(true);
+        try {
+            const videosRef = collection(db, 'videos');
+            const snapshot = await getDocs(videosRef);
+            const videosData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setVideos(videosData);
+        } catch (error) {
+            console.error('Error loading videos:', error);
+        } finally {
+            setLoadingVideos(false);
+        }
+    };
+
+    // 글 삭제
+    const deletePost = async (id) => {
+        if (!confirm('정말 이 글을 삭제하시겠습니까?')) return;
+        try {
+            await deleteDoc(doc(db, 'posts', id));
+            loadPosts();
+            alert('글이 삭제되었습니다.');
+        } catch (error) {
+            console.error('Error deleting post:', error);
+            alert('삭제에 실패했습니다.');
+        }
+    };
+
+    // 동영상 삭제
+    const deleteVideo = async (id) => {
+        if (!confirm('정말 이 동영상을 삭제하시겠습니까?')) return;
+        try {
+            await deleteDoc(doc(db, 'videos', id));
+            loadVideos();
+            alert('동영상이 삭제되었습니다.');
+        } catch (error) {
+            console.error('Error deleting video:', error);
+            alert('삭제에 실패했습니다.');
+        }
+    };
+
+    // 작성자 코드 불러오기
+    const loadWriterCodes = async () => {
+        setLoadingCodes(true);
+        try {
+            const codesRef = collection(db, 'writerCodes');
+            const snapshot = await getDocs(codesRef);
+            const codes = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setWriterCodes(codes);
+        } catch (error) {
+            console.error('Error loading writer codes:', error);
+        } finally {
+            setLoadingCodes(false);
+        }
+    };
+
+    // 작성자 코드 추가
+    const addWriterCode = async () => {
+        if (!newCode.trim() || !newName.trim()) {
+            alert('코드와 이름을 모두 입력해주세요.');
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, 'writerCodes'), {
+                code: newCode.trim(),
+                name: newName.trim(),
+                active: true,
+                createdAt: new Date()
+            });
+            setNewCode('');
+            setNewName('');
+            loadWriterCodes();
+            alert('작성자 코드가 추가되었습니다!');
+        } catch (error) {
+            console.error('Error adding writer code:', error);
+            alert('추가에 실패했습니다.');
+        }
+    };
+
+    // 작성자 코드 삭제
+    const deleteWriterCode = async (id) => {
+        if (!confirm('정말 삭제하시겠습니까?')) return;
+
+        try {
+            await deleteDoc(doc(db, 'writerCodes', id));
+            loadWriterCodes();
+            alert('삭제되었습니다.');
+        } catch (error) {
+            console.error('Error deleting writer code:', error);
+            alert('삭제에 실패했습니다.');
+        }
+    };
+
+    // 작성자 코드 활성화/비활성화
+    const toggleWriterCode = async (id, currentActive) => {
+        try {
+            await updateDoc(doc(db, 'writerCodes', id), {
+                active: !currentActive
+            });
+            loadWriterCodes();
+        } catch (error) {
+            console.error('Error toggling writer code:', error);
+        }
+    };
 
     // 서명 데이터 로드
     const loadSignatures = () => {
@@ -178,8 +377,312 @@ export default function Admin() {
                     </button>
                 </div>
 
+                {/* 작성자 코드 관리 */}
+                <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4">✍️ 작성자 코드 관리</h2>
+                    <p className="text-sm text-gray-600 mb-4">
+                        미디어 페이지에서 글쓰기/동영상 추가 시 사용할 인증 코드를 관리합니다.
+                    </p>
+
+                    {/* 새 코드 추가 */}
+                    <div className="flex gap-3 mb-6">
+                        <input
+                            type="text"
+                            value={newCode}
+                            onChange={(e) => setNewCode(e.target.value)}
+                            placeholder="인증 코드 (예: writer001)"
+                            className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                        <input
+                            type="text"
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                            placeholder="작성자 이름"
+                            className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button
+                            onClick={addWriterCode}
+                            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                        >
+                            추가
+                        </button>
+                    </div>
+
+                    {/* 코드 목록 */}
+                    {loadingCodes ? (
+                        <div className="text-center py-4">
+                            <div className="inline-block w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    ) : writerCodes.length === 0 ? (
+                        <div className="text-center py-6 text-gray-500">
+                            등록된 작성자 코드가 없습니다.
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-100">
+                                    <tr>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">코드</th>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">이름</th>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">상태</th>
+                                        <th className="px-4 py-3 text-center text-sm font-bold text-gray-700">관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {writerCodes.map(code => (
+                                        <tr key={code.id} className="border-t border-gray-200">
+                                            <td className="px-4 py-3 font-mono text-sm">{code.code}</td>
+                                            <td className="px-4 py-3 text-sm">{code.name}</td>
+                                            <td className="px-4 py-3">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                    code.active
+                                                        ? 'bg-green-100 text-green-700'
+                                                        : 'bg-red-100 text-red-700'
+                                                }`}>
+                                                    {code.active ? '활성' : '비활성'}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <button
+                                                    onClick={() => toggleWriterCode(code.id, code.active)}
+                                                    className={`px-3 py-1 rounded text-sm mr-2 ${
+                                                        code.active
+                                                            ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                                                            : 'bg-green-500 text-white hover:bg-green-600'
+                                                    }`}
+                                                >
+                                                    {code.active ? '비활성화' : '활성화'}
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteWriterCode(code.id)}
+                                                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
+                                                >
+                                                    삭제
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+
+                {/* 블로그 글 관리 */}
+                <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4">📝 블로그 글 관리</h2>
+                    <p className="text-sm text-gray-600 mb-4">
+                        Firestore에 저장된 블로그 글을 관리합니다.
+                    </p>
+
+                    {loadingPosts ? (
+                        <div className="text-center py-4">
+                            <div className="inline-block w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    ) : posts.length === 0 ? (
+                        <div className="text-center py-6 text-gray-500">
+                            Firestore에 저장된 글이 없습니다.
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-100">
+                                    <tr>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">제목</th>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">작성자</th>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">카테고리</th>
+                                        <th className="px-4 py-3 text-center text-sm font-bold text-gray-700">관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {posts.map(post => (
+                                        <tr key={post.id} className="border-t border-gray-200">
+                                            <td className="px-4 py-3 text-sm">{post.title}</td>
+                                            <td className="px-4 py-3 text-sm">{post.author}</td>
+                                            <td className="px-4 py-3 text-sm">
+                                                <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                                                    {post.category}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <button
+                                                    onClick={() => deletePost(post.id)}
+                                                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
+                                                >
+                                                    삭제
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+
+                {/* 동영상 관리 */}
+                <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4">🎬 동영상 관리</h2>
+                    <p className="text-sm text-gray-600 mb-4">
+                        Firestore에 저장된 동영상을 관리합니다.
+                    </p>
+
+                    {loadingVideos ? (
+                        <div className="text-center py-4">
+                            <div className="inline-block w-6 h-6 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    ) : videos.length === 0 ? (
+                        <div className="text-center py-6 text-gray-500">
+                            Firestore에 저장된 동영상이 없습니다.
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-100">
+                                    <tr>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">제목</th>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">작성자</th>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">카테고리</th>
+                                        <th className="px-4 py-3 text-center text-sm font-bold text-gray-700">관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {videos.map(video => (
+                                        <tr key={video.id} className="border-t border-gray-200">
+                                            <td className="px-4 py-3 text-sm">{video.title}</td>
+                                            <td className="px-4 py-3 text-sm">{video.author || '-'}</td>
+                                            <td className="px-4 py-3 text-sm">
+                                                <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">
+                                                    {video.category || '-'}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <button
+                                                    onClick={() => deleteVideo(video.id)}
+                                                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
+                                                >
+                                                    삭제
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+
+                {/* 샘플 데이터 관리 */}
+                <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 className="text-xl font-bold text-gray-900">📦 샘플 데이터 관리</h2>
+                            <p className="text-sm text-gray-600 mt-1">
+                                기본 샘플 글/동영상을 관리합니다. 삭제된 샘플은 브라우저 저장소에 기록됩니다.
+                            </p>
+                        </div>
+                        <button
+                            onClick={restoreSampleData}
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm"
+                        >
+                            모든 샘플 복원
+                        </button>
+                    </div>
+
+                    {/* 샘플 글 */}
+                    <div className="mb-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-3">샘플 글</h3>
+                        {samplePosts.length === 0 ? (
+                            <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg">
+                                모든 샘플 글이 삭제되었습니다.
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead className="bg-orange-50">
+                                        <tr>
+                                            <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">ID</th>
+                                            <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">제목</th>
+                                            <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">작성자</th>
+                                            <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">카테고리</th>
+                                            <th className="px-4 py-3 text-center text-sm font-bold text-gray-700">관리</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {samplePosts.map(post => (
+                                            <tr key={post.id} className="border-t border-gray-200">
+                                                <td className="px-4 py-3 text-sm font-mono text-orange-600">{post.id}</td>
+                                                <td className="px-4 py-3 text-sm">{post.title}</td>
+                                                <td className="px-4 py-3 text-sm">{post.author}</td>
+                                                <td className="px-4 py-3 text-sm">
+                                                    <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                                                        {post.category}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <button
+                                                        onClick={() => deleteSamplePost(post.id)}
+                                                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
+                                                    >
+                                                        삭제
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 샘플 동영상 */}
+                    <div>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-3">샘플 동영상</h3>
+                        {sampleVideos.length === 0 ? (
+                            <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg">
+                                모든 샘플 동영상이 삭제되었습니다.
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead className="bg-orange-50">
+                                        <tr>
+                                            <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">ID</th>
+                                            <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">제목</th>
+                                            <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">카테고리</th>
+                                            <th className="px-4 py-3 text-center text-sm font-bold text-gray-700">관리</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {sampleVideos.map(video => (
+                                            <tr key={video.id} className="border-t border-gray-200">
+                                                <td className="px-4 py-3 text-sm font-mono text-orange-600">{video.id}</td>
+                                                <td className="px-4 py-3 text-sm">{video.title}</td>
+                                                <td className="px-4 py-3 text-sm">
+                                                    <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                                                        {video.category}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <button
+                                                        onClick={() => deleteSampleVideo(video.id)}
+                                                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
+                                                    >
+                                                        삭제
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 {/* 서명 목록 테이블 */}
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <h2 className="text-xl font-bold text-gray-900 p-6 pb-0">📋 서명 목록</h2>
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead className="bg-gray-100">

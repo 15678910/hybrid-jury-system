@@ -1,5 +1,69 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { blogPosts } from './Blog';
+import { doc, getDoc, collection, query, orderBy, getDocs, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { blogPosts as blogDefaultPosts } from './Blog';
+
+// 샘플 데이터 (삭제된 것 제외)
+const getSamplePosts = () => {
+    const deleted = JSON.parse(localStorage.getItem('deletedSamplePosts') || '[]');
+    // Blog.jsx의 기본 글은 id가 숫자이므로 sample-로 시작하는지 체크
+    // Media.jsx 샘플 글도 포함
+    const mediaSamplePosts = [
+        {
+            id: 'sample-1',
+            title: '참심제란 무엇인가?',
+            summary: '시민이 직업법관과 함께 재판에 참여하는 참심제의 개념과 역사를 알아봅니다.',
+            content: `참심제(參審制)는 일반 시민이 직업법관과 함께 재판부를 구성하여 사실인정과 양형에 참여하는 제도입니다.
+
+배심제와 달리 참심원은 법관과 동등한 권한을 가지며, 유무죄 판단뿐 아니라 형량 결정에도 참여합니다.
+
+## 참심제의 특징
+- 시민법관이 직업법관과 동등한 표결권 보유
+- 사실인정 + 법률적용 + 양형 모두 참여
+- 헌법 개정 없이 도입 가능`,
+            author: '시민법정',
+            category: '참심제 소개',
+            date: '2024-12-19'
+        },
+        {
+            id: 'sample-2',
+            title: '독일 참심제의 성공 사례',
+            summary: '100년 넘게 운영된 독일 참심제의 역사와 성과를 분석합니다.',
+            content: `독일의 참심제(Schöffengericht)는 1877년부터 시작되어 현재까지 성공적으로 운영되고 있습니다.
+
+## 독일 참심제 구조
+- 참심법원: 직업법관 1명 + 참심원 2명
+- 참심원 임기: 5년
+- 선정 방식: 지방자치단체 추천 → 선정위원회 최종 선발`,
+            author: '시민법정',
+            category: '해외 사례',
+            date: '2024-12-18'
+        },
+        {
+            id: 'sample-3',
+            title: '왜 지금 사법개혁이 필요한가',
+            summary: '한국 사법부의 현실과 시민 참여 확대의 필요성을 살펴봅니다.',
+            content: `최근 여론조사에 따르면 국민의 60% 이상이 법원 판결을 신뢰하지 않는다고 답했습니다.
+
+## 현행 국민참여재판의 한계
+- 권고적 효력만 있음 (법관이 무시 가능)
+- 적용 대상 제한적
+- 참여율 저조`,
+            author: '시민법정',
+            category: '사법개혁',
+            date: '2024-12-17'
+        }
+    ];
+
+    // 삭제되지 않은 샘플만 반환
+    return mediaSamplePosts.filter(p => !deleted.includes(p.id));
+};
+
+// 기본 데이터 - Blog.jsx 샘플 + Media.jsx 샘플
+const getDefaultPosts = () => {
+    return [...blogDefaultPosts, ...getSamplePosts()];
+};
 
 // SNS 아이콘들
 const KakaoIcon = ({ className = "w-5 h-5" }) => (
@@ -35,7 +99,99 @@ const InstagramIcon = ({ className = "w-5 h-5" }) => (
 export default function BlogPost() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const post = blogPosts.find(p => p.id === parseInt(id));
+    const [post, setPost] = useState(null);
+    const [allPosts, setAllPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // 수정 관련 상태
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [writerCode, setWriterCode] = useState('');
+    const [isVerified, setIsVerified] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [editForm, setEditForm] = useState({
+        title: '',
+        summary: '',
+        content: '',
+        category: ''
+    });
+    const categories = ['참심제 소개', '해외 사례', '사법개혁', '공지사항', '인터뷰', '뉴스'];
+
+    // Firestore 글인지 확인 (샘플 글은 수정 불가)
+    const isFirestorePost = post && !post.isSample && typeof post.id === 'string' && !post.id.startsWith('sample-') && isNaN(parseInt(post.id));
+
+    useEffect(() => {
+        const fetchPost = async () => {
+            try {
+                // 삭제되지 않은 샘플 데이터 가져오기
+                const defaultPosts = getDefaultPosts();
+
+                // 먼저 기본 데이터에서 찾기 (숫자 또는 문자열 ID 모두)
+                const defaultPost = defaultPosts.find(p =>
+                    String(p.id) === String(id) || p.id === parseInt(id)
+                );
+                if (defaultPost) {
+                    setPost(defaultPost);
+                    setAllPosts(defaultPosts);
+                    setLoading(false);
+                    return;
+                }
+
+                // Firestore에서 글 가져오기
+                const docRef = doc(db, 'posts', id);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const postData = {
+                        id: docSnap.id,
+                        ...docSnap.data(),
+                        date: docSnap.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
+                    };
+                    setPost(postData);
+
+                    // 이전/다음 글을 위해 전체 글 목록 가져오기
+                    const postsRef = collection(db, 'posts');
+                    const q = query(postsRef, orderBy('createdAt', 'desc'));
+                    const querySnapshot = await getDocs(q);
+                    const firestorePosts = querySnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
+                    }));
+                    // Firestore 글 + 기본 글 합치기
+                    setAllPosts([...firestorePosts, ...defaultPosts]);
+                } else {
+                    setPost(null);
+                }
+            } catch (error) {
+                console.error('Error fetching post:', error);
+                // 삭제되지 않은 샘플 데이터 가져오기
+                const defaultPosts = getDefaultPosts();
+                // 에러 시 기본 데이터에서 찾기
+                const defaultPost = defaultPosts.find(p =>
+                    String(p.id) === String(id) || p.id === parseInt(id)
+                );
+                if (defaultPost) {
+                    setPost(defaultPost);
+                    setAllPosts(defaultPosts);
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPost();
+    }, [id]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-4 text-gray-500">글을 불러오는 중...</p>
+                </div>
+            </div>
+        );
+    }
 
     if (!post) {
         return (
@@ -90,10 +246,83 @@ export default function BlogPost() {
         alert('텍스트가 복사되었습니다! 인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
     };
 
+    // 수정 모달 열기
+    const openEditModal = () => {
+        setEditForm({
+            title: post.title,
+            summary: post.summary || '',
+            content: post.content,
+            category: post.category
+        });
+        setShowEditModal(true);
+    };
+
+    // 작성자 코드 검증
+    const verifyWriterCode = async () => {
+        if (!writerCode.trim()) {
+            alert('작성자 코드를 입력해주세요.');
+            return;
+        }
+
+        // 글의 작성자 코드와 일치하는지 확인
+        if (post.writerCode === writerCode) {
+            setIsVerified(true);
+        } else {
+            alert('작성자 코드가 일치하지 않습니다.');
+        }
+    };
+
+    // 글 수정 제출
+    const handleEditSubmit = async () => {
+        if (!editForm.title || !editForm.content) {
+            alert('제목과 본문을 입력해주세요.');
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            const postRef = doc(db, 'posts', post.id);
+            await updateDoc(postRef, {
+                title: editForm.title,
+                summary: editForm.summary,
+                content: editForm.content,
+                category: editForm.category,
+                updatedAt: serverTimestamp()
+            });
+
+            // 로컬 상태 업데이트
+            setPost({
+                ...post,
+                title: editForm.title,
+                summary: editForm.summary,
+                content: editForm.content,
+                category: editForm.category
+            });
+
+            setShowEditModal(false);
+            setIsVerified(false);
+            setWriterCode('');
+            alert('글이 수정되었습니다!');
+        } catch (error) {
+            console.error('Error updating post:', error);
+            alert('수정에 실패했습니다.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // 모달 닫기
+    const closeEditModal = () => {
+        setShowEditModal(false);
+        setIsVerified(false);
+        setWriterCode('');
+    };
+
     // 이전/다음 글
-    const currentIndex = blogPosts.findIndex(p => p.id === parseInt(id));
-    const prevPost = currentIndex > 0 ? blogPosts[currentIndex - 1] : null;
-    const nextPost = currentIndex < blogPosts.length - 1 ? blogPosts[currentIndex + 1] : null;
+    const currentIndex = allPosts.findIndex(p => p.id === post.id);
+    const prevPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+    const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -128,9 +357,19 @@ export default function BlogPost() {
 
                     {/* 글 헤더 */}
                     <header className="mb-8">
-                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full mb-4">
-                            {post.category}
-                        </span>
+                        <div className="flex items-start justify-between">
+                            <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full mb-4">
+                                {post.category}
+                            </span>
+                            {isFirestorePost && (
+                                <button
+                                    onClick={openEditModal}
+                                    className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                                >
+                                    수정
+                                </button>
+                            )}
+                        </div>
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                             {post.title}
                         </h1>
@@ -227,6 +466,114 @@ export default function BlogPost() {
                     </div>
                 </article>
             </main>
+
+            {/* 수정 모달 */}
+            {showEditModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold text-gray-900">글 수정</h2>
+                                <button onClick={closeEditModal} className="text-gray-500 hover:text-gray-700">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            {!isVerified ? (
+                                <div>
+                                    <p className="text-gray-600 mb-4">글을 수정하려면 작성 시 사용한 작성자 코드를 입력해주세요.</p>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={writerCode}
+                                            onChange={(e) => setWriterCode(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && verifyWriterCode()}
+                                            placeholder="작성자 코드"
+                                            className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        />
+                                        <button
+                                            onClick={verifyWriterCode}
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                        >
+                                            인증
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-green-800 text-sm">
+                                        인증되었습니다. 글을 수정할 수 있습니다.
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">카테고리</label>
+                                        <select
+                                            value={editForm.category}
+                                            onChange={(e) => setEditForm({...editForm, category: e.target.value})}
+                                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            {categories.map(cat => (
+                                                <option key={cat} value={cat}>{cat}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">제목 *</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.title}
+                                            onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                                            placeholder="글 제목"
+                                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">요약</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.summary}
+                                            onChange={(e) => setEditForm({...editForm, summary: e.target.value})}
+                                            placeholder="글 요약 (1-2문장)"
+                                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">본문 *</label>
+                                        <textarea
+                                            value={editForm.content}
+                                            onChange={(e) => setEditForm({...editForm, content: e.target.value})}
+                                            placeholder="글 내용을 입력하세요"
+                                            rows={10}
+                                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={closeEditModal}
+                                            className="flex-1 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300"
+                                        >
+                                            취소
+                                        </button>
+                                        <button
+                                            onClick={handleEditSubmit}
+                                            disabled={isSubmitting}
+                                            className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-blue-400"
+                                        >
+                                            {isSubmitting ? '수정 중...' : '수정 완료'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* 푸터 */}
             <footer className="bg-gray-900 text-gray-400 py-6 px-4">

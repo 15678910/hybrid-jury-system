@@ -289,7 +289,7 @@ export default function App() {
                             <button onClick={() => scrollToSection('cases')} className="hover:text-blue-600 transition font-medium">해외 사례</button>
                             <button onClick={() => scrollToSection('constitution')} className="hover:text-blue-600 transition font-medium">헌법적 근거</button>
                             <button onClick={() => scrollToSection('bill')} className="hover:text-blue-600 transition font-medium">법안 제안</button>
-                            <Link to="/blog" className="hover:text-blue-600 transition font-medium">블로그</Link>
+                            <Link to="/media" className="hover:text-blue-600 transition font-medium">미디어</Link>
 
                             <button
                                 onClick={() => setShowPosterModal(true)}
@@ -349,11 +349,11 @@ export default function App() {
                                 법안 제안
                             </button>
                             <Link
-                                to="/blog"
+                                to="/media"
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
                             >
-                                블로그
+                                미디어
                             </Link>
 
                             <button

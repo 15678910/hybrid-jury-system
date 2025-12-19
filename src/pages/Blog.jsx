@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
-// 샘플 블로그 데이터
-const blogPosts = [
+// 샘플 블로그 데이터 (Firestore 데이터가 없을 때 폴백용)
+const defaultPosts = [
     {
         id: 1,
         title: '참심제란 무엇인가?',
@@ -65,39 +67,48 @@ const blogPosts = [
     }
 ];
 
-// SNS 아이콘들
-const KakaoIcon = ({ className = "w-5 h-5" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 3C6.48 3 2 6.58 2 11c0 2.84 1.89 5.33 4.71 6.73l-.96 3.57c-.07.27.2.5.45.38l4.27-2.43c.49.05 1 .08 1.53.08 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/>
-    </svg>
-);
-
-const FacebookIcon = ({ className = "w-5 h-5" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-    </svg>
-);
-
-const XIcon = ({ className = "w-5 h-5" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-    </svg>
-);
-
-const TelegramIcon = ({ className = "w-5 h-5" }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-    </svg>
-);
-
 export default function Blog() {
     const [selectedCategory, setSelectedCategory] = useState('전체');
+    const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const categories = ['전체', '참심제 소개', '해외 사례', '사법개혁'];
+    const categories = ['전체', '참심제 소개', '해외 사례', '사법개혁', '공지사항'];
+
+    // Firestore에서 글 불러오기
+    useEffect(() => {
+        const fetchPosts = async () => {
+            try {
+                const postsRef = collection(db, 'posts');
+                const q = query(postsRef, orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+
+                const firestorePosts = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
+                }));
+
+                // Firestore 데이터가 있으면 사용, 없으면 기본 데이터 사용
+                if (firestorePosts.length > 0) {
+                    setPosts(firestorePosts);
+                } else {
+                    setPosts(defaultPosts);
+                }
+            } catch (error) {
+                console.error('Error fetching posts:', error);
+                // 에러 시 기본 데이터 사용
+                setPosts(defaultPosts);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPosts();
+    }, []);
 
     const filteredPosts = selectedCategory === '전체'
-        ? blogPosts
-        : blogPosts.filter(post => post.category === selectedCategory);
+        ? posts
+        : posts.filter(post => post.category === selectedCategory);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -108,9 +119,15 @@ export default function Blog() {
                         <Link to="/" className="text-2xl font-bold text-blue-600">
                             ⚖️ 사법개혁
                         </Link>
-                        <div className="flex gap-6">
+                        <div className="flex gap-6 items-center">
                             <Link to="/" className="text-gray-600 hover:text-blue-600">홈</Link>
                             <Link to="/blog" className="text-blue-600 font-semibold">블로그</Link>
+                            <Link
+                                to="/blog/write"
+                                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+                            >
+                                글쓰기
+                            </Link>
                         </div>
                     </nav>
                 </div>
@@ -142,47 +159,57 @@ export default function Blog() {
                         ))}
                     </div>
 
-                    {/* 블로그 목록 */}
-                    <div className="space-y-6">
-                        {filteredPosts.map(post => (
-                            <article
-                                key={post.id}
-                                className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6"
-                            >
-                                <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full mb-3">
-                                            {post.category}
-                                        </span>
-                                        <Link to={`/blog/${post.id}`}>
-                                            <h2 className="text-xl font-bold text-gray-900 hover:text-blue-600 mb-2">
-                                                {post.title}
-                                            </h2>
-                                        </Link>
-                                        <p className="text-gray-600 mb-4 line-clamp-2">
-                                            {post.summary}
-                                        </p>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-400">
-                                                {post.date} · {post.author}
-                                            </span>
-                                            <Link
-                                                to={`/blog/${post.id}`}
-                                                className="text-blue-600 text-sm font-medium hover:underline"
-                                            >
-                                                자세히 보기 →
-                                            </Link>
-                                        </div>
-                                    </div>
-                                </div>
-                            </article>
-                        ))}
-                    </div>
-
-                    {filteredPosts.length === 0 && (
-                        <div className="text-center py-12 text-gray-500">
-                            해당 카테고리의 글이 없습니다.
+                    {/* 로딩 상태 */}
+                    {loading ? (
+                        <div className="text-center py-12">
+                            <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                            <p className="mt-4 text-gray-500">글을 불러오는 중...</p>
                         </div>
+                    ) : (
+                        <>
+                            {/* 블로그 목록 */}
+                            <div className="space-y-6">
+                                {filteredPosts.map(post => (
+                                    <article
+                                        key={post.id}
+                                        className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6"
+                                    >
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex-1">
+                                                <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full mb-3">
+                                                    {post.category}
+                                                </span>
+                                                <Link to={`/blog/${post.id}`}>
+                                                    <h2 className="text-xl font-bold text-gray-900 hover:text-blue-600 mb-2">
+                                                        {post.title}
+                                                    </h2>
+                                                </Link>
+                                                <p className="text-gray-600 mb-4 line-clamp-2">
+                                                    {post.summary}
+                                                </p>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-sm text-gray-400">
+                                                        {post.date} · {post.author}
+                                                    </span>
+                                                    <Link
+                                                        to={`/blog/${post.id}`}
+                                                        className="text-blue-600 text-sm font-medium hover:underline"
+                                                    >
+                                                        자세히 보기 →
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
+
+                            {filteredPosts.length === 0 && (
+                                <div className="text-center py-12 text-gray-500">
+                                    해당 카테고리의 글이 없습니다.
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             </main>
@@ -198,4 +225,4 @@ export default function Blog() {
 }
 
 // 블로그 데이터 내보내기 (상세 페이지에서 사용)
-export { blogPosts };
+export { defaultPosts as blogPosts };
