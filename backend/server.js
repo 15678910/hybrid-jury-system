@@ -106,7 +106,7 @@ app.post('/api/chat', async (req, res) => {
     // 2단계: Google Gemini API 호출
     console.log(`🤖 AI 호출: ${question}`);
     
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     // 대화 히스토리 포맷팅
     const historyText = conversationHistory
