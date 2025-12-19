@@ -113,7 +113,7 @@ class VectorSearch {
     });
 
     // 2. 청크 텍스트에서 직접 매칭 (국가명 등 중요 키워드)
-    const importantKeywords = ['핀란드', '독일', '스웨덴', '프랑스', '일본', '덴마크', '노르웨이', '유럽', '한국', '배심', '참심', '시민법관', '혼합형'];
+    const importantKeywords = ['핀란드', '독일', '스웨덴', '프랑스', '일본', '덴마크', '노르웨이', '유럽', '한국', '북한', '배심', '참심', '시민법관', '혼합형'];
     queryWords.forEach(qWord => {
       // 질문에 중요 키워드가 있고, 청크 텍스트에도 있으면 높은 점수
       if (importantKeywords.some(k => qWord.includes(k) || k.includes(qWord))) {
@@ -204,7 +204,9 @@ class VectorSearch {
       'ssrn-2665612eu_kr': 'EU 사법 연구',
       'TIV_Lautamies_esite_A5_FIN_kr': '핀란드 참심원 안내',
       'korea_mixed_jury_system': '한국 혼합형 참심제',
-      'proposal': '제안 법률안'
+      'proposal': '제안 법률안',
+      '시민이재판을1': '시민이 재판을 (참심제 연구)',
+      '형사재판절차에 있어서 배심 및 참심제도의 도입방안': '배심 및 참심제도 도입방안'
     };
 
     return labels[source] || source;
