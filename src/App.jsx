@@ -509,7 +509,7 @@ export default function App() {
                     <div className="max-w-5xl mx-auto">
                         {selectedCountry === '독일' && (
                             <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
-                                <h3 className="text-2xl font-bold mb-4 text-blue-600">독일: 참심법원 (Schöffengericht)</h3>
+                                <h3 className="text-2xl font-bold mb-4 text-blue-600">독일: 참심제(Schöffengericht)</h3>
                                 <p className="text-gray-700 mb-6">
                                     독일은 1924년 배심제를 폐지하고 참심제로 전환하여 가장 성공적으로 운영 중인 국가입니다. 직업법관과 참심법관이 모든 권한을 동등하게 행사합니다.
                                 </p>
@@ -536,7 +536,7 @@ export default function App() {
 
                         {selectedCountry === '스웨덴' && (
                             <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
-                                <h3 className="text-2xl font-bold mb-4 text-blue-600">스웨덴: 네믄드맨 (Nämnddemän)</h3>
+                                <h3 className="text-2xl font-bold mb-4 text-blue-600">스웨덴: 참심제(Nämnddemän)</h3>
                                 <p className="text-gray-700 mb-6">
                                     스웨덴은 오랜 참심제 전통을 가진 국가입니다. 다만 정당 추천 방식의 한계가 지적되고 있습니다.
                                 </p>
@@ -557,16 +557,14 @@ export default function App() {
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">평결:</div>
                                         <div className="text-gray-700">1심: 단순 다수결, 참심원 우위 가능</div>
                                     </div>
-                                    <div className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
-                                        <p className="text-sm text-yellow-800">⚠️ 정당 추천 방식으로 인한 대표성 문제가 제기되고 있어, 한국 모델에서는 무작위 선발을 채택합니다.</p>
-                                    </div>
+                                    
                                 </div>
                             </div>
                         )}
 
                         {selectedCountry === '핀란드' && (
                             <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
-                                <h3 className="text-2xl font-bold mb-4 text-blue-600">핀란드: 라우타미헤트 (Lautamiehet)</h3>
+                                <h3 className="text-2xl font-bold mb-4 text-blue-600">핀란드: 참심제(Lautamiehet)</h3>
                                 <p className="text-gray-700 mb-6">
                                     핀란드는 지방 의회 선출 방식의 참심제를 운영하고 있습니다. 시민 참심원의 영향력이 상대적으로 강한 편입니다.
                                 </p>
@@ -641,9 +639,7 @@ export default function App() {
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">평결:</div>
                                         <div className="text-gray-700">특별다수결 (유죄 판결에 높은 합의 요구)</div>
                                     </div>
-                                    <div className="mt-4 p-4 bg-green-50 border-l-4 border-green-400">
-                                        <p className="text-sm text-green-800">✅ 시민 참여 비중이 높아 강한 민주적 정당성을 확보하는 모델입니다.</p>
-                                    </div>
+                                    
                                 </div>
                             </div>
                         )}
@@ -698,9 +694,7 @@ export default function App() {
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">평결:</div>
                                         <div className="text-gray-700">다수결 (단, 각 그룹에서 최소 1인 이상 찬성 필요)</div>
                                     </div>
-                                    <div className="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400">
-                                        <p className="text-sm text-blue-800">💡 한국과 유사한 대륙법계 국가로서 성공적 도입 사례. 우리 모델의 핵심 참고 대상입니다.</p>
-                                    </div>
+                                    
                                 </div>
                             </div>
                         )}
@@ -740,10 +734,7 @@ export default function App() {
                                             <li>• 높은 국민적 신뢰와 참여율</li>
                                         </ul>
                                     </div>
-
-                                    <div className="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400">
-                                        <p className="text-sm text-blue-800">🇪🇺 유럽의 성공적인 시민 참여 사법제도는 한국형 혼합형 참심제 도입의 중요한 국제적 모범 사례입니다.</p>
-                                    </div>
+                                   
                                 </div>
                             </div>
                         )}
