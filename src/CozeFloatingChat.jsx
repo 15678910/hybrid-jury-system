@@ -325,7 +325,7 @@ export default function FloatingChat() {
               <div key={index}>
                 {/* 사용자 질문 - 상단에 눈에 띄게 (고정 스타일) */}
                 {message.role === 'user' && (
-                  <div data-type="question" className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl px-4 py-2 mb-2 shadow-md">
+                  <div data-type="question" className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl px-4 py-2 mb-2 shadow-md scroll-mt-1">
                     <div className="flex items-center gap-1.5">
                       <span className="text-white text-xs">🔍</span>
                       <span className="text-[10px] text-blue-100 font-medium">질문</span>
