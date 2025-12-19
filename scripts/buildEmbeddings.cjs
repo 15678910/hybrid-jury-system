@@ -25,6 +25,11 @@ const PDF_FILES = [
   '형사재판절차에 있어서 배심 및 참심제도의 도입방안.pdf'
 ];
 
+// TXT 파일 목록
+const TXT_FILES = [
+  '시민이재판을1.txt'
+];
+
 // 청크 크기 설정
 const CHUNK_SIZE = 500;
 const CHUNK_OVERLAP = 100;
@@ -177,6 +182,38 @@ async function main() {
 
     } catch (error) {
       console.log(`  [오류] ${pdfFile}: ${error.message}`);
+    }
+  }
+
+  // TXT 파일 처리
+  for (const txtFile of TXT_FILES) {
+    const txtPath = path.join(publicDir, txtFile);
+
+    if (!fs.existsSync(txtPath)) {
+      console.log(`  [스킵] ${txtFile} - 파일 없음`);
+      continue;
+    }
+
+    try {
+      console.log(`  [처리 중] ${txtFile}`);
+      const text = fs.readFileSync(txtPath, 'utf-8');
+      const cleanedText = text.replace(/\s+/g, ' ').trim();
+
+      if (cleanedText.length < 100) {
+        console.log(`    -> 텍스트 너무 짧음 (${cleanedText.length}자), 스킵`);
+        continue;
+      }
+
+      console.log(`    -> 텍스트 추출 완료 (${cleanedText.length}자)`);
+
+      const sourceName = txtFile.replace('.txt', '');
+      const chunks = splitIntoChunks(cleanedText, sourceName);
+
+      console.log(`    -> ${chunks.length}개 청크 생성`);
+      allChunks.push(...chunks);
+
+    } catch (error) {
+      console.log(`  [오류] ${txtFile}: ${error.message}`);
     }
   }
 
