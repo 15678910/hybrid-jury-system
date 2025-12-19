@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FAQMatcher } from '../lib/faqMatcher';
+import { getVectorSearch } from '../lib/vectorSearch';
 import faqData from '../data/faq.json';
 
 export default function HybridChat() {
@@ -7,11 +8,20 @@ export default function HybridChat() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [matcher, setMatcher] = useState(null);
+  const [vectorSearch, setVectorSearch] = useState(null);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     const faqMatcher = new FAQMatcher(faqData);
     setMatcher(faqMatcher);
+
+    // 벡터 검색 초기화
+    getVectorSearch().then(vs => {
+      setVectorSearch(vs);
+      console.log('벡터 검색 초기화 완료:', vs.getStats());
+    }).catch(err => {
+      console.error('벡터 검색 초기화 실패:', err);
+    });
     
     // 초기 환영 메시지
     setMessages([{
@@ -47,9 +57,9 @@ export default function HybridChat() {
     try {
       // 1단계: FAQ 매칭 시도
       const faqMatch = matcher?.findMatch(input.trim());
-      
+
       if (faqMatch) {
-        // FAQ에서 찾았으면 즉시 반환
+        // FAQ에서 찾았으면 즉시 반환 (AI 호출 없음 - 비용 0원)
         const faqResponse = {
           role: 'assistant',
           content: `**${faqMatch.question}**\n\n${faqMatch.answer}`,
@@ -58,13 +68,63 @@ export default function HybridChat() {
           category: faqMatch.category,
           timestamp: new Date()
         };
-        
+
         setMessages(prev => [...prev, faqResponse]);
         setIsLoading(false);
         return;
       }
 
-      // 2단계: 캐시 + AI API 호출
+      // 2단계: 벡터 검색 - 높은 점수면 AI 없이 직접 답변 (비용 0원)
+      if (vectorSearch) {
+        const searchResults = vectorSearch.search(input.trim(), 3, 0.01);
+        console.log('벡터 검색 결과:', searchResults.length > 0 ? searchResults[0] : '없음');
+
+        // 점수가 0.2 이상이면 PDF 내용으로 직접 답변
+        if (searchResults.length > 0 && searchResults[0].score >= 0.2) {
+          const topResult = searchResults[0];
+          const sourceLabel = vectorSearch.getSourceLabel(topResult.source);
+
+          const vectorResponse = {
+            role: 'assistant',
+            content: `[${sourceLabel}에서 찾은 정보]\n\n${topResult.text}`,
+            source: 'pdf',
+            timestamp: new Date()
+          };
+
+          setMessages(prev => [...prev, vectorResponse]);
+          setIsLoading(false);
+          return;
+        }
+
+        // 점수가 0.05~0.2이면 컨텍스트와 함께 AI 호출 (비용 발생하지만 정확도 높음)
+        if (searchResults.length > 0 && searchResults[0].score >= 0.05) {
+          const context = vectorSearch.getContextString(input.trim(), 3);
+
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              question: input.trim(),
+              context: context
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const aiResponse = {
+              role: 'assistant',
+              content: data.answer,
+              source: 'ai+pdf',
+              timestamp: new Date()
+            };
+            setMessages(prev => [...prev, aiResponse]);
+            setIsLoading(false);
+            return;
+          }
+        }
+      }
+
+      // 3단계: 캐시 + AI API 호출 (일반 질문)
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -113,6 +173,8 @@ export default function HybridChat() {
   const getSourceBadge = (source) => {
     const badges = {
       faq: { text: 'FAQ', color: 'bg-green-100 text-green-800' },
+      pdf: { text: 'PDF', color: 'bg-yellow-100 text-yellow-800' },
+      'ai+pdf': { text: 'AI+PDF', color: 'bg-orange-100 text-orange-800' },
       cache: { text: '캐시', color: 'bg-blue-100 text-blue-800' },
       ai: { text: 'AI', color: 'bg-purple-100 text-purple-800' },
       system: { text: '시스템', color: 'bg-gray-100 text-gray-800' },
@@ -242,9 +304,9 @@ export default function HybridChat() {
           </div>
           
           <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-            <span>💡 FAQ에서 빠른 답변 제공</span>
-            <span>🔄 캐시로 비용 절감</span>
-            <span>🤖 AI로 심화 답변</span>
+            <span>💡 FAQ 50개 (무료)</span>
+            <span>📄 PDF 검색 (무료)</span>
+            <span>🤖 AI 요약 (필요시만)</span>
           </div>
         </form>
       </div>

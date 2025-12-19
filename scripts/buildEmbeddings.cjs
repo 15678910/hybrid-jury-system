@@ -233,10 +233,24 @@ async function main() {
     wordFreq[w] = (wordFreq[w] || 0) + 1;
   });
 
+  // 중요 키워드 강제 포함 (텍스트에 존재하기만 하면 vocabulary에 추가)
+  const importantKeywords = ['북한', '남한', '중국', '러시아', '일본', '미국', '영국', '호주', '독일', '프랑스', '핀란드', '스웨덴', '덴마크', '노르웨이', '참심', '배심', '시민법관', '혼합형', '국민참여', '재판원'];
+
   const vocabulary = Object.entries(wordFreq)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 1000)
     .map(([word]) => word);
+
+  // 중요 키워드가 vocabulary에 없으면 강제 추가 (텍스트에 존재하면)
+  importantKeywords.forEach(keyword => {
+    if (!vocabulary.includes(keyword)) {
+      // 전체 텍스트에서 해당 키워드가 있는지 확인
+      if (allText.includes(keyword)) {
+        vocabulary.push(keyword);
+        console.log(`중요 키워드 추가: ${keyword}`);
+      }
+    }
+  });
 
   console.log(`어휘 크기: ${vocabulary.length}`);
 

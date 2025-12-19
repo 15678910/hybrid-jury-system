@@ -104,40 +104,104 @@ export default function FloatingChat() {
           // 더 많은 청크 검색 (10개)
           pdfResults = vectorSearch.search(currentInput, 10, 0.01);
           console.log('PDF 검색 결과:', pdfResults.length, '개');
+          if (pdfResults.length > 0) {
+            console.log('최고 점수:', pdfResults[0].score, '소스:', pdfResults[0].source);
+            console.log('텍스트 미리보기:', pdfResults[0].text?.substring(0, 100));
+          }
         } catch (err) {
           console.log('PDF 검색 오류:', err);
         }
+      } else {
+        console.log('vectorSearch가 null입니다!');
       }
 
-      // PDF 검색 결과가 있으면 AI에게 요약 요청
-      const pdfContext = pdfResults.length > 0
-        ? pdfResults.map((r, i) => `[출처: ${vectorSearch.getSourceLabel(r.source)}]\n${r.text}`).join('\n\n---\n\n')
-        : null;
+      // PDF 검색 결과가 있으면 먼저 AI 요약 시도, 실패시 PDF 직접 표시
+      if (pdfResults.length > 0) {
+        const pdfContext = pdfResults.map((r) => `[출처: ${vectorSearch.getSourceLabel(r.source)}]\n${r.text}`).join('\n\n---\n\n');
 
-      try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question: currentInput, context: pdfContext }),
-        });
+        try {
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: currentInput, context: pdfContext }),
+          });
 
-        if (response.ok) {
-          const data = await response.json();
-          const aiResponse = {
-            role: 'assistant',
-            content: data.answer,
-            source: pdfContext ? 'ai' : 'ai', // PDF 기반이든 아니든 AI 표시
-            timestamp: new Date()
-          };
-          setMessages(prev => [...prev, aiResponse]);
-          setIsLoading(false);
-          return;
+          if (response.ok) {
+            const data = await response.json();
+            // API 에러 응답 체크
+            if (data.error) {
+              throw new Error(data.error);
+            }
+            const aiResponse = {
+              role: 'assistant',
+              content: data.answer,
+              source: 'ai',
+              timestamp: new Date()
+            };
+            setMessages(prev => [...prev, aiResponse]);
+            setIsLoading(false);
+            return;
+          }
+        } catch (apiError) {
+          console.log('AI API 호출 실패, PDF 직접 표시:', apiError);
         }
-      } catch (apiError) {
-        console.log('AI API 호출 실패, 안내 메시지로 대체:', apiError);
+
+        // AI 실패시 PDF 직접 표시 - 가장 관련 있는 청크 1개만 선택
+        const queryKeywords = currentInput.match(/[가-힣]{2,}/g) || [];
+
+        // 국가별 본문 시작 패턴 (목차가 아닌 실제 본문)
+        const countryContentPatterns = {
+          '북한': ['북한의 1976년 재판소구성법', '인민참심원은 1년에', '북한도 1945년 이후'],
+          '독일': ['독일의 재판제도와 현실', '독일 참심제의 역사'],
+          '핀란드': ['핀란드에서는', '핀란드의 참심원'],
+          '스웨덴': ['스웨덴에서는 출판소송'],
+          '중국': ['1951년의 법원조직법', '인민법원의 체계'],
+        };
+
+        let bestResult = null;
+
+        // 국가명이 질문에 있으면 해당 국가의 본문 청크 찾기
+        for (const [country, patterns] of Object.entries(countryContentPatterns)) {
+          if (currentInput.includes(country)) {
+            bestResult = pdfResults.find(r => patterns.some(p => r.text.includes(p)));
+            if (bestResult) break;
+          }
+        }
+
+        // 국가 패턴에 안 걸렸으면 첫 번째 결과
+        if (!bestResult) {
+          bestResult = pdfResults[0];
+        }
+
+        const sourceLabel = vectorSearch.getSourceLabel(bestResult.source);
+
+        // 텍스트에서 핵심 부분만 추출 (500자)
+        let displayText = bestResult.text;
+
+        // 국가명 주변 텍스트 추출
+        const mainKeyword = queryKeywords[0];
+        if (mainKeyword && displayText.length > 500) {
+          const keywordIdx = displayText.indexOf(mainKeyword);
+          if (keywordIdx > 30) {
+            displayText = '...' + displayText.substring(keywordIdx - 20, keywordIdx + 480);
+          } else {
+            displayText = displayText.substring(0, 500);
+          }
+          if (displayText.length >= 500) displayText += '...';
+        }
+
+        const pdfResponse = {
+          role: 'assistant',
+          content: `[${sourceLabel}에서 찾은 정보]\n\n${displayText}`,
+          source: 'pdf',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, pdfResponse]);
+        setIsLoading(false);
+        return;
       }
 
-      // 3단계: AI API도 실패하면 안내 메시지
+      // 3단계: AI API도 실패하고 PDF도 없으면 안내 메시지
       const fallbackResponse = {
         role: 'assistant',
         content: '해당 질문에 대한 답변을 찾지 못했습니다.\n\n아래 주제에 대해 질문해 보세요:\n• 참심제가 무엇인가요?\n• 참심제와 배심제의 차이점\n• 헌법 개정이 필요한가요?\n• 시민법관 선발 방법\n• 시민법관의 권한과 보수',

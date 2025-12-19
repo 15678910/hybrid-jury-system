@@ -19,10 +19,11 @@ class VectorSearch {
     if (this.isLoaded) return;
 
     try {
-      // public 폴더에서 JSON 파일 로드
+      // public 폴더에서 JSON 파일 로드 (캐시 무효화를 위한 버전 추가)
+      const version = Date.now();
       const [chunksRes, embeddingsRes] = await Promise.all([
-        fetch('/pdfChunks.json'),
-        fetch('/embeddings.json')
+        fetch(`/pdfChunks.json?v=${version}`),
+        fetch(`/embeddings.json?v=${version}`)
       ]);
 
       const chunksData = await chunksRes.json();
@@ -39,6 +40,7 @@ class VectorSearch {
 
       this.isLoaded = true;
       console.log('벡터 검색 데이터 로드 완료:', this.getStats());
+      console.log('북한 in vocabulary:', this.vocabulary.includes('북한'), 'index:', this.vocabulary.indexOf('북한'));
     } catch (error) {
       console.error('벡터 검색 데이터 로드 실패:', error);
       throw error;
@@ -56,6 +58,17 @@ class VectorSearch {
       const idx = this.vocabulary.indexOf(word);
       if (idx !== -1) {
         vector[idx] += 1;
+      }
+    });
+
+    // 중요 키워드 직접 매칭 (조사가 붙어도 찾을 수 있도록)
+    const importantKeywords = ['북한', '남한', '중국', '러시아', '일본', '미국', '영국', '호주', '독일', '프랑스', '핀란드', '스웨덴', '덴마크', '노르웨이'];
+    importantKeywords.forEach(keyword => {
+      if (text.includes(keyword)) {
+        const idx = this.vocabulary.indexOf(keyword);
+        if (idx !== -1 && vector[idx] === 0) {
+          vector[idx] = 1;
+        }
       }
     });
 
@@ -99,7 +112,7 @@ class VectorSearch {
   keywordMatchScore(query, chunk) {
     const queryWords = query.toLowerCase().match(/[가-힣]{2,}|[a-zA-Z]{3,}/g) || [];
     const chunkKeywords = chunk.keywords || [];
-    const chunkText = (chunk.text || '').toLowerCase();
+    const chunkText = (chunk.text || '');
 
     let score = 0;
 
@@ -112,16 +125,26 @@ class VectorSearch {
       });
     });
 
-    // 2. 청크 텍스트에서 직접 매칭 (국가명 등 중요 키워드)
+    // 2. 중요 키워드 직접 매칭 (query 원문에서 검색)
     const importantKeywords = ['핀란드', '독일', '스웨덴', '프랑스', '일본', '덴마크', '노르웨이', '유럽', '한국', '북한', '중국', '러시아', '배심', '참심', '시민법관', '혼합형'];
+    let matchedKeywords = 0;
+    importantKeywords.forEach(keyword => {
+      // 질문에 키워드가 있고, 청크 텍스트에도 있으면 높은 점수
+      if (query.includes(keyword) && chunkText.includes(keyword)) {
+        score += 5; // 중요 키워드 매칭시 높은 점수
+        matchedKeywords++;
+      }
+    });
+
+    // 여러 키워드가 모두 매칭되면 보너스 점수 (예: "북한 참심제" -> 북한+참심 둘 다 매칭시 추가 점수)
+    if (matchedKeywords >= 2) {
+      score += matchedKeywords * 10; // 2개 이상 매칭시 큰 보너스
+    }
+
+    // 3. 일반 키워드 매칭
     queryWords.forEach(qWord => {
-      // 질문에 중요 키워드가 있고, 청크 텍스트에도 있으면 높은 점수
-      if (importantKeywords.some(k => qWord.includes(k) || k.includes(qWord))) {
-        if (chunkText.includes(qWord)) {
-          score += 3; // 중요 키워드 매칭시 높은 점수
-        }
-      } else if (chunkText.includes(qWord)) {
-        score += 0.5; // 일반 키워드 매칭
+      if (chunkText.toLowerCase().includes(qWord)) {
+        score += 0.5;
       }
     });
 
@@ -141,6 +164,12 @@ class VectorSearch {
     const queryVector = this.textToVector(query);
     console.log('검색 쿼리:', query);
     console.log('쿼리 벡터 non-zero 요소:', queryVector.filter(v => v > 0).length);
+
+    // 북한 키워드 디버그
+    const nkIndex = this.vocabulary.indexOf('북한');
+    if (query.includes('북한')) {
+      console.log('북한 검색 디버그 - vocabulary index:', nkIndex, 'queryVector[nkIndex]:', nkIndex >= 0 ? queryVector[nkIndex] : 'N/A');
+    }
 
     const results = this.chunks.map(chunk => {
       const chunkVector = this.embeddingMap.get(chunk.id);
