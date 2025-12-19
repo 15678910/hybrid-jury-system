@@ -13,6 +13,7 @@ export default function App() {
     const [formData, setFormData] = useState({
         name: '',
         type: 'individual',
+        talent: '',
         phone: '',
         sns: []
     });
@@ -124,6 +125,7 @@ export default function App() {
             '번호': signatures.length - index,
             '이름/단체명': sig.name,
             '구분': sig.type === 'individual' ? '개인' : '단체',
+            '재능나눔': sig.talent || '-',
             '전화번호': sig.phone || '-',
             '텔레그램': sig.sns.includes('telegram') ? 'O' : 'X',
             '카카오톡': sig.sns.includes('kakao') ? 'O' : 'X',
@@ -203,6 +205,7 @@ export default function App() {
         setFormData({
             name: '',
             type: 'individual',
+            talent: '',
             phone: '',
             sns: []
         });
@@ -863,6 +866,33 @@ export default function App() {
                                 </select>
                             </div>
 
+                            {/* 재능 응원봉 */}
+                            <div>
+                                <label className="block font-bold mb-2">재능 응원봉</label>
+                                <select
+                                    value={['IT', '미디어', '마케팅', '재정', ''].includes(formData.talent) ? formData.talent : '기타'}
+                                    onChange={(e) => setFormData({...formData, talent: e.target.value})}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                >
+                                    <option value="">선택 안함</option>
+                                    <option value="IT">IT</option>
+                                    <option value="미디어">미디어</option>
+                                    <option value="마케팅">마케팅</option>
+                                    <option value="재정">재정</option>
+                                    <option value="기타">기타 (직접 입력)</option>
+                                </select>
+                                {/* 기타 선택 시 직접 입력 */}
+                                {(formData.talent === '기타' || (formData.talent && !['IT', '미디어', '마케팅', '재정', ''].includes(formData.talent))) && (
+                                    <input
+                                        type="text"
+                                        value={formData.talent === '기타' ? '' : formData.talent}
+                                        onChange={(e) => setFormData({...formData, talent: e.target.value || '기타'})}
+                                        placeholder="재능 분야를 직접 입력해주세요"
+                                        className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                )}
+                            </div>
+
                             {/* 전화번호 */}
                             <div>
                                 <label className="block font-bold mb-2">전화번호 *</label>
@@ -943,7 +973,7 @@ export default function App() {
             {/* 푸터 */}
             <footer className="bg-gray-900 text-gray-400 py-6 px-4">
                 <div className="container mx-auto text-center">
-                    <p>© 주권자사법개혁추진위원회(준)</p>
+                    <p>© 주권자사법개혁추진준비위원회</p>
                 </div>
             </footer>
 

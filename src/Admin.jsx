@@ -64,9 +64,9 @@ export default function Admin() {
 
     // 엑셀 다운로드
     const downloadExcel = () => {
-        let csv = '이름,유형,연락처,SNS,참여시간\n';
+        let csv = '이름,유형,재능나눔,연락처,SNS,참여시간\n';
         signatures.forEach(sig => {
-            csv += `${sig.name},${sig.type === 'individual' ? '개인' : '단체'},${sig.phone},${sig.sns.join('/')},${new Date(sig.timestamp).toLocaleString('ko-KR')}\n`;
+            csv += `${sig.name},${sig.type === 'individual' ? '개인' : '단체'},${sig.talent || '-'},${sig.phone},${sig.sns.join('/')},${new Date(sig.timestamp).toLocaleString('ko-KR')}\n`;
         });
         
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -187,6 +187,7 @@ export default function Admin() {
                                     <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">번호</th>
                                     <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">이름</th>
                                     <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">유형</th>
+                                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">재능나눔</th>
                                     <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">연락처</th>
                                     <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">SNS</th>
                                     <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">참여시간</th>
@@ -196,7 +197,7 @@ export default function Admin() {
                             <tbody>
                                 {signatures.length === 0 ? (
                                     <tr>
-                                        <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
+                                        <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
                                             아직 서명이 없습니다.
                                         </td>
                                     </tr>
@@ -207,12 +208,19 @@ export default function Admin() {
                                             <td className="px-6 py-4 text-sm font-medium text-gray-900">{sig.name}</td>
                                             <td className="px-6 py-4 text-sm text-gray-900">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                                    sig.type === 'individual' 
-                                                        ? 'bg-purple-100 text-purple-700' 
+                                                    sig.type === 'individual'
+                                                        ? 'bg-purple-100 text-purple-700'
                                                         : 'bg-green-100 text-green-700'
                                                 }`}>
                                                     {sig.type === 'individual' ? '개인' : '단체'}
                                                 </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-900">
+                                                {sig.talent ? (
+                                                    <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">
+                                                        {sig.talent}
+                                                    </span>
+                                                ) : '-'}
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-900">{sig.phone}</td>
                                             <td className="px-6 py-4 text-sm text-gray-900">
