@@ -113,7 +113,7 @@ class VectorSearch {
     });
 
     // 2. 청크 텍스트에서 직접 매칭 (국가명 등 중요 키워드)
-    const importantKeywords = ['핀란드', '독일', '스웨덴', '프랑스', '일본', '덴마크', '노르웨이', '유럽', '한국', '북한', '배심', '참심', '시민법관', '혼합형'];
+    const importantKeywords = ['핀란드', '독일', '스웨덴', '프랑스', '일본', '덴마크', '노르웨이', '유럽', '한국', '북한', '중국', '러시아', '배심', '참심', '시민법관', '혼합형'];
     queryWords.forEach(qWord => {
       // 질문에 중요 키워드가 있고, 청크 텍스트에도 있으면 높은 점수
       if (importantKeywords.some(k => qWord.includes(k) || k.includes(qWord))) {
