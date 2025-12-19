@@ -51,8 +51,8 @@ function Poster({ onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 bg-black/50 z-50">
-      <div className="bg-black rounded-2xl shadow-2xl w-full max-w-[450px] h-[75vh] p-3 relative flex flex-col overflow-hidden">
+    <div className="fixed inset-0 flex items-center justify-center p-2 bg-black/50 z-50">
+      <div className="bg-black rounded-2xl shadow-2xl w-full max-w-[500px] h-[85vh] p-3 relative flex flex-col">
         <button
           onClick={handleClose}
           className="absolute top-2 right-3 text-white hover:text-gray-300 text-2xl font-bold transition z-10"
@@ -60,27 +60,27 @@ function Poster({ onClose }) {
           ✕
         </button>
 
-        <div className="flex-1 mt-4 mb-1 flex flex-col justify-center items-center overflow-hidden">
+        <div className="flex-1 mt-6 mb-2 flex items-center justify-center overflow-hidden">
           <img
             src="/참심제_웹자보qrcode.png"
             alt="참심제 포스터"
             onClick={handleImageClick}
-            className="w-full h-full object-contain rounded-lg shadow-xl cursor-pointer hover:opacity-90 transition"
+            className="max-w-full max-h-full object-contain rounded-lg shadow-xl cursor-pointer hover:opacity-90 transition"
           />
+        </div>
+
+        <div className="shrink-0 space-y-2 pb-1">
           <p
             onClick={handleImageClick}
-            className="text-center text-purple-400 text-xs mt-1 animate-pulse cursor-pointer shrink-0"
+            className="text-center text-purple-400 text-sm animate-pulse cursor-pointer"
           >
             🎵 포스터를 클릭하면 음악이 재생됩니다
           </p>
-        </div>
-
-        <div className="text-center shrink-0 pt-1">
           <button
             onClick={handleParticipate}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-2 px-6 rounded-xl text-sm transition duration-200 shadow-lg transform hover:scale-105 w-full"
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition duration-200 shadow-lg transform hover:scale-105 w-full"
           >
-            💪 지금 참여하기
+            💪 참여하기
           </button>
         </div>
       </div>
