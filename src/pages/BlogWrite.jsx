@@ -82,16 +82,17 @@ export default function BlogWrite() {
         setLoading(true);
         try {
             const postsRef = collection(db, 'posts');
-            const q = query(postsRef, where('writerCode', '==', writerCode), orderBy('createdAt', 'desc'));
+            // 전체 글 목록을 가져옴 (인증된 작성자가 모든 글 관리 가능)
+            const q = query(postsRef, orderBy('createdAt', 'desc'));
             const querySnapshot = await getDocs(q);
 
-            const myPosts = querySnapshot.docs.map(doc => ({
+            const allPosts = querySnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data(),
                 date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
             }));
 
-            setPosts(myPosts);
+            setPosts(allPosts);
         } catch (error) {
             console.error('Error fetching posts:', error);
             setPosts([]);
@@ -334,7 +335,7 @@ export default function BlogWrite() {
                             {/* 글 목록 */}
                             <div className="bg-white rounded-xl shadow-md overflow-hidden">
                                 <div className="px-6 py-4 bg-gray-50 border-b">
-                                    <h2 className="text-lg font-bold text-gray-900">내가 작성한 글 ({posts.length})</h2>
+                                    <h2 className="text-lg font-bold text-gray-900">전체 글 목록 ({posts.length})</h2>
                                 </div>
 
                                 {loading ? (
