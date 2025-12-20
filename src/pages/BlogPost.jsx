@@ -2,68 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { doc, getDoc, collection, query, orderBy, getDocs, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { blogPosts as blogDefaultPosts } from './Blog';
-
-// 샘플 데이터 (삭제된 것 제외)
-const getSamplePosts = () => {
-    const deleted = JSON.parse(localStorage.getItem('deletedSamplePosts') || '[]');
-    // Blog.jsx의 기본 글은 id가 숫자이므로 sample-로 시작하는지 체크
-    // Media.jsx 샘플 글도 포함
-    const mediaSamplePosts = [
-        {
-            id: 'sample-1',
-            title: '참심제란 무엇인가?',
-            summary: '시민이 직업법관과 함께 재판에 참여하는 참심제의 개념과 역사를 알아봅니다.',
-            content: `참심제(參審制)는 일반 시민이 직업법관과 함께 재판부를 구성하여 사실인정과 양형에 참여하는 제도입니다.
-
-배심제와 달리 참심원은 법관과 동등한 권한을 가지며, 유무죄 판단뿐 아니라 형량 결정에도 참여합니다.
-
-## 참심제의 특징
-- 시민법관이 직업법관과 동등한 표결권 보유
-- 사실인정 + 법률적용 + 양형 모두 참여
-- 헌법 개정 없이 도입 가능`,
-            author: '시민법정',
-            category: '참심제 소개',
-            date: '2024-12-19'
-        },
-        {
-            id: 'sample-2',
-            title: '독일 참심제의 성공 사례',
-            summary: '100년 넘게 운영된 독일 참심제의 역사와 성과를 분석합니다.',
-            content: `독일의 참심제(Schöffengericht)는 1877년부터 시작되어 현재까지 성공적으로 운영되고 있습니다.
-
-## 독일 참심제 구조
-- 참심법원: 직업법관 1명 + 참심원 2명
-- 참심원 임기: 5년
-- 선정 방식: 지방자치단체 추천 → 선정위원회 최종 선발`,
-            author: '시민법정',
-            category: '해외 사례',
-            date: '2024-12-18'
-        },
-        {
-            id: 'sample-3',
-            title: '왜 지금 사법개혁이 필요한가',
-            summary: '한국 사법부의 현실과 시민 참여 확대의 필요성을 살펴봅니다.',
-            content: `최근 여론조사에 따르면 국민의 60% 이상이 법원 판결을 신뢰하지 않는다고 답했습니다.
-
-## 현행 국민참여재판의 한계
-- 권고적 효력만 있음 (법관이 무시 가능)
-- 적용 대상 제한적
-- 참여율 저조`,
-            author: '시민법정',
-            category: '사법개혁',
-            date: '2024-12-17'
-        }
-    ];
-
-    // 삭제되지 않은 샘플만 반환
-    return mediaSamplePosts.filter(p => !deleted.includes(p.id));
-};
-
-// 기본 데이터 - Blog.jsx 샘플 + Media.jsx 샘플
-const getDefaultPosts = () => {
-    return [...blogDefaultPosts, ...getSamplePosts()];
-};
 
 // SNS 아이콘들
 const KakaoIcon = ({ className = "w-5 h-5" }) => (
@@ -119,20 +57,6 @@ export default function BlogPost() {
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                // 삭제되지 않은 샘플 데이터 가져오기
-                const defaultPosts = getDefaultPosts();
-
-                // 먼저 기본 데이터에서 찾기 (숫자 또는 문자열 ID 모두)
-                const defaultPost = defaultPosts.find(p =>
-                    String(p.id) === String(id) || p.id === parseInt(id)
-                );
-                if (defaultPost) {
-                    setPost(defaultPost);
-                    setAllPosts(defaultPosts);
-                    setLoading(false);
-                    return;
-                }
-
                 // Firestore에서 글 가져오기
                 const docRef = doc(db, 'posts', id);
                 const docSnap = await getDoc(docRef);
@@ -154,23 +78,13 @@ export default function BlogPost() {
                         ...doc.data(),
                         date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
                     }));
-                    // Firestore 글 + 기본 글 합치기
-                    setAllPosts([...firestorePosts, ...defaultPosts]);
+                    setAllPosts(firestorePosts);
                 } else {
                     setPost(null);
                 }
             } catch (error) {
                 console.error('Error fetching post:', error);
-                // 삭제되지 않은 샘플 데이터 가져오기
-                const defaultPosts = getDefaultPosts();
-                // 에러 시 기본 데이터에서 찾기
-                const defaultPost = defaultPosts.find(p =>
-                    String(p.id) === String(id) || p.id === parseInt(id)
-                );
-                if (defaultPost) {
-                    setPost(defaultPost);
-                    setAllPosts(defaultPosts);
-                }
+                setPost(null);
             } finally {
                 setLoading(false);
             }
