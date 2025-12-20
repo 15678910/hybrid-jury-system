@@ -353,7 +353,7 @@ export default function BlogPost() {
                     </div>
 
                     {/* SNS 공유 */}
-                    <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6 mb-8">
+                    <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6 mb-4">
                         <p className="text-white text-center mb-4 font-medium">이 글을 공유해주세요</p>
                         <div className="flex justify-center gap-4">
                             <button
@@ -393,6 +393,29 @@ export default function BlogPost() {
                             </button>
                         </div>
                     </div>
+
+                    {/* 텔레그램 채널 가입 유도 */}
+                    <a
+                        href="https://t.me/siminbupjung"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block bg-gradient-to-r from-[#0088cc] to-[#0099dd] rounded-xl p-5 mb-8 hover:shadow-lg transition-shadow"
+                    >
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                                    <TelegramIcon className="w-7 h-7 text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-white font-bold text-lg">시민법정 텔레그램 채널</p>
+                                    <p className="text-white/80 text-sm">새 글 알림을 받아보세요</p>
+                                </div>
+                            </div>
+                            <div className="bg-white text-[#0088cc] px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-100 transition">
+                                채널 가입
+                            </div>
+                        </div>
+                    </a>
 
                     {/* 이전/다음 글 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
