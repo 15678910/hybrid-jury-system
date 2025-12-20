@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Poster from './Poster'
 import { Link } from 'react-router-dom'
+import FloatingChat from './CozeFloatingChat'
 
 // 카카오톡 아이콘
 const KakaoIcon = ({ className = "w-6 h-6" }) => (
@@ -1140,6 +1141,9 @@ export default function App() {
                 <Poster key={Date.now()} onClose={() => setShowPosterModal(false)} />
             </div>
         )}
+
+            {/* 플로팅 챗봇 */}
+            <FloatingChat />
 
         </div>
     );
