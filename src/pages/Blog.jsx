@@ -52,12 +52,7 @@ export default function Blog() {
                         <div className="flex gap-6 items-center">
                             <Link to="/" className="text-gray-600 hover:text-blue-600">홈</Link>
                             <Link to="/blog" className="text-blue-600 font-semibold">블로그</Link>
-                            <Link
-                                to="/blog/write"
-                                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
-                            >
-                                글쓰기
-                            </Link>
+                            <Link to="/videos" className="text-gray-600 hover:text-blue-600">동영상</Link>
                         </div>
                     </nav>
                 </div>
