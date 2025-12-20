@@ -3,70 +3,6 @@ import { Link } from 'react-router-dom';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
-// 샘플 블로그 데이터 (Firestore 데이터가 없을 때 폴백용)
-const defaultPosts = [
-    {
-        id: 1,
-        title: '참심제란 무엇인가?',
-        summary: '시민이 직업법관과 함께 재판에 참여하는 참심제의 개념과 역사를 알아봅니다.',
-        content: `참심제(參審制)는 일반 시민이 직업법관과 함께 재판부를 구성하여 사실인정과 양형에 참여하는 제도입니다.
-
-배심제와 달리 참심원은 법관과 동등한 권한을 가지며, 유무죄 판단뿐 아니라 형량 결정에도 참여합니다.
-
-## 참심제의 특징
-- 시민법관이 직업법관과 동등한 표결권 보유
-- 사실인정 + 법률적용 + 양형 모두 참여
-- 헌법 개정 없이 도입 가능
-
-## 세계 각국의 참심제
-독일, 프랑스, 핀란드, 스웨덴 등 많은 민주주의 국가에서 참심제를 운영하고 있습니다.`,
-        author: '시민법정',
-        date: '2024-12-19',
-        category: '참심제 소개',
-        image: null
-    },
-    {
-        id: 2,
-        title: '독일 참심제의 성공 사례',
-        summary: '100년 넘게 운영된 독일 참심제의 역사와 성과를 분석합니다.',
-        content: `독일의 참심제(Schöffengericht)는 1877년부터 시작되어 현재까지 성공적으로 운영되고 있습니다.
-
-## 독일 참심제 구조
-- 참심법원: 직업법관 1명 + 참심원 2명
-- 참심원 임기: 5년
-- 선정 방식: 지방자치단체 추천 → 선정위원회 최종 선발
-
-## 성과
-- 시민의 사법 참여로 재판 신뢰도 향상
-- 법관의 독단적 판단 방지
-- 사회 통합 기능`,
-        author: '시민법정',
-        date: '2024-12-18',
-        category: '해외 사례',
-        image: null
-    },
-    {
-        id: 3,
-        title: '왜 지금 사법개혁이 필요한가',
-        summary: '한국 사법부의 현실과 시민 참여 확대의 필요성을 살펴봅니다.',
-        content: `최근 여론조사에 따르면 국민의 60% 이상이 법원 판결을 신뢰하지 않는다고 답했습니다.
-
-## 현행 국민참여재판의 한계
-- 권고적 효력만 있음 (법관이 무시 가능)
-- 적용 대상 제한적
-- 참여율 저조
-
-## 참심제 도입의 기대효과
-1. 시민 법관의 실질적 결정권 보장
-2. 재판의 민주적 정당성 강화
-3. 사법부에 대한 국민 신뢰 회복`,
-        author: '시민법정',
-        date: '2024-12-17',
-        category: '사법개혁',
-        image: null
-    }
-];
-
 export default function Blog() {
     const [selectedCategory, setSelectedCategory] = useState('전체');
     const [posts, setPosts] = useState([]);
@@ -88,16 +24,10 @@ export default function Blog() {
                     date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
                 }));
 
-                // Firestore 데이터가 있으면 사용, 없으면 기본 데이터 사용
-                if (firestorePosts.length > 0) {
-                    setPosts(firestorePosts);
-                } else {
-                    setPosts(defaultPosts);
-                }
+                setPosts(firestorePosts);
             } catch (error) {
                 console.error('Error fetching posts:', error);
-                // 에러 시 기본 데이터 사용
-                setPosts(defaultPosts);
+                setPosts([]);
             } finally {
                 setLoading(false);
             }
@@ -206,7 +136,7 @@ export default function Blog() {
 
                             {filteredPosts.length === 0 && (
                                 <div className="text-center py-12 text-gray-500">
-                                    해당 카테고리의 글이 없습니다.
+                                    {posts.length === 0 ? '등록된 글이 없습니다.' : '해당 카테고리의 글이 없습니다.'}
                                 </div>
                             )}
                         </>
@@ -224,5 +154,3 @@ export default function Blog() {
     );
 }
 
-// 블로그 데이터 내보내기 (상세 페이지에서 사용)
-export { defaultPosts as blogPosts };

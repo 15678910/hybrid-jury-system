@@ -203,7 +203,7 @@ export default function BlogPost() {
         );
     }
 
-    const postUrl = `https://시민법정.kr/blog/${post.id}`;
+    const postUrl = `https://시민법정.kr/#/blog/${post.id}`;
     const postText = `${post.title} - 시민법정`;
 
     const shareToKakao = () => {

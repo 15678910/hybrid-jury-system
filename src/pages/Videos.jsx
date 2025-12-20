@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { collection, query, orderBy, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 // YouTube URL에서 비디오 ID 추출
@@ -16,17 +16,6 @@ const extractYouTubeId = (url) => {
     }
     return null;
 };
-
-// 샘플 동영상 데이터
-const defaultVideos = [
-    {
-        id: 1,
-        title: '참심제란 무엇인가?',
-        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        description: '참심제의 개념과 필요성을 알기 쉽게 설명합니다.',
-        category: '참심제 소개'
-    }
-];
 
 export default function Videos() {
     const [videos, setVideos] = useState([]);
@@ -56,14 +45,10 @@ export default function Videos() {
                     ...doc.data()
                 }));
 
-                if (firestoreVideos.length > 0) {
-                    setVideos(firestoreVideos);
-                } else {
-                    setVideos(defaultVideos);
-                }
+                setVideos(firestoreVideos);
             } catch (error) {
                 console.error('Error fetching videos:', error);
-                setVideos(defaultVideos);
+                setVideos([]);
             } finally {
                 setLoading(false);
             }
@@ -242,7 +227,7 @@ export default function Videos() {
 
                             {filteredVideos.length === 0 && (
                                 <div className="text-center py-12 text-gray-500">
-                                    해당 카테고리의 동영상이 없습니다.
+                                    {videos.length === 0 ? '등록된 동영상이 없습니다.' : '해당 카테고리의 동영상이 없습니다.'}
                                 </div>
                             )}
                         </>
