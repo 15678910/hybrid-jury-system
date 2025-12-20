@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { doc, getDoc, collection, query, orderBy, getDocs, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 // SNS 아이콘들
@@ -40,19 +40,6 @@ export default function BlogPost() {
     const [post, setPost] = useState(null);
     const [allPosts, setAllPosts] = useState([]);
     const [loading, setLoading] = useState(true);
-
-    // 수정 관련 상태
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [writerCode, setWriterCode] = useState('');
-    const [isVerified, setIsVerified] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [editForm, setEditForm] = useState({
-        title: '',
-        summary: '',
-        content: '',
-        category: ''
-    });
-    const categories = ['참심제 소개', '해외 사례', '사법개혁', '공지사항', '인터뷰', '뉴스'];
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -156,68 +143,6 @@ export default function BlogPost() {
     const shareToInstagram = () => {
         navigator.clipboard.writeText(`${postText} ${postUrl}`);
         alert('텍스트가 복사되었습니다! 인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
-    };
-
-    // 작성자 코드 검증
-    const verifyWriterCode = async () => {
-        if (!writerCode.trim()) {
-            alert('작성자 코드를 입력해주세요.');
-            return;
-        }
-
-        // 글의 작성자 코드와 일치하는지 확인
-        if (post.writerCode === writerCode) {
-            setIsVerified(true);
-        } else {
-            alert('작성자 코드가 일치하지 않습니다.');
-        }
-    };
-
-    // 글 수정 제출
-    const handleEditSubmit = async () => {
-        if (!editForm.title || !editForm.content) {
-            alert('제목과 본문을 입력해주세요.');
-            return;
-        }
-
-        setIsSubmitting(true);
-
-        try {
-            const postRef = doc(db, 'posts', post.id);
-            await updateDoc(postRef, {
-                title: editForm.title,
-                summary: editForm.summary,
-                content: editForm.content,
-                category: editForm.category,
-                updatedAt: serverTimestamp()
-            });
-
-            // 로컬 상태 업데이트
-            setPost({
-                ...post,
-                title: editForm.title,
-                summary: editForm.summary,
-                content: editForm.content,
-                category: editForm.category
-            });
-
-            setShowEditModal(false);
-            setIsVerified(false);
-            setWriterCode('');
-            alert('글이 수정되었습니다!');
-        } catch (error) {
-            console.error('Error updating post:', error);
-            alert('수정에 실패했습니다.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    // 모달 닫기
-    const closeEditModal = () => {
-        setShowEditModal(false);
-        setIsVerified(false);
-        setWriterCode('');
     };
 
     // 이전/다음 글
@@ -417,114 +342,6 @@ export default function BlogPost() {
                     </div>
                 </article>
             </main>
-
-            {/* 수정 모달 */}
-            {showEditModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="p-6">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-900">글 수정</h2>
-                                <button onClick={closeEditModal} className="text-gray-500 hover:text-gray-700">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-
-                            {!isVerified ? (
-                                <div>
-                                    <p className="text-gray-600 mb-4">글을 수정하려면 작성 시 사용한 작성자 코드를 입력해주세요.</p>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={writerCode}
-                                            onChange={(e) => setWriterCode(e.target.value)}
-                                            onKeyDown={(e) => e.key === 'Enter' && verifyWriterCode()}
-                                            placeholder="작성자 코드"
-                                            className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
-                                        <button
-                                            onClick={verifyWriterCode}
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                                        >
-                                            인증
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-green-800 text-sm">
-                                        인증되었습니다. 글을 수정할 수 있습니다.
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">카테고리</label>
-                                        <select
-                                            value={editForm.category}
-                                            onChange={(e) => setEditForm({...editForm, category: e.target.value})}
-                                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        >
-                                            {categories.map(cat => (
-                                                <option key={cat} value={cat}>{cat}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">제목 *</label>
-                                        <input
-                                            type="text"
-                                            value={editForm.title}
-                                            onChange={(e) => setEditForm({...editForm, title: e.target.value})}
-                                            placeholder="글 제목"
-                                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">요약</label>
-                                        <input
-                                            type="text"
-                                            value={editForm.summary}
-                                            onChange={(e) => setEditForm({...editForm, summary: e.target.value})}
-                                            placeholder="글 요약 (1-2문장)"
-                                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">본문 *</label>
-                                        <textarea
-                                            value={editForm.content}
-                                            onChange={(e) => setEditForm({...editForm, content: e.target.value})}
-                                            placeholder="글 내용을 입력하세요"
-                                            rows={10}
-                                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-
-                                    <div className="flex gap-3">
-                                        <button
-                                            onClick={closeEditModal}
-                                            className="flex-1 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300"
-                                        >
-                                            취소
-                                        </button>
-                                        <button
-                                            onClick={handleEditSubmit}
-                                            disabled={isSubmitting}
-                                            className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-blue-400"
-                                        >
-                                            {isSubmitting ? '수정 중...' : '수정 완료'}
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* 푸터 */}
             <footer className="bg-gray-900 text-gray-400 py-6 px-4">
