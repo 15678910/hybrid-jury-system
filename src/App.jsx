@@ -292,10 +292,12 @@ export default function App() {
                             <button onClick={() => scrollToSection('bill')} className="hover:text-blue-600 transition font-medium">법안 제안</button>
 
                             {/* 미디어 드롭다운 */}
-                            <div className="relative">
+                            <div
+                                className="relative"
+                                onMouseEnter={() => setMediaDropdownOpen(true)}
+                                onMouseLeave={() => setTimeout(() => setMediaDropdownOpen(false), 300)}
+                            >
                                 <button
-                                    onClick={() => setMediaDropdownOpen(!mediaDropdownOpen)}
-                                    onBlur={() => setTimeout(() => setMediaDropdownOpen(false), 150)}
                                     className="hover:text-blue-600 transition font-medium flex items-center gap-1"
                                 >
                                     미디어
@@ -304,22 +306,26 @@ export default function App() {
                                     </svg>
                                 </button>
                                 {mediaDropdownOpen && (
-                                    <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border py-2 min-w-[120px] z-50">
-                                        <Link
-                                            to="/blog"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                            onClick={() => setMediaDropdownOpen(false)}
+                                    <>
+                                        <div className="absolute top-full left-0 h-2 w-full" />
+                                        <div
+                                            className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border py-2 min-w-[120px] z-50"
+                                            onMouseEnter={() => setMediaDropdownOpen(true)}
                                         >
-                                            블로그
-                                        </Link>
-                                        <Link
-                                            to="/videos"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                            onClick={() => setMediaDropdownOpen(false)}
-                                        >
-                                            동영상
-                                        </Link>
-                                    </div>
+                                            <a
+                                                href="#/blog"
+                                                className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                            >
+                                                블로그
+                                            </a>
+                                            <a
+                                                href="#/videos"
+                                                className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                            >
+                                                동영상
+                                            </a>
+                                        </div>
+                                    </>
                                 )}
                             </div>
 

@@ -3,6 +3,48 @@ import { Link, useNavigate } from 'react-router-dom';
 import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
+// 텔레그램 그룹에 알림 전송
+const sendTelegramNotification = async (post, postId) => {
+    const BOT_TOKEN = '8250591807:AAElHwHcd8LFVq1lQxx5_q3PWcWibMHsiC8';
+    const CHANNEL_ID = '-1003615735371'; // 시민법정 그룹 chat_id
+
+    const postUrl = `https://시민법정.kr/#/blog/${postId}`;
+
+    const message = `📢 새 글이 등록되었습니다!
+
+📌 ${post.title}
+
+${post.summary}
+
+📂 카테고리: ${post.category}
+✍️ 작성자: ${post.author}
+
+👉 자세히 보기: ${postUrl}`;
+
+    try {
+        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                chat_id: CHANNEL_ID,
+                text: message,
+                disable_web_page_preview: false
+            })
+        });
+
+        const result = await response.json();
+        if (!result.ok) {
+            console.error('Telegram notification failed:', result);
+        }
+        return result.ok;
+    } catch (error) {
+        console.error('Error sending Telegram notification:', error);
+        return false;
+    }
+};
+
 export default function BlogWrite() {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -79,7 +121,18 @@ export default function BlogWrite() {
                 published: true
             });
 
-            alert('글이 성공적으로 등록되었습니다!');
+            // 텔레그램 그룹에 알림 전송
+            const postData = {
+                ...formData,
+                author: writerName
+            };
+            const telegramSent = await sendTelegramNotification(postData, docRef.id);
+
+            if (telegramSent) {
+                alert('글이 등록되고 텔레그램 그룹에 알림이 전송되었습니다!');
+            } else {
+                alert('글이 등록되었습니다! (텔레그램 알림 전송 실패)');
+            }
             navigate(`/blog/${docRef.id}`);
         } catch (error) {
             console.error('Error adding document: ', error);
