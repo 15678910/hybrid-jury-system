@@ -86,6 +86,7 @@ export default function App() {
     const [adminPassword, setAdminPassword] = useState('');
     const [showPosterModal, setShowPosterModal] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [mediaDropdownOpen, setMediaDropdownOpen] = useState(false);
 
     const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin2025'; // 환경변수 사용
 
@@ -288,8 +289,38 @@ export default function App() {
                             <button onClick={() => scrollToSection('cases')} className="hover:text-blue-600 transition font-medium">해외 사례</button>
                             <button onClick={() => scrollToSection('constitution')} className="hover:text-blue-600 transition font-medium">헌법적 근거</button>
                             <button onClick={() => scrollToSection('bill')} className="hover:text-blue-600 transition font-medium">법안 제안</button>
-                            <Link to="/blog" className="hover:text-blue-600 transition font-medium">블로그</Link>
-                            <Link to="/videos" className="hover:text-blue-600 transition font-medium">동영상</Link>
+
+                            {/* 미디어 드롭다운 */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setMediaDropdownOpen(!mediaDropdownOpen)}
+                                    onBlur={() => setTimeout(() => setMediaDropdownOpen(false), 150)}
+                                    className="hover:text-blue-600 transition font-medium flex items-center gap-1"
+                                >
+                                    미디어
+                                    <svg className={`w-4 h-4 transition-transform ${mediaDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                {mediaDropdownOpen && (
+                                    <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border py-2 min-w-[120px] z-50">
+                                        <Link
+                                            to="/blog"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                            onClick={() => setMediaDropdownOpen(false)}
+                                        >
+                                            블로그
+                                        </Link>
+                                        <Link
+                                            to="/videos"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                            onClick={() => setMediaDropdownOpen(false)}
+                                        >
+                                            동영상
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
 
                             <button
                                 onClick={() => setShowPosterModal(true)}
@@ -348,20 +379,25 @@ export default function App() {
                             >
                                 법안 제안
                             </button>
-                            <Link
-                                to="/blog"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
-                            >
-                                블로그
-                            </Link>
-                            <Link
-                                to="/videos"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
-                            >
-                                동영상
-                            </Link>
+
+                            {/* 모바일 미디어 서브메뉴 */}
+                            <div className="border-t border-gray-200 pt-2 mt-2">
+                                <div className="px-4 py-2 text-gray-500 text-sm font-medium">미디어</div>
+                                <Link
+                                    to="/blog"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    블로그
+                                </Link>
+                                <Link
+                                    to="/videos"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    동영상
+                                </Link>
+                            </div>
 
                             <button
                                 onClick={() => { setShowPosterModal(true); setMobileMenuOpen(false); }}
