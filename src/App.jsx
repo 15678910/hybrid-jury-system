@@ -1027,8 +1027,57 @@ export default function App() {
                             </button>
                         </form>
 
-                        {/* 카카오톡 오픈채팅 */}
-                        
+                        {/* SNS 그룹 참여 안내 */}
+                        <div className="mt-8 pt-6 border-t border-gray-200">
+                            <h4 className="text-lg font-bold text-center mb-4 text-gray-800">
+                                SNS 그룹에 참여하세요!
+                            </h4>
+                            <p className="text-sm text-gray-600 text-center mb-4">
+                                함께 소통하고 활동 소식을 받아보세요
+                            </p>
+                            <div className="flex flex-wrap justify-center gap-4">
+                                {/* 카카오톡 오픈채팅 */}
+                                <a
+                                    href="https://open.kakao.com/o/g1wj6P3h"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-14 h-14 flex items-center justify-center bg-[#FEE500] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                                    title="카카오톡"
+                                >
+                                    <KakaoIcon className="w-7 h-7 text-[#391B1B]" />
+                                </a>
+                                {/* 텔레그램 */}
+                                <a
+                                    href="https://t.me/siminbupjung"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-14 h-14 flex items-center justify-center bg-[#0088cc] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                                    title="텔레그램"
+                                >
+                                    <TelegramIcon className="w-7 h-7 text-white" />
+                                </a>
+                                {/* X (트위터) */}
+                                <a
+                                    href="https://x.com/chamsimje67719"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-14 h-14 flex items-center justify-center bg-black rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                                    title="X"
+                                >
+                                    <XIcon className="w-6 h-6 text-white" />
+                                </a>
+                                {/* 페이스북 */}
+                                <a
+                                    href="https://www.facebook.com/profile.php?id=61585298259020"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-14 h-14 flex items-center justify-center bg-[#1877F2] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                                    title="페이스북"
+                                >
+                                    <FacebookIcon className="w-7 h-7 text-white" />
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -1083,52 +1132,52 @@ export default function App() {
             {/* SNS 공유 섹션 */}
             <section className="py-12 px-4 bg-gradient-to-r from-slate-800 to-slate-900">
                 <div className="container mx-auto text-center">
-                    <h3 className="text-xl font-bold text-white mb-6">함께 알려주세요</h3>
+                    <h3 className="text-xl font-bold text-gray-300 mb-6">함께 알려주세요</h3>
 
-                    <div className="flex justify-center gap-6">
+                    <div className="flex justify-center gap-8">
                         {/* 카카오톡 */}
                         <button
                             onClick={shareToKakao}
-                            className="group w-14 h-14 flex items-center justify-center bg-[#FEE500] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                            className="group flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-all duration-300"
                             title="카카오톡"
                         >
-                            <KakaoIcon className="w-7 h-7 text-[#391B1B]" />
+                            <KakaoIcon className="w-8 h-8 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
                         </button>
 
                         {/* 페이스북 */}
                         <button
                             onClick={shareToFacebook}
-                            className="group w-14 h-14 flex items-center justify-center bg-[#1877F2] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                            className="group flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-all duration-300"
                             title="페이스북"
                         >
-                            <FacebookIcon className="w-7 h-7 text-white" />
+                            <FacebookIcon className="w-8 h-8 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
                         </button>
 
                         {/* X (트위터) */}
                         <button
                             onClick={shareToTwitter}
-                            className="group w-14 h-14 flex items-center justify-center bg-black rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                            className="group flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-all duration-300"
                             title="X"
                         >
-                            <XIcon className="w-6 h-6 text-white" />
+                            <XIcon className="w-7 h-7 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
                         </button>
 
                         {/* 인스타그램 */}
                         <button
                             onClick={shareToInstagram}
-                            className="group w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#515BD4] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                            className="group flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-all duration-300"
                             title="인스타그램"
                         >
-                            <InstagramIcon className="w-7 h-7 text-white" />
+                            <InstagramIcon className="w-8 h-8 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
                         </button>
 
                         {/* 텔레그램 */}
                         <button
                             onClick={() => window.open('https://t.me/siminbupjung', '_blank')}
-                            className="group w-14 h-14 flex items-center justify-center bg-[#0088cc] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                            className="group flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-all duration-300"
                             title="텔레그램"
                         >
-                            <TelegramIcon className="w-7 h-7 text-white" />
+                            <TelegramIcon className="w-8 h-8 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
                         </button>
                     </div>
                 </div>
