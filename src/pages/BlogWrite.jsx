@@ -4,13 +4,24 @@ import { collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, do
 import { db } from '../lib/firebase';
 
 // 텔레그램 그룹에 알림 전송
-const sendTelegramNotification = async (post, postId) => {
+const sendTelegramNotification = async (post, postId, isEdit = false) => {
     const BOT_TOKEN = '8250591807:AAElHwHcd8LFVq1lQxx5_q3PWcWibMHsiC8';
     const CHANNEL_ID = '-1003615735371'; // 시민법정 그룹 chat_id
 
     const postUrl = `https://시민법정.kr/#/blog/${postId}`;
 
-    const message = `📢 새 글이 등록되었습니다!
+    const message = isEdit
+        ? `📝 글이 수정되었습니다!
+
+📌 ${post.title}
+
+${post.summary}
+
+📂 카테고리: ${post.category}
+✍️ 작성자: ${post.author}
+
+👉 자세히 보기: ${postUrl}`
+        : `📢 새 글이 등록되었습니다!
 
 📌 ${post.title}
 
@@ -212,7 +223,19 @@ export default function BlogWrite() {
                 updatedAt: serverTimestamp()
             });
 
-            alert('글이 수정되었습니다!');
+            // 텔레그램 그룹에 수정 알림 전송
+            const postData = {
+                ...formData,
+                author: editingPost.author || writerName
+            };
+            const telegramSent = await sendTelegramNotification(postData, editingPost.id, true);
+
+            if (telegramSent) {
+                alert('글이 수정되고 텔레그램 그룹에 알림이 전송되었습니다!');
+            } else {
+                alert('글이 수정되었습니다! (텔레그램 알림 전송 실패)');
+            }
+
             setShowEditModal(false);
             setEditingPost(null);
             setFormData({ title: '', summary: '', content: '', category: '참심제 소개' });
