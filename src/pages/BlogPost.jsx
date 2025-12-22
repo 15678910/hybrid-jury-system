@@ -104,8 +104,8 @@ export default function BlogPost() {
         );
     }
 
-    // SNS 공유 시 #을 %23으로 인코딩해야 텔레그램 등에서 URL이 잘리지 않음
-    const postUrl = `https://시민법정.kr/%23/blog/${post.id}`;
+    // SNS 공유 URL - 영문 도메인 사용 (한글 도메인 인코딩 문제 방지)
+    const postUrl = `https://siminbupjung-blog.web.app/#/blog/${post.id}`;
     const postText = `${post.title} - 시민법정`;
 
     const shareToKakao = () => {
