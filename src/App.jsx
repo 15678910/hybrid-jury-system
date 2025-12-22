@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import Poster from './Poster'
 import { Link } from 'react-router-dom'
 import FloatingChat from './CozeFloatingChat'
+import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { db } from './lib/firebase';
 
 // 카카오톡 아이콘
 const KakaoIcon = ({ className = "w-6 h-6" }) => (
@@ -45,40 +47,13 @@ export default function App() {
     const [formData, setFormData] = useState({
         name: '',
         type: 'individual',
+        address: '',
         talent: '',
         phone: '',
         sns: []
     });
     
-    // 초기 테스트 데이터
-    const initialSignatures = [
-        {
-            id: 1,
-            name: '김민수',
-            type: 'individual',
-            phone: '010-1234-5678',
-            sns: ['telegram'],
-            timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString()
-        },
-        {
-            id: 2,
-            name: '민주시민연대',
-            type: 'organization',
-            phone: '02-1234-5678',
-            sns: ['kakao', 'telegram'],
-            timestamp: new Date(Date.now() - 1000 * 60 * 60).toISOString()
-        },
-        {
-            id: 3,
-            name: '박지영',
-            type: 'individual',
-            phone: '010-9876-5432',
-            sns: ['kakao'],
-            timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString()
-        }
-    ];
-    
-    const [signatures, setSignatures] = useState(initialSignatures);
+    const [signatures, setSignatures] = useState([]);
     const [stats, setStats] = useState({ individual: 0, organization: 0, total: 0, telegram: 0, kakao: 0 });
     const [showNotification, setShowNotification] = useState(false);
     const [latestSignature, setLatestSignature] = useState(null);
@@ -91,14 +66,36 @@ export default function App() {
 
     const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin2025'; // 환경변수 사용
 
+    // Firestore에서 서명 데이터 불러오기
+    useEffect(() => {
+        const fetchSignatures = async () => {
+            try {
+                const signaturesRef = collection(db, 'signatures');
+                const q = query(signaturesRef, orderBy('timestamp', 'desc'));
+                const querySnapshot = await getDocs(q);
+
+                const firestoreSignatures = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                setSignatures(firestoreSignatures);
+            } catch (error) {
+                console.error('Error fetching signatures:', error);
+            }
+        };
+
+        fetchSignatures();
+    }, []);
+
     // 페이지 첫 로드 시 자동으로 포스터 모달 열기
     useEffect(() => {
         // URL 파라미터로 관리자 접근 확인 (먼저)
         const params = new URLSearchParams(window.location.search);
         const adminParam = params.get('key');
-        
+
         console.log('Admin key:', adminParam); // 디버깅용
-        
+
         if (adminParam === 'admin999') {
             console.log('Opening admin login modal'); // 디버깅용
             setShowAdminLogin(true);
@@ -201,49 +198,58 @@ export default function App() {
     };
 
     // 서명 제출
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!formData.name || !formData.phone) {
             alert('이름과 전화번호를 입력해주세요.');
             return;
         }
 
-        const newSignature = {
-            ...formData,
-            timestamp: new Date().toISOString(),
-            id: Date.now()
-        };
+        try {
+            const newSignature = {
+                ...formData,
+                timestamp: new Date().toISOString()
+            };
 
-        const updatedSignatures = [newSignature, ...signatures];
-        setSignatures(updatedSignatures);
+            // Firestore에 저장
+            const docRef = await addDoc(collection(db, 'signatures'), newSignature);
 
-        // 알림 표시
-        setLatestSignature(newSignature);
-        setShowNotification(true);
-        setTimeout(() => setShowNotification(false), 5000);
+            // 로컬 상태 업데이트 (Firestore에서 생성된 ID 사용)
+            const savedSignature = { ...newSignature, id: docRef.id };
+            setSignatures(prev => [savedSignature, ...prev]);
 
-        // SNS 자동 가입 처리
-        if (formData.sns.length > 0) {
-            formData.sns.forEach(platform => {
-                if (platform === 'telegram') {
-                    window.open('https://t.me/judicialreform', '_blank');
-                } else if (platform === 'kakao') {
-                    window.open('https://open.kakao.com/o/judicialreform', '_blank');
-                }
+            // 알림 표시
+            setLatestSignature(savedSignature);
+            setShowNotification(true);
+            setTimeout(() => setShowNotification(false), 5000);
+
+            // SNS 자동 가입 처리
+            if (formData.sns.length > 0) {
+                formData.sns.forEach(platform => {
+                    if (platform === 'telegram') {
+                        window.open('https://t.me/judicialreform', '_blank');
+                    } else if (platform === 'kakao') {
+                        window.open('https://open.kakao.com/o/judicialreform', '_blank');
+                    }
+                });
+            }
+
+            // 폼 초기화
+            setFormData({
+                name: '',
+                type: 'individual',
+                address: '',
+                talent: '',
+                phone: '',
+                sns: []
             });
-        }
 
-        // 폼 초기화
-        setFormData({
-            name: '',
-            type: 'individual',
-            talent: '',
-            phone: '',
-            sns: []
-        });
-        
-        alert('✅ 지지 서명이 등록되었습니다!');
+            alert('✅ 지지 서명이 등록되었습니다!');
+        } catch (error) {
+            console.error('Error saving signature:', error);
+            alert('서명 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
+        }
     };
 
     const scrollToSection = (sectionId) => {
@@ -866,7 +872,7 @@ export default function App() {
                         <div className="bg-white p-8 rounded-lg shadow-lg">
                             <h3 className="text-xl font-bold mb-4 text-blue-600">사법 신뢰 회복 및 투명성</h3>
                             <p className="text-gray-700">
-                                사법이 직업 법관 과료만 운영되는 폐쇄적 구조에서 시민이 참여하는 개방적 구조로 전환하여 
+                                사법이 직업 법관으로만 운영되는 폐쇄적 구조에서 시민이 참여하는 개방적 구조로 전환하여 
                                 사법에 대한 국민의 신뢰를 높이고 투명성을 강화합니다.
                             </p>
                         </div>
@@ -881,7 +887,7 @@ export default function App() {
                         <div className="bg-white p-8 rounded-lg shadow-lg md:col-span-2">
                             <h3 className="text-xl font-bold mb-4 text-blue-600">헌법적 근거: "헌법 개정 없이 가능"</h3>
                             <p className="text-gray-700 mb-4">
-                                혼합형 참심제 도입의 가장 큰 우려는 헌법 제27조 1항("모든 국민은... 법관에 의하여 법률에 의한 재판을 받을 권리를 가진다")과의 충돌입니다.
+                                참심제 도입의 가장 큰 우려는 헌법 제27조 1항("모든 국민은... 법관에 의하여 법률에 의한 재판을 받을 권리를 가진다")과의 충돌입니다.
                             </p>
                             <p className="text-gray-700 mb-4">
                                 그러나 헌법 제101조 3항은 "법관의 자격은 법률로 정한다"고 명시하고 있습니다. 이는 '법관'의 범위를 정하는 권한이 입법부인 국회에 있음을 의미합니다.
@@ -976,6 +982,19 @@ export default function App() {
                                     <option value="individual">개인</option>
                                     <option value="organization">단체</option>
                                 </select>
+                            </div>
+
+                            {/* 주소 */}
+                            <div>
+                                <label className="block font-bold mb-2">주소</label>
+                                <input
+                                    type="text"
+                                    value={formData.address}
+                                    onChange={(e) => setFormData({...formData, address: e.target.value})}
+                                    placeholder="예: 서울시 00구 00동"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                                <p className="text-sm text-gray-500 mt-1">00시 00구 00동까지만 작성해주세요.</p>
                             </div>
 
                             {/* 재능 응원봉 */}

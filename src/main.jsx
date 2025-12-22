@@ -20,14 +20,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/" element={<App />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/blog" element={<AdminBlog />} />
-        <Route path="/admin/videos" element={<AdminVideos />} />
-        <Route path="/chat" element={<HybridChat />} />
+        <Route path="/videos/write" element={<AdminVideos />} />
+                <Route path="/chat" element={<HybridChat />} />
         <Route path="/faq-test" element={<FAQTest />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/write" element={<BlogWrite />} />
         <Route path="/blog/:id" element={<BlogPost />} />
         <Route path="/videos" element={<Videos />} />
-      </Routes>
+              </Routes>
     </HashRouter>
   </React.StrictMode>,
 )
