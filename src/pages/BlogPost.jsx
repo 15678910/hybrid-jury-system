@@ -109,11 +109,10 @@ export default function BlogPost() {
     const postText = `${post.title} - 시민법정`;
 
     const shareToKakao = () => {
-        window.open(
-            `https://story.kakao.com/share?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(postText)}`,
-            '_blank',
-            'width=600,height=400'
-        );
+        // 카카오톡 공유 - URL과 텍스트 복사
+        const shareText = `${postText}\n${postUrl}`;
+        navigator.clipboard.writeText(shareText);
+        alert('링크가 복사되었습니다!\n카카오톡에 붙여넣기 해주세요.');
     };
 
     const shareToFacebook = () => {
