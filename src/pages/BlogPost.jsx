@@ -40,6 +40,40 @@ export default function BlogPost() {
     const [post, setPost] = useState(null);
     const [allPosts, setAllPosts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [kakaoReady, setKakaoReady] = useState(false);
+
+    // 카카오 SDK 초기화
+    useEffect(() => {
+        const initKakao = () => {
+            if (window.Kakao && !window.Kakao.isInitialized()) {
+                try {
+                    window.Kakao.init('83e843186c1251b9b5a8013fd5f29798');
+                    console.log('Kakao SDK initialized');
+                    setKakaoReady(true);
+                } catch (e) {
+                    console.error('Kakao init error:', e);
+                }
+            } else if (window.Kakao?.isInitialized()) {
+                setKakaoReady(true);
+            }
+        };
+
+        // SDK가 이미 로드되어 있으면 바로 초기화
+        if (window.Kakao) {
+            initKakao();
+        } else {
+            // SDK 로드 대기
+            const checkKakao = setInterval(() => {
+                if (window.Kakao) {
+                    clearInterval(checkKakao);
+                    initKakao();
+                }
+            }, 100);
+
+            // 5초 후 타임아웃
+            setTimeout(() => clearInterval(checkKakao), 5000);
+        }
+    }, []);
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -109,7 +143,43 @@ export default function BlogPost() {
     const postText = `${post.title} - 시민법정`;
 
     const shareToKakao = () => {
-        // 카카오톡 공유 - URL과 텍스트 복사
+        console.log('Kakao SDK ready:', kakaoReady);
+        console.log('Kakao object:', window.Kakao);
+
+        if (kakaoReady && window.Kakao?.isInitialized()) {
+            try {
+                window.Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: post.title,
+                        description: '시민법정 - 참심제로 시민이 판사가 되는 사법개혁',
+                        imageUrl: 'https://siminbupjung-blog.web.app/og-image.png',
+                        link: {
+                            mobileWebUrl: postUrl,
+                            webUrl: postUrl,
+                        },
+                    },
+                    buttons: [
+                        {
+                            title: '자세히 보기',
+                            link: {
+                                mobileWebUrl: postUrl,
+                                webUrl: postUrl,
+                            },
+                        },
+                    ],
+                });
+            } catch (e) {
+                console.error('Kakao share error:', e);
+                fallbackShare();
+            }
+        } else {
+            console.log('Kakao SDK not ready, using fallback');
+            fallbackShare();
+        }
+    };
+
+    const fallbackShare = () => {
         const shareText = `${postText}\n${postUrl}`;
         navigator.clipboard.writeText(shareText);
         alert('링크가 복사되었습니다!\n카카오톡에 붙여넣기 해주세요.');
