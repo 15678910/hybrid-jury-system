@@ -8,7 +8,7 @@ const sendTelegramNotification = async (post, postId, isEdit = false) => {
     const BOT_TOKEN = '8250591807:AAElHwHcd8LFVq1lQxx5_q3PWcWibMHsiC8';
     const CHANNEL_ID = '-1003615735371'; // 시민법정 그룹 chat_id
 
-    const postUrl = `https://시민법정.kr/#/blog/${postId}`;
+    const postUrl = `https://siminbupjung-blog.web.app/#/blog/${postId}`;
 
     const message = isEdit
         ? `📝 글이 수정되었습니다!
