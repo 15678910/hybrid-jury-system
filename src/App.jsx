@@ -94,6 +94,7 @@ export default function App() {
     const [showPosterModal, setShowPosterModal] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [mediaDropdownOpen, setMediaDropdownOpen] = useState(false);
+    const [introDropdownOpen, setIntroDropdownOpen] = useState(false);
 
     // SMS 인증 관련 상태
     const [verificationCode, setVerificationCode] = useState('');
@@ -531,6 +532,45 @@ export default function App() {
 
                         {/* 데스크톱 메뉴 */}
                         <div className="hidden lg:flex space-x-6 text-sm items-center">
+                            {/* 소개 드롭다운 */}
+                            <div
+                                className="relative"
+                                onMouseEnter={() => setIntroDropdownOpen(true)}
+                                onMouseLeave={() => setTimeout(() => setIntroDropdownOpen(false), 300)}
+                            >
+                                <button
+                                    className="hover:text-blue-600 transition font-medium flex items-center gap-1"
+                                >
+                                    소개
+                                    <svg className={`w-4 h-4 transition-transform ${introDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                {introDropdownOpen && (
+                                    <>
+                                        <div className="absolute top-full left-0 h-2 w-full" />
+                                        <div
+                                            className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border py-2 min-w-[140px] z-50"
+                                            onMouseEnter={() => setIntroDropdownOpen(true)}
+                                        >
+                                            <a
+                                                href="/intro.html"
+                                                className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                                onClick={() => setIntroDropdownOpen(false)}
+                                            >
+                                                소개
+                                            </a>
+                                            <a
+                                                href="/community.html"
+                                                className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                                onClick={() => setIntroDropdownOpen(false)}
+                                            >
+                                                소통방
+                                            </a>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                             <button onClick={() => scrollToSection('necessity')} className="hover:text-blue-600 transition font-medium">도입 필요성</button>
                             <button onClick={() => scrollToSection('cases')} className="hover:text-blue-600 transition font-medium">해외 사례</button>
                             <button onClick={() => scrollToSection('constitution')} className="hover:text-blue-600 transition font-medium">헌법적 근거</button>
@@ -609,6 +649,24 @@ export default function App() {
                     {/* 모바일 메뉴 드롭다운 */}
                     {mobileMenuOpen && (
                         <div className="lg:hidden bg-white border-t border-gray-200 py-4 space-y-2">
+                            {/* 모바일 소개 서브메뉴 */}
+                            <div className="border-b border-gray-200 pb-2 mb-2">
+                                <div className="px-4 py-2 text-gray-500 text-sm font-medium">소개</div>
+                                <a
+                                    href="/intro.html"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    소개
+                                </a>
+                                <a
+                                    href="/community.html"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    소통방
+                                </a>
+                            </div>
                             <button
                                 onClick={() => { scrollToSection('necessity'); setMobileMenuOpen(false); }}
                                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
@@ -722,7 +780,7 @@ export default function App() {
                         헌법 개정 없이 가능한
                     </h1>
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                        <span className="text-orange-400">시민법정 참심제!</span>
+                        <span className="text-orange-400">시민법관 참심제!</span>
                     </h1>
                     <p className="text-lg md:text-xl mb-8 max-w-3xl mx-auto">
                         '모든 권력은 국민으로부터 나온다'는 헌법 제1조 2항의 정신을 사법에서 실현합니다.

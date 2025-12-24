@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>소개 - 시민법관 참심제란? | 시민법정</title>
+    <meta name="description" content="시민법관 참심제란 무엇인가? 헌법 개정 없이 가능한 사법개혁, 시민이 재판에 참여하는 새로운 사법제도를 소개합니다.">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #1e40af 50%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .title {
+            color: #1e40af;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .title:hover {
+            color: #1d4ed8;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .content-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .content-box h1 {
+            color: #1e40af;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .content-box h2 {
+            color: #1e40af;
+            font-size: 1.5rem;
+            margin: 30px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .content-box h3 {
+            color: #374151;
+            font-size: 1.2rem;
+            margin: 20px 0 10px;
+        }
+
+        .content-box p {
+            color: #374151;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+        }
+
+        .content-box ul {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .content-box li {
+            color: #374151;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .highlight-box p {
+            margin: 0;
+            color: #1e40af;
+            font-weight: 500;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid #e5e7eb;
+        }
+
+        .comparison-table th {
+            background: #1e40af;
+            color: white;
+            font-weight: bold;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .emoji-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+
+        .emoji-card .emoji {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .emoji-card .text h4 {
+            color: #1e40af;
+            margin-bottom: 5px;
+        }
+
+        .emoji-card .text p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            color: white;
+        }
+
+        .cta-section h2 {
+            color: white;
+            border: none;
+            margin-bottom: 15px;
+        }
+
+        .cta-section p {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 25px;
+        }
+
+        .cta-section .btn {
+            background: white;
+            color: #3b82f6;
+            font-size: 1.1rem;
+            padding: 15px 30px;
+        }
+
+        .cta-section .btn:hover {
+            background: #f8fafc;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        footer a {
+            color: #93c5fd;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 1.2rem;
+            }
+
+            .header-content {
+                justify-content: center;
+            }
+
+            .content-box {
+                padding: 25px;
+            }
+
+            .content-box h1 {
+                font-size: 1.5rem;
+            }
+
+            .comparison-table {
+                font-size: 0.9rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <a href="/" class="title">⚖️ 시민법정</a>
+            <div class="buttons">
+                <a href="/" class="btn btn-primary">홈으로</a>
+                <a href="/proposal.html" class="btn btn-success">제안서 보기</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container -->
+    <div class="container">
+        <!-- 메인 콘텐츠 -->
+        <div class="content-box">
+            <h1 style="color: #dc2626; font-size: 2.8rem; margin-bottom: 20px;">현대판 봉건제!</h1>
+            <p style="text-align: center; color: #f97316; font-size: 1.8rem; font-weight: bold; margin-bottom: 20px;">대한민국에만 없는 시민법관 참심제!</p>
+
+            <h2 style="text-align: center; border: none; margin-top: 0;">주권자에 의한 시민법관 참심제란?</h2>
+
+            <p>
+                <strong>시민법관 참심제</strong>는 직업 법관과 시민이 함께 재판에 참여하여
+                유·무죄 판단과 양형을 결정하는 사법제도입니다.
+                '모든 권력은 국민으로부터 나온다'는 헌법 제1조 2항의 정신을 사법 영역에서 실현하는 제도입니다.
+            </p>
+
+            <div class="highlight-box">
+                <p>
+                    "헌법 개정 없이 법률 개정만으로 도입 가능한 사법개혁"<br>
+                    독일, 프랑스 등 선진국에서 이미 성공적으로 운영 중인 제도입니다.
+                </p>
+            </div>
+
+            <h2>왜 시민법관 참심제인가?</h2>
+
+            <div class="emoji-card">
+                <div class="emoji">⚖️</div>
+                <div class="text">
+                    <h4>사법 민주화</h4>
+                    <p>시민이 직접 재판에 참여하여 사법부의 민주적 정당성을 강화합니다.</p>
+                </div>
+            </div>
+
+            <div class="emoji-card">
+                <div class="emoji">🛡️</div>
+                <div class="text">
+                    <h4>견제와 균형</h4>
+                    <p>시민의 상식과 법관의 전문성이 조화를 이루어 더 나은 판결을 도출합니다.</p>
+                </div>
+            </div>
+
+            <div class="emoji-card">
+                <div class="emoji">🔍</div>
+                <div class="text">
+                    <h4>재판의 투명성</h4>
+                    <p>시민 참여를 통해 재판 과정의 투명성과 신뢰도를 높입니다.</p>
+                </div>
+            </div>
+
+            <div class="emoji-card">
+                <div class="emoji">📜</div>
+                <div class="text">
+                    <h4>헌법 개정 불필요</h4>
+                    <p>현행 헌법 체계 내에서 법률 개정만으로 도입이 가능합니다.</p>
+                </div>
+            </div>
+
+            <h2>현행 국민참여재판과의 차이</h2>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>구분</th>
+                        <th>현행 국민참여재판</th>
+                        <th>시민법관 참심제</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>법적 구속력</strong></td>
+                        <td>권고적 효력 (판사 무시 가능)</td>
+                        <td>법적 구속력 있는 판결</td>
+                    </tr>
+                    <tr>
+                        <td><strong>피고인 선택</strong></td>
+                        <td>피고인이 거부 가능</td>
+                        <td>일정 사건 필수 적용</td>
+                    </tr>
+                    <tr>
+                        <td><strong>시민 역할</strong></td>
+                        <td>배심원 (평결만 참여)</td>
+                        <td>참심원 (심리+판결 참여)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>재판 구성</strong></td>
+                        <td>법관 3명 + 배심원 별도</td>
+                        <td>법관 + 시민 혼합 재판부</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>해외 사례</h2>
+
+            <h3>독일</h3>
+            <p>
+                참심원(Schöffe) 제도를 200년 이상 운영 중입니다.
+                형사재판에서 직업 법관 1~3명과 시민 참심원 2명이 함께 재판부를 구성하며,
+                유·무죄 판단과 양형을 함께 결정합니다.
+            </p>
+
+            <h3>프랑스</h3>
+            <p>
+                중범죄 재판(Cour d'assises)에서 직업 법관 3명과 시민 배심원 6~9명이
+                함께 재판하며, 유·무죄와 양형을 모두 결정합니다.
+            </p>
+
+            <h3>일본</h3>
+            <p>
+                2009년부터 재판원 제도를 시행 중입니다.
+                직업 법관 3명과 시민 재판원 6명이 함께 심리하고,
+                유·무죄 판단과 양형을 함께 결정합니다.
+            </p>
+
+            <h2>도입 방안</h2>
+
+            <ul>
+                <li><strong>1단계:</strong> 「국민의 형사재판 참여에 관한 법률」 개정</li>
+                <li><strong>2단계:</strong> 시민법관 선발 및 교육 시스템 구축</li>
+                <li><strong>3단계:</strong> 시범 운영 후 전국 확대</li>
+            </ul>
+
+            <div class="highlight-box">
+                <p>
+                    자세한 내용은 <a href="/proposal.html" style="color: #1e40af; font-weight: bold;">제안서 및 법률안</a>에서 확인하실 수 있습니다.
+                </p>
+            </div>
+        </div>
+
+        <!-- CTA 섹션 -->
+        <div class="cta-section">
+            <h2>함께 만들어가는 사법개혁</h2>
+            <p>
+                시민법관 참심제 도입을 위한 준비위원으로 참여해주세요.<br>
+                온라인 준비위원으로 1만명이 참여하면 광장에서 민주주의를 시작합니다.
+            </p>
+            <a href="/#signature" class="btn">준비위원으로 참여하기</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>(가칭) 주권자사법개혁추진위원회</p>
+        <p style="margin-top: 10px;">
+            <a href="/">www.시민법정.kr</a>
+        </p>
+    </footer>
+</body>
+</html>
