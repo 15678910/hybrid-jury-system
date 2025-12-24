@@ -6,9 +6,9 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 const db = admin.firestore();
 
-// 텔레그램 봇 설정
-const BOT_TOKEN = '8250591807:AAElHwHcd8LFVq1lQxx5_q3PWcWibMHsiC8';
-const GROUP_CHAT_ID = '-1003615735371';
+// 텔레그램 봇 설정 (환경변수에서 가져옴)
+const BOT_TOKEN = functions.config().telegram?.bot_token || process.env.TELEGRAM_BOT_TOKEN;
+const GROUP_CHAT_ID = functions.config().telegram?.group_chat_id || process.env.TELEGRAM_GROUP_CHAT_ID || '-1003615735371';
 
 // 환영 메시지 템플릿
 const getWelcomeMessage = (userName) => {
@@ -126,6 +126,143 @@ exports.getWebhookInfo = functions.https.onRequest(async (req, res) => {
 });
 
 // ============================================
+// 일일 등록 제한 확인 API
+// ============================================
+
+const DAILY_LIMIT = 1000; // 하루 최대 등록 수
+
+exports.checkDailyLimit = functions.https.onRequest(async (req, res) => {
+    // CORS 설정
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+    }
+
+    try {
+        // 한국 시간 기준 오늘 00:00:00
+        const now = new Date();
+        const koreaOffset = 9 * 60 * 60 * 1000; // UTC+9
+        const koreaTime = new Date(now.getTime() + koreaOffset);
+        const todayStart = new Date(koreaTime.getFullYear(), koreaTime.getMonth(), koreaTime.getDate());
+        todayStart.setTime(todayStart.getTime() - koreaOffset); // UTC로 변환
+
+        // 오늘 등록된 서명 수 조회
+        const signaturesRef = db.collection('signatures');
+        const todaySignatures = await signaturesRef
+            .where('timestamp', '>=', todayStart)
+            .get();
+
+        const todayCount = todaySignatures.size;
+        const remaining = Math.max(0, DAILY_LIMIT - todayCount);
+        const isLimitReached = todayCount >= DAILY_LIMIT;
+
+        res.json({
+            todayCount,
+            dailyLimit: DAILY_LIMIT,
+            remaining,
+            isLimitReached
+        });
+    } catch (error) {
+        console.error('Error checking daily limit:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// 서명 등록 API (백엔드 검증 포함)
+// ============================================
+
+exports.registerSignature = functions.https.onRequest(async (req, res) => {
+    // CORS 설정
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+    }
+
+    if (req.method !== 'POST') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+    }
+
+    try {
+        const { name, phone, type, address, talent } = req.body;
+
+        // 필수 필드 검증
+        if (!name || !phone || !type) {
+            res.status(400).json({ error: '필수 정보가 누락되었습니다.' });
+            return;
+        }
+
+        // 타입 검증
+        if (!['individual', 'organization'].includes(type)) {
+            res.status(400).json({ error: '잘못된 구분입니다.' });
+            return;
+        }
+
+        // 한국 시간 기준 오늘 00:00:00
+        const now = new Date();
+        const koreaOffset = 9 * 60 * 60 * 1000;
+        const koreaTime = new Date(now.getTime() + koreaOffset);
+        const todayStart = new Date(koreaTime.getFullYear(), koreaTime.getMonth(), koreaTime.getDate());
+        todayStart.setTime(todayStart.getTime() - koreaOffset);
+
+        // 일일 제한 확인
+        const signaturesRef = db.collection('signatures');
+        const todaySignatures = await signaturesRef
+            .where('timestamp', '>=', todayStart)
+            .get();
+
+        if (todaySignatures.size >= DAILY_LIMIT) {
+            res.status(429).json({
+                error: '오늘 등록이 마감되었습니다.',
+                message: '시스템 안정을 위해 하루 등록 인원을 제한하고 있습니다. 내일 다시 시도해주세요.'
+            });
+            return;
+        }
+
+        // 전화번호 중복 확인
+        const phoneClean = phone.replace(/[\s-]/g, '');
+        const existingPhone = await signaturesRef
+            .where('phone', '==', phoneClean)
+            .get();
+
+        if (!existingPhone.empty) {
+            res.status(409).json({ error: '이미 등록된 전화번호입니다.' });
+            return;
+        }
+
+        // 서명 등록
+        const signatureData = {
+            name: name.trim(),
+            phone: phoneClean,
+            type,
+            address: address || '',
+            talent: talent || '',
+            timestamp: new Date()
+        };
+
+        const docRef = await signaturesRef.add(signatureData);
+
+        res.json({
+            success: true,
+            id: docRef.id,
+            message: '서명이 등록되었습니다.'
+        });
+    } catch (error) {
+        console.error('Error registering signature:', error);
+        res.status(500).json({ error: '서명 등록 중 오류가 발생했습니다.' });
+    }
+});
+
+// ============================================
 // 새 서명 등록 시 관리자 알림
 // ============================================
 
@@ -181,6 +318,48 @@ exports.onNewSignature = functions.firestore
 
         return null;
     });
+
+// ============================================
+// 블로그 글 알림 API (프론트엔드에서 호출)
+// ============================================
+
+exports.sendBlogNotification = functions.https.onRequest(async (req, res) => {
+    // CORS 설정
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+    }
+
+    if (req.method !== 'POST') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+    }
+
+    try {
+        const { post, postId, isEdit } = req.body;
+
+        if (!post || !postId) {
+            res.status(400).json({ error: 'Missing required fields' });
+            return;
+        }
+
+        const postUrl = `https://siminbupjung-blog.web.app/#/blog/${postId}`;
+
+        const message = isEdit
+            ? `📝 글이 수정되었습니다!\n\n📌 ${post.title}\n\n${post.summary}\n\n📂 카테고리: ${post.category}\n✍️ 작성자: ${post.author}\n\n👉 자세히 보기: ${postUrl}`
+            : `📢 새 글이 등록되었습니다!\n\n📌 ${post.title}\n\n${post.summary}\n\n📂 카테고리: ${post.category}\n✍️ 작성자: ${post.author}\n\n👉 자세히 보기: ${postUrl}`;
+
+        await sendTelegramMessage(GROUP_CHAT_ID, message);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Blog notification error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // ============================================
 // 블로그 SSR - 동적 OG 태그 생성

@@ -3,53 +3,28 @@ import { Link } from 'react-router-dom';
 import { collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
-// 텔레그램 그룹에 알림 전송
+// 텔레그램 그룹에 알림 전송 (백엔드 API를 통해)
 const sendTelegramNotification = async (post, postId, isEdit = false) => {
-    const BOT_TOKEN = '8250591807:AAElHwHcd8LFVq1lQxx5_q3PWcWibMHsiC8';
-    const CHANNEL_ID = '-1003615735371'; // 시민법정 그룹 chat_id
-
-    const postUrl = `https://siminbupjung-blog.web.app/#/blog/${postId}`;
-
-    const message = isEdit
-        ? `📝 글이 수정되었습니다!
-
-📌 ${post.title}
-
-${post.summary}
-
-📂 카테고리: ${post.category}
-✍️ 작성자: ${post.author}
-
-👉 자세히 보기: ${postUrl}`
-        : `📢 새 글이 등록되었습니다!
-
-📌 ${post.title}
-
-${post.summary}
-
-📂 카테고리: ${post.category}
-✍️ 작성자: ${post.author}
-
-👉 자세히 보기: ${postUrl}`;
-
     try {
-        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        const response = await fetch('https://us-central1-siminbupjung-blog.cloudfunctions.net/sendBlogNotification', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                chat_id: CHANNEL_ID,
-                text: message,
-                disable_web_page_preview: false
+                post: {
+                    title: post.title,
+                    summary: post.summary,
+                    category: post.category,
+                    author: post.author
+                },
+                postId,
+                isEdit
             })
         });
 
         const result = await response.json();
-        if (!result.ok) {
-            console.error('Telegram notification failed:', result);
-        }
-        return result.ok;
+        return result.success;
     } catch (error) {
         console.error('Error sending Telegram notification:', error);
         return false;
