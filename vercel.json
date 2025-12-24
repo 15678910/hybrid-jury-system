@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/blog/:path*",
+      "destination": "https://us-central1-siminbupjung-blog.cloudfunctions.net/blog/:path*"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/:path*"
     }

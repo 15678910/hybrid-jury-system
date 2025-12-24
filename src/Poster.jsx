@@ -3,15 +3,10 @@ import { useRef, useEffect } from 'react'
 function Poster({ onClose }) {
   const audioRef = useRef(null)
 
-  // 컴포넌트 마운트 시 Audio 객체 생성 및 자동 재생 시도
+  // 컴포넌트 마운트 시 Audio 객체 생성 (자동 재생 X)
   useEffect(() => {
     audioRef.current = new Audio('/music.mp3')
     audioRef.current.loop = true
-
-    // 자동 재생 시도 (헤더에서 클릭 시 작동)
-    audioRef.current.play()
-      .then(() => console.log('자동 재생 성공'))
-      .catch(err => console.log('자동 재생 실패 (포스터 클릭하세요):', err))
 
     return () => {
       if (audioRef.current) {
@@ -20,6 +15,19 @@ function Poster({ onClose }) {
       }
     }
   }, [])
+
+  // 포스터 이미지 클릭 시 음악 재생/정지
+  const handleImageClick = () => {
+    if (!audioRef.current) return
+
+    if (audioRef.current.paused) {
+      audioRef.current.play()
+        .then(() => console.log('음악 재생 성공'))
+        .catch(err => console.log('재생 실패:', err))
+    } else {
+      audioRef.current.pause()
+    }
+  }
 
   const handleParticipate = () => {
     if (audioRef.current) audioRef.current.pause()
@@ -35,19 +43,6 @@ function Poster({ onClose }) {
   const handleClose = () => {
     if (audioRef.current) audioRef.current.pause()
     if (onClose) onClose()
-  }
-
-  // 포스터 이미지 클릭 시 음악 재생/정지
-  const handleImageClick = () => {
-    if (!audioRef.current) return
-    
-    if (audioRef.current.paused) {
-      audioRef.current.play()
-        .then(() => console.log('음악 재생 성공'))
-        .catch(err => console.log('재생 실패:', err))
-    } else {
-      audioRef.current.pause()
-    }
   }
 
   return (

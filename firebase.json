@@ -8,6 +8,10 @@
     ],
     "rewrites": [
       {
+        "source": "/blog/**",
+        "function": "blog"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

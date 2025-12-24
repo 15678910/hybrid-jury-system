@@ -1,58 +1,89 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Poster from './Poster'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import FloatingChat from './CozeFloatingChat'
-import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from './lib/firebase';
+import { collection, addDoc, getDocs, query, orderBy, where } from 'firebase/firestore';
+import { db, auth, RecaptchaVerifier, signInWithPhoneNumber } from './lib/firebase';
 
 // 카카오톡 아이콘
 const KakaoIcon = ({ className = "w-6 h-6" }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 3C6.48 3 2 6.58 2 11c0 2.84 1.89 5.33 4.71 6.73l-.96 3.57c-.07.27.2.5.45.38l4.27-2.43c.49.05 1 .08 1.53.08 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/>
+        <path d="M12 3C6.48 3 2 6.58 2 11c0 2.84 1.89 5.33 4.71 6.73l-.96 3.57c-.07.27.2.5.45.38l4.27-2.43c.49.05 1 .08 1.53.08 5.52 0 10-3.58 10-8s-4.48-8-10-8z" />
     </svg>
 );
 
 // 페이스북 아이콘
 const FacebookIcon = ({ className = "w-6 h-6" }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
     </svg>
 );
 
 // X (트위터) 아이콘
 const XIcon = ({ className = "w-6 h-6" }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
     </svg>
 );
 
 // 인스타그램 아이콘
 const InstagramIcon = ({ className = "w-6 h-6" }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
     </svg>
 );
+
+// 이름 마스킹 함수 (예: 홍길동 → 홍*동)
+const maskName = (name) => {
+    if (!name || name.length === 0) return '';
+    if (name.length === 1) return name;
+    if (name.length === 2) return name[0] + '*';
+    // 3글자 이상: 첫 글자와 마지막 글자만 보이고 중간은 *
+    const first = name[0];
+    const last = name[name.length - 1];
+    const middle = '*'.repeat(name.length - 2);
+    return first + middle + last;
+};
+
+// 전화번호 마스킹 함수 (예: 010-1234-5678 → 010-****-5678)
+const maskPhone = (phone) => {
+    if (!phone) return '';
+    // 하이픈이 있는 경우
+    if (phone.includes('-')) {
+        const parts = phone.split('-');
+        if (parts.length === 3) {
+            return `${parts[0]}-****-${parts[2]}`;
+        }
+    }
+    // 하이픈이 없는 경우 (예: 01012345678)
+    if (phone.length === 11) {
+        return phone.slice(0, 3) + '-****-' + phone.slice(7);
+    }
+    return phone;
+};
 
 // 텔레그램 아이콘
 const TelegramIcon = ({ className = "w-6 h-6" }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
     </svg>
 );
 
 export default function App() {
+    const navigate = useNavigate();
     const [activeSection, setActiveSection] = useState('home');
     const [selectedCountry, setSelectedCountry] = useState('독일');
-    
+
     const [formData, setFormData] = useState({
         name: '',
         type: 'individual',
         address: '',
         talent: '',
         phone: '',
-        sns: []
+        sns: [],
+        addressVerified: false // Daum API로 입력된 주소인지 확인
     });
-    
+
     const [signatures, setSignatures] = useState([]);
     const [stats, setStats] = useState({ individual: 0, organization: 0, total: 0, telegram: 0, kakao: 0 });
     const [showNotification, setShowNotification] = useState(false);
@@ -63,6 +94,20 @@ export default function App() {
     const [showPosterModal, setShowPosterModal] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [mediaDropdownOpen, setMediaDropdownOpen] = useState(false);
+
+    // SMS 인증 관련 상태
+    const [verificationCode, setVerificationCode] = useState('');
+    const [confirmationResult, setConfirmationResult] = useState(null);
+    const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+    const [isSendingCode, setIsSendingCode] = useState(false);
+    const [isVerifying, setIsVerifying] = useState(false);
+    const recaptchaContainerRef = useRef(null);
+    const recaptchaVerifierRef = useRef(null);
+
+    // 하루 등록 제한 관련 상태
+    const [todayRegistrations, setTodayRegistrations] = useState(0);
+    const [isDailyLimitReached, setIsDailyLimitReached] = useState(false);
+    const DAILY_LIMIT = 1000; // 하루 최대 등록 수 (Firebase 무료 한도)
 
     const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin2025'; // 환경변수 사용
 
@@ -80,6 +125,17 @@ export default function App() {
                 }));
 
                 setSignatures(firestoreSignatures);
+
+                // 오늘 등록자 수 계산
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayCount = firestoreSignatures.filter(sig => {
+                    const sigDate = new Date(sig.timestamp);
+                    return sigDate >= today;
+                }).length;
+
+                setTodayRegistrations(todayCount);
+                setIsDailyLimitReached(todayCount >= DAILY_LIMIT);
             } catch (error) {
                 console.error('Error fetching signatures:', error);
             }
@@ -92,6 +148,15 @@ export default function App() {
     useEffect(() => {
         // URL 파라미터로 관리자 접근 확인 (먼저)
         const params = new URLSearchParams(window.location.search);
+
+        // Redirect 파라미터 체크 (우선순위 높음)
+        const redirectPath = params.get('r');
+        if (redirectPath) {
+            // URL에서 r 파라미터 제거하고 해당 경로로 이동
+            navigate(redirectPath, { replace: true });
+            return; // 다른 로직 실행하지 않음
+        }
+
         const adminParam = params.get('key');
 
         console.log('Admin key:', adminParam); // 디버깅용
@@ -103,7 +168,7 @@ export default function App() {
             // 관리자가 아닐 때만 포스터 팝업
             setShowPosterModal(true);
         }
-    }, []);
+    }, [navigate]);
 
     // 초기 데이터 로드 및 통계 업데이트
     useEffect(() => {
@@ -149,7 +214,7 @@ export default function App() {
     const downloadExcel = async () => {
         // SheetJS 동적 로드
         const XLSX = await import('https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs');
-        
+
         // 데이터 준비
         const excelData = signatures.map((sig, index) => ({
             '번호': signatures.length - index,
@@ -173,11 +238,11 @@ export default function App() {
 
         // 워크북 생성
         const wb = XLSX.utils.book_new();
-        
+
         // 서명 데이터 시트
         const ws1 = XLSX.utils.json_to_sheet(excelData);
         XLSX.utils.book_append_sheet(wb, ws1, '지지서명목록');
-        
+
         // 통계 시트
         const ws2 = XLSX.utils.json_to_sheet(statsData);
         XLSX.utils.book_append_sheet(wb, ws2, '통계');
@@ -197,6 +262,100 @@ export default function App() {
         }));
     };
 
+    // reCAPTCHA 초기화
+    const initRecaptcha = () => {
+        if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
+            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+                size: 'invisible',
+                callback: () => {
+                    console.log('reCAPTCHA solved');
+                },
+                'expired-callback': () => {
+                    console.log('reCAPTCHA expired');
+                    recaptchaVerifierRef.current = null;
+                }
+            });
+        }
+    };
+
+    // SMS 인증 코드 발송
+    const sendVerificationCode = async () => {
+        // 하루 등록 한도 체크
+        if (isDailyLimitReached) {
+            alert('오늘 등록 한도(1,000명)에 도달했습니다.\n내일 다시 시도해주세요.');
+            return;
+        }
+
+        const phoneClean = formData.phone.replace(/[\s-]/g, '');
+        console.log('전화번호 검증:', phoneClean, '길이:', phoneClean.length);
+
+        // 전화번호 형식 검증
+        if (!/^01[0-9][0-9]{7,8}$/.test(phoneClean)) {
+            alert(`올바른 전화번호를 입력해주세요.\n입력값: ${phoneClean}\n길이: ${phoneClean.length}`);
+            return;
+        }
+
+        // 중복 체크
+        const existingPhone = signatures.find(sig =>
+            sig.phone && sig.phone.replace(/[\s-]/g, '') === phoneClean
+        );
+        if (existingPhone) {
+            alert('이미 등록된 전화번호입니다.');
+            return;
+        }
+
+        setIsSendingCode(true);
+
+        try {
+            initRecaptcha();
+
+            // 한국 국가 코드 추가
+            const phoneNumber = '+82' + phoneClean.substring(1);
+
+            const confirmation = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifierRef.current);
+            setConfirmationResult(confirmation);
+            alert('인증 코드가 발송되었습니다. SMS를 확인해주세요.');
+        } catch (error) {
+            console.error('SMS 발송 오류:', error);
+            if (error.code === 'auth/too-many-requests') {
+                alert('너무 많은 요청이 있었습니다. 잠시 후 다시 시도해주세요.');
+            } else if (error.code === 'auth/invalid-phone-number') {
+                alert('유효하지 않은 전화번호입니다.');
+            } else {
+                alert(`인증 코드 발송에 실패했습니다.\n에러 코드: ${error.code}\n메시지: ${error.message}`);
+            }
+            // reCAPTCHA 리셋
+            recaptchaVerifierRef.current = null;
+        } finally {
+            setIsSendingCode(false);
+        }
+    };
+
+    // 인증 코드 확인
+    const verifyCode = async () => {
+        if (!verificationCode || verificationCode.length !== 6) {
+            alert('6자리 인증 코드를 입력해주세요.');
+            return;
+        }
+
+        setIsVerifying(true);
+
+        try {
+            await confirmationResult.confirm(verificationCode);
+            setIsPhoneVerified(true);
+            alert('전화번호 인증이 완료되었습니다!');
+        } catch (error) {
+            console.error('인증 코드 확인 오류:', error);
+            if (error.code === 'auth/invalid-verification-code') {
+                alert('인증 코드가 올바르지 않습니다.');
+            } else {
+                alert('인증에 실패했습니다. 다시 시도해주세요.');
+            }
+        } finally {
+            setIsVerifying(false);
+        }
+    };
+
     // 서명 제출
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -206,9 +365,76 @@ export default function App() {
             return;
         }
 
+        // 전화번호 인증 확인
+        if (!isPhoneVerified) {
+            alert('전화번호 인증을 완료해주세요.');
+            return;
+        }
+
+        // 이름 유효성 검증 (한글 2-20자, 단체명은 더 길 수 있음)
+        const nameRegex = /^[가-힣a-zA-Z\s]{2,20}$/;
+        if (!nameRegex.test(formData.name.trim())) {
+            alert('이름을 올바르게 입력해주세요. (한글 또는 영문 2-20자)');
+            return;
+        }
+
+        // 전화번호 유효성 검증 (010-XXXX-XXXX 또는 01012345678 형식)
+        const phoneClean = formData.phone.replace(/[\s-]/g, '');
+        const phoneRegex = /^01[0-9][0-9]{7,8}$/;
+        if (!phoneRegex.test(phoneClean)) {
+            alert('전화번호를 올바르게 입력해주세요. (예: 010-1234-5678)');
+            return;
+        }
+
+        // 가짜 번호 차단 (연속 숫자, 반복 숫자, 예시 번호)
+        const middleAndLast = phoneClean.slice(3); // 010 제외한 나머지
+        const fakePatterns = [
+            '12345678', '11111111', '22222222', '33333333', '44444444',
+            '55555555', '66666666', '77777777', '88888888', '99999999',
+            '00000000', '11112222', '12341234', '56785678', '00001111'
+        ];
+        if (fakePatterns.includes(middleAndLast) || /^(.)\1{6,}$/.test(middleAndLast)) {
+            alert('유효한 전화번호를 입력해주세요.');
+            return;
+        }
+
+        // 뒷자리 4자리 반복 패턴 차단 (예: 2222, 3333)
+        const lastFour = phoneClean.slice(-4);
+        if (/^(.)\1{3}$/.test(lastFour)) {
+            alert('유효한 전화번호를 입력해주세요. (반복되는 숫자 불가)');
+            return;
+        }
+
+        // 주소 검증 - Daum API로 입력된 주소인지 확인
+        if (formData.address && !formData.addressVerified) {
+            alert('주소는 주소 검색 버튼을 통해 입력해주세요.');
+            return;
+        }
+
+        // 전화번호 중복 체크
+        const existingPhone = signatures.find(sig =>
+            sig.phone && sig.phone.replace(/[\s-]/g, '') === phoneClean
+        );
+        if (existingPhone) {
+            alert('이미 등록된 전화번호입니다.');
+            return;
+        }
+
+        // 이름+전화번호 조합 중복 체크
+        const existingCombo = signatures.find(sig =>
+            sig.name === formData.name.trim() &&
+            sig.phone && sig.phone.replace(/[\s-]/g, '') === phoneClean
+        );
+        if (existingCombo) {
+            alert('이미 동일한 이름과 전화번호로 등록되어 있습니다.');
+            return;
+        }
+
         try {
+            // addressVerified는 저장하지 않음 (검증용 플래그)
+            const { addressVerified, ...dataToSave } = formData;
             const newSignature = {
-                ...formData,
+                ...dataToSave,
                 timestamp: new Date().toISOString()
             };
 
@@ -242,8 +468,21 @@ export default function App() {
                 address: '',
                 talent: '',
                 phone: '',
-                sns: []
+                sns: [],
+                addressVerified: false
             });
+
+            // 인증 상태 초기화
+            setIsPhoneVerified(false);
+            setConfirmationResult(null);
+            setVerificationCode('');
+
+            // 오늘 등록자 수 업데이트
+            const newTodayCount = todayRegistrations + 1;
+            setTodayRegistrations(newTodayCount);
+            if (newTodayCount >= DAILY_LIMIT) {
+                setIsDailyLimitReached(true);
+            }
 
             alert('✅ 지지 서명이 등록되었습니다!');
         } catch (error) {
@@ -281,7 +520,7 @@ export default function App() {
     };
 
     return (
-    <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50">
             {/* 헤더 */}
             <header className="bg-white shadow-md fixed top-0 w-full z-50">
                 <div className="container mx-auto px-4">
@@ -289,7 +528,7 @@ export default function App() {
                         <div className="text-2xl font-bold text-blue-600 cursor-pointer" onClick={() => scrollToSection('necessity')}>
                             ⚖️ 사법개혁
                         </div>
-                        
+
                         {/* 데스크톱 메뉴 */}
                         <div className="hidden lg:flex space-x-6 text-sm items-center">
                             <button onClick={() => scrollToSection('necessity')} className="hover:text-blue-600 transition font-medium">도입 필요성</button>
@@ -318,18 +557,20 @@ export default function App() {
                                             className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border py-2 min-w-[120px] z-50"
                                             onMouseEnter={() => setMediaDropdownOpen(true)}
                                         >
-                                            <a
-                                                href="#/blog"
+                                            <Link
+                                                to="/blog"
                                                 className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                                onClick={() => setMediaDropdownOpen(false)}
                                             >
                                                 블로그
-                                            </a>
-                                            <a
-                                                href="#/videos"
+                                            </Link>
+                                            <Link
+                                                to="/videos"
                                                 className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                                onClick={() => setMediaDropdownOpen(false)}
                                             >
                                                 동영상
-                                            </a>
+                                            </Link>
                                         </div>
                                     </>
                                 )}
@@ -348,9 +589,9 @@ export default function App() {
                                 참여하기
                             </button>
                         </div>
-                        
+
                         {/* 모바일 햄버거 버튼 */}
-                        <button 
+                        <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                             className="lg:hidden text-gray-600 hover:text-blue-600 transition p-2"
                             aria-label="메뉴"
@@ -364,24 +605,24 @@ export default function App() {
                             </svg>
                         </button>
                     </nav>
-                    
+
                     {/* 모바일 메뉴 드롭다운 */}
                     {mobileMenuOpen && (
                         <div className="lg:hidden bg-white border-t border-gray-200 py-4 space-y-2">
-                            <button 
-                                onClick={() => { scrollToSection('necessity'); setMobileMenuOpen(false); }} 
+                            <button
+                                onClick={() => { scrollToSection('necessity'); setMobileMenuOpen(false); }}
                                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
                             >
                                 도입 필요성
                             </button>
-                            <button 
-                                onClick={() => { scrollToSection('cases'); setMobileMenuOpen(false); }} 
+                            <button
+                                onClick={() => { scrollToSection('cases'); setMobileMenuOpen(false); }}
                                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
                             >
                                 해외 사례
                             </button>
-                            <button 
-                                onClick={() => { scrollToSection('constitution'); setMobileMenuOpen(false); }} 
+                            <button
+                                onClick={() => { scrollToSection('constitution'); setMobileMenuOpen(false); }}
                                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
                             >
                                 헌법적 근거
@@ -418,8 +659,8 @@ export default function App() {
                             >
                                 🎵 포스터 보기
                             </button>
-                            <button 
-                                onClick={() => { scrollToSection('signature'); setMobileMenuOpen(false); }} 
+                            <button
+                                onClick={() => { scrollToSection('signature'); setMobileMenuOpen(false); }}
                                 className="block w-full text-left px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 transition font-bold"
                             >
                                 참여하기
@@ -481,24 +722,31 @@ export default function App() {
                         헌법 개정 없이 가능한
                     </h1>
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                        <span className="text-orange-400">시민참여 사법개혁, 혼합형 참심제!</span>
+                        <span className="text-orange-400">시민법정 참심제!</span>
                     </h1>
                     <p className="text-lg md:text-xl mb-8 max-w-3xl mx-auto">
                         '모든 권력은 국민으로부터 나온다'는 헌법 제1조 2항의 정신을 사법에서 실현합니다.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <button 
+                        <button
                             onClick={() => scrollToSection('signature')}
                             className="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105"
                         >
                             준비위원으로 참여하기
                         </button>
-                        <button 
+                        <button
                             onClick={() => window.location.href = '/proposal.html'}
                             className="bg-orange-500 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-orange-600 transition transform hover:scale-105"
                         >
                             제안서 및 법률안
                         </button>
+                    </div>
+
+                    {/* 추가 정보 */}
+                    <div className="mt-8 flex flex-col items-center gap-3 text-white">
+                        <p className="text-base md:text-lg">
+                            온라인 준비위원으로 <span className="font-bold text-yellow-300">1만명</span>이 참여하면 광장에서 민주주의를 시작합니다.
+                        </p>
                     </div>
                 </div>
             </section>
@@ -507,18 +755,18 @@ export default function App() {
             <section className="py-20 px-4 bg-white">
                 <div className="container mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold text-center mb-6">국민의 77.8%가 동의한 사법개혁</h2>
-                    
+
                     <p className="text-center text-gray-700 text-lg mb-12 max-w-4xl mx-auto leading-relaxed">
                         2005년 사법제도개혁추진위원회(사개추위)의 여론조사 결과, 국민 대다수가 사법 절차에 시민의 참여가 필요하다고 응답했습니다. 이는 사법부에 대한 국민적 신뢰가 낮으며, 재판 과정에 국민의 상식이 반영되기를 강력히 원한다는 것을 보여줍니다.
                     </p>
-                    
+
                     <div className="flex flex-col md:flex-row items-center justify-center gap-12 max-w-5xl mx-auto">
                         {/* 도넛 차트 */}
                         <div className="relative w-64 h-64">
                             <svg viewBox="0 0 100 100" className="transform -rotate-90">
-                                <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" strokeWidth="20"/>
+                                <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" strokeWidth="20" />
                                 <circle cx="50" cy="50" r="40" fill="none" stroke="#3b82f6" strokeWidth="20"
-                                    strokeDasharray="195.6 251.2" strokeLinecap="round"/>
+                                    strokeDasharray="195.6 251.2" strokeLinecap="round" />
                             </svg>
                             <div className="absolute inset-0 flex flex-col items-center justify-center">
                                 <div className="text-sm text-gray-500">시민참여 필요</div>
@@ -555,7 +803,7 @@ export default function App() {
 
                     <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
                         <h3 className="text-2xl font-bold text-center mb-8">재판부 구성(예시: 법률안 제5조)</h3>
-                        
+
                         <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-8">
                             {/* 직업법관 */}
                             <div className="text-center">
@@ -614,11 +862,10 @@ export default function App() {
                                 <button
                                     key={country}
                                     onClick={() => setSelectedCountry(country)}
-                                    className={`px-6 py-3 font-medium transition ${
-                                        selectedCountry === country
-                                            ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                                            : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                                    }`}
+                                    className={`px-6 py-3 font-medium transition ${selectedCountry === country
+                                        ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                                        : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+                                        }`}
                                 >
                                     {country}
                                 </button>
@@ -678,7 +925,7 @@ export default function App() {
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">평결:</div>
                                         <div className="text-gray-700">1심: 단순 다수결, 참심원 우위 가능</div>
                                     </div>
-                                    
+
                                 </div>
                             </div>
                         )}
@@ -760,7 +1007,7 @@ export default function App() {
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">평결:</div>
                                         <div className="text-gray-700">특별다수결 (유죄 판결에 높은 합의 요구)</div>
                                     </div>
-                                    
+
                                 </div>
                             </div>
                         )}
@@ -815,7 +1062,7 @@ export default function App() {
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">평결:</div>
                                         <div className="text-gray-700">다수결 (단, 각 그룹에서 최소 1인 이상 찬성 필요)</div>
                                     </div>
-                                    
+
                                 </div>
                             </div>
                         )}
@@ -855,7 +1102,7 @@ export default function App() {
                                             <li>• 높은 국민적 신뢰와 참여율</li>
                                         </ul>
                                     </div>
-                                   
+
                                 </div>
                             </div>
                         )}
@@ -867,12 +1114,12 @@ export default function App() {
             <section id="constitution" className="py-20 px-4 bg-gray-50">
                 <div className="container mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">도입의 핵심 근거</h2>
-                    
+
                     <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                         <div className="bg-white p-8 rounded-lg shadow-lg">
                             <h3 className="text-xl font-bold mb-4 text-blue-600">사법 신뢰 회복 및 투명성</h3>
                             <p className="text-gray-700">
-                                사법이 직업 법관으로만 운영되는 폐쇄적 구조에서 시민이 참여하는 개방적 구조로 전환하여 
+                                사법이 직업 법관으로만 운영되는 폐쇄적 구조에서 시민이 참여하는 개방적 구조로 전환하여
                                 사법에 대한 국민의 신뢰를 높이고 투명성을 강화합니다.
                             </p>
                         </div>
@@ -907,9 +1154,9 @@ export default function App() {
                     <p className="text-center text-gray-600 mb-6">
                         새로 제안된 '제안 법률안'은 혼합형 참심제 도입을 위한 구체적인 내용을 담고 있습니다.
                     </p>
-                    
+
                     <div className="text-center mb-8">
-                        <button 
+                        <button
                             onClick={() => window.location.href = '/proposal.html'}
                             className="bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition transform hover:scale-105 shadow-lg"
                         >
@@ -920,7 +1167,7 @@ export default function App() {
                     <div className="max-w-4xl mx-auto">
                         <div className="bg-gray-50 p-8 rounded-lg">
                             <h3 className="text-xl font-bold mb-6 text-blue-600">혼합형 참심제 운용에 관한 법률안 (가칭)</h3>
-                            
+
                             <div className="space-y-4">
                                 {[
                                     { num: 1, title: '목적 (제1조)', desc: '국민이 참심법관으로 참여, 직업법관과 함께 재판권을 행사. 사법의 민주적 정당성, 투명성, 신뢰 증진을 목적으로 함.' },
@@ -964,7 +1211,7 @@ export default function App() {
                                 <input
                                     type="text"
                                     value={formData.name}
-                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     placeholder="예: 홍길동, OOOO시민단체"
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     required
@@ -976,7 +1223,7 @@ export default function App() {
                                 <label className="block font-bold mb-2">구분 *</label>
                                 <select
                                     value={formData.type}
-                                    onChange={(e) => setFormData({...formData, type: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 >
                                     <option value="individual">개인</option>
@@ -987,14 +1234,45 @@ export default function App() {
                             {/* 주소 */}
                             <div>
                                 <label className="block font-bold mb-2">주소</label>
-                                <input
-                                    type="text"
-                                    value={formData.address}
-                                    onChange={(e) => setFormData({...formData, address: e.target.value})}
-                                    placeholder="예: 서울시 00구 00동"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                />
-                                <p className="text-sm text-gray-500 mt-1">00시 00구 00동까지만 작성해주세요.</p>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={formData.address}
+                                        readOnly
+                                        placeholder="주소 검색을 눌러주세요"
+                                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        onClick={() => {
+                                            new window.daum.Postcode({
+                                                oncomplete: function(data) {
+                                                    // 시/도 + 구/군 + 동/읍/면 추출
+                                                    const sido = data.sido; // 시/도
+                                                    const sigungu = data.sigungu; // 구/군
+                                                    const bname = data.bname; // 동/읍/면
+                                                    const address = `${sido} ${sigungu} ${bname}`;
+                                                    setFormData(prev => ({ ...prev, address, addressVerified: true }));
+                                                }
+                                            }).open();
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            new window.daum.Postcode({
+                                                oncomplete: function(data) {
+                                                    const sido = data.sido;
+                                                    const sigungu = data.sigungu;
+                                                    const bname = data.bname;
+                                                    const address = `${sido} ${sigungu} ${bname}`;
+                                                    setFormData(prev => ({ ...prev, address, addressVerified: true }));
+                                                }
+                                            }).open();
+                                        }}
+                                        className="px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition whitespace-nowrap"
+                                    >
+                                        주소 검색
+                                    </button>
+                                </div>
+                                <p className="text-sm text-gray-500 mt-1">동 단위까지만 저장됩니다. (개인정보 보호)</p>
                             </div>
 
                             {/* 재능 응원봉 */}
@@ -1002,7 +1280,7 @@ export default function App() {
                                 <label className="block font-bold mb-2">재능 응원봉</label>
                                 <select
                                     value={['IT', '미디어', '마케팅', '재정', ''].includes(formData.talent) ? formData.talent : '기타'}
-                                    onChange={(e) => setFormData({...formData, talent: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, talent: e.target.value })}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 >
                                     <option value="">선택 안함</option>
@@ -1017,7 +1295,7 @@ export default function App() {
                                     <input
                                         type="text"
                                         value={formData.talent === '기타' ? '' : formData.talent}
-                                        onChange={(e) => setFormData({...formData, talent: e.target.value || '기타'})}
+                                        onChange={(e) => setFormData({ ...formData, talent: e.target.value || '기타' })}
                                         placeholder="재능 분야를 직접 입력해주세요"
                                         className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     />
@@ -1026,23 +1304,99 @@ export default function App() {
 
                             {/* 전화번호 */}
                             <div>
-                                <label className="block font-bold mb-2">전화번호 *</label>
-                                <input
-                                    type="tel"
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                                    placeholder="예: 010-1234-5678"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    required
-                                />
+                                <label className="block font-bold mb-2">전화번호 * {isPhoneVerified && <span className="text-green-600 text-sm">(인증완료)</span>}</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="tel"
+                                        value={formData.phone}
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, phone: e.target.value });
+                                            // 전화번호가 변경되면 인증 상태 리셋
+                                            if (isPhoneVerified) {
+                                                setIsPhoneVerified(false);
+                                                setConfirmationResult(null);
+                                                setVerificationCode('');
+                                            }
+                                        }}
+                                        placeholder="예: 010-1234-5678"
+                                        className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${isPhoneVerified ? 'border-green-500 bg-green-50' : 'border-gray-300'}`}
+                                        required
+                                        disabled={isPhoneVerified}
+                                    />
+                                    {!isPhoneVerified && !confirmationResult && (
+                                        <button
+                                            type="button"
+                                            onClick={sendVerificationCode}
+                                            disabled={isSendingCode || !formData.phone}
+                                            className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                        >
+                                            {isSendingCode ? '발송중...' : '인증요청'}
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* 인증 코드 입력 */}
+                                {confirmationResult && !isPhoneVerified && (
+                                    <div className="mt-3 flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={verificationCode}
+                                            onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                            placeholder="6자리 인증코드 입력"
+                                            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            maxLength={6}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={verifyCode}
+                                            disabled={isVerifying || verificationCode.length !== 6}
+                                            className="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition whitespace-nowrap disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                        >
+                                            {isVerifying ? '확인중...' : '인증확인'}
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* reCAPTCHA 컨테이너 */}
+                                <div ref={recaptchaContainerRef} id="recaptcha-container"></div>
                             </div>
+
+                            {/* 하루 등록 한도 안내 */}
+                            {isDailyLimitReached && (
+                                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                                    <div className="flex items-start">
+                                        <div className="flex-shrink-0">
+                                            <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div className="ml-3">
+                                            <h3 className="text-sm font-medium text-yellow-800">📢 오늘 등록이 마감되었습니다</h3>
+                                            <p className="mt-1 text-sm text-yellow-700">
+                                                많은 분들의 관심에 감사드립니다.
+                                                <br /><br />
+                                                시스템 안정을 위해 하루 등록 인원을 제한하고 있습니다.
+                                                <br />
+                                                <strong>내일 오전 12시(자정) 이후</strong>에 다시 시도해주세요.
+                                                <br /><br />
+                                                <span className="text-yellow-600">※ 매일 자정에 등록이 초기화됩니다.</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* 제출 버튼 */}
                             <button
                                 type="submit"
-                                className="w-full bg-blue-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition transform hover:scale-105"
+                                disabled={isDailyLimitReached}
+                                className={`w-full py-4 rounded-lg font-bold text-lg transition transform ${
+                                    isDailyLimitReached
+                                        ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                                        : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-105'
+                                }`}
                             >
-                                참여하기
+                                {isDailyLimitReached ? '오늘 등록 마감' : '참여하기'}
                             </button>
                         </form>
 
@@ -1115,7 +1469,7 @@ export default function App() {
                             </button>
                         )}
                     </div>
-                    
+
                     {/* 통계 */}
                     <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
                         <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-8 rounded-xl shadow-lg">
@@ -1126,7 +1480,7 @@ export default function App() {
                                     {signatures
                                         .filter(s => s.type === 'individual')
                                         .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
-                                        .map(sig => sig.name)
+                                        .map(sig => maskName(sig.name))
                                         .join(', ')}
                                 </div>
                             </div>
@@ -1139,7 +1493,7 @@ export default function App() {
                                     {signatures
                                         .filter(s => s.type === 'organization')
                                         .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
-                                        .map(sig => sig.name)
+                                        .map(sig => maskName(sig.name))
                                         .join(', ')}
                                 </div>
                             </div>
@@ -1164,31 +1518,37 @@ export default function App() {
                         </button>
 
                         {/* 페이스북 */}
-                        <button
-                            onClick={shareToFacebook}
+                        <a
+                            href="https://www.facebook.com/profile.php?id=61572028259020"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="group flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-all duration-300"
                             title="페이스북"
                         >
                             <FacebookIcon className="w-8 h-8 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
-                        </button>
+                        </a>
 
                         {/* X (트위터) */}
-                        <button
-                            onClick={shareToTwitter}
+                        <a
+                            href="https://twitter.com/siminbupjung"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="group flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-all duration-300"
-                            title="X"
+                            title="X (트위터)"
                         >
                             <XIcon className="w-7 h-7 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
-                        </button>
+                        </a>
 
                         {/* 인스타그램 */}
-                        <button
-                            onClick={shareToInstagram}
+                        <a
+                            href="https://www.instagram.com/digitaldemocracy1/"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="group flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-all duration-300"
                             title="인스타그램"
                         >
                             <InstagramIcon className="w-8 h-8 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
-                        </button>
+                        </a>
 
                         {/* 텔레그램 */}
                         <button
@@ -1211,10 +1571,10 @@ export default function App() {
 
             {/* 포스터 모달 */}
             {showPosterModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-0 z-50 overflow-auto">
-                <Poster key={Date.now()} onClose={() => setShowPosterModal(false)} />
-            </div>
-        )}
+                <div className="fixed inset-0 bg-black bg-opacity-0 z-50 overflow-auto">
+                    <Poster key={Date.now()} onClose={() => setShowPosterModal(false)} />
+                </div>
+            )}
 
             {/* 플로팅 챗봇 */}
             <FloatingChat />

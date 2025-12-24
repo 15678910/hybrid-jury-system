@@ -4,6 +4,10 @@
 .env.production
 backend/.env
 
+# Firebase Service Account Key (절대 공유하면 안됨!)
+serviceAccountKey.json
+**/serviceAccountKey.json
+
 # Logs
 logs
 *.log
@@ -33,3 +37,5 @@ dist-ssr
 "*.pdf" 
 *.pdf 
 trigger rebuild
+
+.vercel
