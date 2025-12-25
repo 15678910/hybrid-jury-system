@@ -161,6 +161,21 @@ export default function App() {
         const adminParam = params.get('key');
         const posterParam = params.get('poster');
 
+        // URL 해시 체크 (예: /#signature)
+        const hash = window.location.hash;
+        if (hash) {
+            const sectionId = hash.replace('#', '');
+            // 약간의 딜레이 후 스크롤 (DOM이 준비될 때까지 대기)
+            setTimeout(() => {
+                const element = document.getElementById(sectionId);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                    setActiveSection(sectionId);
+                }
+            }, 100);
+            return; // 해시가 있으면 포스터 모달 열지 않음
+        }
+
         console.log('Admin key:', adminParam); // 디버깅용
 
         if (adminParam === 'admin999') {
