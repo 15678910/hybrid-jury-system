@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { doc, getDoc, collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import Header from '../components/Header';
 
 // SNS 아이콘들
 const KakaoIcon = ({ className = "w-5 h-5" }) => (
@@ -222,20 +223,7 @@ export default function BlogPost() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* 헤더 */}
-            <header className="bg-white shadow-md fixed top-0 w-full z-50">
-                <div className="container mx-auto px-4">
-                    <nav className="flex items-center justify-between py-4">
-                        <Link to="/" className="text-2xl font-bold text-blue-600">
-                            ⚖️ 사법개혁
-                        </Link>
-                        <div className="flex gap-6">
-                            <Link to="/" className="text-gray-600 hover:text-blue-600">홈</Link>
-                            <Link to="/blog" className="text-blue-600 font-semibold">블로그</Link>
-                        </div>
-                    </nav>
-                </div>
-            </header>
+            <Header />
 
             {/* 메인 콘텐츠 */}
             <main className="pt-24 pb-16 px-4">
