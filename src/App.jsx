@@ -33,16 +33,10 @@ const InstagramIcon = ({ className = "w-6 h-6" }) => (
     </svg>
 );
 
-// 이름 마스킹 함수 (예: 홍길동 → 홍*동)
+// 이름 표시 함수 (전체 이름 공개)
 const maskName = (name) => {
     if (!name || name.length === 0) return '';
-    if (name.length === 1) return name;
-    if (name.length === 2) return name[0] + '*';
-    // 3글자 이상: 첫 글자와 마지막 글자만 보이고 중간은 *
-    const first = name[0];
-    const last = name[name.length - 1];
-    const middle = '*'.repeat(name.length - 2);
-    return first + middle + last;
+    return name;
 };
 
 // 전화번호 마스킹 함수 (예: 010-1234-5678 → 010-****-5678)
