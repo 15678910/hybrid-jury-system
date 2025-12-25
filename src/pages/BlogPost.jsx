@@ -423,7 +423,7 @@ export default function BlogPost() {
                             온라인 준비위원 1만명이 참여하면 광장에서 주권자 세상 시작합니다.
                         </p>
                         <p className="text-gray-700">
-                            주권자에 의한 시민법정 참심제! <a href="/music.mp3" target="_blank" className="text-blue-600 hover:text-blue-800 underline font-medium">음악 듣기</a>
+                            주권자에 의한 시민법관 참심제! <a href="/music.mp3" target="_blank" className="text-blue-600 hover:text-blue-800 underline font-medium">음악 듣기</a>
                         </p>
                     </div>
 
@@ -460,7 +460,7 @@ export default function BlogPost() {
                         </div>
 
                         <div className="text-center text-xs text-gray-500 space-y-1">
-                            <p>※ 후원금은 시민법정 참심제 홍보 및 운영에 사용됩니다</p>
+                            <p>※ 후원금은 시민법관 참심제 홍보 및 운영에 사용됩니다</p>
                             <p>※ 후원 영수증 발급 문의: siminbupjung@gmail.com</p>
                             <p>※ 해외에서는 Paypal로 후원 가능해요 → <a href="https://url.kr/7n3hfe" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">https://url.kr/7n3hfe</a></p>
                         </div>

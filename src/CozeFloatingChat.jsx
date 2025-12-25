@@ -309,7 +309,7 @@ export default function FloatingChat() {
           {/* 헤더 */}
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-base">시민법정 참심제 AI 상담</h3>
+              <h3 className="font-bold text-base">시민법관 참심제 AI 상담</h3>
             </div>
             <button
               onClick={() => setIsOpen(false)}

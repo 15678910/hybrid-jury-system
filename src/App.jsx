@@ -1684,7 +1684,7 @@ export default function App() {
 
                         {/* 안내 문구 */}
                         <div className="text-center text-sm text-gray-500 space-y-2">
-                            <p>※ 후원금은 시민법정 참심제 홍보 및 운영에 사용됩니다</p>
+                            <p>※ 후원금은 시민법관 참심제 홍보 및 운영에 사용됩니다</p>
                             <p>※ 후원 영수증 발급 문의: siminbupjung@gmail.com</p>
                             <p>
                                 ※ 해외에서는 Paypal로 후원 가능해요 →
