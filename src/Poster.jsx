@@ -57,8 +57,8 @@ function Poster({ onClose }) {
 
         <div className="flex-1 mt-6 mb-2 flex items-center justify-center overflow-hidden">
           <img
-            src="/참심제_웹자보qrcode.png"
-            alt="참심제 포스터"
+            src="/온라인참심제!1만명.png"
+            alt="온라인참심제 1만명 포스터"
             onClick={handleImageClick}
             className="max-w-full max-h-full object-contain rounded-lg shadow-xl cursor-pointer hover:opacity-90 transition"
           />
