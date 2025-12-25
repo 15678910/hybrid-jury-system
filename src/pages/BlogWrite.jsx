@@ -52,10 +52,10 @@ export default function BlogWrite() {
         title: '',
         summary: '',
         content: '',
-        category: '참심제 소개'
+        category: '사법개혁'
     });
 
-    const categories = ['참심제 소개', '해외 사례', '사법개혁', '공지사항', '인터뷰', '뉴스'];
+    const categories = ['해외 사례', '사법개혁', '공지사항', '인터뷰', '뉴스'];
 
     // 인증 후 해당 작성자의 글 목록 불러오기
     useEffect(() => {
@@ -156,7 +156,7 @@ export default function BlogWrite() {
             }
 
             setShowWriteModal(false);
-            setFormData({ title: '', summary: '', content: '', category: '참심제 소개' });
+            setFormData({ title: '', summary: '', content: '', category: '사법개혁' });
             fetchMyPosts(); // 목록 새로고침
         } catch (error) {
             console.error('Error adding document: ', error);
@@ -213,7 +213,7 @@ export default function BlogWrite() {
 
             setShowEditModal(false);
             setEditingPost(null);
-            setFormData({ title: '', summary: '', content: '', category: '참심제 소개' });
+            setFormData({ title: '', summary: '', content: '', category: '사법개혁' });
             fetchMyPosts(); // 목록 새로고침
         } catch (error) {
             console.error('Error updating post:', error);
@@ -318,7 +318,7 @@ export default function BlogWrite() {
                             <div className="flex justify-end mb-6">
                                 <button
                                     onClick={() => {
-                                        setFormData({ title: '', summary: '', content: '', category: '참심제 소개' });
+                                        setFormData({ title: '', summary: '', content: '', category: '사법개혁' });
                                         setShowWriteModal(true);
                                     }}
                                     className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition flex items-center gap-2"

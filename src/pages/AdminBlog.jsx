@@ -24,6 +24,10 @@ export default function AdminBlog() {
     // 글 관리
     const [posts, setPosts] = useState([]);
     const [loadingPosts, setLoadingPosts] = useState(true);
+    const [editingPost, setEditingPost] = useState(null);
+    const [editForm, setEditForm] = useState({ title: '', content: '', category: '', author: '' });
+
+    const categories = ['해외 사례', '사법개혁', '공지사항'];
 
     // 작성자 코드 관리
     const [writerCodes, setWriterCodes] = useState([]);
@@ -100,6 +104,49 @@ export default function AdminBlog() {
         } catch (error) {
             console.error('Error deleting post:', error);
             alert('삭제에 실패했습니다.');
+        }
+    };
+
+    // 글 수정 시작
+    const handleEditPost = (post) => {
+        setEditingPost(post.id);
+        setEditForm({
+            title: post.title,
+            content: post.content,
+            category: post.category,
+            author: post.author
+        });
+    };
+
+    // 글 수정 취소
+    const handleCancelEdit = () => {
+        setEditingPost(null);
+        setEditForm({ title: '', content: '', category: '', author: '' });
+    };
+
+    // 글 수정 저장
+    const handleSaveEdit = async (postId) => {
+        if (!editForm.title || !editForm.content) {
+            alert('제목과 내용을 입력해주세요.');
+            return;
+        }
+
+        try {
+            await updateDoc(doc(db, 'posts', postId), {
+                title: editForm.title,
+                content: editForm.content,
+                category: editForm.category,
+                author: editForm.author
+            });
+            setPosts(posts.map(p =>
+                p.id === postId ? { ...p, ...editForm } : p
+            ));
+            setEditingPost(null);
+            setEditForm({ title: '', content: '', category: '', author: '' });
+            alert('글이 수정되었습니다.');
+        } catch (error) {
+            console.error('Error updating post:', error);
+            alert('수정에 실패했습니다.');
         }
     };
 
@@ -272,29 +319,92 @@ export default function AdminBlog() {
                                         <tbody className="divide-y">
                                             {posts.map(post => (
                                                 <tr key={post.id} className="hover:bg-gray-50">
-                                                    <td className="px-6 py-4">
-                                                        <Link
-                                                            to={`/blog/${post.id}`}
-                                                            className="text-gray-900 hover:text-blue-600 font-medium"
-                                                        >
-                                                            {post.title}
-                                                        </Link>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-500">{post.author}</td>
-                                                    <td className="px-6 py-4">
-                                                        <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
-                                                            {post.category}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-500">{post.date}</td>
-                                                    <td className="px-6 py-4 text-right">
-                                                        <button
-                                                            onClick={() => handleDeletePost(post.id)}
-                                                            className="text-red-600 hover:text-red-800 text-sm font-medium"
-                                                        >
-                                                            삭제
-                                                        </button>
-                                                    </td>
+                                                    {editingPost === post.id ? (
+                                                        <>
+                                                            <td className="px-6 py-4" colSpan="5">
+                                                                <div className="space-y-4">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={editForm.title}
+                                                                        onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                                                                        placeholder="제목"
+                                                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                                    />
+                                                                    <div className="flex gap-4">
+                                                                        <input
+                                                                            type="text"
+                                                                            value={editForm.author}
+                                                                            onChange={(e) => setEditForm({ ...editForm, author: e.target.value })}
+                                                                            placeholder="작성자"
+                                                                            className="w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                                        />
+                                                                        <select
+                                                                            value={editForm.category}
+                                                                            onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                                                                            className="w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                                        >
+                                                                            {categories.map(cat => (
+                                                                                <option key={cat} value={cat}>{cat}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                    </div>
+                                                                    <textarea
+                                                                        value={editForm.content}
+                                                                        onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
+                                                                        placeholder="내용"
+                                                                        rows={10}
+                                                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                                    />
+                                                                    <div className="flex gap-2 justify-end">
+                                                                        <button
+                                                                            onClick={handleCancelEdit}
+                                                                            className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+                                                                        >
+                                                                            취소
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleSaveEdit(post.id)}
+                                                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                                                                        >
+                                                                            저장
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <td className="px-6 py-4">
+                                                                <Link
+                                                                    to={`/blog/${post.id}`}
+                                                                    className="text-gray-900 hover:text-blue-600 font-medium"
+                                                                >
+                                                                    {post.title}
+                                                                </Link>
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm text-gray-500">{post.author}</td>
+                                                            <td className="px-6 py-4">
+                                                                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                                                    {post.category}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm text-gray-500">{post.date}</td>
+                                                            <td className="px-6 py-4 text-right space-x-3">
+                                                                <button
+                                                                    onClick={() => handleEditPost(post)}
+                                                                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                                                >
+                                                                    수정
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeletePost(post.id)}
+                                                                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                                                                >
+                                                                    삭제
+                                                                </button>
+                                                            </td>
+                                                        </>
+                                                    )}
                                                 </tr>
                                             ))}
                                         </tbody>

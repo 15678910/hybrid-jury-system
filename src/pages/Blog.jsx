@@ -10,7 +10,7 @@ export default function Blog() {
     const [loading, setLoading] = useState(true);
     const [kakaoReady, setKakaoReady] = useState(false);
 
-    const categories = ['전체', '참심제 소개', '해외 사례', '사법개혁', '공지사항'];
+    const categories = ['전체', '해외 사례', '사법개혁', '공지사항'];
 
     // Kakao SDK 초기화
     useEffect(() => {
