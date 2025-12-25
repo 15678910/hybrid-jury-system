@@ -89,6 +89,9 @@ export default function Header() {
                             </div>
                         </div>
 
+                        <a href="/?poster=true" className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-purple-700 transition">
+                            포스터 보기
+                        </a>
                         <button onClick={() => scrollToSection('signature')} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg">
                             참여하기
                         </button>
@@ -121,6 +124,9 @@ export default function Header() {
                             <button onClick={() => { scrollToSection('bill'); setMobileMenuOpen(false); }} className="text-left hover:text-blue-600 transition font-medium">법안 제안</button>
                             <Link to="/blog" className="hover:text-blue-600 transition font-medium">블로그</Link>
                             <Link to="/videos" className="hover:text-blue-600 transition font-medium">동영상</Link>
+                            <a href="/?poster=true" className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-purple-700 transition text-center">
+                                포스터 보기
+                            </a>
                             <button onClick={() => { scrollToSection('signature'); setMobileMenuOpen(false); }} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg text-center">
                                 참여하기
                             </button>
