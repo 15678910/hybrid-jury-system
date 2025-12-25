@@ -80,13 +80,16 @@
             position: absolute;
             top: 100%;
             left: 0;
+            min-width: 120px;
+            padding-top: 8px;
+            z-index: 1000;
+        }
+
+        .dropdown-content-inner {
             background: white;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            min-width: 120px;
             padding: 8px 0;
-            z-index: 1000;
-            margin-top: 8px;
         }
 
         .nav-dropdown:hover .dropdown-content {
@@ -300,8 +303,10 @@
                 <div class="nav-dropdown">
                     <span class="nav-item">소개 ▾</span>
                     <div class="dropdown-content">
-                        <a href="/intro.html">소개</a>
-                        <a href="/community.html">소통방</a>
+                        <div class="dropdown-content-inner">
+                            <a href="/intro.html">소개</a>
+                            <a href="/community.html">소통방</a>
+                        </div>
                     </div>
                 </div>
                 <a href="/#necessity" class="nav-item">도입 필요성</a>
@@ -311,8 +316,10 @@
                 <div class="nav-dropdown">
                     <span class="nav-item">미디어 ▾</span>
                     <div class="dropdown-content">
-                        <a href="/#/blog">블로그</a>
-                        <a href="/#/videos">동영상</a>
+                        <div class="dropdown-content-inner">
+                            <a href="/blog">블로그</a>
+                            <a href="/videos">동영상</a>
+                        </div>
                     </div>
                 </div>
                 <a href="/proposal.pdf" download class="nav-btn green">PDF 다운로드</a>
@@ -333,8 +340,8 @@
             <a href="/#bill">법안 제안</a>
             <div class="mobile-menu-section">
                 <div class="mobile-menu-title">미디어</div>
-                <a href="/#/blog">블로그</a>
-                <a href="/#/videos">동영상</a>
+                <a href="/blog">블로그</a>
+                <a href="/videos">동영상</a>
             </div>
             <a href="/proposal.pdf" download style="color: #10b981;">PDF 다운로드</a>
             <a href="/#signature" class="mobile-cta">참여하기</a>

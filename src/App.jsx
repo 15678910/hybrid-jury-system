@@ -159,14 +159,18 @@ export default function App() {
         }
 
         const adminParam = params.get('key');
+        const posterParam = params.get('poster');
 
         console.log('Admin key:', adminParam); // 디버깅용
 
         if (adminParam === 'admin999') {
             console.log('Opening admin login modal'); // 디버깅용
             setShowAdminLogin(true);
+        } else if (posterParam === 'true') {
+            // 포스터 파라미터가 있으면 포스터 모달 열기
+            setShowPosterModal(true);
         } else {
-            // 관리자가 아닐 때만 포스터 팝업
+            // 기본적으로 포스터 팝업
             setShowPosterModal(true);
         }
     }, [navigate]);
