@@ -430,7 +430,7 @@ export default function BlogPost() {
                     {/* 후원 응원봉 */}
                     <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 mb-4 border border-orange-200">
                         <div className="text-center mb-4">
-                            <h4 className="text-lg font-bold text-gray-800 mb-2">시민법정 참심제를 응원해주세요!</h4>
+                            <h4 className="text-lg font-bold text-gray-800 mb-2">시민법관 참심제를 응원해주세요!</h4>
                             <p className="text-sm text-gray-600">여러분의 후원이 주권자 세상을 만듭니다</p>
                         </div>
 
