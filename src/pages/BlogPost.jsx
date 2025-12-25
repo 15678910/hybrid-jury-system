@@ -338,10 +338,10 @@ export default function BlogPost() {
                     {/* 참여 안내 */}
                     <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-4 border border-blue-100">
                         <p className="text-gray-700 mb-3">
-                            준비위원으로 참여하기 <a href="https://시민법정.kr" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline font-medium">시민법정.kr</a>
+                            온라인 준비위원으로 참여하기 <a href="https://시민법정.kr" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline font-medium">시민법정.kr</a>
                         </p>
                         <p className="text-gray-700 mb-3">
-                            준비위원 1만명이 참여하면 광장에서 민주주의를 시작합니다.
+                            온라인 준비위원 1만명이 참여하면 광장에서 주권자 세상 시작합니다.
                         </p>
                         <p className="text-gray-700">
                             주권자에 의한 시민법정 참심제! <a href="/music.mp3" target="_blank" className="text-blue-600 hover:text-blue-800 underline font-medium">음악 듣기</a>
