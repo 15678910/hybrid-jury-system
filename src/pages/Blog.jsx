@@ -170,12 +170,12 @@ export default function Blog() {
                                 </div>
                             </div>
 
-                            <a href="/proposal.html" className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition font-bold">
+                            <a href="/?poster=true" className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition font-bold">
                                 포스터 보기
                             </a>
-                            <Link to="/#signature" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-bold">
+                            <a href="/#signature" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-bold">
                                 참여하기
-                            </Link>
+                            </a>
                         </div>
 
                         {/* 모바일 햄버거 버튼 */}

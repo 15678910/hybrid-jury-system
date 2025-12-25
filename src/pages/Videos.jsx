@@ -105,12 +105,12 @@ export default function Videos() {
                                 </div>
                             </div>
 
-                            <a href="/proposal.html" className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition font-bold">
+                            <a href="/?poster=true" className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition font-bold">
                                 포스터 보기
                             </a>
-                            <Link to="/#signature" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-bold">
+                            <a href="/#signature" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-bold">
                                 참여하기
-                            </Link>
+                            </a>
                         </div>
 
                         {/* 모바일 햄버거 버튼 */}
@@ -142,9 +142,9 @@ export default function Videos() {
                                 <Link to="/blog" className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">블로그</Link>
                                 <Link to="/videos" className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition text-blue-600 font-semibold">동영상</Link>
                             </div>
-                            <Link to="/#signature" className="block w-full text-center mx-4 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-bold">
+                            <a href="/#signature" className="block w-full text-center mx-4 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-bold">
                                 참여하기
-                            </Link>
+                            </a>
                         </div>
                     )}
                 </div>
