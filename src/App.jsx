@@ -824,7 +824,7 @@ export default function App() {
                     {/* 추가 정보 */}
                     <div className="mt-8 flex flex-col items-center gap-3 text-white">
                         <p className="text-base md:text-lg">
-                            온라인 준비위원으로 <span className="font-bold text-yellow-300">1만명</span>이 참여하면 광장에서 민주주의를 시작합니다.
+                            온라인 준비위원으로 <span className="font-bold text-yellow-300">1만명</span>이 참여하면 광장에서 주권자 세상 시작합니다.
                         </p>
                     </div>
                 </div>
