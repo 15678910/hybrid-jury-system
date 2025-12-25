@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { doc, getDoc, collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, query, orderBy, getDocs, updateDoc, increment, addDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 
@@ -42,6 +42,15 @@ export default function BlogPost() {
     const [allPosts, setAllPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [kakaoReady, setKakaoReady] = useState(false);
+
+    // 좋아요 상태
+    const [likes, setLikes] = useState(0);
+    const [hasLiked, setHasLiked] = useState(false);
+
+    // 댓글 상태
+    const [comments, setComments] = useState([]);
+    const [commentForm, setCommentForm] = useState({ nickname: '', content: '' });
+    const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
     // 카카오 SDK 초기화
     useEffect(() => {
@@ -90,6 +99,22 @@ export default function BlogPost() {
                         date: docSnap.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
                     };
                     setPost(postData);
+                    setLikes(postData.likes || 0);
+
+                    // 로컬스토리지에서 좋아요 여부 확인
+                    const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
+                    setHasLiked(likedPosts.includes(id));
+
+                    // 댓글 불러오기
+                    const commentsRef = collection(db, 'posts', id, 'comments');
+                    const commentsQuery = query(commentsRef, orderBy('createdAt', 'desc'));
+                    const commentsSnapshot = await getDocs(commentsQuery);
+                    const commentsData = commentsSnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
+                    }));
+                    setComments(commentsData);
 
                     // 이전/다음 글을 위해 전체 글 목록 가져오기
                     const postsRef = collection(db, 'posts');
@@ -114,6 +139,63 @@ export default function BlogPost() {
 
         fetchPost();
     }, [id]);
+
+    // 좋아요 처리
+    const handleLike = async () => {
+        if (hasLiked) return;
+
+        try {
+            const postRef = doc(db, 'posts', id);
+            await updateDoc(postRef, {
+                likes: increment(1)
+            });
+
+            setLikes(prev => prev + 1);
+            setHasLiked(true);
+
+            // 로컬스토리지에 좋아요 기록
+            const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
+            likedPosts.push(id);
+            localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+        } catch (error) {
+            console.error('Error liking post:', error);
+            alert('좋아요에 실패했습니다.');
+        }
+    };
+
+    // 댓글 작성
+    const handleSubmitComment = async (e) => {
+        e.preventDefault();
+        if (!commentForm.nickname.trim() || !commentForm.content.trim()) {
+            alert('닉네임과 내용을 입력해주세요.');
+            return;
+        }
+
+        setIsSubmittingComment(true);
+        try {
+            const commentsRef = collection(db, 'posts', id, 'comments');
+            const newComment = await addDoc(commentsRef, {
+                nickname: commentForm.nickname.trim(),
+                content: commentForm.content.trim(),
+                createdAt: serverTimestamp()
+            });
+
+            // 댓글 목록에 추가
+            setComments(prev => [{
+                id: newComment.id,
+                nickname: commentForm.nickname.trim(),
+                content: commentForm.content.trim(),
+                date: new Date().toLocaleDateString('ko-KR')
+            }, ...prev]);
+
+            setCommentForm({ nickname: '', content: '' });
+        } catch (error) {
+            console.error('Error submitting comment:', error);
+            alert('댓글 작성에 실패했습니다.');
+        } finally {
+            setIsSubmittingComment(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -387,6 +469,80 @@ export default function BlogPost() {
                             >
                                 <TelegramIcon className="w-6 h-6 text-white" />
                             </button>
+                        </div>
+                    </div>
+
+                    {/* 좋아요 버튼 */}
+                    <div className="bg-white rounded-xl shadow-md p-6 mb-4 text-center">
+                        <button
+                            onClick={handleLike}
+                            disabled={hasLiked}
+                            className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all ${
+                                hasLiked
+                                    ? 'bg-pink-100 text-pink-600 cursor-default'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-pink-50 hover:text-pink-600'
+                            }`}
+                        >
+                            <svg className="w-6 h-6" fill={hasLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            <span>{hasLiked ? '감사합니다!' : '좋아요'}</span>
+                            <span className="bg-white px-2 py-0.5 rounded-full text-sm">{likes}</span>
+                        </button>
+                    </div>
+
+                    {/* 댓글 섹션 */}
+                    <div className="bg-white rounded-xl shadow-md p-6 mb-4">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">
+                            댓글 {comments.length > 0 && <span className="text-blue-600">({comments.length})</span>}
+                        </h3>
+
+                        {/* 댓글 작성 폼 */}
+                        <form onSubmit={handleSubmitComment} className="mb-6">
+                            <div className="flex gap-2 mb-2">
+                                <input
+                                    type="text"
+                                    value={commentForm.nickname}
+                                    onChange={(e) => setCommentForm({ ...commentForm, nickname: e.target.value })}
+                                    placeholder="닉네임"
+                                    className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                    maxLength={20}
+                                />
+                            </div>
+                            <div className="flex gap-2">
+                                <textarea
+                                    value={commentForm.content}
+                                    onChange={(e) => setCommentForm({ ...commentForm, content: e.target.value })}
+                                    placeholder="댓글을 작성해주세요"
+                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none"
+                                    rows={2}
+                                    maxLength={500}
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={isSubmittingComment}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 text-sm font-medium"
+                                >
+                                    {isSubmittingComment ? '등록중...' : '등록'}
+                                </button>
+                            </div>
+                        </form>
+
+                        {/* 댓글 목록 */}
+                        <div className="space-y-4">
+                            {comments.length === 0 ? (
+                                <p className="text-center text-gray-400 py-4">첫 댓글을 작성해주세요!</p>
+                            ) : (
+                                comments.map(comment => (
+                                    <div key={comment.id} className="border-b border-gray-100 pb-4 last:border-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="font-medium text-gray-900">{comment.nickname}</span>
+                                            <span className="text-xs text-gray-400">{comment.date}</span>
+                                        </div>
+                                        <p className="text-gray-700 text-sm whitespace-pre-wrap">{comment.content}</p>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
 

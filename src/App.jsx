@@ -90,6 +90,9 @@ export default function App() {
     const [mediaDropdownOpen, setMediaDropdownOpen] = useState(false);
     const [introDropdownOpen, setIntroDropdownOpen] = useState(false);
 
+    // 최신 블로그 글 상태
+    const [latestPosts, setLatestPosts] = useState([]);
+
     // SMS 인증 관련 상태
     const [verificationCode, setVerificationCode] = useState('');
     const [confirmationResult, setConfirmationResult] = useState(null);
@@ -137,6 +140,27 @@ export default function App() {
         };
 
         fetchSignatures();
+    }, []);
+
+    // 최신 블로그 글 불러오기
+    useEffect(() => {
+        const fetchLatestPosts = async () => {
+            try {
+                const postsRef = collection(db, 'posts');
+                const q = query(postsRef, orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+                const posts = querySnapshot.docs.slice(0, 3).map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
+                }));
+                setLatestPosts(posts);
+            } catch (error) {
+                console.error('Error fetching latest posts:', error);
+            }
+        };
+
+        fetchLatestPosts();
     }, []);
 
     // 페이지 첫 로드 시 자동으로 포스터 모달 열기
@@ -1557,62 +1581,51 @@ export default function App() {
                 </div>
             </section>
 
-            {/* SNS 공유 섹션 */}
-            <section className="py-12 px-4 bg-gradient-to-r from-slate-800 to-slate-900">
-                <div className="container mx-auto text-center">
-                    <h3 className="text-xl font-bold text-gray-300 mb-6">함께 알려주세요</h3>
+            {/* 최신 소식 섹션 */}
+            <section className="py-16 px-4 bg-gradient-to-r from-slate-800 to-slate-900">
+                <div className="container mx-auto max-w-4xl">
+                    <div className="text-center mb-10">
+                        <h3 className="text-2xl font-bold text-white mb-2">최신 소식</h3>
+                        <p className="text-gray-400">참심제와 사법개혁에 관한 소식을 전합니다</p>
+                    </div>
 
-                    <div className="flex justify-center gap-8">
-                        {/* 카카오톡 */}
-                        <button
-                            onClick={shareToKakao}
-                            className="group flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-all duration-300"
-                            title="카카오톡"
-                        >
-                            <KakaoIcon className="w-8 h-8 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
-                        </button>
+                    {latestPosts.length > 0 ? (
+                        <div className="grid md:grid-cols-3 gap-6 mb-8">
+                            {latestPosts.map(post => (
+                                <Link
+                                    key={post.id}
+                                    to={`/blog/${post.id}`}
+                                    className="bg-white bg-opacity-10 backdrop-blur rounded-xl p-5 hover:bg-opacity-20 transition-all duration-300 group"
+                                >
+                                    <h4 className="text-white font-bold mb-2 line-clamp-2 group-hover:text-blue-300 transition">
+                                        {post.title}
+                                    </h4>
+                                    <p className="text-gray-400 text-sm line-clamp-2 mb-3">
+                                        {post.summary || post.content?.substring(0, 100)}
+                                    </p>
+                                    <div className="flex items-center justify-between text-xs text-gray-500">
+                                        <span>{post.author}</span>
+                                        <span>{post.date}</span>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center text-gray-400 py-8">
+                            아직 등록된 글이 없습니다.
+                        </div>
+                    )}
 
-                        {/* 페이스북 */}
-                        <a
-                            href="https://www.facebook.com/profile.php?id=61572028259020"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-all duration-300"
-                            title="페이스북"
+                    <div className="text-center">
+                        <Link
+                            to="/blog"
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-white bg-opacity-10 text-white rounded-full hover:bg-opacity-20 transition-all duration-300 font-medium"
                         >
-                            <FacebookIcon className="w-8 h-8 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
-                        </a>
-
-                        {/* X (트위터) */}
-                        <a
-                            href="https://twitter.com/siminbupjung"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-all duration-300"
-                            title="X (트위터)"
-                        >
-                            <XIcon className="w-7 h-7 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
-                        </a>
-
-                        {/* 인스타그램 */}
-                        <a
-                            href="https://www.instagram.com/digitaldemocracy1/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-all duration-300"
-                            title="인스타그램"
-                        >
-                            <InstagramIcon className="w-8 h-8 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
-                        </a>
-
-                        {/* 텔레그램 */}
-                        <button
-                            onClick={() => window.open('https://t.me/siminbupjung', '_blank')}
-                            className="group flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-all duration-300"
-                            title="텔레그램"
-                        >
-                            <TelegramIcon className="w-8 h-8 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
-                        </button>
+                            더 많은 글 보기
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </Link>
                     </div>
                 </div>
             </section>
