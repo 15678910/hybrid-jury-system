@@ -536,7 +536,7 @@ export default function App() {
                             <div
                                 className="relative"
                                 onMouseEnter={() => setIntroDropdownOpen(true)}
-                                onMouseLeave={() => setTimeout(() => setIntroDropdownOpen(false), 300)}
+                                onMouseLeave={() => setIntroDropdownOpen(false)}
                             >
                                 <button
                                     className="hover:text-blue-600 transition font-medium flex items-center gap-1"
@@ -546,30 +546,22 @@ export default function App() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
-                                {introDropdownOpen && (
-                                    <>
-                                        <div className="absolute top-full left-0 h-2 w-full" />
-                                        <div
-                                            className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border py-2 min-w-[140px] z-50"
-                                            onMouseEnter={() => setIntroDropdownOpen(true)}
+                                <div className={`absolute top-full left-0 mt-0 pt-2 ${introDropdownOpen ? 'block' : 'hidden'}`}>
+                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[140px] z-50">
+                                        <a
+                                            href="/intro.html"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                         >
-                                            <a
-                                                href="/intro.html"
-                                                className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                                onClick={() => setIntroDropdownOpen(false)}
-                                            >
-                                                소개
-                                            </a>
-                                            <a
-                                                href="/community.html"
-                                                className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                                onClick={() => setIntroDropdownOpen(false)}
-                                            >
-                                                소통방
-                                            </a>
-                                        </div>
-                                    </>
-                                )}
+                                            소개
+                                        </a>
+                                        <a
+                                            href="/community.html"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                        >
+                                            소통방
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                             <button onClick={() => scrollToSection('necessity')} className="hover:text-blue-600 transition font-medium">도입 필요성</button>
                             <button onClick={() => scrollToSection('cases')} className="hover:text-blue-600 transition font-medium">해외 사례</button>
@@ -580,7 +572,7 @@ export default function App() {
                             <div
                                 className="relative"
                                 onMouseEnter={() => setMediaDropdownOpen(true)}
-                                onMouseLeave={() => setTimeout(() => setMediaDropdownOpen(false), 300)}
+                                onMouseLeave={() => setMediaDropdownOpen(false)}
                             >
                                 <button
                                     className="hover:text-blue-600 transition font-medium flex items-center gap-1"
@@ -590,30 +582,22 @@ export default function App() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
-                                {mediaDropdownOpen && (
-                                    <>
-                                        <div className="absolute top-full left-0 h-2 w-full" />
-                                        <div
-                                            className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border py-2 min-w-[120px] z-50"
-                                            onMouseEnter={() => setMediaDropdownOpen(true)}
+                                <div className={`absolute top-full left-0 mt-0 pt-2 ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
+                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px] z-50">
+                                        <Link
+                                            to="/blog"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                         >
-                                            <Link
-                                                to="/blog"
-                                                className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                                onClick={() => setMediaDropdownOpen(false)}
-                                            >
-                                                블로그
-                                            </Link>
-                                            <Link
-                                                to="/videos"
-                                                className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                                onClick={() => setMediaDropdownOpen(false)}
-                                            >
-                                                동영상
-                                            </Link>
-                                        </div>
-                                    </>
-                                )}
+                                            블로그
+                                        </Link>
+                                        <Link
+                                            to="/videos"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                        >
+                                            동영상
+                                        </Link>
+                                    </div>
+                                </div>
                             </div>
 
                             <button

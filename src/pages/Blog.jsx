@@ -8,6 +8,9 @@ export default function Blog() {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [kakaoReady, setKakaoReady] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [introDropdownOpen, setIntroDropdownOpen] = useState(false);
+    const [mediaDropdownOpen, setMediaDropdownOpen] = useState(false);
 
     const categories = ['전체', '참심제 소개', '해외 사례', '사법개혁', '공지사항'];
 
@@ -120,12 +123,95 @@ export default function Blog() {
                         <Link to="/" className="text-2xl font-bold text-blue-600">
                             ⚖️ 사법개혁
                         </Link>
-                        <div className="flex gap-6 items-center">
-                            <Link to="/" className="text-gray-600 hover:text-blue-600">홈</Link>
-                            <Link to="/blog" className="text-blue-600 font-semibold">블로그</Link>
-                            <Link to="/videos" className="text-gray-600 hover:text-blue-600">동영상</Link>
+
+                        {/* 데스크톱 메뉴 */}
+                        <div className="hidden lg:flex space-x-6 text-sm items-center">
+                            {/* 소개 드롭다운 */}
+                            <div
+                                className="relative"
+                                onMouseEnter={() => setIntroDropdownOpen(true)}
+                                onMouseLeave={() => setIntroDropdownOpen(false)}
+                            >
+                                <button className="hover:text-blue-600 transition font-medium flex items-center gap-1">
+                                    소개
+                                    <svg className={`w-4 h-4 transition-transform ${introDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                <div className={`absolute top-full left-0 mt-0 pt-2 ${introDropdownOpen ? 'block' : 'hidden'}`}>
+                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[140px]">
+                                        <a href="/intro.html" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">소개</a>
+                                        <a href="/community.html" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">소통방</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <Link to="/#necessity" className="hover:text-blue-600 transition font-medium">도입 필요성</Link>
+                            <Link to="/#cases" className="hover:text-blue-600 transition font-medium">해외 사례</Link>
+                            <Link to="/#constitution" className="hover:text-blue-600 transition font-medium">헌법적 근거</Link>
+                            <Link to="/#bill" className="hover:text-blue-600 transition font-medium">법안 제안</Link>
+
+                            {/* 미디어 드롭다운 */}
+                            <div
+                                className="relative"
+                                onMouseEnter={() => setMediaDropdownOpen(true)}
+                                onMouseLeave={() => setMediaDropdownOpen(false)}
+                            >
+                                <button className="hover:text-blue-600 transition font-medium flex items-center gap-1">
+                                    미디어
+                                    <svg className={`w-4 h-4 transition-transform ${mediaDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                <div className={`absolute top-full left-0 mt-0 pt-2 ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
+                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px]">
+                                        <Link to="/blog" className="block px-4 py-2 hover:bg-gray-100 text-blue-600 font-semibold">블로그</Link>
+                                        <Link to="/videos" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">동영상</Link>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a href="/proposal.html" className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition font-bold">
+                                포스터 보기
+                            </a>
+                            <Link to="/#signature" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-bold">
+                                참여하기
+                            </Link>
                         </div>
+
+                        {/* 모바일 햄버거 버튼 */}
+                        <button
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="lg:hidden text-gray-600 hover:text-blue-600 transition p-2"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {mobileMenuOpen ? (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                )}
+                            </svg>
+                        </button>
                     </nav>
+
+                    {/* 모바일 메뉴 */}
+                    {mobileMenuOpen && (
+                        <div className="lg:hidden bg-white border-t border-gray-200 py-4 space-y-2">
+                            <div className="border-b border-gray-200 pb-2 mb-2">
+                                <div className="px-4 py-2 text-gray-500 text-sm font-medium">소개</div>
+                                <a href="/intro.html" className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">소개</a>
+                                <a href="/community.html" className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">소통방</a>
+                            </div>
+                            <Link to="/" className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition">홈</Link>
+                            <div className="border-b border-gray-200 pb-2 mb-2">
+                                <div className="px-4 py-2 text-gray-500 text-sm font-medium">미디어</div>
+                                <Link to="/blog" className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition text-blue-600 font-semibold">블로그</Link>
+                                <Link to="/videos" className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">동영상</Link>
+                            </div>
+                            <Link to="/#signature" className="block w-full text-center mx-4 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-bold">
+                                참여하기
+                            </Link>
+                        </div>
+                    )}
                 </div>
             </header>
 
