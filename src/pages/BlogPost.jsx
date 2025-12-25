@@ -323,9 +323,6 @@ export default function BlogPost() {
 
                     {/* 글 헤더 */}
                     <header className="mb-8">
-                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full mb-4">
-                            {post.category}
-                        </span>
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                             {post.title}
                         </h1>
