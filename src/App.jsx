@@ -1484,49 +1484,61 @@ export default function App() {
                             <h4 className="text-lg font-bold text-center mb-4 text-gray-800">
                                 SNS 그룹에 참여하세요!
                             </h4>
-                            <p className="text-sm text-gray-600 text-center mb-4">
+                            <p className="text-sm text-gray-600 text-center mb-6">
                                 함께 소통하고 활동 소식을 받아보세요
                             </p>
-                            <div className="flex flex-wrap justify-center gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 {/* 카카오톡 오픈채팅 */}
                                 <a
                                     href="https://open.kakao.com/o/g1wj6P3h"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-14 h-14 flex items-center justify-center bg-[#FEE500] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
-                                    title="카카오톡"
+                                    className="flex flex-col items-center p-4 bg-[#FEE500] bg-opacity-10 rounded-xl hover:bg-opacity-20 transition-all group"
                                 >
-                                    <KakaoIcon className="w-7 h-7 text-[#391B1B]" />
+                                    <div className="w-14 h-14 flex items-center justify-center bg-[#FEE500] rounded-full shadow-lg group-hover:scale-110 transition-transform mb-2">
+                                        <KakaoIcon className="w-7 h-7 text-[#391B1B]" />
+                                    </div>
+                                    <span className="font-bold text-gray-800 text-sm">카카오톡</span>
+                                    <span className="text-xs text-gray-500 text-center">오픈채팅방</span>
                                 </a>
                                 {/* 텔레그램 */}
                                 <a
                                     href="https://t.me/siminbupjung"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-14 h-14 flex items-center justify-center bg-[#0088cc] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
-                                    title="텔레그램"
+                                    className="flex flex-col items-center p-4 bg-[#0088cc] bg-opacity-10 rounded-xl hover:bg-opacity-20 transition-all group"
                                 >
-                                    <TelegramIcon className="w-7 h-7 text-white" />
+                                    <div className="w-14 h-14 flex items-center justify-center bg-[#0088cc] rounded-full shadow-lg group-hover:scale-110 transition-transform mb-2">
+                                        <TelegramIcon className="w-7 h-7 text-white" />
+                                    </div>
+                                    <span className="font-bold text-gray-800 text-sm">텔레그램</span>
+                                    <span className="text-xs text-gray-500 text-center">채널 구독</span>
                                 </a>
                                 {/* X (트위터) */}
                                 <a
                                     href="https://x.com/chamsimje67719"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-14 h-14 flex items-center justify-center bg-black rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
-                                    title="X"
+                                    className="flex flex-col items-center p-4 bg-black bg-opacity-5 rounded-xl hover:bg-opacity-10 transition-all group"
                                 >
-                                    <XIcon className="w-6 h-6 text-white" />
+                                    <div className="w-14 h-14 flex items-center justify-center bg-black rounded-full shadow-lg group-hover:scale-110 transition-transform mb-2">
+                                        <XIcon className="w-6 h-6 text-white" />
+                                    </div>
+                                    <span className="font-bold text-gray-800 text-sm">X (트위터)</span>
+                                    <span className="text-xs text-gray-500 text-center">팔로우</span>
                                 </a>
                                 {/* 페이스북 */}
                                 <a
                                     href="https://www.facebook.com/profile.php?id=61585298259020"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-14 h-14 flex items-center justify-center bg-[#1877F2] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
-                                    title="페이스북"
+                                    className="flex flex-col items-center p-4 bg-[#1877F2] bg-opacity-10 rounded-xl hover:bg-opacity-20 transition-all group"
                                 >
-                                    <FacebookIcon className="w-7 h-7 text-white" />
+                                    <div className="w-14 h-14 flex items-center justify-center bg-[#1877F2] rounded-full shadow-lg group-hover:scale-110 transition-transform mb-2">
+                                        <FacebookIcon className="w-7 h-7 text-white" />
+                                    </div>
+                                    <span className="font-bold text-gray-800 text-sm">페이스북</span>
+                                    <span className="text-xs text-gray-500 text-center">페이지 좋아요</span>
                                 </a>
                             </div>
                         </div>
