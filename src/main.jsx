@@ -19,8 +19,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/admin" element={<Admin />} />
-        <Route path="/admin/blog" element={<AdminBlog />} />
-        <Route path="/videos/write" element={<AdminVideos />} />
+        <Route path="/blog/admin" element={<AdminBlog />} />
+        <Route path="/videos/admin" element={<AdminVideos />} />
         <Route path="/chat" element={<HybridChat />} />
         <Route path="/faq-test" element={<FAQTest />} />
         <Route path="/blog" element={<Blog />} />
