@@ -33,6 +33,17 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // videos 컬렉션: 동영상
+    match /videos/{videoId} {
+      // 읽기: 모든 사용자 허용 (공개 동영상 목록)
+      allow read: if true;
+
+      // 생성/수정: 관리자만 (프론트엔드에서 writerCode 검증)
+      allow create, update: if request.resource.data.title is string
+                            && request.resource.data.title.size() > 0;
+      allow delete: if false;
+    }
+
     // 기타 모든 컬렉션: 접근 불가
     match /{document=**} {
       allow read, write: if false;

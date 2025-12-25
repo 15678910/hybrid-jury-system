@@ -29,13 +29,19 @@ export default function Videos() {
         const fetchVideos = async () => {
             try {
                 const videosRef = collection(db, 'videos');
-                const q = query(videosRef, orderBy('createdAt', 'desc'));
-                const querySnapshot = await getDocs(q);
+                const querySnapshot = await getDocs(videosRef);
 
                 const firestoreVideos = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }));
+
+                // 클라이언트에서 정렬
+                firestoreVideos.sort((a, b) => {
+                    const dateA = a.createdAt?.toDate?.() || new Date(0);
+                    const dateB = b.createdAt?.toDate?.() || new Date(0);
+                    return dateB - dateA;
+                });
 
                 setVideos(firestoreVideos);
             } catch (error) {
@@ -80,10 +86,10 @@ export default function Videos() {
                                     </div>
                                 </div>
                             </div>
-                            <Link to="/#necessity" className="hover:text-blue-600 transition font-medium">도입 필요성</Link>
-                            <Link to="/#cases" className="hover:text-blue-600 transition font-medium">해외 사례</Link>
-                            <Link to="/#constitution" className="hover:text-blue-600 transition font-medium">헌법적 근거</Link>
-                            <Link to="/#bill" className="hover:text-blue-600 transition font-medium">법안 제안</Link>
+                            <a href="/#necessity" className="hover:text-blue-600 transition font-medium">도입 필요성</a>
+                            <a href="/#cases" className="hover:text-blue-600 transition font-medium">해외 사례</a>
+                            <a href="/#constitution" className="hover:text-blue-600 transition font-medium">헌법적 근거</a>
+                            <a href="/#bill" className="hover:text-blue-600 transition font-medium">법안 제안</a>
 
                             {/* 미디어 드롭다운 */}
                             <div
@@ -99,8 +105,8 @@ export default function Videos() {
                                 </button>
                                 <div className={`absolute top-full left-0 mt-0 pt-2 ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
                                     <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px]">
-                                        <Link to="/blog" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">블로그</Link>
-                                        <Link to="/videos" className="block px-4 py-2 hover:bg-gray-100 text-blue-600 font-semibold">동영상</Link>
+                                        <a href="/blog" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">블로그</a>
+                                        <a href="/videos" className="block px-4 py-2 hover:bg-gray-100 text-blue-600 font-semibold">동영상</a>
                                     </div>
                                 </div>
                             </div>
