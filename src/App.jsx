@@ -1484,61 +1484,59 @@ export default function App() {
                             <h4 className="text-lg font-bold text-center mb-4 text-gray-800">
                                 SNS 그룹에 참여하세요!
                             </h4>
-                            <p className="text-sm text-gray-600 text-center mb-6">
+                            <p className="text-sm text-gray-600 text-center mb-4">
                                 함께 소통하고 활동 소식을 받아보세요
                             </p>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="flex flex-wrap justify-center gap-4">
                                 {/* 카카오톡 오픈채팅 */}
                                 <a
                                     href="https://open.kakao.com/o/g1wj6P3h"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex flex-col items-center p-4 bg-[#FEE500] bg-opacity-10 rounded-xl hover:bg-opacity-20 transition-all group"
+                                    className="w-12 h-12 flex items-center justify-center bg-[#FEE500] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                                    title="카카오톡 오픈채팅"
                                 >
-                                    <div className="w-14 h-14 flex items-center justify-center bg-[#FEE500] rounded-full shadow-lg group-hover:scale-110 transition-transform mb-2">
-                                        <KakaoIcon className="w-7 h-7 text-[#391B1B]" />
-                                    </div>
-                                    <span className="font-bold text-gray-800 text-sm">카카오톡</span>
-                                    <span className="text-xs text-gray-500 text-center">오픈채팅방</span>
+                                    <KakaoIcon className="w-6 h-6 text-[#391B1B]" />
                                 </a>
                                 {/* 텔레그램 */}
                                 <a
                                     href="https://t.me/siminbupjung"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex flex-col items-center p-4 bg-[#0088cc] bg-opacity-10 rounded-xl hover:bg-opacity-20 transition-all group"
+                                    className="w-12 h-12 flex items-center justify-center bg-[#0088cc] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                                    title="텔레그램"
                                 >
-                                    <div className="w-14 h-14 flex items-center justify-center bg-[#0088cc] rounded-full shadow-lg group-hover:scale-110 transition-transform mb-2">
-                                        <TelegramIcon className="w-7 h-7 text-white" />
-                                    </div>
-                                    <span className="font-bold text-gray-800 text-sm">텔레그램</span>
-                                    <span className="text-xs text-gray-500 text-center">채널 구독</span>
+                                    <TelegramIcon className="w-6 h-6 text-white" />
                                 </a>
                                 {/* X (트위터) */}
                                 <a
                                     href="https://x.com/chamsimje67719"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex flex-col items-center p-4 bg-black bg-opacity-5 rounded-xl hover:bg-opacity-10 transition-all group"
+                                    className="w-12 h-12 flex items-center justify-center bg-black rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                                    title="X (트위터)"
                                 >
-                                    <div className="w-14 h-14 flex items-center justify-center bg-black rounded-full shadow-lg group-hover:scale-110 transition-transform mb-2">
-                                        <XIcon className="w-6 h-6 text-white" />
-                                    </div>
-                                    <span className="font-bold text-gray-800 text-sm">X (트위터)</span>
-                                    <span className="text-xs text-gray-500 text-center">팔로우</span>
+                                    <XIcon className="w-5 h-5 text-white" />
+                                </a>
+                                {/* 인스타그램 */}
+                                <a
+                                    href="https://www.instagram.com/siminbupjung"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-12 h-12 flex items-center justify-center bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                                    title="인스타그램"
+                                >
+                                    <InstagramIcon className="w-6 h-6 text-white" />
                                 </a>
                                 {/* 페이스북 */}
                                 <a
                                     href="https://www.facebook.com/profile.php?id=61585298259020"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex flex-col items-center p-4 bg-[#1877F2] bg-opacity-10 rounded-xl hover:bg-opacity-20 transition-all group"
+                                    className="w-12 h-12 flex items-center justify-center bg-[#1877F2] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                                    title="페이스북"
                                 >
-                                    <div className="w-14 h-14 flex items-center justify-center bg-[#1877F2] rounded-full shadow-lg group-hover:scale-110 transition-transform mb-2">
-                                        <FacebookIcon className="w-7 h-7 text-white" />
-                                    </div>
-                                    <span className="font-bold text-gray-800 text-sm">페이스북</span>
-                                    <span className="text-xs text-gray-500 text-center">페이지 좋아요</span>
+                                    <FacebookIcon className="w-6 h-6 text-white" />
                                 </a>
                             </div>
                         </div>
@@ -1638,6 +1636,63 @@ export default function App() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                         </Link>
+                    </div>
+                </div>
+            </section>
+
+            {/* 후원 섹션 */}
+            <section className="py-16 px-4 bg-gradient-to-br from-orange-50 to-amber-50">
+                <div className="container mx-auto max-w-4xl">
+                    <div className="text-center mb-8">
+                        <h3 className="text-2xl font-bold text-gray-800 mb-2">후원으로 함께해주세요</h3>
+                        <p className="text-gray-600">여러분의 후원이 주권자 세상을 만듭니다</p>
+                    </div>
+
+                    <div className="bg-white rounded-2xl shadow-lg p-8 max-w-2xl mx-auto">
+                        {/* 후원 금액 선택 */}
+                        <div className="mb-6">
+                            <p className="text-sm text-gray-500 mb-3 text-center">후원 금액 (5,000원부터)</p>
+                            <div className="flex flex-wrap justify-center gap-2">
+                                {['5,000원', '10,000원', '20,000원', '30,000원', '50,000원', '100,000원'].map((amount) => (
+                                    <button
+                                        key={amount}
+                                        className="px-4 py-2 border-2 border-orange-300 rounded-full text-gray-700 hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all font-medium"
+                                    >
+                                        {amount}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* 계좌 정보 */}
+                        <div className="bg-orange-50 rounded-xl p-6 mb-6">
+                            <div className="grid grid-cols-3 gap-4 text-center">
+                                <div>
+                                    <p className="text-xs text-gray-500 mb-1">은행명</p>
+                                    <p className="font-bold text-gray-800">카카오뱅크</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 mb-1">계좌번호</p>
+                                    <p className="font-bold text-orange-600">3333-12-3456789</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 mb-1">예금주</p>
+                                    <p className="font-bold text-gray-800">시민법정참심제추진위</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 안내 문구 */}
+                        <div className="text-center text-sm text-gray-500 space-y-2">
+                            <p>※ 후원금은 시민법정 참심제 홍보 및 운영에 사용됩니다</p>
+                            <p>※ 후원 영수증 발급 문의: siminbupjung@gmail.com</p>
+                            <p>
+                                ※ 해외에서는 Paypal로 후원 가능해요 →
+                                <a href="https://url.kr/7n3hfe" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
+                                    https://url.kr/7n3hfe
+                                </a>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </section>

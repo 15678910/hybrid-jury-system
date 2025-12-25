@@ -1,0 +1,32 @@
+// Firebase 데이터 수정 스크립트
+// "정영훈, 촛불•빛혁명완성연대" → "정영훈"으로 수정
+
+const admin = require('firebase-admin');
+
+// 서비스 계정 키 파일 경로
+const serviceAccount = require('./serviceAccountKey.json');
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
+
+async function fixData() {
+    try {
+        // 기존 문서 수정: "정영훈, 촛불•빛혁명완성연대" → "정영훈"
+        const docId = 'r963eTwmBHTe3N0SVCrQ';
+        await db.collection('signatures').doc(docId).update({
+            name: '정영훈'
+        });
+        console.log('✅ 정영훈 문서 수정 완료');
+
+        console.log('\n🎉 모든 작업 완료!');
+        process.exit(0);
+    } catch (error) {
+        console.error('❌ 오류 발생:', error);
+        process.exit(1);
+    }
+}
+
+fixData();

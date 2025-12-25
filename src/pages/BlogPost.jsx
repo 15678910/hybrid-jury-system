@@ -427,6 +427,45 @@ export default function BlogPost() {
                         </p>
                     </div>
 
+                    {/* 후원 응원봉 */}
+                    <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 mb-4 border border-orange-200">
+                        <div className="text-center mb-4">
+                            <h4 className="text-lg font-bold text-gray-800 mb-2">시민법정 참심제를 응원해주세요!</h4>
+                            <p className="text-sm text-gray-600">여러분의 후원이 주권자 세상을 만듭니다</p>
+                        </div>
+
+                        <div className="bg-white rounded-lg p-4 mb-4">
+                            <div className="grid grid-cols-2 gap-3 mb-4">
+                                <div className="text-center">
+                                    <p className="text-xs text-gray-500 mb-1">은행명</p>
+                                    <p className="font-medium text-gray-800">카카오뱅크</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-xs text-gray-500 mb-1">예금주</p>
+                                    <p className="font-medium text-gray-800">시민법정참심제추진위</p>
+                                </div>
+                            </div>
+                            <div className="text-center border-t pt-3">
+                                <p className="text-xs text-gray-500 mb-1">계좌번호</p>
+                                <p className="font-bold text-lg text-orange-600">3333-12-3456789</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap justify-center gap-2 mb-4">
+                            {['5,000원', '10,000원', '30,000원', '50,000원', '100,000원'].map((amount) => (
+                                <span key={amount} className="px-3 py-1 bg-white rounded-full text-sm text-gray-700 border border-orange-200">
+                                    {amount}
+                                </span>
+                            ))}
+                        </div>
+
+                        <div className="text-center text-xs text-gray-500 space-y-1">
+                            <p>※ 후원금은 시민법정 참심제 홍보 및 운영에 사용됩니다</p>
+                            <p>※ 후원 영수증 발급 문의: siminbupjung@gmail.com</p>
+                            <p>※ 해외에서는 Paypal로 후원 가능해요 → <a href="https://url.kr/7n3hfe" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">https://url.kr/7n3hfe</a></p>
+                        </div>
+                    </div>
+
                     {/* SNS 공유 */}
                     <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6 mb-4">
                         <p className="text-white text-center mb-4 font-medium">이 글을 공유해주세요</p>

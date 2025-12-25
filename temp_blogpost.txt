@@ -1,0 +1,100 @@
+﻿commit a22e9791c0f95ce823ffde0c4ffcd403e20a668e
+Author: soochongq <soochongq???대찓??example.com>
+Date:   Mon Dec 22 14:09:31 2025 +0900
+
+    feat: 移댁뭅?ㅽ넚 SDK 怨듭쑀 湲곕뒫 異붽?
+    
+    - 移댁뭅??SDK瑜??듯븳 吏곸젒 怨듭쑀 湲곕뒫 援ы쁽
+    - SDK 珥덇린??諛?濡쒕뱶 ?湲?濡쒖쭅 異붽?
+    - SDK 誘몃줈?????대┰蹂대뱶 蹂듭궗 ?대갚 ?좎?
+    
+    ?쨼 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+diff --git a/src/pages/BlogPost.jsx b/src/pages/BlogPost.jsx
+index 120cf44..f0faae4 100644
+--- a/src/pages/BlogPost.jsx
++++ b/src/pages/BlogPost.jsx
+@@ -40,6 +40,40 @@ export default function BlogPost() {
+     const [post, setPost] = useState(null);
+     const [allPosts, setAllPosts] = useState([]);
+     const [loading, setLoading] = useState(true);
++    const [kakaoReady, setKakaoReady] = useState(false);
++
++    // 移댁뭅??SDK 珥덇린??+    useEffect(() => {
++        const initKakao = () => {
++            if (window.Kakao && !window.Kakao.isInitialized()) {
++                try {
++                    window.Kakao.init('83e843186c1251b9b5a8013fd5f29798');
++                    console.log('Kakao SDK initialized');
++                    setKakaoReady(true);
++                } catch (e) {
++                    console.error('Kakao init error:', e);
++                }
++            } else if (window.Kakao?.isInitialized()) {
++                setKakaoReady(true);
++            }
++        };
++
++        // SDK媛 ?대? 濡쒕뱶?섏뼱 ?덉쑝硫?諛붾줈 珥덇린??+        if (window.Kakao) {
++            initKakao();
++        } else {
++            // SDK 濡쒕뱶 ?湲?+            const checkKakao = setInterval(() => {
++                if (window.Kakao) {
++                    clearInterval(checkKakao);
++                    initKakao();
++                }
++            }, 100);
++
++            // 5珥?????꾩븘??+            setTimeout(() => clearInterval(checkKakao), 5000);
++        }
++    }, []);
+ 
+     useEffect(() => {
+         const fetchPost = async () => {
+@@ -109,7 +143,43 @@ export default function BlogPost() {
+     const postText = `${post.title} - ?쒕?踰뺤젙`;
+ 
+     const shareToKakao = () => {
+-        // 移댁뭅?ㅽ넚 怨듭쑀 - URL怨??띿뒪??蹂듭궗
++        console.log('Kakao SDK ready:', kakaoReady);
++        console.log('Kakao object:', window.Kakao);
++
++        if (kakaoReady && window.Kakao?.isInitialized()) {
++            try {
++                window.Kakao.Share.sendDefault({
++                    objectType: 'feed',
++                    content: {
++                        title: post.title,
++                        description: '?쒕?踰뺤젙 - 李몄떖?쒕줈 ?쒕????먯궗媛 ?섎뒗 ?щ쾿媛쒗쁺',
++                        imageUrl: 'https://siminbupjung-blog.web.app/og-image.png',
++                        link: {
++                            mobileWebUrl: postUrl,
++                            webUrl: postUrl,
++                        },
++                    },
++                    buttons: [
++                        {
++                            title: '?먯꽭??蹂닿린',
++                            link: {
++                                mobileWebUrl: postUrl,
++                                webUrl: postUrl,
++                            },
++                        },
++                    ],
++                });
++            } catch (e) {
++                console.error('Kakao share error:', e);
++                fallbackShare();
++            }
++        } else {
++            console.log('Kakao SDK not ready, using fallback');
++            fallbackShare();
++        }
++    };
++
++    const fallbackShare = () => {
+         const shareText = `${postText}\n${postUrl}`;
+         navigator.clipboard.writeText(shareText);
+         alert('留곹겕媛 蹂듭궗?섏뿀?듬땲??\n移댁뭅?ㅽ넚??遺숈뿬?ｊ린 ?댁＜?몄슂.');
