@@ -1641,57 +1641,24 @@ export default function App() {
             </section>
 
             {/* 후원 섹션 */}
-            <section className="py-16 px-4 bg-gradient-to-br from-orange-50 to-amber-50">
-                <div className="container mx-auto max-w-4xl">
-                    <div className="text-center mb-8">
-                        <h3 className="text-2xl font-bold text-gray-800 mb-2">후원으로 함께해주세요</h3>
-                        <p className="text-gray-600">여러분의 후원이 주권자 세상을 만듭니다</p>
+            <section className="py-6 px-4 bg-gradient-to-br from-orange-50 to-amber-50">
+                <div className="container mx-auto max-w-md">
+                    <div className="text-center mb-3">
+                        <h3 className="text-lg font-bold text-gray-800">빛의 응원봉으로 주권자 세상 함께 만들어요.</h3>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-lg p-8 max-w-2xl mx-auto">
-                        {/* 후원 금액 선택 */}
-                        <div className="mb-6">
-                            <p className="text-sm text-gray-500 mb-3 text-center">후원 금액 (5,000원부터)</p>
-                            <div className="flex flex-wrap justify-center gap-2">
-                                {['5,000원', '10,000원', '20,000원', '30,000원', '50,000원', '100,000원'].map((amount) => (
-                                    <button
-                                        key={amount}
-                                        className="px-4 py-2 border-2 border-orange-300 rounded-full text-gray-700 hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all font-medium"
-                                    >
-                                        {amount}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
+                    <div className="bg-white rounded-xl shadow-md p-4">
                         {/* 계좌 정보 */}
-                        <div className="bg-orange-50 rounded-xl p-6 mb-6">
-                            <div className="grid grid-cols-3 gap-4 text-center">
-                                <div>
-                                    <p className="text-xs text-gray-500 mb-1">은행명</p>
-                                    <p className="font-bold text-gray-800">카카오뱅크</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500 mb-1">계좌번호</p>
-                                    <p className="font-bold text-orange-600">3333-12-3456789</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500 mb-1">예금주</p>
-                                    <p className="font-bold text-gray-800">시민법정참심제추진위</p>
-                                </div>
-                            </div>
+                        <div className="flex justify-between items-center text-sm mb-3">
+                            <span className="text-gray-600">카카오뱅크</span>
+                            <span className="font-bold text-orange-600">3333-12-3456789</span>
+                            <span className="text-gray-600">시민법관참심제추진위</span>
                         </div>
 
                         {/* 안내 문구 */}
-                        <div className="text-center text-sm text-gray-500 space-y-2">
+                        <div className="text-center text-xs text-gray-500 space-y-1">
                             <p>※ 후원금은 시민법관 참심제 홍보 및 운영에 사용됩니다</p>
-                            <p>※ 후원 영수증 발급 문의: siminbupjung@gmail.com</p>
-                            <p>
-                                ※ 해외에서는 Paypal로 후원 가능해요 →
-                                <a href="https://url.kr/7n3hfe" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
-                                    https://url.kr/7n3hfe
-                                </a>
-                            </p>
+                            <p>※ 영수증 발급: siminbupjung@gmail.com | <a href="https://url.kr/7n3hfe" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">해외 Paypal</a></p>
                         </div>
                     </div>
                 </div>
