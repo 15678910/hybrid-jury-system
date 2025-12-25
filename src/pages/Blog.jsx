@@ -5,12 +5,9 @@ import { db } from '../lib/firebase';
 import Header from '../components/Header';
 
 export default function Blog() {
-    const [selectedCategory, setSelectedCategory] = useState('전체');
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [kakaoReady, setKakaoReady] = useState(false);
-
-    const categories = ['전체', '해외 사례', '사법개혁', '공지사항'];
 
     // Kakao SDK 초기화
     useEffect(() => {
@@ -66,9 +63,7 @@ export default function Blog() {
         fetchPosts();
     }, []);
 
-    const filteredPosts = selectedCategory === '전체'
-        ? posts
-        : posts.filter(post => post.category === selectedCategory);
+    const filteredPosts = posts;
 
     // 공유 함수 - Web Share API 우선, 카카오/복사 폴백
     const handleShare = async (post) => {
@@ -125,22 +120,6 @@ export default function Blog() {
                         <p className="text-gray-600">참심제와 사법개혁에 관한 소식을 전합니다</p>
                     </div>
 
-                    {/* 카테고리 필터 */}
-                    <div className="flex justify-center gap-3 mb-10 flex-wrap">
-                        {categories.map(category => (
-                            <button
-                                key={category}
-                                onClick={() => setSelectedCategory(category)}
-                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedCategory === category
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-white text-gray-600 hover:bg-gray-100 border'
-                                    }`}
-                            >
-                                {category}
-                            </button>
-                        ))}
-                    </div>
-
                     {/* 로딩 상태 */}
                     {loading ? (
                         <div className="text-center py-12">
@@ -158,9 +137,6 @@ export default function Blog() {
                                     >
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
-                                                <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full mb-3">
-                                                    {post.category}
-                                                </span>
                                                 <Link to={`/blog/${post.id}`}>
                                                     <h2 className="text-xl font-bold text-gray-900 hover:text-blue-600 mb-2">
                                                         {post.title}
@@ -201,7 +177,7 @@ export default function Blog() {
 
                             {filteredPosts.length === 0 && (
                                 <div className="text-center py-12 text-gray-500">
-                                    {posts.length === 0 ? '등록된 글이 없습니다.' : '해당 카테고리의 글이 없습니다.'}
+                                    등록된 글이 없습니다.
                                 </div>
                             )}
                         </>
