@@ -13,6 +13,7 @@ import {
     where
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import Header from '../components/Header';
 
 // YouTube URL에서 비디오 ID 추출
 const extractYouTubeId = (url) => {
@@ -45,11 +46,11 @@ export default function AdminVideos() {
         title: '',
         url: '',
         description: '',
-        category: '참심제 소개'
+        category: '해외 사례'
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const categories = ['참심제 소개', '해외 사례', '사법개혁', '인터뷰', '뉴스'];
+    const categories = ['해외 사례', '사법개혁', '인터뷰', '뉴스'];
 
     // Firestore에서 작성자 코드 검증
     const verifyWriterCode = async () => {
@@ -59,6 +60,19 @@ export default function AdminVideos() {
         }
 
         setVerifying(true);
+
+        // 하드코딩된 테스트 코드
+        const hardcodedCodes = {
+            'admin1234': '관리자',
+            'writer000': '시민법정'
+        };
+
+        if (hardcodedCodes[writerCode]) {
+            setIsVerified(true);
+            setWriterName(hardcodedCodes[writerCode]);
+            setVerifying(false);
+            return;
+        }
 
         try {
             const codesRef = collection(db, 'writerCodes');
@@ -206,7 +220,7 @@ export default function AdminVideos() {
             title: video.title,
             url: video.url,
             description: video.description || '',
-            category: video.category || '참심제 소개'
+            category: video.category || '해외 사례'
         });
         setShowModal(true);
     };
@@ -219,7 +233,7 @@ export default function AdminVideos() {
             title: '',
             url: '',
             description: '',
-            category: '참심제 소개'
+            category: '해외 사례'
         });
     };
 
@@ -233,26 +247,13 @@ export default function AdminVideos() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* 헤더 */}
-            <header className="bg-white shadow-md fixed top-0 w-full z-50">
-                <div className="container mx-auto px-4">
-                    <nav className="flex items-center justify-between py-4">
-                        <Link to="/" className="text-2xl font-bold text-blue-600">
-                            ⚖️ 사법개혁
-                        </Link>
-                        <div className="flex gap-6">
-                            <Link to="/" className="text-gray-600 hover:text-blue-600">홈</Link>
-                            <Link to="/videos" className="text-red-600 font-semibold">동영상</Link>
-                        </div>
-                    </nav>
-                </div>
-            </header>
+            <Header />
 
             {/* 메인 콘텐츠 */}
             <main className="pt-24 pb-16 px-4">
                 <div className="container mx-auto max-w-4xl">
                     <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-                        동영상 관리
+                        작성자 관리
                     </h1>
 
                     {/* 작성자 코드 입력 (미인증 시) */}
@@ -260,7 +261,7 @@ export default function AdminVideos() {
                         <div className="bg-white rounded-xl shadow-md p-8 mb-8">
                             <h2 className="text-xl font-bold text-gray-900 mb-4">작성자 인증</h2>
                             <p className="text-gray-600 mb-6">
-                                동영상을 관리하려면 발급받은 작성자 코드를 입력해주세요.
+                                작성자 코드를 입력하여 인증해주세요.
                             </p>
                             <div className="flex gap-4">
                                 <input

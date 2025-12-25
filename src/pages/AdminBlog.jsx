@@ -36,6 +36,19 @@ export default function AdminBlog() {
 
         setVerifying(true);
 
+        // 하드코딩된 테스트 코드
+        const hardcodedCodes = {
+            'admin1234': '관리자',
+            'writer000': '시민법정'
+        };
+
+        if (hardcodedCodes[writerCode]) {
+            setIsVerified(true);
+            setWriterName(hardcodedCodes[writerCode]);
+            setVerifying(false);
+            return;
+        }
+
         try {
             const codesRef = collection(db, 'writerCodes');
             const q = query(codesRef, where('code', '==', writerCode), where('active', '==', true));
@@ -146,7 +159,7 @@ export default function AdminBlog() {
                 <div className="flex items-center justify-center px-4 pt-32">
                     <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
                         <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                            블로그 관리
+                            작성자 관리
                         </h1>
                         <p className="text-gray-600 text-center mb-6">
                             작성자 코드를 입력하여 인증해주세요.
@@ -188,7 +201,7 @@ export default function AdminBlog() {
                 <div className="container mx-auto max-w-5xl">
                     <div className="flex justify-between items-center mb-8">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">블로그 관리</h1>
+                            <h1 className="text-3xl font-bold text-gray-900">작성자 관리</h1>
                             <p className="text-gray-600 mt-1">
                                 {writerName}님으로 로그인됨
                             </p>
