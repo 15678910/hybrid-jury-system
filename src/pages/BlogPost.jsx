@@ -422,27 +422,9 @@ export default function BlogPost() {
                         <p className="text-gray-700 mb-3">
                             온라인 준비위원 1만명이 참여하면 광장에서 주권자 세상 시작합니다.
                         </p>
-                        <p className="text-gray-700 mb-4">
+                        <p className="text-gray-700">
                             주권자에 의한 시민법관 참심제! <a href="https://youtu.be/5jWcQ7DX5WU" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline font-medium">음악 듣기</a>
                         </p>
-
-                        {/* 뉴스타파 스타일 후원 섹션 */}
-                        <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
-                            <p className="text-gray-700 text-center mb-4 leading-relaxed">
-                                민주주의는 국민이 권력을 위임하는 제도가 아니라, 국민이 권력을 직접 행사하는 제도입니다. 참심제는 그 원리를 사법 영역에 구현하는, 민주주의 완성을 위한 시작입니다.
-                            </p>
-                            <div className="flex justify-center">
-                                <a
-                                    href="/donate"
-                                    className="inline-flex items-center gap-2 px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-all shadow-md hover:shadow-lg"
-                                >
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                                    </svg>
-                                    후원하기
-                                </a>
-                            </div>
-                        </div>
                     </div>
 
                     {/* SNS 공유 */}
