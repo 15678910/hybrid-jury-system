@@ -236,6 +236,12 @@ export default function App() {
                     name: userInfo.displayName || prev.name,
                     // phone는 자동으로 채우지 않음 (인증 필요)
                 }));
+            } else {
+                // 로그인하지 않은 상태에서 기존 참여자면 자동으로 로그인 팝업 표시
+                const hasParticipated = localStorage.getItem('hasParticipated');
+                if (hasParticipated === 'true') {
+                    setShowLoginModal(true);
+                }
             }
         });
 
@@ -588,6 +594,9 @@ export default function App() {
             setIsPhoneVerified(false);
             setConfirmationResult(null);
             setVerificationCode('');
+
+            // 참여 기록 localStorage에 저장 (재방문 시 자동 로그인 팝업용)
+            localStorage.setItem('hasParticipated', 'true');
 
             // 오늘 등록자 수 업데이트
             const newTodayCount = todayRegistrations + 1;
@@ -1430,21 +1439,7 @@ export default function App() {
                                             </div>
                                         </div>
                                     )
-                                ) : (
-                                    /* 비로그인 사용자 */
-                                    <div className="text-center">
-                                        <p className="text-gray-600 mb-3">
-                                            간편 로그인하시면 정보가 자동으로 입력됩니다!
-                                        </p>
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowLoginModal(true)}
-                                            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition shadow-md"
-                                        >
-                                            🔐 간편 로그인
-                                        </button>
-                                    </div>
-                                )}
+                                ) : null}
                             </div>
 
                             {/* 이름 */}
