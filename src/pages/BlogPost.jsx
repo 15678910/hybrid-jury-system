@@ -422,47 +422,26 @@ export default function BlogPost() {
                         <p className="text-gray-700 mb-3">
                             온라인 준비위원 1만명이 참여하면 광장에서 주권자 세상 시작합니다.
                         </p>
-                        <p className="text-gray-700">
+                        <p className="text-gray-700 mb-4">
                             주권자에 의한 시민법관 참심제! <a href="https://youtu.be/5jWcQ7DX5WU" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline font-medium">음악 듣기</a>
                         </p>
-                    </div>
 
-                    {/* 후원 응원봉 */}
-                    <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 mb-4 border border-orange-200">
-                        <div className="text-center mb-4">
-                            <h4 className="text-lg font-bold text-gray-800 mb-2">시민법관 참심제를 응원해주세요!</h4>
-                            <p className="text-sm text-gray-600">여러분의 후원이 주권자 세상을 만듭니다</p>
-                        </div>
-
-                        <div className="bg-white rounded-lg p-4 mb-4">
-                            <div className="grid grid-cols-2 gap-3 mb-4">
-                                <div className="text-center">
-                                    <p className="text-xs text-gray-500 mb-1">은행명</p>
-                                    <p className="font-medium text-gray-800">카카오뱅크</p>
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-xs text-gray-500 mb-1">예금주</p>
-                                    <p className="font-medium text-gray-800">시민법정참심제추진위</p>
-                                </div>
+                        {/* 뉴스타파 스타일 후원 섹션 */}
+                        <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
+                            <p className="text-gray-700 text-center mb-4 leading-relaxed">
+                                민주주의는 국민이 권력을 위임하는 제도가 아니라, 국민이 권력을 직접 행사하는 제도입니다. 참심제는 그 원리를 사법 영역에 구현하는, 민주주의 완성을 위한 시작입니다.
+                            </p>
+                            <div className="flex justify-center">
+                                <a
+                                    href="/donate"
+                                    className="inline-flex items-center gap-2 px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-all shadow-md hover:shadow-lg"
+                                >
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                    </svg>
+                                    후원하기
+                                </a>
                             </div>
-                            <div className="text-center border-t pt-3">
-                                <p className="text-xs text-gray-500 mb-1">계좌번호</p>
-                                <p className="font-bold text-lg text-orange-600">3333-12-3456789</p>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-wrap justify-center gap-2 mb-4">
-                            {['5,000원', '10,000원', '30,000원', '50,000원', '100,000원'].map((amount) => (
-                                <span key={amount} className="px-3 py-1 bg-white rounded-full text-sm text-gray-700 border border-orange-200">
-                                    {amount}
-                                </span>
-                            ))}
-                        </div>
-
-                        <div className="text-center text-xs text-gray-500 space-y-1">
-                            <p>※ 후원금은 시민법관 참심제 홍보 및 운영에 사용됩니다</p>
-                            <p>※ 후원 영수증 발급 문의: siminbupjung@gmail.com</p>
-                            <p>※ 해외에서는 Paypal로 후원 가능해요 → <a href="https://url.kr/7n3hfe" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">https://url.kr/7n3hfe</a></p>
                         </div>
                     </div>
 
