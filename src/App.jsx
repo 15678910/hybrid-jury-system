@@ -4,6 +4,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import FloatingChat from './CozeFloatingChat'
 import { collection, addDoc, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db, auth, RecaptchaVerifier, signInWithPhoneNumber } from './lib/firebase';
+import ConsentCheckbox from './components/ConsentCheckbox';
+import LoginModal from './components/LoginModal';
+import { onAuthChange, signOut as authSignOut, getUserInfo, checkUserSignature } from './lib/auth';
 
 // 카카오톡 아이콘
 const KakaoIcon = ({ className = "w-6 h-6" }) => (
@@ -107,6 +110,18 @@ export default function App() {
     const [isDailyLimitReached, setIsDailyLimitReached] = useState(false);
     const DAILY_LIMIT = 1000; // 하루 최대 등록 수 (Firebase 무료 한도)
 
+    // 동의 체크박스 상태
+    const [consents, setConsents] = useState({
+        age14: false,
+        privacy: false,
+        terms: false
+    });
+
+    // 로그인 상태
+    const [user, setUser] = useState(null);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [hasSignature, setHasSignature] = useState(null); // null = 로딩중, true = 서명함, false = 서명 안함
+
     const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin2025'; // 환경변수 사용
 
     // Firestore에서 서명 데이터 불러오기
@@ -208,6 +223,25 @@ export default function App() {
         }
     }, [navigate]);
 
+    // 로그인 상태 감지
+    useEffect(() => {
+        const unsubscribe = onAuthChange((authUser) => {
+            setUser(authUser);
+
+            // 로그인 하면 자동으로 이름/이메일 채우기 (전화번호는 제외 - 인증 필요)
+            if (authUser) {
+                const userInfo = getUserInfo(authUser);
+                setFormData(prev => ({
+                    ...prev,
+                    name: userInfo.displayName || prev.name,
+                    // phone는 자동으로 채우지 않음 (인증 필요)
+                }));
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     // 초기 데이터 로드 및 통계 업데이트
     useEffect(() => {
         updateStats(signatures);
@@ -246,6 +280,27 @@ export default function App() {
     const handleAdminLogout = () => {
         setIsAdmin(false);
         alert('로그아웃되었습니다.');
+    };
+
+    // 사용자 로그인 성공 핸들러
+    const handleLoginSuccess = (loggedInUser) => {
+        console.log('로그인 성공:', loggedInUser);
+        // onAuthChange useEffect에서 자동으로 처리됨
+    };
+
+    // 사용자 로그아웃 핸들러
+    const handleUserLogout = async () => {
+        const result = await authSignOut();
+        if (result.success) {
+            setFormData(prev => ({
+                ...prev,
+                name: '',
+                // phone는 그대로 유지 (인증 필요)
+            }));
+            alert('로그아웃되었습니다.');
+        } else {
+            alert('로그아웃 실패: ' + result.error);
+        }
     };
 
     // 엑셀 다운로드 함수 (관리자 전용)
@@ -398,6 +453,21 @@ export default function App() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // 동의 체크 확인
+        if (!consents.age14 || !consents.privacy || !consents.terms) {
+            alert('필수 동의 항목에 모두 체크해주세요.');
+            return;
+        }
+
+        // 로그인 사용자 중복 서명 확인
+        if (user?.uid) {
+            const alreadySigned = await checkUserSignature(user.uid);
+            if (alreadySigned) {
+                alert('이미 참여하셨습니다! 참여는 1회만 가능합니다.');
+                return;
+            }
+        }
+
         if (!formData.name || !formData.phone) {
             alert('이름과 전화번호를 입력해주세요.');
             return;
@@ -473,7 +543,11 @@ export default function App() {
             const { addressVerified, ...dataToSave } = formData;
             const newSignature = {
                 ...dataToSave,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                // 로그인 정보 추가
+                userId: user?.uid || null,
+                loginMethod: user?.providerData?.[0]?.providerId || 'none',
+                userEmail: user?.email || null
             };
 
             // Firestore에 저장
@@ -1284,6 +1358,95 @@ export default function App() {
 
                     <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-2xl p-8 text-gray-800">
                         <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* 로그인 상태 표시 및 로그인 버튼 */}
+                            <div className="mb-6 pb-6 border-b border-gray-200">
+                                {user ? (
+                                    /* 로그인한 사용자 - 서명 여부에 따라 다른 UI */
+                                    hasSignature === null ? (
+                                        /* 로딩중 */
+                                        <div className="bg-gray-50 p-4 rounded-lg text-center">
+                                            <p className="text-gray-600">서명 여부 확인 중...</p>
+                                        </div>
+                                    ) : hasSignature ? (
+                                        /* 이미 서명함 */
+                                        <div className="bg-green-50 p-4 rounded-lg">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    {user.photoURL && (
+                                                        <img
+                                                            src={user.photoURL}
+                                                            alt="프로필"
+                                                            className="w-12 h-12 rounded-full border-2 border-green-300"
+                                                        />
+                                                    )}
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-2xl">✅</span>
+                                                            <span className="font-semibold text-green-900">{user.displayName}님</span>
+                                                        </div>
+                                                        <p className="text-sm text-green-700 mt-1">
+                                                            이미 참여하셨습니다! 블로그 글쓰기 권한이 있습니다.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleUserLogout}
+                                                    className="px-4 py-2 text-sm border border-green-300 rounded-lg hover:bg-green-100 transition"
+                                                >
+                                                    로그아웃
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        /* 서명 안함 */
+                                        <div className="bg-yellow-50 p-4 rounded-lg">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    {user.photoURL && (
+                                                        <img
+                                                            src={user.photoURL}
+                                                            alt="프로필"
+                                                            className="w-12 h-12 rounded-full border-2 border-yellow-300"
+                                                        />
+                                                    )}
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-2xl">⚠️</span>
+                                                            <span className="font-semibold text-yellow-900">{user.displayName}님</span>
+                                                        </div>
+                                                        <p className="text-sm text-yellow-700 mt-1">
+                                                            아직 참여하지 않으셨습니다. 아래 양식을 작성해주세요.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleUserLogout}
+                                                    className="px-4 py-2 text-sm border border-yellow-300 rounded-lg hover:bg-yellow-100 transition"
+                                                >
+                                                    로그아웃
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )
+                                ) : (
+                                    /* 비로그인 사용자 */
+                                    <div className="text-center">
+                                        <p className="text-gray-600 mb-3">
+                                            간편 로그인하시면 정보가 자동으로 입력됩니다!
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowLoginModal(true)}
+                                            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition shadow-md"
+                                        >
+                                            🔐 간편 로그인
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
                             {/* 이름 */}
                             <div>
                                 <label className="block font-bold mb-2">이름 또는 단체명 *</label>
@@ -1322,7 +1485,7 @@ export default function App() {
                                         className="flex-1 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         onClick={() => {
                                             new window.daum.Postcode({
-                                                oncomplete: function(data) {
+                                                oncomplete: function (data) {
                                                     // 시/도 + 구/군 + 동/읍/면 추출
                                                     const sido = data.sido; // 시/도
                                                     const sigungu = data.sigungu; // 구/군
@@ -1337,7 +1500,7 @@ export default function App() {
                                         type="button"
                                         onClick={() => {
                                             new window.daum.Postcode({
-                                                oncomplete: function(data) {
+                                                oncomplete: function (data) {
                                                     const sido = data.sido;
                                                     const sigungu = data.sigungu;
                                                     const bname = data.bname;
@@ -1465,17 +1628,24 @@ export default function App() {
                                 </div>
                             )}
 
+                            {/* 동의 체크박스 */}
+                            <div className="mt-6 pt-6 border-t border-gray-200">
+                                <ConsentCheckbox
+                                    consents={consents}
+                                    onChange={setConsents}
+                                />
+                            </div>
+
                             {/* 제출 버튼 */}
                             <button
                                 type="submit"
-                                disabled={isDailyLimitReached}
-                                className={`w-full py-4 rounded-lg font-bold text-lg transition transform ${
-                                    isDailyLimitReached
-                                        ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                                        : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-105'
-                                }`}
+                                disabled={isDailyLimitReached || !consents.age14 || !consents.privacy || !consents.terms}
+                                className={`w-full py-4 rounded-lg font-bold text-lg transition transform ${isDailyLimitReached || !consents.age14 || !consents.privacy || !consents.terms
+                                    ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-105'
+                                    }`}
                             >
-                                {isDailyLimitReached ? '오늘 등록 마감' : '참여하기'}
+                                {isDailyLimitReached ? '오늘 등록 마감' : (!consents.age14 || !consents.privacy || !consents.terms) ? '필수 동의 필요' : '참여하기'}
                             </button>
                         </form>
 
@@ -1677,6 +1847,13 @@ export default function App() {
                     <Poster key={Date.now()} onClose={() => setShowPosterModal(false)} />
                 </div>
             )}
+
+            {/* 로그인 모달 */}
+            <LoginModal
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
+                onLoginSuccess={handleLoginSuccess}
+            />
 
             {/* 플로팅 챗봇 */}
             <FloatingChat />

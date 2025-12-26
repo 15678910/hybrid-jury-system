@@ -423,7 +423,7 @@ export default function BlogPost() {
                             온라인 준비위원 1만명이 참여하면 광장에서 주권자 세상 시작합니다.
                         </p>
                         <p className="text-gray-700">
-                            주권자에 의한 시민법관 참심제! <a href="/music.mp3" target="_blank" className="text-blue-600 hover:text-blue-800 underline font-medium">음악 듣기</a>
+                            주권자에 의한 시민법관 참심제! <a href="https://youtu.be/5jWcQ7DX5WU" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline font-medium">음악 듣기</a>
                         </p>
                     </div>
 
@@ -513,11 +513,10 @@ export default function BlogPost() {
                         <button
                             onClick={handleLike}
                             disabled={hasLiked}
-                            className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all ${
-                                hasLiked
+                            className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all ${hasLiked
                                     ? 'bg-pink-100 text-pink-600 cursor-default'
                                     : 'bg-gray-100 text-gray-700 hover:bg-pink-50 hover:text-pink-600'
-                            }`}
+                                }`}
                         >
                             <svg className="w-6 h-6" fill={hasLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
