@@ -1810,29 +1810,6 @@ export default function App() {
                 </div>
             </section>
 
-            {/* 후원 섹션 */}
-            <section className="py-6 px-4 bg-gradient-to-br from-orange-50 to-amber-50">
-                <div className="container mx-auto max-w-md">
-                    <div className="text-center mb-3">
-                        <h3 className="text-lg font-bold text-gray-800">빛의 응원봉으로 주권자 세상 함께 만들어요.</h3>
-                    </div>
-
-                    <div className="bg-white rounded-xl shadow-md p-4">
-                        {/* 계좌 정보 */}
-                        <div className="flex justify-between items-center text-sm mb-3">
-                            <span className="text-gray-600">카카오뱅크</span>
-                            <span className="font-bold text-orange-600">3333-12-3456789</span>
-                            <span className="text-gray-600">시민법관참심제추진위</span>
-                        </div>
-
-                        {/* 안내 문구 */}
-                        <div className="text-center text-xs text-gray-500 space-y-1">
-                            <p>※ 후원금은 시민법관 참심제 홍보 및 운영에 사용됩니다</p>
-                            <p>※ 영수증 발급: siminbupjung@gmail.com | <a href="https://url.kr/7n3hfe" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">해외 Paypal</a></p>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
             {/* 푸터 */}
             <footer className="bg-gray-900 text-gray-400 py-6 px-4">
