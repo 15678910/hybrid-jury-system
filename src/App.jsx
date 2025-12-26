@@ -947,7 +947,7 @@ export default function App() {
                             <div className="bg-green-50 p-6 rounded-lg">
                                 <h3 className="font-bold text-lg mb-2">이제는 '혼합형 참심제'</h3>
                                 <p className="text-gray-700 text-sm">
-                                    직업 법관과 시민 참심원이 '함께' 평의하고 '동등하게' 판결하는 진정한 시민 참여를 실현합니다.
+                                    직업 법관과 시민법관이 '함께' 평의하고 '동등하게' 판결하는 진정한 시민 참여를 실현합니다.
                                 </p>
                             </div>
                         </div>
@@ -999,9 +999,9 @@ export default function App() {
                         <div className="bg-gray-50 p-6 rounded-lg">
                             <h4 className="font-bold mb-3">핵심 원칙</h4>
                             <ul className="space-y-2 text-gray-700 text-sm">
-                                <li>• <strong>동등한 권한:</strong> 직업법관과 참심법관 전원이 동등한 1표씩 행사.</li>
+                                <li>• <strong>동등한 권한:</strong> 직업법관과 시민법관 전원이 동등한 1표씩 행사.</li>
                                 <li>• <strong>함께 심리:</strong> 사실인정(유/무죄)과 양형(형량) 모두를 함께 평의.</li>
-                                <li>• <strong>기속력 있는 평결:</strong> 유죄 판결 시, 과반수 외 '직업법관 1명 이상+참심법관 1명 이상'의 찬성을 동시 요구. (특별다수결)</li>
+                                <li>• <strong>기속력 있는 평결:</strong> 유죄 판결 시, 과반수 외 '직업법관 1명 이상+시민법관 1명 이상'의 찬성을 동시 요구. (특별다수결)</li>
                                 <li>• <strong>무작위 선발:</strong> 대표성 담보</li>
                             </ul>
                         </div>
@@ -1041,12 +1041,12 @@ export default function App() {
                             <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
                                 <h3 className="text-2xl font-bold mb-4 text-blue-600">독일: 참심제(Schöffengericht)</h3>
                                 <p className="text-gray-700 mb-6">
-                                    독일은 1924년 배심제를 폐지하고 참심제로 전환하여 가장 성공적으로 운영 중인 국가입니다. 직업법관과 참심법관이 모든 권한을 동등하게 행사합니다.
+                                    독일은 1924년 배심제를 폐지하고 참심제로 전환하여 가장 성공적으로 운영 중인 국가입니다. 직업법관과 시민법관이 모든 권한을 동등하게 행사합니다.
                                 </p>
                                 <div className="space-y-4">
                                     <div className="flex">
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">구성:</div>
-                                        <div className="text-gray-700">지방법원(Landgericht) 1심 기준 직업법관 3인 + 참심법관 2인. (사안에 따라 직업법관 1인 + 참심법관 2인 구성도 있음)</div>
+                                        <div className="text-gray-700">지방법원(Landgericht) 1심 기준 직업법관 3인 + 시민법관 2인. (사안에 따라 직업법관 1인 + 시민법관 2인 구성도 있음)</div>
                                     </div>
                                     <div className="flex">
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">선발:</div>
@@ -1054,7 +1054,7 @@ export default function App() {
                                     </div>
                                     <div className="flex">
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">권한:</div>
-                                        <div className="text-gray-700">유/무죄 및 양형 결정에 대해 직업법관과 참심법관이 동등한 1표를 행사.</div>
+                                        <div className="text-gray-700">유/무죄 및 양형 결정에 대해 직업법관과 시민법관이 동등한 1표를 행사.</div>
                                     </div>
                                     <div className="flex">
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">평결:</div>
@@ -1302,7 +1302,7 @@ export default function App() {
                                 그러나 헌법 제101조 3항은 "법관의 자격은 법률로 정한다"고 명시하고 있습니다. 이는 '법관'의 범위를 정하는 권한이 입법부인 국회에 있음을 의미합니다.
                             </p>
                             <p className="text-gray-700 font-semibold">
-                                따라서 국회가 '법원조직법' 또는 '신규 특별법'을 개정·제정하여 '참심법관'의 자격, 선임 절차, 권한과 의무를 명확히 규정한다면, 시민 참심법관 역시 헌법이 정한 '법관'의 범주에 포함시킬 수 있습니다. <strong>이는 헌법 개정 없이 법률 개정만으로도 도입이 가능함을 의미합니다.</strong>
+                                따라서 국회가 '법원조직법' 또는 '신규 특별법'을 개정·제정하여 '시민법관'의 자격, 선임 절차, 권한과 의무를 명확히 규정한다면, 시민법관 역시 헌법이 정한 '법관'의 범주에 포함시킬 수 있습니다. <strong>이는 헌법 개정 없이 법률 개정만으로도 도입이 가능함을 의미합니다.</strong>
                             </p>
                         </div>
                     </div>
@@ -1312,9 +1312,9 @@ export default function App() {
             {/* 법안 제안 */}
             <section id="bill" className="py-20 px-4 bg-white">
                 <div className="container mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">혼합형 참심제도 제안 법률안(요지)</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">참심제도 제안 법률안(요지)</h2>
                     <p className="text-center text-gray-600 mb-6">
-                        새로 제안된 '제안 법률안'은 혼합형 참심제 도입을 위한 구체적인 내용을 담고 있습니다.
+                        새로 제안된 '제안 법률안'은 참심제 도입을 위한 구체적인 내용을 담고 있습니다.
                     </p>
 
                     <div className="text-center mb-8">
@@ -1328,17 +1328,17 @@ export default function App() {
 
                     <div className="max-w-4xl mx-auto">
                         <div className="bg-gray-50 p-8 rounded-lg">
-                            <h3 className="text-xl font-bold mb-6 text-blue-600">혼합형 참심제 운용에 관한 법률안 (가칭)</h3>
+                            <h3 className="text-xl font-bold mb-6 text-blue-600">참심제 운용에 관한 법률안 (가칭)</h3>
 
                             <div className="space-y-4">
                                 {[
-                                    { num: 1, title: '목적 (제1조)', desc: '국민이 참심법관으로 참여, 직업법관과 함께 재판권을 행사. 사법의 민주적 정당성, 투명성, 신뢰 증진을 목적으로 함.' },
+                                    { num: 1, title: '목적 (제1조)', desc: '국민이 시민법관으로 참여, 직업법관과 함께 재판권을 행사. 사법의 민주적 정당성, 투명성, 신뢰 증진을 목적으로 함.' },
                                     { num: 2, title: '적용 범위 (제3조)', desc: '1심 중대 형사사건 (예: 법정합의부 사건, 사형, 무기 또는 단기 1년 이상 징역 사건). 피고인 자백 여부와 무관.' },
-                                    { num: 3, title: '재판부 구성 (제5조)', desc: '직업법관 3인 + 참심법관 6인 (필요시 9인까지 증가 가능). 참심원이 다수를 구성.' },
-                                    { num: 4, title: '참심법관 권한 (제6조)', desc: '직업법관과 동등한 권한 (질문권, 평의, 표결권). 사실인정, 법령 적용, 유/무죄 및 양형에 모두 참여.' },
+                                    { num: 3, title: '재판부 구성 (제5조)', desc: '직업법관 3인 + 시민법관 6인 (필요시 9인까지 증가 가능). 참심원이 다수를 구성.' },
+                                    { num: 4, title: '시민법관 권한 (제6조)', desc: '직업법관과 동등한 권한 (질문권, 평의, 표결권). 사실인정, 법령 적용, 유/무죄 및 양형에 모두 참여.' },
                                     { num: 5, title: '선발 (제8조~제12조)', desc: '무작위 추출 + 심사 + 기피 절차. 만 25세 이상 국민 명부에서 선정. 스웨덴식 정당 추천 배제.' },
                                     { num: 6, title: '임기 (제14조)', desc: '사건별 선임. (독일/스웨덴식 장기 임기 아님). 국민 참여 기회를 극대화하고 부담 감소.' },
-                                    { num: 7, title: '평결 (제25조)', desc: '특별다수결. 과반수 찬성 + 유죄 판결 시 \'직업법관 1명 이상\' 및 \'참심법관 1명 이상\' 찬성 모두 요구.' },
+                                    { num: 7, title: '평결 (제25조)', desc: '특별다수결. 과반수 찬성 + 유죄 판결 시 \'직업법관 1명 이상\' 및 \'시민법관 1명 이상\' 찬성 모두 요구.' },
                                     { num: 8, title: '절차 (제23조)', desc: '집중심리 및 연일 개정 권장. 재판장의 이해돕기 설명. 재판절차 이해 가능하게 국민 참여 보장.' }
                                 ].map((item) => (
                                     <div key={item.num} className="flex gap-4 items-start">
