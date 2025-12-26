@@ -1362,7 +1362,7 @@ export default function App() {
                 <div className="container mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">주권자에 의한 시민법정!</h2>
                     <p className="text-center mb-12 text-lg">
-                        혼합형 참심제도 도입을 위한 준비위원으로 참여해주세요. 여러분의 목소리가 주권자 세상을 만듭니다.
+                        시민법관 참심제도 도입을 위한 준비위원으로 참여해주세요. 여러분의 목소리가 주권자 세상을 만듭니다.
                     </p>
 
                     <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-2xl p-8 text-gray-800">
