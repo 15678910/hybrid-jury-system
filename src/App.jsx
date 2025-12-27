@@ -363,7 +363,20 @@ export default function App() {
 
     // reCAPTCHA 초기화
     const initRecaptcha = () => {
-        if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
+        // 기존 reCAPTCHA 정리
+        if (recaptchaVerifierRef.current) {
+            try {
+                recaptchaVerifierRef.current.clear();
+            } catch (e) {
+                console.log('reCAPTCHA clear error:', e);
+            }
+            recaptchaVerifierRef.current = null;
+        }
+
+        // 컨테이너 내용 초기화
+        if (recaptchaContainerRef.current) {
+            recaptchaContainerRef.current.innerHTML = '';
+
             recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
                 size: 'invisible',
                 callback: () => {
