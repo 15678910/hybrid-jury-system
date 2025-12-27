@@ -388,9 +388,9 @@ export default function App() {
         const phoneClean = formData.phone.replace(/[\s-]/g, '');
         console.log('전화번호 검증:', phoneClean, '길이:', phoneClean.length);
 
-        // 전화번호 형식 검증
-        if (!/^01[0-9][0-9]{7,8}$/.test(phoneClean)) {
-            alert(`올바른 전화번호를 입력해주세요.\n입력값: ${phoneClean}\n길이: ${phoneClean.length}`);
+        // 전화번호 형식 검증 (010으로 시작, 정확히 11자리)
+        if (!/^010[0-9]{8}$/.test(phoneClean)) {
+            alert('올바른 휴대폰 번호를 입력해주세요.\n(010으로 시작하는 11자리 숫자)');
             return;
         }
 
@@ -492,11 +492,11 @@ export default function App() {
             return;
         }
 
-        // 전화번호 유효성 검증 (010-XXXX-XXXX 또는 01012345678 형식)
+        // 전화번호 유효성 검증 (010으로 시작, 정확히 11자리)
         const phoneClean = formData.phone.replace(/[\s-]/g, '');
-        const phoneRegex = /^01[0-9][0-9]{7,8}$/;
+        const phoneRegex = /^010[0-9]{8}$/;
         if (!phoneRegex.test(phoneClean)) {
-            alert('전화번호를 올바르게 입력해주세요. (예: 010-1234-5678)');
+            alert('올바른 휴대폰 번호를 입력해주세요.\n(010으로 시작하는 11자리 숫자)');
             return;
         }
 
