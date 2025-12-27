@@ -222,7 +222,7 @@ export default function BlogPost() {
     }
 
     // ⚠️ 수정금지: SNS 공유 URL - 영문 도메인 사용 (한글 도메인 인코딩 문제 방지)
-    const postUrl = `https://siminbupjung-blog.web.app/blog/${post.id}`;
+    const postUrl = `https://xn--lg3b0kt4n41f.kr/blog/${post.id}`;
     const postText = `${post.title} - 시민법정`;
 
     const shareToKakao = () => {
@@ -236,7 +236,7 @@ export default function BlogPost() {
                     content: {
                         title: post.title,
                         description: '시민법정 - 참심제로 시민이 판사가 되는 사법개혁',
-                        imageUrl: 'https://siminbupjung-blog.web.app/og-image.png',
+                        imageUrl: 'https://xn--lg3b0kt4n41f.kr/og-image.jpg',
                         link: {
                             mobileWebUrl: postUrl,
                             webUrl: postUrl,
