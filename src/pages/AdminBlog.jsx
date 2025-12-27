@@ -36,15 +36,19 @@ export default function AdminBlog() {
 
         setVerifying(true);
 
-        // 하드코딩된 테스트 코드
-        const hardcodedCodes = {
-            'admin1234': '관리자',
-            'writer000': '시민법정'
-        };
+        // 환경변수에서 관리자 코드 확인
+        const adminCode = import.meta.env.VITE_ADMIN_CODE;
+        const writerCodeEnv = import.meta.env.VITE_WRITER_CODE;
 
-        if (hardcodedCodes[writerCode]) {
+        if (writerCode === adminCode) {
             setIsVerified(true);
-            setWriterName(hardcodedCodes[writerCode]);
+            setWriterName('관리자');
+            setVerifying(false);
+            return;
+        }
+        if (writerCode === writerCodeEnv) {
+            setIsVerified(true);
+            setWriterName('시민법정');
             setVerifying(false);
             return;
         }

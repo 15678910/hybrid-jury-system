@@ -373,9 +373,11 @@ export default function App() {
             recaptchaVerifierRef.current = null;
         }
 
-        // 컨테이너 내용 초기화
+        // 컨테이너 내용 초기화 (안전한 DOM 조작)
         if (recaptchaContainerRef.current) {
-            recaptchaContainerRef.current.innerHTML = '';
+            while (recaptchaContainerRef.current.firstChild) {
+                recaptchaContainerRef.current.removeChild(recaptchaContainerRef.current.firstChild);
+            }
 
             recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
                 size: 'invisible',

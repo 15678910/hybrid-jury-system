@@ -30,8 +30,8 @@ service cloud.firestore {
                     && request.resource.data.title is string
                     && request.resource.data.content is string;
 
-      // 수정: 좋아요 업데이트 또는 전체 수정 허용
-      allow update: if true;
+      // 수정: 좋아요(likes, views) 필드만 업데이트 허용
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'views']);
 
       allow delete: if false;
 
@@ -50,9 +50,15 @@ service cloud.firestore {
       // 읽기: 모든 사용자 허용 (공개 동영상 목록)
       allow read: if true;
 
-      // 생성/수정: 관리자만 (프론트엔드에서 writerCode 검증)
-      allow create, update: if request.resource.data.title is string
-                            && request.resource.data.title.size() > 0;
+      // 생성: 필수 필드 검증
+      allow create: if request.resource.data.keys().hasAll(['title', 'videoId'])
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() > 0
+                    && request.resource.data.title.size() <= 200;
+
+      // 수정: 좋아요(likes, views) 필드만 업데이트 허용
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'views']);
+
       allow delete: if false;
     }
 

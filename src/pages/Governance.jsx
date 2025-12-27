@@ -3,8 +3,13 @@ import { Link } from 'react-router-dom';
 import { collection, addDoc, getDocs, query, orderBy, doc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
-// 관리자 작성자 코드 (기존 블로그와 동일)
-const ADMIN_WRITER_CODES = ['writer000', 'writer001', 'writer002'];
+// 관리자 작성자 코드 (환경변수에서 가져옴)
+const getAdminWriterCodes = () => {
+    const adminCode = import.meta.env.VITE_ADMIN_CODE;
+    const writerCode = import.meta.env.VITE_WRITER_CODE;
+    return [adminCode, writerCode].filter(Boolean);
+};
+const ADMIN_WRITER_CODES = getAdminWriterCodes();
 
 // 제안이 정식 투표로 승격되기 위한 최소 추천 수
 const MIN_SUPPORTS_FOR_PROMOTION = 10;
