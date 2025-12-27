@@ -44,7 +44,7 @@ export default function Header() {
                                         href="/community.html"
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                     >
-                                        광역별 소통방
+                                        지역별 소통방
                                     </a>
                                     <Link
                                         to="/governance"
@@ -122,7 +122,7 @@ export default function Header() {
                             <a href="/intro.html" className="hover:text-blue-600 transition font-medium">소개</a>
                             <div className="pl-4 border-l-2 border-gray-200">
                                 <p className="text-gray-500 text-sm mb-2">소통방</p>
-                                <a href="/community.html" className="block hover:text-blue-600 transition font-medium mb-1">광역별 소통방</a>
+                                <a href="/community.html" className="block hover:text-blue-600 transition font-medium mb-1">지역별 소통방</a>
                                 <Link to="/governance" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>의사결정</Link>
                             </div>
                             <button onClick={() => { scrollToSection('necessity'); setMobileMenuOpen(false); }} className="text-left hover:text-blue-600 transition font-medium">도입 필요성</button>
