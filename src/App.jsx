@@ -652,7 +652,10 @@ export default function App() {
 
                         {/* 데스크톱 메뉴 */}
                         <div className="hidden lg:flex space-x-6 text-sm items-center">
-                            {/* 소개 드롭다운 */}
+                            {/* 소개 */}
+                            <a href="/intro.html" className="hover:text-blue-600 transition font-medium">소개</a>
+
+                            {/* 소통방 드롭다운 */}
                             <div
                                 className="relative"
                                 onMouseEnter={() => setIntroDropdownOpen(true)}
@@ -661,7 +664,7 @@ export default function App() {
                                 <button
                                     className="hover:text-blue-600 transition font-medium flex items-center gap-1"
                                 >
-                                    소개
+                                    소통방
                                     <svg className={`w-4 h-4 transition-transform ${introDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
@@ -669,17 +672,17 @@ export default function App() {
                                 <div className={`absolute top-full left-0 mt-0 pt-2 ${introDropdownOpen ? 'block' : 'hidden'}`}>
                                     <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[140px] z-50">
                                         <a
-                                            href="/intro.html"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                        >
-                                            소개
-                                        </a>
-                                        <a
                                             href="/community.html"
                                             className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                         >
-                                            소통방
+                                            광역별 소통방
                                         </a>
+                                        <Link
+                                            to="/governance"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                        >
+                                            의사결정
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
@@ -753,23 +756,32 @@ export default function App() {
                     {/* 모바일 메뉴 드롭다운 */}
                     {mobileMenuOpen && (
                         <div className="lg:hidden bg-white border-t border-gray-200 py-4 space-y-2">
-                            {/* 모바일 소개 서브메뉴 */}
+                            {/* 소개 */}
+                            <a
+                                href="/intro.html"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition font-medium"
+                            >
+                                소개
+                            </a>
+
+                            {/* 모바일 소통방 서브메뉴 */}
                             <div className="border-b border-gray-200 pb-2 mb-2">
-                                <div className="px-4 py-2 text-gray-500 text-sm font-medium">소개</div>
-                                <a
-                                    href="/intro.html"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    소개
-                                </a>
+                                <div className="px-4 py-2 text-gray-500 text-sm font-medium">소통방</div>
                                 <a
                                     href="/community.html"
                                     onClick={() => setMobileMenuOpen(false)}
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
                                 >
-                                    소통방
+                                    광역별 소통방
                                 </a>
+                                <Link
+                                    to="/governance"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    의사결정
+                                </Link>
                             </div>
                             <button
                                 onClick={() => { scrollToSection('necessity'); setMobileMenuOpen(false); }}

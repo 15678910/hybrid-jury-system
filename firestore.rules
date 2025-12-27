@@ -56,6 +56,118 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // 의제별 투표 컬렉션 (법왜곡죄, 내란전담재판부, 시민법관참심제)
+    match /votes_lawDistortion/{voteId} {
+      allow read: if true;
+      allow create: if request.resource.data.vote in ['agree', 'disagree'];
+      allow update, delete: if false;
+    }
+
+    match /votes_trialCourt/{voteId} {
+      allow read: if true;
+      allow create: if request.resource.data.vote in ['agree', 'disagree'];
+      allow update, delete: if false;
+    }
+
+    match /votes_jurySystem/{voteId} {
+      allow read: if true;
+      allow create: if request.resource.data.vote in ['agree', 'disagree'];
+      allow update, delete: if false;
+    }
+
+    // 의제별 댓글 컬렉션
+    match /comments_lawDistortion/{commentId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['content', 'author', 'position'])
+                    && request.resource.data.content is string
+                    && request.resource.data.content.size() > 0
+                    && request.resource.data.content.size() <= 500
+                    && request.resource.data.author is string
+                    && request.resource.data.author.size() > 0
+                    && request.resource.data.author.size() <= 20
+                    && request.resource.data.position in ['agree', 'disagree', 'alternative'];
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']);
+      allow delete: if false;
+    }
+
+    match /comments_trialCourt/{commentId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['content', 'author', 'position'])
+                    && request.resource.data.content is string
+                    && request.resource.data.content.size() > 0
+                    && request.resource.data.content.size() <= 500
+                    && request.resource.data.author is string
+                    && request.resource.data.author.size() > 0
+                    && request.resource.data.author.size() <= 20
+                    && request.resource.data.position in ['agree', 'disagree', 'alternative'];
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']);
+      allow delete: if false;
+    }
+
+    match /comments_jurySystem/{commentId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['content', 'author', 'position'])
+                    && request.resource.data.content is string
+                    && request.resource.data.content.size() > 0
+                    && request.resource.data.content.size() <= 500
+                    && request.resource.data.author is string
+                    && request.resource.data.author.size() > 0
+                    && request.resource.data.author.size() <= 20
+                    && request.resource.data.position in ['agree', 'disagree', 'alternative'];
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']);
+      allow delete: if false;
+    }
+
+    // 동적으로 생성되는 주제의 투표 컬렉션 (votes_로 시작하는 모든 컬렉션)
+    match /{collection}/{voteId} {
+      allow read: if collection.matches('votes_.*');
+      allow create: if collection.matches('votes_.*')
+                    && request.resource.data.vote in ['agree', 'disagree'];
+      allow update, delete: if false;
+    }
+
+    // 동적으로 생성되는 주제의 댓글 컬렉션 (comments_로 시작하는 모든 컬렉션)
+    match /{collection}/{commentId} {
+      allow read: if collection.matches('comments_.*');
+      allow create: if collection.matches('comments_.*')
+                    && request.resource.data.keys().hasAll(['content', 'author', 'position'])
+                    && request.resource.data.content is string
+                    && request.resource.data.content.size() > 0
+                    && request.resource.data.content.size() <= 500
+                    && request.resource.data.author is string
+                    && request.resource.data.author.size() > 0
+                    && request.resource.data.author.size() <= 20
+                    && request.resource.data.position in ['agree', 'disagree', 'alternative'];
+      allow update: if collection.matches('comments_.*')
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']);
+      allow delete: if false;
+    }
+
+    // 시민 제안 컬렉션
+    match /proposals/{proposalId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['title', 'description', 'proposerName', 'createdAt', 'status'])
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() > 0
+                    && request.resource.data.title.size() <= 50
+                    && request.resource.data.description is string
+                    && request.resource.data.description.size() > 0
+                    && request.resource.data.description.size() <= 500
+                    && request.resource.data.proposerName is string
+                    && request.resource.data.proposerName.size() > 0
+                    && request.resource.data.proposerName.size() <= 20
+                    && request.resource.data.status == 'proposal';
+      allow update, delete: if false;
+    }
+
+    // 제안 추천(지지) 컬렉션 (proposal_supports_로 시작하는 모든 컬렉션)
+    match /{collection}/{supportId} {
+      allow read: if collection.matches('proposal_supports_.*');
+      allow create: if collection.matches('proposal_supports_.*')
+                    && request.resource.data.keys().hasAll(['createdAt']);
+      allow update, delete: if false;
+    }
+
     // 기타 모든 컬렉션: 접근 불가
     match /{document=**} {
       allow read, write: if false;
