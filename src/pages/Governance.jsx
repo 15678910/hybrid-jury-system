@@ -557,7 +557,7 @@ export default function Governance() {
                                 <div className={`absolute top-full left-0 mt-0 pt-2 ${introDropdownOpen ? 'block' : 'hidden'}`}>
                                     <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[140px] z-50">
                                         <a href="/community.html" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
-                                            지역별 소통방
+                                            지역 소통방
                                         </a>
                                         <Link to="/governance" className="block px-4 py-2 hover:bg-gray-100 text-blue-600 font-bold">
                                             의사결정
@@ -625,7 +625,7 @@ export default function Governance() {
                                 <a href="/intro.html" className="hover:text-blue-600 transition font-medium">소개</a>
                                 <div className="pl-4 border-l-2 border-blue-600">
                                     <p className="text-blue-600 font-bold mb-2">소통방</p>
-                                    <a href="/community.html" className="block hover:text-blue-600 transition font-medium pl-2 mb-1">지역별 소통방</a>
+                                    <a href="/community.html" className="block hover:text-blue-600 transition font-medium pl-2 mb-1">지역 소통방</a>
                                     <Link to="/governance" className="block text-blue-600 font-bold pl-2">의사결정</Link>
                                 </div>
                                 <Link to="/" className="hover:text-blue-600 transition font-medium">도입 필요성</Link>
