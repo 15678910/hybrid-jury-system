@@ -675,7 +675,7 @@ export default function App() {
                                             href="/community.html"
                                             className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                         >
-                                            광역별 소통방
+                                            지역 소통방
                                         </a>
                                         <Link
                                             to="/governance"
@@ -773,7 +773,7 @@ export default function App() {
                                     onClick={() => setMobileMenuOpen(false)}
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
                                 >
-                                    광역별 소통방
+                                    지역 소통방
                                 </a>
                                 <Link
                                     to="/governance"
@@ -1567,7 +1567,7 @@ export default function App() {
                                                 setVerificationCode('');
                                             }
                                         }}
-                                        placeholder="예: 010-1234-5678"
+                                        placeholder="숫자만 입력"
                                         className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${isPhoneVerified ? 'border-green-500 bg-green-50' : 'border-gray-300'}`}
                                         required
                                         disabled={isPhoneVerified}
