@@ -223,6 +223,20 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // 활동 로그 컬렉션 (보안 추적용)
+    // - 로그인/로그아웃, 투표, 댓글, 서명 등 모든 활동 기록
+    // - 읽기: 불가 (관리자만 Firebase Console에서 확인)
+    // - 생성: 필수 필드 검증 후 허용
+    // - 수정/삭제: 불가 (로그 무결성 유지)
+    match /activity_logs/{logId} {
+      allow read: if false;
+      allow create: if request.resource.data.keys().hasAll(['userId', 'actionType', 'timestamp'])
+                    && request.resource.data.userId is string
+                    && request.resource.data.actionType is string
+                    && request.resource.data.actionType in ['login', 'logout', 'login_failure', 'vote', 'comment', 'signature', 'proposal', 'proposal_support', 'admin_action'];
+      allow update, delete: if false;
+    }
+
     // 기타 모든 컬렉션: 접근 불가
     match /{document=**} {
       allow read, write: if false;

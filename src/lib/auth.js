@@ -5,7 +5,7 @@ import {
     onAuthStateChanged
 } from 'firebase/auth';
 import { auth, db } from './firebase';
-import { collection, query, where, getDocs, doc, setDoc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, setDoc, getDoc, addDoc } from 'firebase/firestore';
 
 // 카카오 앱 키
 const KAKAO_APP_KEY = '83e843186c1251b9b5a8013fd5f29798';
@@ -36,12 +36,17 @@ export const signInWithGoogle = async () => {
             provider: 'google'
         });
 
+        // 로그인 활동 로그 기록
+        await logLoginActivity(result.user.uid, 'google');
+
         return {
             success: true,
             user: result.user
         };
     } catch (error) {
         console.error('Google 로그인 에러:', error);
+        // 로그인 실패 로그 기록
+        await logLoginFailure('google', error.message);
         return {
             success: false,
             error: error.message
@@ -78,6 +83,9 @@ export const signInWithKakao = () => {
                             // Firestore에 사용자 정보 저장
                             await saveUserToFirestore(kakaoUser);
 
+                            // 로그인 활동 로그 기록
+                            await logLoginActivity(kakaoUser.uid, 'kakao');
+
                             // localStorage에 카카오 로그인 상태 저장
                             localStorage.setItem('kakaoUser', JSON.stringify(kakaoUser));
                             localStorage.setItem('kakaoAccessToken', authObj.access_token);
@@ -103,6 +111,74 @@ export const signInWithKakao = () => {
             }
         });
     });
+};
+
+// 내부 로그 함수 (순환 참조 방지)
+const logLoginActivity = async (userId, provider) => {
+    try {
+        const userAgent = navigator.userAgent || '';
+        const logData = {
+            userId,
+            actionType: 'login',
+            details: { provider, loginTime: new Date().toISOString() },
+            timestamp: new Date(),
+            userAgent,
+            language: navigator.language || '',
+            platform: navigator.platform || '',
+            screenSize: `${window.screen.width}x${window.screen.height}`,
+            pageUrl: window.location.href,
+            pagePath: window.location.pathname,
+            sessionId: sessionStorage.getItem('sessionId') || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        };
+        if (!sessionStorage.getItem('sessionId')) {
+            sessionStorage.setItem('sessionId', logData.sessionId);
+        }
+        await addDoc(collection(db, 'activity_logs'), logData);
+    } catch (error) {
+        console.error('로그인 로그 기록 에러:', error);
+    }
+};
+
+const logLoginFailure = async (provider, errorMessage) => {
+    try {
+        const logData = {
+            userId: 'anonymous',
+            actionType: 'login_failure',
+            details: { provider, errorMessage, attemptTime: new Date().toISOString() },
+            timestamp: new Date(),
+            userAgent: navigator.userAgent || '',
+            language: navigator.language || '',
+            platform: navigator.platform || '',
+            screenSize: `${window.screen.width}x${window.screen.height}`,
+            pageUrl: window.location.href,
+            pagePath: window.location.pathname,
+            sessionId: sessionStorage.getItem('sessionId') || 'unknown'
+        };
+        await addDoc(collection(db, 'activity_logs'), logData);
+    } catch (error) {
+        console.error('로그인 실패 로그 기록 에러:', error);
+    }
+};
+
+const logLogoutActivity = async (userId) => {
+    try {
+        const logData = {
+            userId,
+            actionType: 'logout',
+            details: { logoutTime: new Date().toISOString() },
+            timestamp: new Date(),
+            userAgent: navigator.userAgent || '',
+            language: navigator.language || '',
+            platform: navigator.platform || '',
+            screenSize: `${window.screen.width}x${window.screen.height}`,
+            pageUrl: window.location.href,
+            pagePath: window.location.pathname,
+            sessionId: sessionStorage.getItem('sessionId') || 'unknown'
+        };
+        await addDoc(collection(db, 'activity_logs'), logData);
+    } catch (error) {
+        console.error('로그아웃 로그 기록 에러:', error);
+    }
 };
 
 // Firestore에 사용자 정보 저장
@@ -132,6 +208,10 @@ const saveUserToFirestore = async (userData) => {
 // 로그아웃 (Google + Kakao)
 export const signOut = async () => {
     try {
+        // 현재 사용자 정보 가져오기 (로그아웃 전)
+        const currentUser = getCurrentUser();
+        const userId = currentUser?.uid;
+
         // Firebase 로그아웃
         await firebaseSignOut(auth);
 
@@ -145,6 +225,11 @@ export const signOut = async () => {
         // localStorage 정리
         localStorage.removeItem('kakaoUser');
         localStorage.removeItem('kakaoAccessToken');
+
+        // 로그아웃 활동 로그 기록
+        if (userId) {
+            await logLogoutActivity(userId);
+        }
 
         return { success: true };
     } catch (error) {
@@ -219,5 +304,129 @@ export const checkUserSignature = async (userId) => {
         console.error('서명 확인 에러:', error);
         return false;
     }
+};
+
+// ==========================================
+// 활동 로그 기록 시스템
+// ==========================================
+
+// 활동 로그 타입
+export const LOG_TYPES = {
+    LOGIN: 'login',
+    LOGOUT: 'logout',
+    VOTE: 'vote',
+    COMMENT: 'comment',
+    SIGNATURE: 'signature',
+    PROPOSAL: 'proposal',
+    PROPOSAL_SUPPORT: 'proposal_support',
+    ADMIN_ACTION: 'admin_action'
+};
+
+// 활동 로그 기록
+export const logActivity = async (userId, actionType, details = {}) => {
+    try {
+        // 브라우저 정보 수집
+        const userAgent = navigator.userAgent || '';
+        const language = navigator.language || '';
+        const platform = navigator.platform || '';
+        const screenSize = `${window.screen.width}x${window.screen.height}`;
+
+        // 현재 페이지 URL
+        const pageUrl = window.location.href;
+        const pagePath = window.location.pathname;
+
+        const logData = {
+            userId: userId || 'anonymous',
+            actionType,
+            details,
+            timestamp: new Date(),
+            // 브라우저 정보
+            userAgent,
+            language,
+            platform,
+            screenSize,
+            // 페이지 정보
+            pageUrl,
+            pagePath,
+            // 세션 정보
+            sessionId: getSessionId()
+        };
+
+        await addDoc(collection(db, 'activity_logs'), logData);
+
+        return { success: true };
+    } catch (error) {
+        console.error('활동 로그 기록 에러:', error);
+        return { success: false, error: error.message };
+    }
+};
+
+// 세션 ID 생성/가져오기
+const getSessionId = () => {
+    let sessionId = sessionStorage.getItem('sessionId');
+    if (!sessionId) {
+        sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        sessionStorage.setItem('sessionId', sessionId);
+    }
+    return sessionId;
+};
+
+// 로그인 로그 기록
+export const logLogin = async (userId, provider) => {
+    return logActivity(userId, LOG_TYPES.LOGIN, {
+        provider,
+        loginTime: new Date().toISOString()
+    });
+};
+
+// 로그아웃 로그 기록
+export const logLogout = async (userId) => {
+    return logActivity(userId, LOG_TYPES.LOGOUT, {
+        logoutTime: new Date().toISOString()
+    });
+};
+
+// 투표 로그 기록
+export const logVote = async (userId, topicId, vote) => {
+    return logActivity(userId, LOG_TYPES.VOTE, {
+        topicId,
+        vote,
+        voteTime: new Date().toISOString()
+    });
+};
+
+// 댓글 로그 기록
+export const logComment = async (userId, topicId, position) => {
+    return logActivity(userId, LOG_TYPES.COMMENT, {
+        topicId,
+        position,
+        commentTime: new Date().toISOString()
+    });
+};
+
+// 서명 로그 기록
+export const logSignature = async (userId, signatureType) => {
+    return logActivity(userId, LOG_TYPES.SIGNATURE, {
+        signatureType,
+        signatureTime: new Date().toISOString()
+    });
+};
+
+// 제안 로그 기록
+export const logProposal = async (userId, proposalId, action) => {
+    return logActivity(userId, LOG_TYPES.PROPOSAL, {
+        proposalId,
+        action, // 'create', 'support', 'delete'
+        proposalTime: new Date().toISOString()
+    });
+};
+
+// 관리자 작업 로그 기록
+export const logAdminAction = async (adminId, action, details) => {
+    return logActivity(adminId, LOG_TYPES.ADMIN_ACTION, {
+        action,
+        ...details,
+        actionTime: new Date().toISOString()
+    });
 };
 
