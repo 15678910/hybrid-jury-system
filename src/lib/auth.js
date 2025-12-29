@@ -17,7 +17,77 @@ const initKakao = () => {
     }
 };
 
-// Google 로그인
+// Google 계정 선택 (로그인 완료 전 - 정보만 가져오기)
+export const selectGoogleAccount = async () => {
+    try {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({
+            prompt: 'select_account'
+        });
+        const result = await signInWithPopup(auth, provider);
+
+        // 계정 정보 저장
+        const userData = {
+            uid: result.user.uid,
+            email: result.user.email,
+            displayName: result.user.displayName,
+            photoURL: result.user.photoURL,
+            provider: 'google'
+        };
+
+        // 바로 로그아웃 (확인 단계 대기)
+        await firebaseSignOut(auth);
+
+        return {
+            success: true,
+            user: userData
+        };
+    } catch (error) {
+        console.error('Google 계정 선택 에러:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+};
+
+// Google 로그인 완료 (확인 버튼 클릭 후)
+export const confirmGoogleLogin = async () => {
+    try {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({
+            prompt: 'none' // 이미 선택된 계정으로 바로 로그인
+        });
+        const result = await signInWithPopup(auth, provider);
+
+        // Firestore에 사용자 정보 저장
+        await saveUserToFirestore({
+            uid: result.user.uid,
+            email: result.user.email,
+            displayName: result.user.displayName,
+            photoURL: result.user.photoURL,
+            provider: 'google'
+        });
+
+        // 로그인 활동 로그 기록
+        await logLoginActivity(result.user.uid, 'google');
+
+        return {
+            success: true,
+            user: result.user
+        };
+    } catch (error) {
+        console.error('Google 로그인 에러:', error);
+        // 로그인 실패 로그 기록
+        await logLoginFailure('google', error.message);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+};
+
+// Google 로그인 (기존 호환성 유지)
 export const signInWithGoogle = async () => {
     try {
         const provider = new GoogleAuthProvider();
@@ -54,7 +124,104 @@ export const signInWithGoogle = async () => {
     }
 };
 
-// Kakao 로그인
+// Kakao 계정 선택 (로그인 완료 전 - 정보만 가져오기)
+export const selectKakaoAccount = () => {
+    return new Promise((resolve) => {
+        initKakao();
+
+        if (!window.Kakao) {
+            resolve({ success: false, error: 'Kakao SDK가 로드되지 않았습니다.' });
+            return;
+        }
+
+        window.Kakao.Auth.login({
+            success: async (authObj) => {
+                try {
+                    // 카카오 사용자 정보 가져오기
+                    window.Kakao.API.request({
+                        url: '/v2/user/me',
+                        success: async (res) => {
+                            const kakaoUser = {
+                                uid: `kakao_${res.id}`,
+                                email: res.kakao_account?.email || '',
+                                displayName: res.properties?.nickname || '카카오 사용자',
+                                photoURL: res.properties?.profile_image || null,
+                                provider: 'kakao',
+                                kakaoId: res.id
+                            };
+
+                            // 임시로 accessToken 저장 (확인 후 로그인 완료 시 사용)
+                            sessionStorage.setItem('pendingKakaoUser', JSON.stringify(kakaoUser));
+                            sessionStorage.setItem('pendingKakaoToken', authObj.access_token);
+
+                            // 카카오 로그아웃 (확인 단계 대기)
+                            if (window.Kakao.Auth.getAccessToken()) {
+                                window.Kakao.Auth.logout(() => {
+                                    console.log('카카오 임시 로그아웃');
+                                });
+                            }
+
+                            resolve({
+                                success: true,
+                                user: kakaoUser
+                            });
+                        },
+                        fail: (error) => {
+                            console.error('카카오 사용자 정보 조회 실패:', error);
+                            resolve({ success: false, error: '사용자 정보를 가져올 수 없습니다.' });
+                        }
+                    });
+                } catch (error) {
+                    console.error('카카오 계정 선택 에러:', error);
+                    resolve({ success: false, error: error.message });
+                }
+            },
+            fail: (error) => {
+                console.error('카카오 로그인 실패:', error);
+                resolve({ success: false, error: '카카오 로그인에 실패했습니다.' });
+            }
+        });
+    });
+};
+
+// Kakao 로그인 완료 (확인 버튼 클릭 후)
+export const confirmKakaoLogin = async () => {
+    try {
+        const pendingUser = sessionStorage.getItem('pendingKakaoUser');
+
+        if (!pendingUser) {
+            return { success: false, error: '카카오 계정 정보가 없습니다.' };
+        }
+
+        const kakaoUser = JSON.parse(pendingUser);
+
+        // Firestore에 사용자 정보 저장
+        await saveUserToFirestore(kakaoUser);
+
+        // 로그인 활동 로그 기록
+        await logLoginActivity(kakaoUser.uid, 'kakao');
+
+        // localStorage에 카카오 로그인 상태 저장
+        localStorage.setItem('kakaoUser', JSON.stringify(kakaoUser));
+
+        // 임시 저장 데이터 삭제
+        sessionStorage.removeItem('pendingKakaoUser');
+        sessionStorage.removeItem('pendingKakaoToken');
+
+        return {
+            success: true,
+            user: kakaoUser
+        };
+    } catch (error) {
+        console.error('카카오 로그인 완료 에러:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+};
+
+// Kakao 로그인 (기존 호환성 유지)
 export const signInWithKakao = () => {
     return new Promise((resolve) => {
         initKakao();
