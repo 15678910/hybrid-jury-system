@@ -1543,7 +1543,7 @@ export default function App() {
                             <div>
                                 <label className="block font-bold mb-2">재능 응원봉</label>
                                 <select
-                                    value={['IT', '미디어', '마케팅', '재정', ''].includes(formData.talent) ? formData.talent : '기타'}
+                                    value={['IT', '미디어', '마케팅', '재정', '독립연구자', ''].includes(formData.talent) ? formData.talent : '기타'}
                                     onChange={(e) => setFormData({ ...formData, talent: e.target.value })}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 >
@@ -1552,10 +1552,11 @@ export default function App() {
                                     <option value="미디어">미디어</option>
                                     <option value="마케팅">마케팅</option>
                                     <option value="재정">재정</option>
+                                    <option value="독립연구자">독립연구자</option>
                                     <option value="기타">기타 (직접 입력)</option>
                                 </select>
                                 {/* 기타 선택 시 직접 입력 */}
-                                {(formData.talent === '기타' || (formData.talent && !['IT', '미디어', '마케팅', '재정', ''].includes(formData.talent))) && (
+                                {(formData.talent === '기타' || (formData.talent && !['IT', '미디어', '마케팅', '재정', '독립연구자', ''].includes(formData.talent))) && (
                                     <input
                                         type="text"
                                         value={formData.talent === '기타' ? '' : formData.talent}
@@ -1598,6 +1599,11 @@ export default function App() {
                                         </button>
                                     )}
                                 </div>
+                                {!isPhoneVerified && (
+                                    <p className="mt-2 text-xs text-gray-500">
+                                        * 인증번호는 <strong>xn--lg3b0kt4n41f.kr</strong> (시민법정.kr)에서 발송됩니다. 스팸이 아니니 안심하세요.
+                                    </p>
+                                )}
 
                                 {/* 인증 코드 입력 */}
                                 {confirmationResult && !isPhoneVerified && (

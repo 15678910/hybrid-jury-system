@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { collection, addDoc, getDocs, query, orderBy, doc, updateDoc, increment } from 'firebase/firestore';
+import { Link, useSearchParams } from 'react-router-dom';
+import { collection, addDoc, getDocs, query, orderBy, doc, updateDoc, increment, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { onAuthChange } from '../lib/auth';
+import LoginModal from '../components/LoginModal';
 
 // 관리자 작성자 코드 (환경변수에서 가져옴)
 const getAdminWriterCodes = () => {
@@ -13,6 +15,9 @@ const ADMIN_WRITER_CODES = getAdminWriterCodes();
 
 // 제안이 정식 투표로 승격되기 위한 최소 추천 수
 const MIN_SUPPORTS_FOR_PROMOTION = 10;
+
+// 제안 마감 기간 (일) - 이 기간 내 추천 수 미달 시 자동 반려
+const PROPOSAL_DEADLINE_DAYS = 30;
 
 // 기본 의제 정의
 const DEFAULT_TOPICS = [
@@ -58,6 +63,7 @@ const DEFAULT_TOPICS = [
 ];
 
 export default function Governance() {
+    const [searchParams] = useSearchParams();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [mediaDropdownOpen, setMediaDropdownOpen] = useState(false);
     const [introDropdownOpen, setIntroDropdownOpen] = useState(false);
@@ -69,6 +75,15 @@ export default function Governance() {
     const [selectedTopicId, setSelectedTopicId] = useState(null);
     const [writerCode, setWriterCode] = useState('');
     const [isAdminVerified, setIsAdminVerified] = useState(false);
+
+    // URL 파라미터로 관리자 자동 인증 (?admin=SbAdmin2025!)
+    useEffect(() => {
+        const adminCode = searchParams.get('admin');
+        if (adminCode && ADMIN_WRITER_CODES.includes(adminCode)) {
+            setIsAdminVerified(true);
+            setWriterCode(adminCode);
+        }
+    }, [searchParams]);
 
     // 새 주제 생성 폼 상태
     const [newTopic, setNewTopic] = useState({
@@ -104,6 +119,7 @@ export default function Governance() {
 
     // 제안 주제 상태
     const [proposals, setProposals] = useState([]);
+    const [rejectedProposals, setRejectedProposals] = useState([]); // 반려된 제안들
     const [proposalSupports, setProposalSupports] = useState({}); // { proposalId: supportCount }
     const [userSupports, setUserSupports] = useState({}); // { proposalId: true/false }
     const [showProposalModal, setShowProposalModal] = useState(false);
@@ -124,20 +140,90 @@ export default function Governance() {
         jurySystem: 'all'
     });
 
+    // 로그인 상태 관리
+    const [currentUser, setCurrentUser] = useState(null);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+
+    // 로그인 상태 감지
+    useEffect(() => {
+        const unsubscribe = onAuthChange((user) => {
+            setCurrentUser(user);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    // 로그인한 사용자의 투표/추천 기록 확인
+    useEffect(() => {
+        const checkUserHistory = async () => {
+            if (!currentUser) {
+                setUserVotes({});
+                setUserSupports({});
+                return;
+            }
+
+            // 사용자의 기존 투표 확인
+            const votesHistory = {};
+            for (const topic of topics) {
+                const voteRef = doc(db, `votes_${topic.id}`, currentUser.uid);
+                const voteSnap = await getDoc(voteRef);
+                if (voteSnap.exists()) {
+                    votesHistory[topic.id] = voteSnap.data().vote;
+                }
+            }
+            setUserVotes(votesHistory);
+
+            // 사용자의 기존 추천 확인
+            const supportsHistory = {};
+            for (const proposal of proposals) {
+                const supportRef = doc(db, `proposal_supports_${proposal.id}`, currentUser.uid);
+                const supportSnap = await getDoc(supportRef);
+                if (supportSnap.exists()) {
+                    supportsHistory[proposal.id] = true;
+                }
+            }
+            setUserSupports(supportsHistory);
+        };
+
+        checkUserHistory();
+    }, [currentUser, topics, proposals]);
+
+    // Firestore에서 의제 설정 불러오기
+    useEffect(() => {
+        const loadTopicSettings = async () => {
+            try {
+                const settingsRef = doc(db, 'settings', 'governance');
+                const settingsSnap = await getDoc(settingsRef);
+
+                if (settingsSnap.exists()) {
+                    const data = settingsSnap.data();
+
+                    // topics 배열이 있으면 사용, 없으면 기존 deadlines 방식으로 fallback
+                    if (data.topics && data.topics.length > 0) {
+                        // status가 'draft'가 아닌 것만 표시
+                        const activeTopics = data.topics.filter(t => t.status !== 'draft');
+                        setTopics(activeTopics);
+                    } else if (data.deadlines) {
+                        // 기존 방식: deadlines만 적용
+                        setTopics(prevTopics => prevTopics.map(topic => ({
+                            ...topic,
+                            deadline: data.deadlines[topic.id] || topic.deadline
+                        })));
+                    }
+                }
+            } catch (error) {
+                console.error('의제 설정 로드 실패:', error);
+            }
+        };
+
+        loadTopicSettings();
+    }, []);
+
     // 초기 데이터 로드
     useEffect(() => {
         topics.forEach(topic => {
             fetchVotes(topic.id);
             fetchComments(topic.id);
         });
-
-        // 로컬 스토리지에서 사용자 투표 확인
-        const savedVotes = {};
-        topics.forEach(topic => {
-            const saved = localStorage.getItem(`vote_${topic.id}`);
-            if (saved) savedVotes[topic.id] = saved;
-        });
-        setUserVotes(prev => ({ ...prev, ...savedVotes }));
 
         // 제안 목록 로드
         fetchProposals();
@@ -156,24 +242,146 @@ export default function Governance() {
                 createdAt: doc.data().createdAt?.toDate?.() || new Date()
             }));
 
-            setProposals(fetchedProposals);
-
             // 추천 수 로드
             const supports = {};
+            const proposalsToPromote = [];
+            const proposalsToReject = [];
+            const activeProposals = [];
+            const alreadyRejected = [];
+            const now = new Date();
+
             for (const proposal of fetchedProposals) {
                 const supportsRef = collection(db, `proposal_supports_${proposal.id}`);
                 const supportsSnapshot = await getDocs(supportsRef);
-                supports[proposal.id] = supportsSnapshot.size;
+                const supportCount = supportsSnapshot.size;
+                supports[proposal.id] = supportCount;
+
+                // 이미 반려된 제안은 반려 목록으로
+                if (proposal.status === 'rejected') {
+                    alreadyRejected.push(proposal);
+                    continue;
+                }
+
+                // 이미 승격된 제안은 무시
+                if (proposal.status === 'promoted') {
+                    continue;
+                }
+
+                // 제안 생성일로부터 경과 일수 계산
+                const createdDate = proposal.createdAt instanceof Date
+                    ? proposal.createdAt
+                    : new Date(proposal.createdAt);
+                const daysPassed = Math.floor((now - createdDate) / (1000 * 60 * 60 * 24));
+
+                // 추천 수가 기준 이상이면 승격 대상
+                if (supportCount >= MIN_SUPPORTS_FOR_PROMOTION) {
+                    proposalsToPromote.push(proposal);
+                }
+                // 마감 기한이 지났고 추천 수 미달이면 반려 대상
+                else if (daysPassed >= PROPOSAL_DEADLINE_DAYS) {
+                    proposalsToReject.push({
+                        ...proposal,
+                        rejectedReason: `${PROPOSAL_DEADLINE_DAYS}일 기한 내 추천 수 미달 (${supportCount}/${MIN_SUPPORTS_FOR_PROMOTION}명)`,
+                        rejectedAt: now
+                    });
+                }
+                // 아직 진행 중인 제안
+                else {
+                    activeProposals.push({
+                        ...proposal,
+                        daysRemaining: PROPOSAL_DEADLINE_DAYS - daysPassed
+                    });
+                }
             }
+
+            // 반려 대상 제안들의 상태를 Firestore에 업데이트
+            for (const proposal of proposalsToReject) {
+                try {
+                    const proposalRef = doc(db, 'proposals', proposal.id);
+                    await updateDoc(proposalRef, {
+                        status: 'rejected',
+                        rejectedReason: proposal.rejectedReason,
+                        rejectedAt: proposal.rejectedAt
+                    });
+                } catch (error) {
+                    console.error(`제안 반려 처리 실패 (${proposal.id}):`, error);
+                }
+            }
+
+            // 승격 대상 제안을 투표 섹션으로 이동
+            if (proposalsToPromote.length > 0) {
+                const newTopics = proposalsToPromote.map(proposal => {
+                    const deadline = new Date();
+                    deadline.setDate(deadline.getDate() + 30);
+
+                    return {
+                        id: proposal.id,
+                        title: proposal.title,
+                        subtitle: proposal.subtitle || `${proposal.title}에 대한 시민 투표`,
+                        description: proposal.description,
+                        detail: proposal.detail || '제안 상세',
+                        detailContent: proposal.detailContent || proposal.description,
+                        agreeText: `${proposal.title}에 찬성합니다`,
+                        disagreeText: `${proposal.title}에 반대합니다`,
+                        status: 'active',
+                        color: 'purple',
+                        deadline: deadline.toISOString().split('T')[0],
+                        startDate: new Date().toISOString().split('T')[0],
+                        promotedFrom: 'proposal',
+                        proposerName: proposal.proposerName
+                    };
+                });
+
+                // Firestore settings/governance에 새 의제 추가
+                try {
+                    const settingsRef = doc(db, 'settings', 'governance');
+                    const settingsSnap = await getDoc(settingsRef);
+
+                    let existingTopics = [];
+                    if (settingsSnap.exists()) {
+                        existingTopics = settingsSnap.data().topics || [];
+                    }
+
+                    // 중복 체크 후 추가
+                    const existingIds = existingTopics.map(t => t.id);
+                    const uniqueNewTopics = newTopics.filter(t => !existingIds.includes(t.id));
+
+                    if (uniqueNewTopics.length > 0) {
+                        await setDoc(settingsRef, {
+                            topics: [...existingTopics, ...uniqueNewTopics]
+                        }, { merge: true });
+                    }
+                } catch (error) {
+                    console.error('settings 저장 실패:', error);
+                }
+
+                // 승격된 제안들의 상태를 Firestore에 업데이트
+                for (const proposal of proposalsToPromote) {
+                    try {
+                        const proposalRef = doc(db, 'proposals', proposal.id);
+                        await updateDoc(proposalRef, {
+                            status: 'promoted',
+                            promotedAt: new Date()
+                        });
+                    } catch (error) {
+                        console.error(`제안 승격 처리 실패 (${proposal.id}):`, error);
+                    }
+                }
+
+                setTopics(prev => {
+                    // 이미 존재하는 토픽은 제외
+                    const existingIds = prev.map(t => t.id);
+                    const uniqueNewTopics = newTopics.filter(t => !existingIds.includes(t.id));
+                    return [...prev, ...uniqueNewTopics];
+                });
+            }
+
+            setProposals(activeProposals);
+            setRejectedProposals([...alreadyRejected, ...proposalsToReject]);
             setProposalSupports(supports);
 
-            // 로컬 스토리지에서 사용자 추천 확인
-            const savedSupports = {};
-            fetchedProposals.forEach(proposal => {
-                const saved = localStorage.getItem(`support_${proposal.id}`);
-                if (saved) savedSupports[proposal.id] = true;
-            });
-            setUserSupports(savedSupports);
+            // 사용자 추천 확인은 로그인 후 별도로 처리
+            setUserSupports({});
         } catch (error) {
             console.error('제안 목록 로드 실패:', error);
         }
@@ -181,18 +389,28 @@ export default function Governance() {
 
     // 제안 추천하기
     const handleSupport = async (proposalId) => {
-        if (userSupports[proposalId]) {
+        // 로그인 확인
+        if (!currentUser) {
+            setShowLoginModal(true);
+            return;
+        }
+
+        // 이미 추천한 경우 (관리자 테스트 모드가 아닐 때만 체크)
+        if (userSupports[proposalId] && !isAdminVerified) {
             alert('이미 추천하셨습니다.');
             return;
         }
 
         try {
-            await addDoc(collection(db, `proposal_supports_${proposalId}`), {
+            // 관리자 테스트 모드: 랜덤 ID 사용, 일반 사용자: 사용자 ID로 중복 방지
+            const docId = isAdminVerified ? `admin_test_${Date.now()}` : currentUser.uid;
+            const supportRef = doc(db, `proposal_supports_${proposalId}`, docId);
+            await setDoc(supportRef, {
                 createdAt: new Date(),
-                userAgent: navigator.userAgent.substring(0, 100)
+                userId: docId,
+                displayName: isAdminVerified ? '관리자테스트' : (currentUser.displayName || '')
             });
 
-            localStorage.setItem(`support_${proposalId}`, 'true');
             setUserSupports(prev => ({ ...prev, [proposalId]: true }));
 
             const newSupportCount = (proposalSupports[proposalId] || 0) + 1;
@@ -222,24 +440,56 @@ export default function Governance() {
         const newTopic = {
             id: proposalId,
             title: proposal.title,
-            subtitle: proposal.subtitle,
+            subtitle: proposal.subtitle || `${proposal.title}에 대한 시민 투표`,
             description: proposal.description,
             detail: proposal.detail || '제안 상세',
             detailContent: proposal.detailContent || proposal.description,
             agreeText: `${proposal.title}에 찬성합니다`,
             disagreeText: `${proposal.title}에 반대합니다`,
             status: 'active',
-            color: 'blue',
+            color: 'purple',
             deadline: deadline.toISOString().split('T')[0],
             startDate: new Date().toISOString().split('T')[0],
             promotedFrom: 'proposal',
             proposerName: proposal.proposerName
         };
 
-        setTopics(prev => [...prev, newTopic]);
-        setProposals(prev => prev.filter(p => p.id !== proposalId));
+        try {
+            // 1. Firestore settings/governance에 새 의제 추가
+            const settingsRef = doc(db, 'settings', 'governance');
+            const settingsSnap = await getDoc(settingsRef);
 
-        alert(`"${proposal.title}" 제안이 ${MIN_SUPPORTS_FOR_PROMOTION}명의 추천을 받아 정식 투표로 승격되었습니다!`);
+            let existingTopics = [];
+            if (settingsSnap.exists()) {
+                existingTopics = settingsSnap.data().topics || [];
+            }
+
+            // 중복 체크 후 추가
+            if (!existingTopics.find(t => t.id === proposalId)) {
+                await setDoc(settingsRef, {
+                    topics: [...existingTopics, newTopic]
+                }, { merge: true });
+            }
+
+            // 2. proposals 컬렉션에서 해당 제안의 상태를 'promoted'로 업데이트
+            const proposalRef = doc(db, 'proposals', proposalId);
+            await updateDoc(proposalRef, {
+                status: 'promoted',
+                promotedAt: new Date()
+            });
+
+            // 3. UI 상태 업데이트
+            setTopics(prev => {
+                if (prev.find(t => t.id === proposalId)) return prev;
+                return [...prev, newTopic];
+            });
+            setProposals(prev => prev.filter(p => p.id !== proposalId));
+
+            alert(`"${proposal.title}" 제안이 ${MIN_SUPPORTS_FOR_PROMOTION}명의 추천을 받아 정식 투표로 승격되었습니다!`);
+        } catch (error) {
+            console.error('제안 승격 실패:', error);
+            alert('제안 승격에 실패했습니다. 다시 시도해주세요.');
+        }
     };
 
     // 새 제안 등록
@@ -345,31 +595,45 @@ export default function Governance() {
 
     // 의제별 투표하기
     const handleVote = async (topicId, vote) => {
-        if (userVotes[topicId]) {
+        // 로그인 확인
+        if (!currentUser) {
+            setShowLoginModal(true);
+            return;
+        }
+
+        // 이미 투표한 경우 (관리자는 테스트를 위해 중복 투표 허용)
+        if (userVotes[topicId] && !isAdminVerified) {
             alert('이미 투표하셨습니다.');
             return;
         }
 
         try {
-            await addDoc(collection(db, `votes_${topicId}`), {
+            // 관리자 테스트 모드: 랜덤 ID로 투표 (테스트용)
+            const docId = isAdminVerified ? `admin_test_${Date.now()}` : currentUser.uid;
+            const voteRef = doc(db, `votes_${topicId}`, docId);
+            await setDoc(voteRef, {
                 vote,
                 createdAt: new Date(),
-                userAgent: navigator.userAgent.substring(0, 100)
+                userId: docId,
+                displayName: isAdminVerified ? `관리자테스트` : (currentUser.displayName || '')
             });
 
-            setUserVotes(prev => ({ ...prev, [topicId]: vote }));
-            localStorage.setItem(`vote_${topicId}`, vote);
-            setVotes(prev => ({
-                ...prev,
-                [topicId]: {
-                    ...prev[topicId],
-                    [vote]: prev[topicId][vote] + 1
-                }
-            }));
-            alert('투표가 정상적으로 등록되었습니다!');
+            if (!isAdminVerified) {
+                setUserVotes(prev => ({ ...prev, [topicId]: vote }));
+            }
+            setVotes(prev => {
+                const currentVotes = prev[topicId] || { agree: 0, disagree: 0 };
+                return {
+                    ...prev,
+                    [topicId]: {
+                        ...currentVotes,
+                        [vote]: (currentVotes[vote] || 0) + 1
+                    }
+                };
+            });
+            alert(isAdminVerified ? '관리자 테스트 투표가 등록되었습니다!' : '투표가 정상적으로 등록되었습니다!');
         } catch (error) {
             console.error('투표 실패:', error);
-            localStorage.removeItem(`vote_${topicId}`);
             setUserVotes(prev => ({ ...prev, [topicId]: null }));
             alert('투표에 실패했습니다. 다시 시도해주세요.');
         }
@@ -690,7 +954,7 @@ export default function Governance() {
                                     </div>
                                     <div>
                                         <h2 className="text-xl font-bold text-gray-900">제안방</h2>
-                                        <p className="text-sm text-gray-500">{MIN_SUPPORTS_FOR_PROMOTION}명 이상 추천 시 정식 투표로 승격됩니다</p>
+                                        <p className="text-sm text-gray-500">{MIN_SUPPORTS_FOR_PROMOTION}명 이상 추천 시 정식 투표로 승격 (제안일로부터 {PROPOSAL_DEADLINE_DAYS}일 이내)</p>
                                     </div>
                                 </div>
                                 <span className="bg-purple-500 text-white text-sm font-bold px-4 py-2 rounded-full">
@@ -707,6 +971,42 @@ export default function Governance() {
                                         supportCount={proposalSupports[proposal.id] || 0}
                                         hasSupported={userSupports[proposal.id]}
                                         onSupport={() => handleSupport(proposal.id)}
+                                        minSupports={MIN_SUPPORTS_FOR_PROMOTION}
+                                        deadlineDays={PROPOSAL_DEADLINE_DAYS}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 반려방 섹션 - 기한 내 추천 수 미달 */}
+                    {rejectedProposals.length > 0 && (
+                        <div className="mb-12">
+                            {/* 섹션 헤더 */}
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center">
+                                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-bold text-gray-900">반려방</h2>
+                                        <p className="text-sm text-gray-500">{PROPOSAL_DEADLINE_DAYS}일 이내 {MIN_SUPPORTS_FOR_PROMOTION}명 추천을 받지 못해 반려된 제안입니다</p>
+                                    </div>
+                                </div>
+                                <span className="bg-gray-400 text-white text-sm font-bold px-4 py-2 rounded-full">
+                                    {rejectedProposals.length}개 반려
+                                </span>
+                            </div>
+
+                            {/* 반려된 제안 카드 그리드 */}
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {rejectedProposals.map((proposal) => (
+                                    <RejectedProposalCard
+                                        key={proposal.id}
+                                        proposal={proposal}
+                                        supportCount={proposalSupports[proposal.id] || 0}
                                         minSupports={MIN_SUPPORTS_FOR_PROMOTION}
                                     />
                                 ))}
@@ -1124,6 +1424,16 @@ export default function Governance() {
                     onVerify={verifyAdminCode}
                 />
             )}
+
+            {/* 로그인 모달 */}
+            <LoginModal
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
+                onLoginSuccess={(user) => {
+                    setCurrentUser(user);
+                    setShowLoginModal(false);
+                }}
+            />
         </div>
     );
 }
@@ -1139,8 +1449,8 @@ function TopicSection({ topic, votes, userVote, comments, activeTab, isSubmittin
     const agreePercent = totalVotes > 0 ? ((votes?.agree || 0) / totalVotes) * 100 : 50;
     const disagreePercent = totalVotes > 0 ? ((votes?.disagree || 0) / totalVotes) * 100 : 50;
 
-    // 마감일 계산
-    const deadlineDate = new Date(topic.deadline);
+    // 마감일 계산 (마감일의 23:59:59까지 유효)
+    const deadlineDate = new Date(topic.deadline + 'T23:59:59');
     const startDate = new Date(topic.startDate || '2025-01-01');
     const now = new Date();
     const isExpired = now > deadlineDate;
@@ -1364,6 +1674,23 @@ function TopicSection({ topic, votes, userVote, comments, activeTab, isSubmittin
                                         )}
                                     </div>
                                 </button>
+
+                                <button
+                                    onClick={() => {
+                                        setCommentPosition('alternative');
+                                        document.getElementById(`comment-form-${topic.id}`)?.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                    className="p-4 rounded-xl border-2 border-yellow-200 hover:border-yellow-500 hover:bg-yellow-50 cursor-pointer transition-all"
+                                >
+                                    <div className="text-center">
+                                        <div className="w-12 h-12 mx-auto mb-2 bg-yellow-500 rounded-full flex items-center justify-center">
+                                            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div className="text-sm font-bold text-gray-800">대안</div>
+                                    </div>
+                                </button>
                             </div>
 
                             {userVote && (
@@ -1468,7 +1795,7 @@ function TopicSection({ topic, votes, userVote, comments, activeTab, isSubmittin
                         </div>
 
                         {/* 댓글 작성 폼 */}
-                        <form onSubmit={handleSubmit} className="bg-white rounded-lg p-3 border">
+                        <form id={`comment-form-${topic.id}`} onSubmit={handleSubmit} className="bg-white rounded-lg p-3 border">
                             <div className="flex gap-2 mb-2">
                                 <input
                                     type="text"
@@ -1564,11 +1891,12 @@ function ExpiredVotesSection({ topics, votes, userVotes, comments, activeTabs, i
 }
 
 // 제안 카드 컴포넌트
-function ProposalCard({ proposal, supportCount, hasSupported, onSupport, minSupports }) {
+function ProposalCard({ proposal, supportCount, hasSupported, onSupport, minSupports, deadlineDays }) {
     const progressPercent = Math.min((supportCount / minSupports) * 100, 100);
     const createdDate = proposal.createdAt instanceof Date
         ? proposal.createdAt
         : new Date(proposal.createdAt);
+    const daysRemaining = proposal.daysRemaining || deadlineDays;
 
     const formatDate = (date) => {
         const d = new Date(date);
@@ -1583,9 +1911,20 @@ function ProposalCard({ proposal, supportCount, hasSupported, onSupport, minSupp
                     <span className="bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-full">
                         시민 제안
                     </span>
-                    <span className="text-xs text-gray-500">
-                        {formatDate(createdDate)}
-                    </span>
+                    <div className="flex flex-col items-end gap-1">
+                        <span className="text-xs text-gray-500">
+                            {formatDate(createdDate)}
+                        </span>
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                            daysRemaining <= 7
+                                ? 'bg-red-100 text-red-600'
+                                : daysRemaining <= 14
+                                    ? 'bg-orange-100 text-orange-600'
+                                    : 'bg-green-100 text-green-600'
+                        }`}>
+                            D-{daysRemaining}
+                        </span>
+                    </div>
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
                     {proposal.title}
@@ -1661,6 +2000,83 @@ function ProposalCard({ proposal, supportCount, hasSupported, onSupport, minSupp
                         </>
                     )}
                 </button>
+            </div>
+        </div>
+    );
+}
+
+// 반려된 제안 카드 컴포넌트
+function RejectedProposalCard({ proposal, supportCount, minSupports }) {
+    const createdDate = proposal.createdAt instanceof Date
+        ? proposal.createdAt
+        : new Date(proposal.createdAt);
+    const rejectedDate = proposal.rejectedAt instanceof Date
+        ? proposal.rejectedAt
+        : new Date(proposal.rejectedAt || createdDate);
+
+    const formatDate = (date) => {
+        const d = new Date(date);
+        return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}.`;
+    };
+
+    return (
+        <div className="bg-gray-50 rounded-xl shadow-md overflow-hidden border border-gray-200 opacity-75">
+            {/* 카드 상단 영역 */}
+            <div className="bg-gradient-to-br from-gray-100 to-gray-50 p-5 border-b">
+                <div className="flex items-start justify-between mb-3">
+                    <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full">
+                        반려됨
+                    </span>
+                    <span className="text-xs text-gray-500">
+                        {formatDate(createdDate)}
+                    </span>
+                </div>
+                <h3 className="text-lg font-bold text-gray-700 mb-2 line-clamp-2">
+                    {proposal.title}
+                </h3>
+                {proposal.subtitle && (
+                    <p className="text-sm text-gray-500 mb-2 line-clamp-1">
+                        {proposal.subtitle}
+                    </p>
+                )}
+                <p className="text-sm text-gray-400 line-clamp-2">
+                    {proposal.description}
+                </p>
+            </div>
+
+            {/* 카드 하단 영역 */}
+            <div className="p-4">
+                {/* 제안자 */}
+                <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                        <svg className="w-3.5 h-3.5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                        </svg>
+                    </div>
+                    <span className="text-sm text-gray-500">
+                        제안자: <span className="font-medium text-gray-600">{proposal.proposerName}</span>
+                    </span>
+                </div>
+
+                {/* 반려 사유 */}
+                <div className="bg-red-50 border border-red-100 rounded-lg p-3 mb-3">
+                    <div className="flex items-start gap-2">
+                        <svg className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className="text-xs text-red-600">
+                            <p className="font-bold mb-1">반려 사유</p>
+                            <p>{proposal.rejectedReason || `기한 내 추천 수 미달 (${supportCount}/${minSupports}명)`}</p>
+                            <p className="text-red-400 mt-1">반려일: {formatDate(rejectedDate)}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 최종 추천 수 */}
+                <div className="flex items-center justify-between text-sm text-gray-500">
+                    <span>최종 추천 수</span>
+                    <span className="font-bold text-gray-600">{supportCount}/{minSupports}명</span>
+                </div>
             </div>
         </div>
     );

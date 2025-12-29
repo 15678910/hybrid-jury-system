@@ -235,7 +235,7 @@ export default function BlogPost() {
                     objectType: 'feed',
                     content: {
                         title: post.title,
-                        description: '시민법정 - 참심제로 시민이 판사가 되는 사법개혁',
+                        description: '주권자에 의한 시민법관 참심제!',
                         imageUrl: 'https://xn--lg3b0kt4n41f.kr/og-image.jpg',
                         link: {
                             mobileWebUrl: postUrl,
@@ -423,7 +423,7 @@ export default function BlogPost() {
                             온라인 준비위원 1만명이 참여하면 광장에서 주권자 세상 시작합니다.
                         </p>
                         <p className="text-gray-700">
-                            주권자에 의한 시민법관 참심제! <a href="https://youtu.be/DgdHV8w8Lvk" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline font-medium">음악 듣기</a>
+                            주권자에 의한 시민법관 참심제! <a href={post.musicUrl || "https://youtu.be/Qu3pn7OF9vw"} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline font-medium">음악 듣기</a>
                         </p>
                     </div>
 

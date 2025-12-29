@@ -52,7 +52,8 @@ export default function BlogWrite() {
         title: '',
         summary: '',
         content: '',
-        category: '사법개혁'
+        category: '사법개혁',
+        musicUrl: ''
     });
 
     const categories = ['해외 사례', '사법개혁', '공지사항', '인터뷰', '뉴스'];
@@ -133,21 +134,29 @@ export default function BlogWrite() {
         setIsSubmitting(true);
 
         try {
-            const docRef = await addDoc(collection(db, 'posts'), {
-                ...formData,
+            const postData = {
+                title: formData.title,
+                summary: formData.summary,
+                content: formData.content,
+                category: formData.category,
                 author: writerName,
                 writerCode: writerCode,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
                 published: true
-            });
+            };
+            // musicUrl이 있을 때만 추가
+            if (formData.musicUrl.trim()) {
+                postData.musicUrl = formData.musicUrl.trim();
+            }
+            const docRef = await addDoc(collection(db, 'posts'), postData);
 
             // 텔레그램 그룹에 알림 전송
-            const postData = {
+            const telegramPostData = {
                 ...formData,
                 author: writerName
             };
-            const telegramSent = await sendTelegramNotification(postData, docRef.id);
+            const telegramSent = await sendTelegramNotification(telegramPostData, docRef.id);
 
             if (telegramSent) {
                 alert('글이 등록되고 텔레그램 그룹에 알림이 전송되었습니다!');
@@ -156,7 +165,7 @@ export default function BlogWrite() {
             }
 
             setShowWriteModal(false);
-            setFormData({ title: '', summary: '', content: '', category: '사법개혁' });
+            setFormData({ title: '', summary: '', content: '', category: '사법개혁', musicUrl: '' });
             fetchMyPosts(); // 목록 새로고침
         } catch (error) {
             console.error('Error adding document: ', error);
@@ -173,7 +182,8 @@ export default function BlogWrite() {
             title: post.title,
             summary: post.summary || '',
             content: post.content,
-            category: post.category
+            category: post.category,
+            musicUrl: post.musicUrl || ''
         });
         setShowEditModal(true);
     };
@@ -190,13 +200,18 @@ export default function BlogWrite() {
 
         try {
             const postRef = doc(db, 'posts', editingPost.id);
-            await updateDoc(postRef, {
+            const updateData = {
                 title: formData.title,
                 summary: formData.summary,
                 content: formData.content,
                 category: formData.category,
                 updatedAt: serverTimestamp()
-            });
+            };
+            // musicUrl이 있을 때만 추가
+            if (formData.musicUrl.trim()) {
+                updateData.musicUrl = formData.musicUrl.trim();
+            }
+            await updateDoc(postRef, updateData);
 
             // 텔레그램 그룹에 수정 알림 전송
             const postData = {
@@ -213,7 +228,7 @@ export default function BlogWrite() {
 
             setShowEditModal(false);
             setEditingPost(null);
-            setFormData({ title: '', summary: '', content: '', category: '사법개혁' });
+            setFormData({ title: '', summary: '', content: '', category: '사법개혁', musicUrl: '' });
             fetchMyPosts(); // 목록 새로고침
         } catch (error) {
             console.error('Error updating post:', error);
@@ -318,7 +333,7 @@ export default function BlogWrite() {
                             <div className="flex justify-end mb-6">
                                 <button
                                     onClick={() => {
-                                        setFormData({ title: '', summary: '', content: '', category: '사법개혁' });
+                                        setFormData({ title: '', summary: '', content: '', category: '사법개혁', musicUrl: '' });
                                         setShowWriteModal(true);
                                     }}
                                     className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
@@ -474,6 +489,21 @@ export default function BlogWrite() {
                                     </p>
                                 </div>
 
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">음악 URL (선택)</label>
+                                    <input
+                                        type="text"
+                                        name="musicUrl"
+                                        value={formData.musicUrl}
+                                        onChange={handleChange}
+                                        placeholder="https://youtu.be/... (비워두면 기본 음악 사용)"
+                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        이 글에 표시할 음악 링크 (YouTube). 비워두면 기본 음악이 표시됩니다.
+                                    </p>
+                                </div>
+
                                 <div className="flex gap-3 pt-4">
                                     <button
                                         type="button"
@@ -565,6 +595,21 @@ export default function BlogWrite() {
                                         rows={12}
                                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                                     />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">음악 URL (선택)</label>
+                                    <input
+                                        type="text"
+                                        name="musicUrl"
+                                        value={formData.musicUrl}
+                                        onChange={handleChange}
+                                        placeholder="https://youtu.be/... (비워두면 기본 음악 사용)"
+                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        비워두면 기본 음악이 표시됩니다.
+                                    </p>
                                 </div>
 
                                 <div className="flex gap-3 pt-4">

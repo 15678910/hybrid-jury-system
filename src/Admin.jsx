@@ -282,8 +282,8 @@ export default function Admin() {
                 <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
                     <div className="text-center mb-8">
                         <div className="text-6xl mb-4">🔐</div>
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">관리자 로그인</h1>
-                        <p className="text-gray-600">혼합형 참심제 관리자 페이지</p>
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">작성자 로그인</h1>
+                        <p className="text-gray-600">혼합형 참심제 작성자 페이지</p>
                     </div>
                     
                     <form onSubmit={handleLogin}>

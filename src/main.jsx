@@ -14,6 +14,7 @@ import AdminVideos from './pages/AdminVideos'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import Governance from './pages/Governance'
+import GovernanceAdmin from './pages/GovernanceAdmin'
 import Donate from './pages/Donate'
 import './index.css'
 
@@ -34,6 +35,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/governance" element={<Governance />} />
+        <Route path="/governance/admin" element={<GovernanceAdmin />} />
         <Route path="/donate" element={<Donate />} />
       </Routes>
     </BrowserRouter>

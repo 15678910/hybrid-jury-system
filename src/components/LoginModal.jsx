@@ -74,7 +74,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
             onLoginSuccess(result.user);
             resetAndClose();
         } else {
-            setError('카카오 로그인은 준비 중입니다.');
+            setError(result.error || '카카오 로그인에 실패했습니다.');
         }
 
         setIsLoading(false);
