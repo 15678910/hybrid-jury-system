@@ -22,7 +22,8 @@ export const signInWithGoogle = async () => {
     try {
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({
-            prompt: 'select_account'
+            prompt: 'select_account',
+            auth_type: 'reauthenticate'
         });
         const result = await signInWithPopup(auth, provider);
 

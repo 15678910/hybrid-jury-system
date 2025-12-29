@@ -14,7 +14,7 @@ const GROUP_CHAT_ID = functions.config().telegram?.group_chat_id || process.env.
 const getWelcomeMessage = (userName) => {
     return `🎉 환영합니다, ${userName}님!
 
-⚖️ 시민법정 참심제 텔레그램 그룹에 오신 것을 환영합니다!
+⚖️ 시민법관 참심제 텔레그램 그룹에 오신 것을 환영합니다!
 
 이 그룹은 '주권자에 의한 시민법관 참심제' 도입을 위한 소통 공간입니다.
 
@@ -379,9 +379,11 @@ const escapeHtml = (text) => {
 // 블로그 글 SSR 함수
 exports.blog = functions.https.onRequest(async (req, res) => {
     try {
-        // User-Agent 체크 - 크롤러가 아니면 즉시 리다이렉트
+        // User-Agent 체크 - 크롤러/스크래퍼만 OG 태그 HTML 반환
+        // 카카오톡 인앱 브라우저(KAKAOTALK)는 일반 사용자로 처리하고,
+        // 카카오 스크래퍼(Kakaotalk-Scrap, Kakao-Agent)만 크롤러로 처리
         const userAgent = req.get('User-Agent') || '';
-        const isCrawler = /facebookexternalhit|Twitterbot|kakaotalk|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
+        const isCrawler = /facebookexternalhit|Twitterbot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
 
         // 일반 사용자는 query parameter로 전달
         if (!isCrawler) {

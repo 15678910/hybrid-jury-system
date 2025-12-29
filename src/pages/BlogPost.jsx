@@ -229,13 +229,16 @@ export default function BlogPost() {
         console.log('Kakao SDK ready:', kakaoReady);
         console.log('Kakao object:', window.Kakao);
 
+        // 요약본 생성: summary가 있으면 사용, 없으면 본문 첫 100자
+        const description = post.summary || post.content.substring(0, 100).replace(/\n/g, ' ') + '...';
+
         if (kakaoReady && window.Kakao?.isInitialized()) {
             try {
                 window.Kakao.Share.sendDefault({
                     objectType: 'feed',
                     content: {
                         title: post.title,
-                        description: '주권자에 의한 시민법관 참심제!',
+                        description: description,
                         imageUrl: 'https://xn--lg3b0kt4n41f.kr/og-image.jpg',
                         link: {
                             mobileWebUrl: postUrl,

@@ -144,10 +144,14 @@ export default function Governance() {
     const [currentUser, setCurrentUser] = useState(null);
     const [showLoginModal, setShowLoginModal] = useState(false);
 
-    // 로그인 상태 감지
+    // 로그인 상태 감지 및 미로그인 시 자동 로그인 모달 표시
     useEffect(() => {
         const unsubscribe = onAuthChange((user) => {
             setCurrentUser(user);
+            // 로그인되어 있지 않으면 자동으로 로그인 모달 표시
+            if (!user) {
+                setShowLoginModal(true);
+            }
         });
         return () => unsubscribe();
     }, []);
@@ -733,7 +737,8 @@ export default function Governance() {
             return;
         }
 
-        const topicId = newTopic.title.replace(/\s+/g, '_').toLowerCase() + '_' + Date.now();
+        // 한글 제목은 Firestore 컬렉션 이름에 문제가 될 수 있으므로 영문 랜덤 ID 사용
+        const topicId = 'topic_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
         const createdTopic = {
             id: topicId,
             title: newTopic.title,
@@ -1480,8 +1485,8 @@ function TopicSection({ topic, votes, userVote, comments, activeTab, isSubmittin
             <div className="bg-white p-6 relative min-h-[160px] flex flex-col justify-center border-b">
                 {/* 중앙 질문 */}
                 <div className="text-gray-900 text-center py-4">
-                    <p className="text-lg font-bold leading-tight">
-                        "{topic.title}에 대해<br/>어떻게 생각하십니까?"
+                    <p className="text-xl md:text-2xl font-bold leading-tight">
+                        "{topic.title} 도입에 대해<br/>어떻게 생각하십니까?"
                     </p>
                 </div>
 

@@ -35,7 +35,7 @@ export default function PrivacyPolicy() {
                             {/* 서문 */}
                             <section className="mb-8">
                                 <p className="text-gray-700 leading-relaxed">
-                                    시민법정 참심제 추진위원회(이하 "위원회")는 정보주체의 자유와 권리 보호를 위해
+                                    시민법관 참심제 추진위원회(이하 "위원회")는 정보주체의 자유와 권리 보호를 위해
                                     「개인정보 보호법」 및 관계 법령이 정한 바를 준수합니다.
                                 </p>
                             </section>
@@ -46,7 +46,7 @@ export default function PrivacyPolicy() {
                                     1. 개인정보의 수집 및 이용 목적
                                 </h2>
                                 <ul className="list-disc list-inside space-y-2 text-gray-700">
-                                    <li>시민법정 참심제 도입을 위한 온라인 서명 캠페인 운영</li>
+                                    <li>시민법관 참심제 도입을 위한 온라인 서명 캠페인 운영</li>
                                     <li>참여 통계 및 현황 파악</li>
                                     <li>캠페인 관련 정보 제공 (동의한 경우에 한함)</li>
                                 </ul>
@@ -166,7 +166,7 @@ export default function PrivacyPolicy() {
                                     7. 개인정보 보호책임자
                                 </h2>
                                 <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-gray-700">
-                                    <p><strong>책임자:</strong> 시민법정 참심제 추진위원회</p>
+                                    <p><strong>책임자:</strong> 시민법관 참심제 추진위원회</p>
                                     <p><strong>이메일:</strong> siminbupjung@gmail.com</p>
                                     <p><strong>전화:</strong> 문의는 이메일로 부탁드립니다</p>
                                 </div>

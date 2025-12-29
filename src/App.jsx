@@ -223,6 +223,16 @@ export default function App() {
         }
     }, [navigate]);
 
+    // 페이지 접속 시 로그인 모달 표시 (세션당 1회)
+    useEffect(() => {
+        // 이번 세션에서 이미 로그인 모달을 봤는지 확인
+        const hasSeenLoginModal = sessionStorage.getItem('hasSeenLoginModal');
+        if (!hasSeenLoginModal) {
+            setShowLoginModal(true);
+            sessionStorage.setItem('hasSeenLoginModal', 'true');
+        }
+    }, []);
+
     // 로그인 상태 감지
     useEffect(() => {
         const unsubscribe = onAuthChange((authUser) => {
@@ -236,12 +246,6 @@ export default function App() {
                     name: userInfo.displayName || prev.name,
                     // phone는 자동으로 채우지 않음 (인증 필요)
                 }));
-            } else {
-                // 로그인하지 않은 상태에서 기존 참여자면 자동으로 로그인 팝업 표시
-                const hasParticipated = localStorage.getItem('hasParticipated');
-                if (hasParticipated === 'true') {
-                    setShowLoginModal(true);
-                }
             }
         });
 
@@ -589,7 +593,7 @@ export default function App() {
                     if (platform === 'telegram') {
                         window.open('https://t.me/judicialreform', '_blank');
                     } else if (platform === 'kakao') {
-                        window.open('https://open.kakao.com/o/judicialreform', '_blank');
+                        window.open('https://open.kakao.com/o/g1wj6P3h', '_blank');
                     }
                 });
             }

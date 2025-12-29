@@ -63,8 +63,27 @@ const COLOR_OPTIONS = [
 export default function GovernanceAdmin() {
     const [searchParams] = useSearchParams();
     const [isVerified, setIsVerified] = useState(false);
+    const [accessDenied, setAccessDenied] = useState(false);
     const [adminCode, setAdminCode] = useState('');
     const [error, setError] = useState('');
+
+    // URL 파라미터로 관리자 자동 인증 (필수)
+    useEffect(() => {
+        const adminCodeParam = searchParams.get('admin');
+        const correctCode = getAdminCode();
+
+        if (!adminCodeParam) {
+            // URL에 admin 파라미터가 없으면 접근 거부
+            setAccessDenied(true);
+        } else if (adminCodeParam === correctCode) {
+            // 올바른 코드면 자동 인증
+            setIsVerified(true);
+            loadAllData();
+        } else {
+            // 잘못된 코드면 접근 거부
+            setAccessDenied(true);
+        }
+    }, [searchParams]);
     const [isLoading, setIsLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [activeTab, setActiveTab] = useState('topics'); // 'topics', 'proposals', 'votes', 'comments'
@@ -103,16 +122,6 @@ export default function GovernanceAdmin() {
         color: 'blue',
         deadline: ''
     });
-
-    // URL 파라미터로 관리자 자동 인증
-    useEffect(() => {
-        const adminCodeParam = searchParams.get('admin');
-        const correctCode = getAdminCode();
-        if (adminCodeParam && adminCodeParam === correctCode) {
-            setIsVerified(true);
-            loadAllData();
-        }
-    }, [searchParams]);
 
     // 관리자 코드 확인
     const handleVerify = () => {
@@ -316,9 +325,60 @@ export default function GovernanceAdmin() {
         setIsLoading(false);
     };
 
+    // 한글이 포함된 ID인지 확인
+    const hasKoreanChars = (str) => /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(str);
+
+    // 영문 ID 생성
+    const generateEnglishId = () => {
+        return 'topic_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+    };
+
+    // 의제 ID 마이그레이션 (한글 ID -> 영문 ID)
+    const handleMigrateTopicId = async (topic) => {
+        if (!hasKoreanChars(topic.id)) {
+            alert('이 의제는 이미 영문 ID를 사용하고 있습니다.');
+            return;
+        }
+
+        const newId = generateEnglishId();
+
+        if (!window.confirm(`의제 "${topic.title}"의 ID를 영문으로 변경하시겠습니까?\n\n기존 ID: ${topic.id}\n새 ID: ${newId}\n\n⚠️ 주의: 기존 투표 및 댓글 데이터는 유지되지 않습니다.`)) {
+            return;
+        }
+
+        setIsLoading(true);
+        setError('');
+
+        try {
+            // 의제 목록에서 ID 변경
+            const updatedTopics = topics.map(t =>
+                t.id === topic.id ? { ...t, id: newId, originalId: topic.id } : t
+            );
+
+            const settingsRef = doc(db, 'settings', 'governance');
+            await setDoc(settingsRef, {
+                topics: updatedTopics,
+                updatedAt: new Date()
+            }, { merge: true });
+
+            setTopics(updatedTopics);
+
+            // 통계 다시 로드
+            await loadStatsForTopics(updatedTopics);
+
+            setSuccessMessage(`의제 ID가 "${newId}"로 변경되었습니다. 이제 투표가 정상 작동합니다.`);
+            setTimeout(() => setSuccessMessage(''), 5000);
+        } catch (err) {
+            console.error('ID 마이그레이션 오류:', err);
+            setError('ID 변경에 실패했습니다.');
+        }
+        setIsLoading(false);
+    };
+
     // 제안을 의제로 승격
     const handlePromoteProposal = async (proposal) => {
-        const newId = proposal.id;
+        // 영문 ID 생성 (한글 ID 문제 방지)
+        const newId = generateEnglishId();
         const deadline = new Date();
         deadline.setDate(deadline.getDate() + 30);
 
@@ -665,6 +725,21 @@ export default function GovernanceAdmin() {
         </div>
     );
 
+    // 접근 거부 화면
+    if (accessDenied) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-4">접근 권한이 없습니다</h1>
+                    <p className="text-gray-600 mb-6">올바른 관리자 링크로 접속해주세요.</p>
+                    <Link to="/" className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        홈으로 돌아가기
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
             {/* 헤더 */}
@@ -813,6 +888,15 @@ export default function GovernanceAdmin() {
                                                                     </div>
                                                                 </div>
                                                                 <div className="flex gap-2 shrink-0">
+                                                                    {hasKoreanChars(topic.id) && (
+                                                                        <button
+                                                                            onClick={() => handleMigrateTopicId(topic)}
+                                                                            className="px-3 py-1.5 bg-yellow-100 text-yellow-700 rounded-lg text-sm hover:bg-yellow-200"
+                                                                            title="한글 ID를 영문 ID로 변경합니다 (투표 오류 해결)"
+                                                                        >
+                                                                            ID수정
+                                                                        </button>
+                                                                    )}
                                                                     <button
                                                                         onClick={() => setEditingTopic({ ...topic })}
                                                                         className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200"
