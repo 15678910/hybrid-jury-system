@@ -140,7 +140,7 @@ export const selectKakaoAccount = () => {
                     // 카카오 사용자 정보 가져오기
                     window.Kakao.API.request({
                         url: '/v2/user/me',
-                        success: async (res) => {
+                        success: (res) => {
                             const kakaoUser = {
                                 uid: `kakao_${res.id}`,
                                 email: res.kakao_account?.email || '',
@@ -150,17 +150,11 @@ export const selectKakaoAccount = () => {
                                 kakaoId: res.id
                             };
 
-                            // 임시로 accessToken 저장 (확인 후 로그인 완료 시 사용)
+                            // 임시로 사용자 정보 저장 (확인 후 로그인 완료 시 사용)
                             sessionStorage.setItem('pendingKakaoUser', JSON.stringify(kakaoUser));
                             sessionStorage.setItem('pendingKakaoToken', authObj.access_token);
 
-                            // 카카오 로그아웃 (확인 단계 대기)
-                            if (window.Kakao.Auth.getAccessToken()) {
-                                window.Kakao.Auth.logout(() => {
-                                    console.log('카카오 임시 로그아웃');
-                                });
-                            }
-
+                            // 로그아웃하지 않고 정보만 반환 (확인 화면 표시용)
                             resolve({
                                 success: true,
                                 user: kakaoUser
