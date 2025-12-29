@@ -257,7 +257,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                             </button>
 
                             <p className="mt-4 text-xs text-gray-400 text-center">
-                                계속하면 시민법정의 <a href="/terms" target="_blank" className="text-blue-600 hover:underline">이용 약관</a>에 동의하는 것으로 간주됩니다.<br />
                                 시민법정의 <a href="/privacy" target="_blank" className="text-blue-600 hover:underline">개인정보 처리방침</a>을 확인하세요.
                             </p>
                         </div>
