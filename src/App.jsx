@@ -223,13 +223,11 @@ export default function App() {
         }
     }, [navigate]);
 
-    // 페이지 접속 시 로그인 모달 표시 (세션당 1회)
+    // 페이지 접속 시 로그인 안 된 경우에만 모달 표시
     useEffect(() => {
-        // 이번 세션에서 이미 로그인 모달을 봤는지 확인
-        const hasSeenLoginModal = sessionStorage.getItem('hasSeenLoginModal');
-        if (!hasSeenLoginModal) {
+        const kakaoUser = localStorage.getItem('kakaoUser');
+        if (!kakaoUser) {
             setShowLoginModal(true);
-            sessionStorage.setItem('hasSeenLoginModal', 'true');
         }
     }, []);
 
@@ -690,12 +688,6 @@ export default function App() {
                                 </button>
                                 <div className={`absolute top-full left-0 mt-0 pt-2 ${introDropdownOpen ? 'block' : 'hidden'}`}>
                                     <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[140px] z-50">
-                                        <a
-                                            href="/community.html"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                        >
-                                            지역 소통방
-                                        </a>
                                         <Link
                                             to="/governance"
                                             className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
@@ -743,12 +735,6 @@ export default function App() {
                             </div>
 
                             <button
-                                onClick={() => setShowPosterModal(true)}
-                                className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition font-bold"
-                            >
-                                🎵 포스터 보기
-                            </button>
-                            <button
                                 onClick={() => scrollToSection('signature')}
                                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-bold"
                             >
@@ -787,13 +773,6 @@ export default function App() {
                             {/* 모바일 소통방 서브메뉴 */}
                             <div className="border-b border-gray-200 pb-2 mb-2">
                                 <div className="px-4 py-2 text-gray-500 text-sm font-medium">소통방</div>
-                                <a
-                                    href="/community.html"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    지역 소통방
-                                </a>
                                 <Link
                                     to="/governance"
                                     onClick={() => setMobileMenuOpen(false)}
@@ -846,12 +825,6 @@ export default function App() {
                                 </Link>
                             </div>
 
-                            <button
-                                onClick={() => { setShowPosterModal(true); setMobileMenuOpen(false); }}
-                                className="block w-full text-left px-4 py-2 bg-purple-600 text-white hover:bg-purple-700 transition font-bold"
-                            >
-                                🎵 포스터 보기
-                            </button>
                             <button
                                 onClick={() => { scrollToSection('signature'); setMobileMenuOpen(false); }}
                                 className="block w-full text-left px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 transition font-bold"
