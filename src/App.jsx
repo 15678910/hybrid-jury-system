@@ -1372,14 +1372,12 @@ export default function App() {
                     <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-2xl p-8 text-gray-800">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* 로그인 상태 표시 및 로그인 버튼 */}
-                            <div className="mb-6 pb-6 border-b border-gray-200">
+                            <div className="mb-6">
                                 {user ? (
                                     /* 로그인한 사용자 - 서명 여부에 따라 다른 UI */
                                     hasSignature === null ? (
-                                        /* 로딩중 */
-                                        <div className="bg-gray-50 p-4 rounded-lg text-center">
-                                            <p className="text-gray-600">서명 여부 확인 중...</p>
-                                        </div>
+                                        /* 로딩중 - 빈 상태 */
+                                        null
                                     ) : hasSignature ? (
                                         /* 이미 서명함 */
                                         <div className="bg-green-50 p-4 rounded-lg">
