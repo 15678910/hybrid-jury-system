@@ -40,12 +40,6 @@ export default function Header() {
                             </button>
                             <div className={`absolute top-full left-0 mt-0 pt-2 ${introDropdownOpen ? 'block' : 'hidden'}`}>
                                 <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[140px] z-50">
-                                    <a
-                                        href="/community.html"
-                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                    >
-                                        지역 소통방
-                                    </a>
                                     <Link
                                         to="/governance"
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
@@ -92,9 +86,6 @@ export default function Header() {
                             </div>
                         </div>
 
-                        <a href="/?poster=true" className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-purple-700 transition">
-                            포스터 보기
-                        </a>
                         <button onClick={() => scrollToSection('signature')} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg">
                             참여하기
                         </button>
@@ -122,7 +113,6 @@ export default function Header() {
                             <a href="/intro.html" className="hover:text-blue-600 transition font-medium">소개</a>
                             <div className="pl-4 border-l-2 border-gray-200">
                                 <p className="text-gray-500 text-sm mb-2">소통방</p>
-                                <a href="/community.html" className="block hover:text-blue-600 transition font-medium mb-1">지역 소통방</a>
                                 <Link to="/governance" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>의사결정</Link>
                             </div>
                             <button onClick={() => { scrollToSection('necessity'); setMobileMenuOpen(false); }} className="text-left hover:text-blue-600 transition font-medium">도입 필요성</button>
@@ -131,9 +121,6 @@ export default function Header() {
                             <button onClick={() => { scrollToSection('bill'); setMobileMenuOpen(false); }} className="text-left hover:text-blue-600 transition font-medium">법안 제안</button>
                             <Link to="/blog" className="hover:text-blue-600 transition font-medium">블로그</Link>
                             <Link to="/videos" className="hover:text-blue-600 transition font-medium">동영상</Link>
-                            <a href="/?poster=true" className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-purple-700 transition text-center">
-                                포스터 보기
-                            </a>
                             <button onClick={() => { scrollToSection('signature'); setMobileMenuOpen(false); }} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg text-center">
                                 참여하기
                             </button>
