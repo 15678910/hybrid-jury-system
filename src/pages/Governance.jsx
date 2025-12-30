@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { collection, addDoc, getDocs, query, orderBy, doc, updateDoc, increment, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { onAuthChange } from '../lib/auth';
-import LoginModal from '../components/LoginModal';
 
 // 관리자 작성자 코드 (환경변수에서 가져옴)
 const getAdminWriterCodes = () => {
@@ -142,16 +141,11 @@ export default function Governance() {
 
     // 로그인 상태 관리
     const [currentUser, setCurrentUser] = useState(null);
-    const [showLoginModal, setShowLoginModal] = useState(false);
 
-    // 로그인 상태 감지 및 미로그인 시 자동 로그인 모달 표시
+    // 로그인 상태 감지
     useEffect(() => {
         const unsubscribe = onAuthChange((user) => {
             setCurrentUser(user);
-            // 로그인되어 있지 않으면 자동으로 로그인 모달 표시
-            if (!user) {
-                setShowLoginModal(true);
-            }
         });
         return () => unsubscribe();
     }, []);
@@ -395,7 +389,7 @@ export default function Governance() {
     const handleSupport = async (proposalId) => {
         // 로그인 확인
         if (!currentUser) {
-            setShowLoginModal(true);
+            alert('로그인이 필요합니다. 메인 페이지에서 로그인해주세요.');
             return;
         }
 
@@ -601,7 +595,7 @@ export default function Governance() {
     const handleVote = async (topicId, vote) => {
         // 로그인 확인
         if (!currentUser) {
-            setShowLoginModal(true);
+            alert('로그인이 필요합니다. 메인 페이지에서 로그인해주세요.');
             return;
         }
 
@@ -830,9 +824,6 @@ export default function Governance() {
                                 </button>
                                 <div className={`absolute top-full left-0 mt-0 pt-2 ${introDropdownOpen ? 'block' : 'hidden'}`}>
                                     <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[140px] z-50">
-                                        <a href="/community.html" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
-                                            지역 소통방
-                                        </a>
                                         <Link to="/governance" className="block px-4 py-2 hover:bg-gray-100 text-blue-600 font-bold">
                                             의사결정
                                         </Link>
@@ -869,9 +860,6 @@ export default function Governance() {
                                 </div>
                             </div>
 
-                            <a href="/?poster=true" className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-purple-700 transition">
-                                포스터 보기
-                            </a>
                             <a href="/#signature" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg">
                                 참여하기
                             </a>
@@ -899,15 +887,11 @@ export default function Governance() {
                                 <a href="/intro.html" className="hover:text-blue-600 transition font-medium">소개</a>
                                 <div className="pl-4 border-l-2 border-blue-600">
                                     <p className="text-blue-600 font-bold mb-2">소통방</p>
-                                    <a href="/community.html" className="block hover:text-blue-600 transition font-medium pl-2 mb-1">지역 소통방</a>
                                     <Link to="/governance" className="block text-blue-600 font-bold pl-2">의사결정</Link>
                                 </div>
                                 <Link to="/" className="hover:text-blue-600 transition font-medium">도입 필요성</Link>
                                 <Link to="/blog" className="hover:text-blue-600 transition font-medium">블로그</Link>
                                 <Link to="/videos" className="hover:text-blue-600 transition font-medium">동영상</Link>
-                                <a href="/?poster=true" className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-purple-700 transition text-center">
-                                    포스터 보기
-                                </a>
                                 <a href="/#signature" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg text-center">
                                     참여하기
                                 </a>
@@ -1430,15 +1414,6 @@ export default function Governance() {
                 />
             )}
 
-            {/* 로그인 모달 */}
-            <LoginModal
-                isOpen={showLoginModal}
-                onClose={() => setShowLoginModal(false)}
-                onLoginSuccess={(user) => {
-                    setCurrentUser(user);
-                    setShowLoginModal(false);
-                }}
-            />
         </div>
     );
 }
