@@ -10,6 +10,9 @@ const db = admin.firestore();
 const BOT_TOKEN = functions.config().telegram?.bot_token || process.env.TELEGRAM_BOT_TOKEN;
 const GROUP_CHAT_ID = functions.config().telegram?.group_chat_id || process.env.TELEGRAM_GROUP_CHAT_ID || '-1003615735371';
 
+// 투표 설정
+const DEFAULT_POLL_DURATION_HOURS = 24; // 기본 투표 기간 (시간)
+
 // 환영 메시지 템플릿
 const getWelcomeMessage = (userName) => {
     return `🎉 환영합니다, ${userName}님!
@@ -29,7 +32,7 @@ const getWelcomeMessage = (userName) => {
 };
 
 // 텔레그램 메시지 전송 함수
-const sendTelegramMessage = async (chatId, text) => {
+const sendTelegramMessage = async (chatId, text, options = {}) => {
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
     try {
@@ -39,7 +42,8 @@ const sendTelegramMessage = async (chatId, text) => {
             body: JSON.stringify({
                 chat_id: chatId,
                 text: text,
-                parse_mode: 'HTML'
+                parse_mode: 'HTML',
+                ...options
             })
         });
 
@@ -52,14 +56,200 @@ const sendTelegramMessage = async (chatId, text) => {
     }
 };
 
-// 텔레그램 Webhook 처리 (새 멤버 감지)
+// 텔레그램 투표 생성 함수
+const sendTelegramPoll = async (chatId, question, options, openPeriod = DEFAULT_POLL_DURATION_HOURS * 3600) => {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPoll`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                question: question,
+                options: options,
+                is_anonymous: false, // 공개 투표
+                allows_multiple_answers: false,
+                open_period: openPeriod // 초 단위
+            })
+        });
+
+        const result = await response.json();
+        console.log('Telegram poll response:', result);
+        return result;
+    } catch (error) {
+        console.error('Error sending Telegram poll:', error);
+        throw error;
+    }
+};
+
+// #제안 메시지 처리 함수
+const handleProposal = async (message) => {
+    const chatId = message.chat.id;
+    const text = message.text || '';
+    const userName = message.from?.first_name || message.from?.username || '익명';
+
+    // #제안 태그 확인 (대소문자 무관)
+    const proposalMatch = text.match(/^#제안\s+(.+)/s);
+
+    if (!proposalMatch) return false;
+
+    const proposalContent = proposalMatch[1].trim();
+
+    if (proposalContent.length < 5) {
+        await sendTelegramMessage(chatId,
+            `⚠️ @${message.from?.username || userName}님, 제안 내용이 너무 짧습니다.\n\n예시: #제안 월례회의를 토요일로 변경하자`
+        );
+        return true;
+    }
+
+    // Firestore에 제안 저장
+    const proposalData = {
+        content: proposalContent,
+        proposer: userName,
+        proposerId: message.from?.id,
+        chatId: chatId,
+        messageId: message.message_id,
+        createdAt: new Date(),
+        status: 'voting', // voting, passed, rejected
+        votes: { agree: 0, disagree: 0, abstain: 0 }
+    };
+
+    const proposalRef = await db.collection('telegram_proposals').add(proposalData);
+
+    // 제안 접수 알림
+    const announcementMsg = `📣 <b>새로운 제안이 등록되었습니다!</b>
+
+👤 제안자: ${userName}
+📝 내용: ${proposalContent}
+
+⏰ 투표 기간: ${DEFAULT_POLL_DURATION_HOURS}시간
+📋 제안번호: #${proposalRef.id.slice(-6)}
+
+아래 투표에 참여해주세요! 👇`;
+
+    await sendTelegramMessage(chatId, announcementMsg);
+
+    // 투표 생성
+    const pollQuestion = proposalContent.length > 250
+        ? proposalContent.substring(0, 247) + '...'
+        : proposalContent;
+
+    const pollResult = await sendTelegramPoll(
+        chatId,
+        `[제안] ${pollQuestion}`,
+        ['✅ 찬성', '❌ 반대', '⏸️ 기권'],
+        DEFAULT_POLL_DURATION_HOURS * 3600
+    );
+
+    // 투표 ID 저장
+    if (pollResult.ok && pollResult.result?.poll) {
+        await proposalRef.update({
+            pollId: pollResult.result.poll.id,
+            pollMessageId: pollResult.result.message_id
+        });
+    }
+
+    console.log(`Proposal created: ${proposalRef.id} by ${userName}`);
+    return true;
+};
+
+// 투표 결과 처리 함수
+const handlePollResult = async (poll) => {
+    // 투표가 종료되었는지 확인
+    if (!poll.is_closed) return;
+
+    const pollId = poll.id;
+
+    // Firestore에서 해당 투표의 제안 찾기
+    const proposalsRef = db.collection('telegram_proposals');
+    const snapshot = await proposalsRef.where('pollId', '==', pollId).get();
+
+    if (snapshot.empty) {
+        console.log('No proposal found for poll:', pollId);
+        return;
+    }
+
+    const proposalDoc = snapshot.docs[0];
+    const proposal = proposalDoc.data();
+
+    // 이미 처리된 제안인지 확인
+    if (proposal.status !== 'voting') {
+        console.log('Proposal already processed:', proposalDoc.id);
+        return;
+    }
+
+    // 투표 결과 집계
+    const options = poll.options || [];
+    const agreeVotes = options[0]?.voter_count || 0;  // 찬성
+    const disagreeVotes = options[1]?.voter_count || 0;  // 반대
+    const abstainVotes = options[2]?.voter_count || 0;  // 기권
+
+    const totalVotes = agreeVotes + disagreeVotes + abstainVotes;
+    const effectiveVotes = agreeVotes + disagreeVotes; // 기권 제외
+
+    // 결과 판정 (찬성이 반대보다 많으면 통과)
+    let status, resultEmoji, resultText;
+    if (effectiveVotes === 0) {
+        status = 'rejected';
+        resultEmoji = '⚪';
+        resultText = '무효 (투표 참여 없음)';
+    } else if (agreeVotes > disagreeVotes) {
+        status = 'passed';
+        resultEmoji = '✅';
+        resultText = '통과';
+    } else if (agreeVotes < disagreeVotes) {
+        status = 'rejected';
+        resultEmoji = '❌';
+        resultText = '부결';
+    } else {
+        status = 'rejected';
+        resultEmoji = '⚖️';
+        resultText = '부결 (동률)';
+    }
+
+    // Firestore 업데이트
+    await proposalDoc.ref.update({
+        status: status,
+        votes: {
+            agree: agreeVotes,
+            disagree: disagreeVotes,
+            abstain: abstainVotes
+        },
+        totalVotes: totalVotes,
+        closedAt: new Date()
+    });
+
+    // 결과 공지
+    const resultMsg = `📊 <b>투표 결과 발표</b>
+
+📝 제안: ${proposal.content}
+👤 제안자: ${proposal.proposer}
+
+${resultEmoji} <b>결과: ${resultText}</b>
+
+📈 투표 현황:
+  ✅ 찬성: ${agreeVotes}표
+  ❌ 반대: ${disagreeVotes}표
+  ⏸️ 기권: ${abstainVotes}표
+  📊 총 참여: ${totalVotes}명
+
+${status === 'passed' ? '🎉 제안이 통과되었습니다! 커뮤니티 규칙에 반영됩니다.' : '제안이 부결되었습니다.'}
+
+📋 제안번호: #${proposalDoc.id.slice(-6)}`;
+
+    await sendTelegramMessage(proposal.chatId, resultMsg);
+    console.log(`Poll result processed: ${proposalDoc.id} - ${status}`);
+};
+
+// 텔레그램 Webhook 처리 (새 멤버 감지 + #제안 처리 + 투표 결과 처리)
 exports.telegramWebhook = functions.https.onRequest(async (req, res) => {
     try {
         console.log('Received webhook:', JSON.stringify(req.body));
 
         const update = req.body;
 
-        // 새 멤버가 그룹에 참가했을 때
+        // 1. 새 멤버가 그룹에 참가했을 때
         if (update.message && update.message.new_chat_members) {
             const chatId = update.message.chat.id;
             const newMembers = update.message.new_chat_members;
@@ -74,6 +264,19 @@ exports.telegramWebhook = functions.https.onRequest(async (req, res) => {
                 await sendTelegramMessage(chatId, welcomeMsg);
                 console.log(`Welcomed new member: ${userName}`);
             }
+        }
+
+        // 2. #제안 메시지 처리
+        if (update.message && update.message.text) {
+            const handled = await handleProposal(update.message);
+            if (handled) {
+                console.log('Proposal handled');
+            }
+        }
+
+        // 3. 투표 종료 처리 (poll 결과)
+        if (update.poll) {
+            await handlePollResult(update.poll);
         }
 
         res.status(200).send('OK');

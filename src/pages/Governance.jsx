@@ -122,6 +122,7 @@ export default function Governance() {
     const [proposalSupports, setProposalSupports] = useState({}); // { proposalId: supportCount }
     const [userSupports, setUserSupports] = useState({}); // { proposalId: true/false }
     const [showProposalModal, setShowProposalModal] = useState(false);
+    const [showCommunityGuideModal, setShowCommunityGuideModal] = useState(false);
     const [newProposal, setNewProposal] = useState({
         title: '',
         subtitle: '',
@@ -929,17 +930,15 @@ export default function Governance() {
                                 </svg>
                                 주제 제안하기
                             </button>
-                            <a
-                                href="https://communityrule.info/create/?r=1767161408702"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <button
+                                onClick={() => setShowCommunityGuideModal(true)}
                                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-yellow-500 text-yellow-700 rounded-full hover:bg-yellow-50 transition text-sm font-medium"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                커뮤니티 규칙 보기
-                            </a>
+                                커뮤니티 운영 가이드
+                            </button>
                         </div>
                     </div>
 
@@ -1425,6 +1424,247 @@ export default function Governance() {
                     onUpdate={handleUpdateDeadline}
                     onVerify={verifyAdminCode}
                 />
+            )}
+
+            {/* 커뮤니티 운영 가이드 모달 */}
+            {showCommunityGuideModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                        {/* 헤더 */}
+                        <div className="p-6 border-b bg-gradient-to-r from-yellow-500 to-orange-500 flex-shrink-0">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-xl font-bold text-white">커뮤니티 운영 가이드</h2>
+                                    <p className="text-yellow-100 text-sm mt-1">
+                                        민주적 의사결정을 위한 참여 방법
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setShowCommunityGuideModal(false)}
+                                    className="text-white/80 hover:text-white"
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* 콘텐츠 */}
+                        <div className="p-6 overflow-y-auto flex-1">
+                            {/* 개요 */}
+                            <div className="mb-8">
+                                <p className="text-gray-700 leading-relaxed">
+                                    이 가이드는 시민법정 커뮤니티(카카오톡 오픈채팅방, 텔레그램)에서 민주적 의사결정을 진행하는 방법을 설명합니다.
+                                    참여자들이 직접 제안하고, 투표하고, 운영 규칙을 스스로 만들어가는 것이 목표입니다.
+                                </p>
+                                <a
+                                    href="https://communityrule.info/create/?r=1767161408702"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 mt-3 text-blue-600 hover:text-blue-800 font-medium"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                    CommunityRule에서 전체 규칙 보기
+                                </a>
+                            </div>
+
+                            {/* 카카오톡 섹션 */}
+                            <div className="mb-8">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
+                                        <svg className="w-6 h-6 text-yellow-900" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 3c-5.52 0-10 3.59-10 8 0 2.82 1.87 5.29 4.69 6.71-.22.82-.89 2.97-.93 3.13-.06.22.04.39.26.39.15 0 .34-.09.34-.09 1.06-.61 3.9-2.28 4.64-2.69.33.04.66.05 1 .05 5.52 0 10-3.59 10-8s-4.48-8-10-8z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-900">카카오톡 오픈채팅방 운영 방법</h3>
+                                </div>
+
+                                <div className="bg-yellow-50 rounded-lg p-4 mb-4">
+                                    <p className="text-yellow-800 text-sm mb-2">
+                                        <strong>참고:</strong> 카카오톡은 봇 자동화가 불가능하므로 수동으로 운영합니다.
+                                    </p>
+                                </div>
+
+                                {/* 제안하기 */}
+                                <div className="mb-4">
+                                    <h4 className="font-bold text-gray-800 mb-2">1. 제안하기</h4>
+                                    <p className="text-gray-600 mb-2">누구나 아래 형식으로 제안할 수 있습니다:</p>
+                                    <div className="bg-gray-100 rounded-lg p-3 font-mono text-sm mb-2">
+                                        #제안 [제안 내용]
+                                    </div>
+                                    <div className="text-sm text-gray-500">
+                                        <p>예시:</p>
+                                        <ul className="list-disc list-inside ml-2">
+                                            <li>#제안 월례회의를 매주 토요일 오후 3시로 변경하자</li>
+                                            <li>#제안 신규 회원 환영 메시지를 추가하자</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {/* 투표 만들기 */}
+                                <div className="mb-4">
+                                    <h4 className="font-bold text-gray-800 mb-2">2. 투표 만들기 (방장/관리자)</h4>
+                                    <p className="text-gray-600 mb-2">제안이 올라오면 방장이 투표를 생성합니다:</p>
+                                    <ol className="list-decimal list-inside text-gray-600 space-y-1 ml-2">
+                                        <li>채팅방 메뉴 (우상단 ≡) 클릭</li>
+                                        <li><strong>투표</strong> 선택</li>
+                                        <li>투표 내용 입력:
+                                            <ul className="list-disc list-inside ml-4 mt-1">
+                                                <li>제목: [제안] 제안 내용</li>
+                                                <li>선택지: 찬성 / 반대 / 기권</li>
+                                                <li>마감일: 24시간 후</li>
+                                            </ul>
+                                        </li>
+                                        <li>완료 클릭</li>
+                                    </ol>
+                                </div>
+
+                                {/* 결과 공지 */}
+                                <div>
+                                    <h4 className="font-bold text-gray-800 mb-2">3. 투표 결과 공지</h4>
+                                    <div className="bg-gray-100 rounded-lg p-3 text-sm font-mono whitespace-pre-line">
+{`📊 투표 결과 발표
+
+📝 제안: [제안 내용]
+👤 제안자: [이름]
+
+✅ 결과: 통과 / 부결
+
+📈 투표 현황:
+  찬성: OO표
+  반대: OO표
+  기권: OO표`}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 텔레그램 섹션 */}
+                            <div className="mb-8">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-900">텔레그램 운영 방법 (자동화)</h3>
+                                </div>
+
+                                <div className="bg-blue-50 rounded-lg p-4 mb-4">
+                                    <p className="text-blue-800 text-sm">
+                                        <strong>장점:</strong> 텔레그램은 봇이 자동으로 처리합니다!
+                                    </p>
+                                </div>
+
+                                <div className="mb-4">
+                                    <h4 className="font-bold text-gray-800 mb-2">자동 처리 흐름</h4>
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <span className="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                                            <span className="text-gray-700"><code className="bg-gray-100 px-1 rounded">#제안 내용</code> 메시지 작성</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 ml-3">
+                                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                                            <span className="text-gray-700">봇이 자동으로 투표 생성 (24시간)</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 ml-3">
+                                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                                            <span className="text-gray-700">참여자들이 찬성/반대/기권 투표</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 ml-3">
+                                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                                            <span className="text-gray-700">마감 후 자동으로 결과 공지</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 투표 규칙 */}
+                            <div className="mb-8">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4">민주적 의사결정 원칙</h3>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm">
+                                        <thead>
+                                            <tr className="bg-gray-100">
+                                                <th className="text-left p-3 font-bold">항목</th>
+                                                <th className="text-left p-3 font-bold">내용</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr className="border-b">
+                                                <td className="p-3 text-gray-600">투표 기간</td>
+                                                <td className="p-3">24시간 (긴급 시 조정 가능)</td>
+                                            </tr>
+                                            <tr className="border-b">
+                                                <td className="p-3 text-gray-600">통과 기준</td>
+                                                <td className="p-3">찬성 &gt; 반대 (기권 제외)</td>
+                                            </tr>
+                                            <tr className="border-b">
+                                                <td className="p-3 text-gray-600">동률 처리</td>
+                                                <td className="p-3">부결</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="p-3 text-gray-600">최소 참여</td>
+                                                <td className="p-3">없음 (추후 조정 가능)</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* FAQ */}
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 mb-4">자주 묻는 질문</h3>
+                                <div className="space-y-3">
+                                    <div className="bg-gray-50 rounded-lg p-4">
+                                        <p className="font-bold text-gray-800 mb-1">Q: 투표 기간을 변경할 수 있나요?</p>
+                                        <p className="text-gray-600 text-sm">A: 네, 긴급한 사안은 방장이 조정할 수 있습니다. 이 자체도 제안으로 올릴 수 있습니다.</p>
+                                    </div>
+                                    <div className="bg-gray-50 rounded-lg p-4">
+                                        <p className="font-bold text-gray-800 mb-1">Q: 부결된 제안을 다시 올릴 수 있나요?</p>
+                                        <p className="text-gray-600 text-sm">A: 네, 하지만 내용을 수정하거나 보완한 후 다시 제안하는 것을 권장합니다.</p>
+                                    </div>
+                                    <div className="bg-gray-50 rounded-lg p-4">
+                                        <p className="font-bold text-gray-800 mb-1">Q: 익명 투표는 안 되나요?</p>
+                                        <p className="text-gray-600 text-sm">A: 민주적 투명성을 위해 공개 투표를 기본으로 합니다. 필요 시 제안으로 변경 가능합니다.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 푸터 */}
+                        <div className="p-4 border-t bg-gray-50 flex-shrink-0">
+                            <div className="flex justify-between items-center">
+                                <p className="text-xs text-gray-500">
+                                    이 가이드도 커뮤니티 제안을 통해 수정될 수 있습니다.
+                                </p>
+                                <button
+                                    onClick={() => setShowCommunityGuideModal(false)}
+                                    className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-medium"
+                                >
+                                    닫기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
 
         </div>
