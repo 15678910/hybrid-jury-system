@@ -1665,7 +1665,7 @@ export default function Governance() {
                                 <div className="space-y-3">
                                     <div className="bg-gray-50 rounded-lg p-4">
                                         <p className="font-bold text-gray-800 mb-1">Q: 투표 기간을 변경할 수 있나요?</p>
-                                        <p className="text-gray-600 text-sm">A: 네, 긴급한 사안은 방장이 조정할 수 있습니다. 이 자체도 제안으로 올릴 수 있습니다.</p>
+                                        <p className="text-gray-600 text-sm">A: 네, 텔레그램에서는 제안자가 직접 투표 기간을 설정할 수 있습니다. <code className="bg-gray-200 px-1 rounded text-xs">#제안 48시간 내용</code> 또는 <code className="bg-gray-200 px-1 rounded text-xs">#제안 7일 내용</code> 형식으로 작성하세요. 미지정 시 기본 24시간입니다.</p>
                                     </div>
                                     <div className="bg-gray-50 rounded-lg p-4">
                                         <p className="font-bold text-gray-800 mb-1">Q: 부결된 제안을 다시 올릴 수 있나요?</p>
