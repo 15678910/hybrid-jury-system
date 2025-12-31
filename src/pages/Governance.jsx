@@ -1558,12 +1558,42 @@ export default function Governance() {
                                     </p>
                                 </div>
 
+                                {/* 제안하기 (텔레그램) */}
                                 <div className="mb-4">
-                                    <h4 className="font-bold text-gray-800 mb-2">자동 처리 흐름</h4>
+                                    <h4 className="font-bold text-gray-800 mb-2">1. 제안하기</h4>
+                                    <p className="text-gray-600 mb-2">그룹에서 아래 형식으로 메시지를 보내면 자동으로 투표가 생성됩니다:</p>
+                                    <div className="bg-gray-100 rounded-lg p-3 font-mono text-sm mb-2">
+                                        #제안 [제안 내용]
+                                    </div>
+                                    <div className="text-sm text-gray-500 mb-3">
+                                        <p>예시:</p>
+                                        <ul className="list-disc list-inside ml-2">
+                                            <li>#제안 월례회의를 매주 토요일 오후 3시로 변경하자</li>
+                                        </ul>
+                                    </div>
+
+                                    {/* 투표 기간 조정 */}
+                                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-2">
+                                        <p className="text-green-800 text-sm font-semibold mb-1">투표 기간 조정 (선택사항)</p>
+                                        <p className="text-green-700 text-sm mb-2">제안자가 직접 투표 기간을 설정할 수 있습니다:</p>
+                                        <div className="bg-white rounded p-2 font-mono text-sm mb-2">
+                                            <p>#제안 48시간 [제안 내용]</p>
+                                            <p>#제안 7일 [제안 내용]</p>
+                                        </div>
+                                        <ul className="text-green-600 text-xs space-y-1">
+                                            <li>• 기본값: 24시간 (미지정 시)</li>
+                                            <li>• 시간 단위: 1~240시간 (예: 48시간, 72시간)</li>
+                                            <li>• 일 단위: 1~10일 (예: 3일, 7일)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div className="mb-4">
+                                    <h4 className="font-bold text-gray-800 mb-2">2. 자동 처리 흐름</h4>
                                     <div className="flex flex-col gap-2">
                                         <div className="flex items-center gap-2">
                                             <span className="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">1</span>
-                                            <span className="text-gray-700"><code className="bg-gray-100 px-1 rounded">#제안 내용</code> 메시지 작성</span>
+                                            <span className="text-gray-700"><code className="bg-gray-100 px-1 rounded">#제안 [기간] 내용</code> 메시지 작성</span>
                                         </div>
                                         <div className="flex items-center gap-2 ml-3">
                                             <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1572,7 +1602,7 @@ export default function Governance() {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <span className="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">2</span>
-                                            <span className="text-gray-700">봇이 자동으로 투표 생성 (24시간)</span>
+                                            <span className="text-gray-700">봇이 자동으로 투표 생성 (지정 기간 또는 기본 24시간)</span>
                                         </div>
                                         <div className="flex items-center gap-2 ml-3">
                                             <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1714,7 +1744,7 @@ function TopicSection({ topic, votes, userVote, comments, activeTab, isSubmittin
                 {/* 중앙 질문 */}
                 <div className="text-gray-900 text-center py-4">
                     <p className="text-xl md:text-2xl font-bold leading-tight">
-                        "{topic.title} 도입에 대해<br/>어떻게 생각하십니까?"
+                        "{topic.title}에 대해<br/>어떻게 생각하십니까?"
                     </p>
                 </div>
 

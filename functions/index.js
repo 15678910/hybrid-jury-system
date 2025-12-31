@@ -83,6 +83,30 @@ const sendTelegramPoll = async (chatId, question, options, openPeriod = DEFAULT_
     }
 };
 
+// 투표 기간 파싱 함수 (예: "48시간", "7일", "3일")
+const parseDuration = (text) => {
+    // 시간 패턴: "24시간", "48시간" 등
+    const hourMatch = text.match(/^(\d+)시간\s+/);
+    if (hourMatch) {
+        const hours = parseInt(hourMatch[1]);
+        if (hours >= 1 && hours <= 240) { // 최대 10일
+            return { hours, remaining: text.replace(hourMatch[0], '') };
+        }
+    }
+
+    // 일 패턴: "1일", "7일" 등
+    const dayMatch = text.match(/^(\d+)일\s+/);
+    if (dayMatch) {
+        const days = parseInt(dayMatch[1]);
+        if (days >= 1 && days <= 10) { // 최대 10일
+            return { hours: days * 24, remaining: text.replace(dayMatch[0], '') };
+        }
+    }
+
+    // 기본값
+    return { hours: DEFAULT_POLL_DURATION_HOURS, remaining: text };
+};
+
 // #제안 메시지 처리 함수
 const handleProposal = async (message) => {
     const chatId = message.chat.id;
@@ -94,11 +118,14 @@ const handleProposal = async (message) => {
 
     if (!proposalMatch) return false;
 
-    const proposalContent = proposalMatch[1].trim();
+    const rawContent = proposalMatch[1].trim();
+
+    // 투표 기간 파싱
+    const { hours: pollDurationHours, remaining: proposalContent } = parseDuration(rawContent);
 
     if (proposalContent.length < 5) {
         await sendTelegramMessage(chatId,
-            `⚠️ @${message.from?.username || userName}님, 제안 내용이 너무 짧습니다.\n\n예시: #제안 월례회의를 토요일로 변경하자`
+            `⚠️ @${message.from?.username || userName}님, 제안 내용이 너무 짧습니다.\n\n예시: #제안 월례회의를 토요일로 변경하자\n투표 기간 지정: #제안 48시간 월례회의를 토요일로 변경하자`
         );
         return true;
     }
@@ -112,10 +139,16 @@ const handleProposal = async (message) => {
         messageId: message.message_id,
         createdAt: new Date(),
         status: 'voting', // voting, passed, rejected
-        votes: { agree: 0, disagree: 0, abstain: 0 }
+        votes: { agree: 0, disagree: 0, abstain: 0 },
+        pollDurationHours: pollDurationHours
     };
 
     const proposalRef = await db.collection('telegram_proposals').add(proposalData);
+
+    // 투표 기간 표시 (일 단위로 변환 가능하면 변환)
+    const durationText = pollDurationHours >= 24 && pollDurationHours % 24 === 0
+        ? `${pollDurationHours / 24}일`
+        : `${pollDurationHours}시간`;
 
     // 제안 접수 알림
     const announcementMsg = `📣 <b>새로운 제안이 등록되었습니다!</b>
@@ -123,7 +156,7 @@ const handleProposal = async (message) => {
 👤 제안자: ${userName}
 📝 내용: ${proposalContent}
 
-⏰ 투표 기간: ${DEFAULT_POLL_DURATION_HOURS}시간
+⏰ 투표 기간: ${durationText}
 📋 제안번호: #${proposalRef.id.slice(-6)}
 
 아래 투표에 참여해주세요! 👇`;
@@ -139,7 +172,7 @@ const handleProposal = async (message) => {
         chatId,
         `[제안] ${pollQuestion}`,
         ['✅ 찬성', '❌ 반대', '⏸️ 기권'],
-        DEFAULT_POLL_DURATION_HOURS * 3600
+        pollDurationHours * 3600
     );
 
     // 투표 ID 저장
