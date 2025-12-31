@@ -919,15 +919,28 @@ export default function Governance() {
                             사법개혁에 관한 여러분의 의견을 들려주세요.
                         </p>
                         {/* 제안하기 버튼 */}
-                        <button
-                            onClick={() => setShowProposalModal(true)}
-                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full hover:from-purple-700 hover:to-blue-700 transition text-sm font-medium shadow-lg hover:shadow-xl"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
-                            주제 제안하기
-                        </button>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                            <button
+                                onClick={() => setShowProposalModal(true)}
+                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full hover:from-purple-700 hover:to-blue-700 transition text-sm font-medium shadow-lg hover:shadow-xl"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                주제 제안하기
+                            </button>
+                            <a
+                                href="https://communityrule.info/create/?r=1767161408702"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-yellow-500 text-yellow-700 rounded-full hover:bg-yellow-50 transition text-sm font-medium"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                커뮤니티 규칙 보기
+                            </a>
+                        </div>
                     </div>
 
                     {/* 제안방 섹션 - 시민 제안 토너먼트 */}

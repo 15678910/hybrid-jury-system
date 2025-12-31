@@ -379,11 +379,13 @@ const escapeHtml = (text) => {
 // 블로그 글 SSR 함수
 exports.blog = functions.https.onRequest(async (req, res) => {
     try {
+        // ⚠️ 수정금지: 크롤러 감지 로직 - SNS 미리보기(OG태그)와 인앱 브라우저 동작에 직접 영향
         // User-Agent 체크 - 크롤러/스크래퍼만 OG 태그 HTML 반환
         // 카카오톡 인앱 브라우저(KAKAOTALK)는 일반 사용자로 처리하고,
         // 카카오 스크래퍼(Kakaotalk-Scrap, Kakao-Agent)만 크롤러로 처리
+        // TelegramBot: 텔레그램 미리보기 봇 (인앱 브라우저와 다름)
         const userAgent = req.get('User-Agent') || '';
-        const isCrawler = /facebookexternalhit|Twitterbot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
+        const isCrawler = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
 
         // 일반 사용자는 query parameter로 전달
         if (!isCrawler) {
@@ -487,5 +489,60 @@ exports.blog = functions.https.onRequest(async (req, res) => {
     } catch (error) {
         console.error('Blog SSR error:', error);
         res.redirect(302, '/');
+    }
+});
+
+// ============================================
+// 카카오 OAuth 토큰 프록시 API
+// ============================================
+
+const KAKAO_APP_KEY = '83e843186c1251b9b5a8013fd5f29798';
+
+exports.kakaoToken = functions.https.onRequest(async (req, res) => {
+    // CORS 설정
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+    }
+
+    if (req.method !== 'POST') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+    }
+
+    try {
+        const { code, redirect_uri } = req.body;
+
+        if (!code) {
+            res.status(400).json({ error: 'Authorization code is required' });
+            return;
+        }
+
+        // 카카오 토큰 요청
+        const tokenResponse = await fetch('https://kauth.kakao.com/oauth/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                grant_type: 'authorization_code',
+                client_id: KAKAO_APP_KEY,
+                redirect_uri: redirect_uri || 'https://siminbupjung-blog.web.app',
+                code: code
+            })
+        });
+
+        const tokenData = await tokenResponse.json();
+
+        console.log('Kakao token response:', tokenData.error ? tokenData : 'success');
+
+        res.json(tokenData);
+    } catch (error) {
+        console.error('Kakao token error:', error);
+        res.status(500).json({ error: error.message });
     }
 });

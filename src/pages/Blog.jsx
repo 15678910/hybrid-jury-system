@@ -65,9 +65,10 @@ export default function Blog() {
 
     const filteredPosts = posts;
 
+    // ⚠️ 수정금지: SNS 공유 URL - 영문 도메인 사용 (한글 도메인 인코딩 문제 방지)
     // 공유 함수 - Web Share API 우선, 카카오/복사 폴백
     const handleShare = async (post) => {
-        const postUrl = `https://siminbupjung-blog.web.app/blog/${post.id}`;
+        const postUrl = `https://xn--lg3b0kt4n41f.kr/blog/${post.id}`;
 
         // 방법 1: Web Share API (모바일에서 모든 앱으로 공유 가능)
         if (navigator.share) {
@@ -86,11 +87,29 @@ export default function Blog() {
             }
         }
 
-        // 방법 2: Kakao Share (폴백)
+        // 방법 2: Kakao Share (폴백) - sendDefault 사용하여 캐시 문제 방지
         if (kakaoReady && window.Kakao?.isInitialized()) {
             try {
-                window.Kakao.Share.sendScrap({
-                    requestUrl: postUrl
+                window.Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: post.title,
+                        description: post.summary || '',
+                        imageUrl: 'https://xn--lg3b0kt4n41f.kr/og-image.jpg',
+                        link: {
+                            mobileWebUrl: postUrl,
+                            webUrl: postUrl,
+                        },
+                    },
+                    buttons: [
+                        {
+                            title: '자세히 보기',
+                            link: {
+                                mobileWebUrl: postUrl,
+                                webUrl: postUrl,
+                            },
+                        },
+                    ],
                 });
                 return;
             } catch (e) {
