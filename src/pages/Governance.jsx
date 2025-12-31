@@ -1471,6 +1471,70 @@ export default function Governance() {
                                 </a>
                             </div>
 
+                            {/* 웹사이트 주제 제안 섹션 */}
+                            <div className="mb-8">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-900">웹사이트 주제 제안하기</h3>
+                                </div>
+
+                                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-4">
+                                    <p className="text-blue-800 text-sm">
+                                        <strong>시민법정 웹사이트</strong>에서 직접 새로운 투표 주제를 제안할 수 있습니다!
+                                    </p>
+                                </div>
+
+                                <div className="mb-4">
+                                    <h4 className="font-bold text-gray-800 mb-2">제안 방법</h4>
+                                    <ol className="list-decimal list-inside text-gray-600 space-y-2 ml-2">
+                                        <li>메인 페이지에서 <strong>"+ 주제 제안하기"</strong> 버튼 클릭</li>
+                                        <li>제안할 주제와 설명 작성</li>
+                                        <li>제출 후 다른 시민들의 추천을 받습니다</li>
+                                    </ol>
+                                </div>
+
+                                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                                    <div className="flex items-start gap-2">
+                                        <span className="text-green-600 text-lg">🎯</span>
+                                        <div>
+                                            <p className="text-green-800 font-semibold mb-1">자동 승격 조건</p>
+                                            <p className="text-green-700 text-sm">
+                                                추천 기간 내 <strong>추천 수 10명 이상</strong>을 받으면 자동으로 "진행 중인 투표" 섹션으로 이동되어 정식 투표가 시작됩니다!
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                                        <span className="text-gray-700">제안 등록 (제안방에 표시)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 ml-3">
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                                        <span className="text-gray-700">시민들이 추천 (👍 버튼)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 ml-3">
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                                        <span className="text-gray-700">10명 이상 추천 시 → 정식 투표로 자동 승격!</span>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* 카카오톡 섹션 */}
                             <div className="mb-8">
                                 <div className="flex items-center gap-3 mb-4">
