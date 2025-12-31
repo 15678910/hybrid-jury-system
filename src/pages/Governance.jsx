@@ -1458,17 +1458,6 @@ export default function Governance() {
                                     이 가이드는 시민법정 커뮤니티(카카오톡 오픈채팅방, 텔레그램)에서 민주적 의사결정을 진행하는 방법을 설명합니다.
                                     참여자들이 직접 제안하고, 투표하고, 운영 규칙을 스스로 만들어가는 것이 목표입니다.
                                 </p>
-                                <a
-                                    href="https://communityrule.info/create/?r=1767161408702"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 mt-3 text-blue-600 hover:text-blue-800 font-medium"
-                                >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                    </svg>
-                                    CommunityRule에서 전체 규칙 보기
-                                </a>
                             </div>
 
                             {/* 웹사이트 주제 제안 섹션 */}
@@ -1503,7 +1492,7 @@ export default function Governance() {
                                         <div>
                                             <p className="text-green-800 font-semibold mb-1">자동 승격 조건</p>
                                             <p className="text-green-700 text-sm">
-                                                추천 기간 내 <strong>추천 수 10명 이상</strong>을 받으면 자동으로 "진행 중인 투표" 섹션으로 이동되어 정식 투표가 시작됩니다!
+                                                추천 기간 내 <strong>추천 수 10명 이상</strong>이면 자동으로 "진행 중인 투표" 섹션으로 이동되어 정식 투표가 시작됩니다!
                                             </p>
                                         </div>
                                     </div>
