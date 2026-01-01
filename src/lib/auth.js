@@ -1,5 +1,5 @@
 import {
-    signInWithPopup,
+    signInWithCredential,
     GoogleAuthProvider,
     signOut as firebaseSignOut,
     onAuthStateChanged
@@ -17,111 +17,216 @@ const initKakao = () => {
     }
 };
 
-// Google 계정 선택 (로그인 완료 전 - 정보만 가져오기)
+// Google OAuth 설정
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '68915786798-unq8hgmt9q2f1egj34bmdvg4cokpcshs.apps.googleusercontent.com';
+
+// Google OAuth URL 생성
+const getGoogleAuthUrl = () => {
+    // 현재 도메인을 redirect_uri로 사용
+    // Google Cloud Console에 등록된 도메인이어야 함
+    const redirectUri = window.location.origin;
+
+    const params = new URLSearchParams({
+        client_id: GOOGLE_CLIENT_ID,
+        redirect_uri: redirectUri,
+        response_type: 'id_token',
+        scope: 'openid email profile',
+        nonce: Math.random().toString(36).substring(2),
+        prompt: 'select_account'
+    });
+    return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+};
+
+// URL 해시에서 ID 토큰 추출
+const extractIdTokenFromHash = () => {
+    const fullHash = window.location.hash;
+    console.log('[Auth] 전체 URL:', window.location.href);
+    console.log('[Auth] URL 해시:', fullHash);
+
+    if (!fullHash || fullHash.length <= 1) {
+        console.log('[Auth] 해시 없음');
+        return null;
+    }
+
+    const hash = fullHash.substring(1);
+    const params = new URLSearchParams(hash);
+    const idToken = params.get('id_token');
+
+    console.log('[Auth] 추출된 id_token:', idToken ? `${idToken.substring(0, 50)}...` : 'null');
+    return idToken;
+};
+
+// JWT ID 토큰에서 사용자 정보 추출 (Firebase 없이도 가능)
+const decodeIdToken = (idToken) => {
+    try {
+        // JWT는 header.payload.signature 형식
+        const parts = idToken.split('.');
+        if (parts.length !== 3) {
+            console.error('[Auth] Invalid JWT format');
+            return null;
+        }
+
+        // Base64Url 디코딩
+        const payload = parts[1];
+        const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+        const parsed = JSON.parse(decoded);
+
+        console.log('[Auth] 디코딩된 토큰 정보:', {
+            email: parsed.email,
+            name: parsed.name,
+            sub: parsed.sub
+        });
+
+        return {
+            uid: parsed.sub, // Google unique ID
+            email: parsed.email,
+            displayName: parsed.name,
+            photoURL: parsed.picture,
+            provider: 'google'
+        };
+    } catch (error) {
+        console.error('[Auth] JWT 디코딩 실패:', error);
+        return null;
+    }
+};
+
+// Google 계정 선택 및 로그인 (OAuth Implicit Flow)
 export const selectGoogleAccount = async () => {
     try {
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({
-            prompt: 'select_account'
-        });
-        const result = await signInWithPopup(auth, provider);
+        console.log('[Auth] Google OAuth 로그인 시작...');
 
-        // 계정 정보 저장
-        const userData = {
-            uid: result.user.uid,
-            email: result.user.email,
-            displayName: result.user.displayName,
-            photoURL: result.user.photoURL,
-            provider: 'google'
-        };
+        // 현재 URL 저장 (로그인 후 돌아올 위치)
+        sessionStorage.setItem('googleLoginReturnUrl', window.location.pathname);
+        sessionStorage.setItem('googleLoginPending', 'true');
 
-        // 바로 로그아웃 (확인 단계 대기)
-        await firebaseSignOut(auth);
+        // Google OAuth 페이지로 리다이렉트
+        window.location.href = getGoogleAuthUrl();
 
-        return {
-            success: true,
-            user: userData
-        };
+        // 리다이렉트되므로 여기까지 실행되지 않음
+        return { success: false, isRedirect: true };
     } catch (error) {
-        console.error('Google 계정 선택 에러:', error);
+        console.error('[Auth] Google OAuth 에러:', error);
+        await logLoginFailure('google', error.message);
         return {
             success: false,
-            error: error.message
+            error: error.message || 'Google 로그인에 실패했습니다.'
         };
     }
 };
 
-// Google 로그인 완료 (확인 버튼 클릭 후)
+// Firebase Auth 준비 대기
+const waitForAuth = () => {
+    return new Promise((resolve) => {
+        if (auth.currentUser !== undefined) {
+            resolve();
+            return;
+        }
+        const unsubscribe = onAuthStateChanged(auth, () => {
+            unsubscribe();
+            resolve();
+        });
+        // 최대 3초 대기
+        setTimeout(resolve, 3000);
+    });
+};
+
+// Google OAuth 리다이렉트 결과 확인 (페이지 로드 시 호출)
+export const checkGoogleRedirectResult = async () => {
+    try {
+        // URL 해시에서 ID 토큰 확인
+        const idToken = extractIdTokenFromHash();
+
+        if (!idToken) {
+            // 대기 중이었는데 토큰이 없으면 실패
+            if (sessionStorage.getItem('googleLoginPending')) {
+                sessionStorage.removeItem('googleLoginPending');
+                sessionStorage.removeItem('googleLoginReturnUrl');
+            }
+            return null;
+        }
+
+        console.log('[Auth] Google ID 토큰 발견, 처리 중...');
+
+        // URL 해시 제거 (보안 및 깔끔한 URL)
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+
+        // ID 토큰에서 사용자 정보 추출 (Firebase 없이도 가능 - 즉시 반환)
+        const user = decodeIdToken(idToken);
+        if (!user) {
+            throw new Error('ID 토큰 디코딩 실패');
+        }
+
+        console.log('[Auth] 사용자 정보 추출 성공:', user.email);
+
+        // 세션에 사용자 정보 저장 (즉시)
+        sessionStorage.setItem('googleUser', JSON.stringify(user));
+
+        // 대기 상태 제거
+        sessionStorage.removeItem('googleLoginPending');
+
+        // 원래 페이지로 돌아갈 URL
+        const returnUrl = sessionStorage.getItem('googleLoginReturnUrl') || '/';
+        sessionStorage.removeItem('googleLoginReturnUrl');
+
+        // Firebase 로그인은 백그라운드에서 시도 (결과 기다리지 않음)
+        (async () => {
+            try {
+                await waitForAuth();
+                const credential = GoogleAuthProvider.credential(idToken);
+                const result = await signInWithCredential(auth, credential);
+                console.log('[Auth] Firebase 백그라운드 로그인 성공:', result.user.email);
+
+                // Firestore에 사용자 정보 저장
+                await saveUserToFirestore({
+                    uid: result.user.uid,
+                    email: result.user.email,
+                    displayName: result.user.displayName,
+                    photoURL: result.user.photoURL,
+                    provider: 'google'
+                });
+                await logLoginActivity(result.user.uid, 'google');
+            } catch (error) {
+                console.warn('[Auth] Firebase 백그라운드 로그인 실패 (무시됨):', error.code || error.message);
+                // Firebase 실패해도 세션 로그인은 유지됨
+            }
+        })();
+
+        return {
+            success: true,
+            user,
+            returnUrl
+        };
+    } catch (error) {
+        console.error('[Auth] Google 리다이렉트 결과 처리 에러:', error);
+        sessionStorage.removeItem('googleLoginPending');
+        sessionStorage.removeItem('googleLoginReturnUrl');
+
+        // URL 해시 제거
+        if (window.location.hash) {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+
+        return {
+            success: false,
+            error: error.message || 'Google 로그인 처리 중 오류가 발생했습니다.'
+        };
+    }
+};
+
+// Google 로그인 확인 (이미 로그인 완료됨, 저장된 사용자 정보 반환)
 export const confirmGoogleLogin = async () => {
-    try {
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({
-            prompt: 'none' // 이미 선택된 계정으로 바로 로그인
-        });
-        const result = await signInWithPopup(auth, provider);
-
-        // Firestore에 사용자 정보 저장
-        await saveUserToFirestore({
-            uid: result.user.uid,
-            email: result.user.email,
-            displayName: result.user.displayName,
-            photoURL: result.user.photoURL,
-            provider: 'google'
-        });
-
-        // 로그인 활동 로그 기록
-        await logLoginActivity(result.user.uid, 'google');
-
+    // 이미 selectGoogleAccount에서 로그인 완료됨
+    // 현재 로그인된 사용자 반환
+    if (auth.currentUser) {
         return {
             success: true,
-            user: result.user
-        };
-    } catch (error) {
-        console.error('Google 로그인 에러:', error);
-        // 로그인 실패 로그 기록
-        await logLoginFailure('google', error.message);
-        return {
-            success: false,
-            error: error.message
+            user: auth.currentUser
         };
     }
-};
-
-// Google 로그인 (기존 호환성 유지)
-export const signInWithGoogle = async () => {
-    try {
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({
-            prompt: 'select_account',
-            auth_type: 'reauthenticate'
-        });
-        const result = await signInWithPopup(auth, provider);
-
-        // Firestore에 사용자 정보 저장
-        await saveUserToFirestore({
-            uid: result.user.uid,
-            email: result.user.email,
-            displayName: result.user.displayName,
-            photoURL: result.user.photoURL,
-            provider: 'google'
-        });
-
-        // 로그인 활동 로그 기록
-        await logLoginActivity(result.user.uid, 'google');
-
-        return {
-            success: true,
-            user: result.user
-        };
-    } catch (error) {
-        console.error('Google 로그인 에러:', error);
-        // 로그인 실패 로그 기록
-        await logLoginFailure('google', error.message);
-        return {
-            success: false,
-            error: error.message
-        };
-    }
+    return {
+        success: false,
+        error: '로그인 세션이 만료되었습니다. 다시 시도해주세요.'
+    };
 };
 
 // Kakao 계정 선택 (로그인 완료 전 - 정보만 가져오기)
@@ -195,8 +300,8 @@ export const confirmKakaoLogin = async () => {
         // 로그인 활동 로그 기록
         await logLoginActivity(kakaoUser.uid, 'kakao');
 
-        // localStorage에 카카오 로그인 상태 저장
-        localStorage.setItem('kakaoUser', JSON.stringify(kakaoUser));
+        // sessionStorage에 카카오 로그인 상태 저장 (브라우저 탭/창을 닫으면 로그아웃)
+        sessionStorage.setItem('kakaoUser', JSON.stringify(kakaoUser));
 
         // 임시 저장 데이터 삭제
         sessionStorage.removeItem('pendingKakaoUser');
@@ -247,9 +352,9 @@ export const signInWithKakao = () => {
                             // 로그인 활동 로그 기록
                             await logLoginActivity(kakaoUser.uid, 'kakao');
 
-                            // localStorage에 카카오 로그인 상태 저장
-                            localStorage.setItem('kakaoUser', JSON.stringify(kakaoUser));
-                            localStorage.setItem('kakaoAccessToken', authObj.access_token);
+                            // sessionStorage에 카카오 로그인 상태 저장 (브라우저 탭/창을 닫으면 로그아웃)
+                            sessionStorage.setItem('kakaoUser', JSON.stringify(kakaoUser));
+                            sessionStorage.setItem('kakaoAccessToken', authObj.access_token);
 
                             resolve({
                                 success: true,
@@ -383,7 +488,10 @@ export const signOut = async () => {
             });
         }
 
-        // localStorage 정리
+        // sessionStorage 정리 (세션 기반 로그인)
+        sessionStorage.removeItem('kakaoUser');
+        sessionStorage.removeItem('kakaoAccessToken');
+        // localStorage도 정리 (기존 데이터 호환)
         localStorage.removeItem('kakaoUser');
         localStorage.removeItem('kakaoAccessToken');
 
@@ -409,8 +517,8 @@ export const getCurrentUser = () => {
         return auth.currentUser;
     }
 
-    // 카카오 사용자 확인
-    const kakaoUser = localStorage.getItem('kakaoUser');
+    // 카카오 사용자 확인 (sessionStorage 우선, localStorage는 기존 데이터 호환)
+    const kakaoUser = sessionStorage.getItem('kakaoUser') || localStorage.getItem('kakaoUser');
     if (kakaoUser) {
         return JSON.parse(kakaoUser);
     }
@@ -424,8 +532,8 @@ export const onAuthChange = (callback) => {
         if (firebaseUser) {
             callback(firebaseUser);
         } else {
-            // 카카오 사용자 확인
-            const kakaoUser = localStorage.getItem('kakaoUser');
+            // 카카오 사용자 확인 (sessionStorage 우선, localStorage는 기존 데이터 호환)
+            const kakaoUser = sessionStorage.getItem('kakaoUser') || localStorage.getItem('kakaoUser');
             if (kakaoUser) {
                 callback(JSON.parse(kakaoUser));
             } else {

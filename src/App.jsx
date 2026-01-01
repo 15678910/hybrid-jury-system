@@ -6,7 +6,7 @@ import { collection, addDoc, getDocs, query, orderBy, where } from 'firebase/fir
 import { db, auth, RecaptchaVerifier, signInWithPhoneNumber } from './lib/firebase';
 import ConsentCheckbox from './components/ConsentCheckbox';
 import LoginModal from './components/LoginModal';
-import { onAuthChange, signOut as authSignOut, getUserInfo, checkUserSignature } from './lib/auth';
+import { onAuthChange, signOut as authSignOut, getUserInfo, checkUserSignature, checkGoogleRedirectResult } from './lib/auth';
 
 // 카카오톡 아이콘
 const KakaoIcon = ({ className = "w-6 h-6" }) => (
@@ -120,6 +120,12 @@ export default function App() {
     // 로그인 상태
     const [user, setUser] = useState(null);
     const [showLoginModal, setShowLoginModal] = useState(false);
+    // LoginModal 상태를 App에서 관리 (리렌더링 방지)
+    const [loginModalStep, setLoginModalStep] = useState('select'); // 'select' | 'confirm'
+    const [loginModalUser, setLoginModalUser] = useState(null);
+    const [loginModalProvider, setLoginModalProvider] = useState(null);
+    // Google 로그인 진행 중 플래그 (useRef로 리렌더링 없이 상태 유지)
+    const googleLoginInProgress = useRef(false);
     const [hasSignature, setHasSignature] = useState(null); // null = 로딩중, true = 서명함, false = 서명 안함
 
     const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin2025'; // 환경변수 사용
@@ -178,7 +184,7 @@ export default function App() {
         fetchLatestPosts();
     }, []);
 
-    // 페이지 첫 로드 시 자동으로 포스터 모달 열기
+    // 페이지 첫 로드 시 URL 파라미터 처리 (포스터/로그인 모달은 initAuth에서 처리)
     useEffect(() => {
         // URL 파라미터로 관리자 접근 확인 (먼저)
         const params = new URLSearchParams(window.location.search);
@@ -192,7 +198,6 @@ export default function App() {
         }
 
         const adminParam = params.get('key');
-        const posterParam = params.get('poster');
 
         // URL 해시 체크 (예: /#signature)
         const hash = window.location.hash;
@@ -206,7 +211,7 @@ export default function App() {
                     setActiveSection(sectionId);
                 }
             }, 100);
-            return; // 해시가 있으면 포스터 모달 열지 않음
+            return; // 해시가 있으면 포스터/로그인 모달 열지 않음
         }
 
         console.log('Admin key:', adminParam); // 디버깅용
@@ -214,26 +219,103 @@ export default function App() {
         if (adminParam === 'admin999') {
             console.log('Opening admin login modal'); // 디버깅용
             setShowAdminLogin(true);
-        } else if (posterParam === 'true') {
-            // 포스터 파라미터가 있으면 포스터 모달 열기
-            setShowPosterModal(true);
-        } else {
-            // 기본적으로 포스터 팝업
-            setShowPosterModal(true);
         }
+        // 포스터 모달은 initAuth에서 로그인 상태 확인 후 표시
     }, [navigate]);
 
-    // 페이지 접속 시 로그인 안 된 경우에만 모달 표시
+    // 로그인 모달 표시 (로그인 안 된 경우)
     useEffect(() => {
-        const kakaoUser = localStorage.getItem('kakaoUser');
-        if (!kakaoUser) {
+        const initAuth = async () => {
+            console.log('[App] initAuth 시작');
+
+            // Google 리다이렉트 결과 확인 (먼저 처리해야 함 - URL 해시에 id_token이 있을 수 있음)
+            const redirectResult = await checkGoogleRedirectResult();
+            console.log('[App] redirectResult:', redirectResult);
+
+            if (redirectResult && redirectResult.success && redirectResult.user) {
+                console.log('[App] Google 리다이렉트 성공');
+                // 리다이렉트 로그인 성공 - 포스터 팝업 표시
+                setUser(redirectResult.user);
+                setShowPosterModal(true);
+                return;
+            }
+
+            // URL 해시가 있으면 모달 표시 안 함 (스크롤 링크로 접속한 경우)
+            // 단, id_token 해시는 이미 위에서 처리됨
+            const hash = window.location.hash;
+            console.log('[App] hash:', hash);
+            if (hash && !hash.includes('id_token')) {
+                console.log('[App] 해시 있음 - 모달 표시 안 함');
+                return;
+            }
+
+            // 카카오 로그인 확인
+            const kakaoUser = sessionStorage.getItem('kakaoUser') || localStorage.getItem('kakaoUser');
+            if (kakaoUser) {
+                console.log('[App] 카카오 로그인 상태 확인됨');
+                // 이미 로그인됨 - 포스터 팝업만 표시
+                setShowPosterModal(true);
+                return;
+            }
+
+            // Google 세션 로그인 확인 (Firebase 실패해도 세션에 저장됨)
+            const googleUser = sessionStorage.getItem('googleUser');
+            if (googleUser) {
+                console.log('[App] Google 세션 로그인 상태 확인됨');
+                try {
+                    const parsedUser = JSON.parse(googleUser);
+                    setUser(parsedUser);
+                    setShowPosterModal(true);
+                    return;
+                } catch (e) {
+                    console.error('[App] Google 세션 파싱 실패:', e);
+                    sessionStorage.removeItem('googleUser');
+                }
+            }
+
+            // Firebase Auth 상태 확인 (비동기로 로드될 수 있음)
+            const currentUser = await new Promise((resolve) => {
+                const unsubscribe = onAuthChange((authUser) => {
+                    unsubscribe();
+                    resolve(authUser);
+                });
+                // 1초 내에 응답 없으면 null로 처리
+                setTimeout(() => resolve(null), 1000);
+            });
+
+            console.log('[App] Firebase currentUser:', currentUser?.email || 'null');
+
+            if (currentUser) {
+                // 이미 로그인됨 - 포스터 팝업만 표시
+                console.log('[App] 이미 로그인됨 - 포스터 팝업 표시');
+                setShowPosterModal(true);
+                return;
+            }
+
+            // 로그인 안 되어 있으면 로그인 모달 표시
+            console.log('[App] 로그인 안됨 - 로그인 모달 표시');
+            setShowPosterModal(false);
             setShowLoginModal(true);
-        }
+        };
+
+        // 페이지 로드 후 실행
+        const timer = setTimeout(initAuth, 300);
+        return () => clearTimeout(timer);
     }, []);
 
     // 로그인 상태 감지
     useEffect(() => {
         const unsubscribe = onAuthChange((authUser) => {
+            console.log('Auth 상태 변경:', authUser ? authUser.email || authUser.displayName : 'null');
+            console.log('[App] googleLoginInProgress:', googleLoginInProgress.current);
+
+            // Google 로그인 진행 중일 때는 user 상태 업데이트를 스킵
+            // LoginModal에서 로그인 완료 처리를 직접 함
+            if (googleLoginInProgress.current) {
+                console.log('[App] Google 로그인 진행 중 - user 업데이트 스킵');
+                return;
+            }
+
             setUser(authUser);
 
             // 로그인 하면 자동으로 이름/이메일 채우기 (전화번호는 제외 - 인증 필요)
@@ -293,7 +375,22 @@ export default function App() {
     // 사용자 로그인 성공 핸들러
     const handleLoginSuccess = (loggedInUser) => {
         console.log('로그인 성공:', loggedInUser);
-        // onAuthChange useEffect에서 자동으로 처리됨
+
+        // 로그인 완료 후 플래그 해제
+        googleLoginInProgress.current = false;
+        console.log('[App] 로그인 완료 - googleLoginInProgress = false');
+
+        // user 상태 업데이트
+        setUser(loggedInUser);
+
+        // 모달 상태 초기화
+        setShowLoginModal(false);
+        setLoginModalStep('select');
+        setLoginModalUser(null);
+        setLoginModalProvider(null);
+
+        // 로그인 후 포스터 팝업 표시
+        setShowPosterModal(true);
     };
 
     // 사용자 로그아웃 핸들러
@@ -1831,8 +1928,21 @@ export default function App() {
             {/* 로그인 모달 */}
             <LoginModal
                 isOpen={showLoginModal}
-                onClose={() => setShowLoginModal(false)}
+                onClose={() => {
+                    setShowLoginModal(false);
+                    setLoginModalStep('select');
+                    setLoginModalUser(null);
+                    setLoginModalProvider(null);
+                    googleLoginInProgress.current = false;
+                }}
                 onLoginSuccess={handleLoginSuccess}
+                step={loginModalStep}
+                setStep={setLoginModalStep}
+                selectedUser={loginModalUser}
+                setSelectedUser={setLoginModalUser}
+                selectedProvider={loginModalProvider}
+                setSelectedProvider={setLoginModalProvider}
+                googleLoginInProgress={googleLoginInProgress}
             />
 
             {/* 플로팅 챗봇 */}

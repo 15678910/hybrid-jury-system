@@ -1460,6 +1460,41 @@ export default function Governance() {
                                 </p>
                             </div>
 
+                            {/* 채널별 용도 구분 */}
+                            <div className="mb-8">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4">채널별 용도 구분</h3>
+                                <div className="overflow-x-auto mb-4">
+                                    <table className="w-full text-sm">
+                                        <thead>
+                                            <tr className="bg-gray-100">
+                                                <th className="text-left p-3 font-bold">채널</th>
+                                                <th className="text-left p-3 font-bold">용도</th>
+                                                <th className="text-left p-3 font-bold">특징</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr className="border-b">
+                                                <td className="p-3 text-gray-800 font-semibold">웹사이트</td>
+                                                <td className="p-3 text-gray-600">심도 있는 정책 논의</td>
+                                                <td className="p-3 text-gray-600">장기 투표, 10명 추천 시 자동 승격</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="p-3 text-gray-800 font-semibold">텔레그램/카카오톡</td>
+                                                <td className="p-3 text-gray-600">간단한 설문 및 빠른 의견 수렴</td>
+                                                <td className="p-3 text-gray-600">단기 투표(24시간~7일), 즉시 생성</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                    <p className="text-purple-800 text-sm font-semibold mb-2">언제 어디서 제안할까요?</p>
+                                    <ul className="text-purple-700 text-sm space-y-1">
+                                        <li>• <strong>웹사이트</strong>: 커뮤니티 규칙 변경, 중요 정책 결정, 충분한 토론이 필요한 사안</li>
+                                        <li>• <strong>텔레그램/카카오톡</strong>: 일정 조율, 간단한 의견 수렴, 빠른 결정이 필요한 사안</li>
+                                    </ul>
+                                </div>
+                            </div>
+
                             {/* 웹사이트 주제 제안 섹션 */}
                             <div className="mb-8">
                                 <div className="flex items-center gap-3 mb-4">
@@ -1641,8 +1676,87 @@ export default function Governance() {
                                     </div>
                                 </div>
 
+                                {/* 설문하기 (#설문 태그) */}
                                 <div className="mb-4">
-                                    <h4 className="font-bold text-gray-800 mb-2">2. 자동 처리 흐름</h4>
+                                    <h4 className="font-bold text-gray-800 mb-2">2. 설문하기 (#설문 태그)</h4>
+                                    <p className="text-gray-600 mb-2">간단한 의견 수렴이나 일정 조율에는 <code className="bg-gray-100 px-1 rounded">#설문</code> 태그를 사용합니다:</p>
+                                    <div className="bg-gray-100 rounded-lg p-3 font-mono text-sm mb-2">
+                                        #설문 [질문 내용]
+                                    </div>
+                                    <div className="text-sm text-gray-500 mb-3">
+                                        <p>예시:</p>
+                                        <ul className="list-disc list-inside ml-2">
+                                            <li>#설문 다음 정기모임 날짜는 언제가 좋을까요?</li>
+                                            <li>#설문 48시간 새 로고 디자인 A안과 B안 중 어떤 게 좋나요?</li>
+                                        </ul>
+                                    </div>
+
+                                </div>
+
+                                {/* 다중 선택 투표하기 (#투표 태그) */}
+                                <div className="mb-4">
+                                    <h4 className="font-bold text-gray-800 mb-2">3. 다중 선택 투표하기 (#투표 태그)</h4>
+                                    <p className="text-gray-600 mb-2">일정 조율 등 여러 선택지 중 하나를 고르는 투표에는 <code className="bg-gray-100 px-1 rounded">#투표</code> 태그를 사용합니다:</p>
+                                    <div className="bg-gray-100 rounded-lg p-3 font-mono text-sm mb-2 whitespace-pre-line">
+{`#투표 질문 내용
+- 선택지1
+- 선택지2
+- 선택지3`}
+                                    </div>
+                                    <div className="text-sm text-gray-500 mb-3">
+                                        <p>예시:</p>
+                                        <div className="bg-gray-50 rounded p-2 font-mono text-xs mt-1 whitespace-pre-line">
+{`#투표 오프라인 모임 날짜 선택
+- 1월 2일
+- 1월 5일
+- 1월 9일`}
+                                        </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                        <p>• 선택지는 최소 2개, 최대 10개</p>
+                                        <p>• 투표 종료 후 1위 선택지 표시</p>
+                                    </div>
+                                </div>
+
+                                {/* #제안 vs #설문 vs #투표 비교 */}
+                                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+                                    <p className="text-orange-800 text-sm font-semibold mb-2">#제안 vs #설문 vs #투표 차이점</p>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-xs">
+                                            <thead>
+                                                <tr className="bg-orange-100">
+                                                    <th className="text-left p-2">구분</th>
+                                                    <th className="text-left p-2">#제안</th>
+                                                    <th className="text-left p-2">#설문</th>
+                                                    <th className="text-left p-2">#투표</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr className="border-b border-orange-100">
+                                                    <td className="p-2 text-orange-700">용도</td>
+                                                    <td className="p-2 text-orange-600">규칙 변경</td>
+                                                    <td className="p-2 text-orange-600">예/아니오</td>
+                                                    <td className="p-2 text-orange-600">다중 선택</td>
+                                                </tr>
+                                                <tr className="border-b border-orange-100">
+                                                    <td className="p-2 text-orange-700">선택지</td>
+                                                    <td className="p-2 text-orange-600">찬성/반대/기권</td>
+                                                    <td className="p-2 text-orange-600">예/아니오/모름</td>
+                                                    <td className="p-2 text-orange-600">직접 지정</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="p-2 text-orange-700">결과</td>
+                                                    <td className="p-2 text-orange-600">통과/부결</td>
+                                                    <td className="p-2 text-orange-600">현황 표시</td>
+                                                    <td className="p-2 text-orange-600">1위 표시</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div className="mb-4">
+                                    <h4 className="font-bold text-gray-800 mb-2">4. 자동 처리 흐름</h4>
                                     <div className="flex flex-col gap-2">
                                         <div className="flex items-center gap-2">
                                             <span className="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">1</span>
@@ -1727,6 +1841,14 @@ export default function Governance() {
                                     <div className="bg-gray-50 rounded-lg p-4">
                                         <p className="font-bold text-gray-800 mb-1">Q: 익명 투표는 안 되나요?</p>
                                         <p className="text-gray-600 text-sm">A: 민주적 투명성을 위해 공개 투표를 기본으로 합니다. 필요 시 제안으로 변경 가능합니다.</p>
+                                    </div>
+                                    <div className="bg-gray-50 rounded-lg p-4">
+                                        <p className="font-bold text-gray-800 mb-1">Q: #제안과 #설문의 차이점은 무엇인가요?</p>
+                                        <p className="text-gray-600 text-sm">A: <code className="bg-gray-200 px-1 rounded text-xs">#제안</code>은 커뮤니티 규칙 변경 등 중요한 의사결정에 사용하며, 통과/부결이 판정됩니다. <code className="bg-gray-200 px-1 rounded text-xs">#설문</code>은 일정 조율이나 간단한 의견 수렴에 사용하며, 응답 현황만 보여주는 참고용입니다.</p>
+                                    </div>
+                                    <div className="bg-gray-50 rounded-lg p-4">
+                                        <p className="font-bold text-gray-800 mb-1">Q: 웹사이트 제안과 텔레그램 제안 중 어디서 해야 하나요?</p>
+                                        <p className="text-gray-600 text-sm">A: 중요한 정책이나 규칙 변경은 웹사이트에서, 빠른 의견 수렴이나 일정 조율은 텔레그램/카카오톡에서 하시면 됩니다.</p>
                                     </div>
                                 </div>
                             </div>

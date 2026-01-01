@@ -57,7 +57,7 @@ const sendTelegramMessage = async (chatId, text, options = {}) => {
 };
 
 // 텔레그램 투표 생성 함수
-const sendTelegramPoll = async (chatId, question, options, openPeriod = DEFAULT_POLL_DURATION_HOURS * 3600) => {
+const sendTelegramPoll = async (chatId, question, options, openPeriod = DEFAULT_POLL_DURATION_HOURS * 3600, allowsMultipleAnswers = false) => {
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPoll`;
 
     try {
@@ -69,7 +69,7 @@ const sendTelegramPoll = async (chatId, question, options, openPeriod = DEFAULT_
                 question: question,
                 options: options,
                 is_anonymous: false, // 공개 투표
-                allows_multiple_answers: false,
+                allows_multiple_answers: allowsMultipleAnswers,
                 open_period: openPeriod // 초 단위
             })
         });
@@ -81,6 +81,42 @@ const sendTelegramPoll = async (chatId, question, options, openPeriod = DEFAULT_
         console.error('Error sending Telegram poll:', error);
         throw error;
     }
+};
+
+// 참고사항에서 마감일 파싱 함수 (예: "투표마감: 2026년 1월 1일 24:00")
+const parseDeadlineFromDescriptions = (descriptions) => {
+    for (let i = 0; i < descriptions.length; i++) {
+        const line = descriptions[i];
+        // "투표마감: 2026년 1월 1일 24:00" 또는 "마감: 1월 1일 24:00" 패턴
+        const deadlineMatch = line.match(/(?:투표)?마감[:\s]*(\d{4}년\s*)?(\d{1,2})월\s*(\d{1,2})일\s*(\d{1,2})[:\s]?(\d{2})?/);
+        if (deadlineMatch) {
+            const now = new Date();
+            const year = deadlineMatch[1] ? parseInt(deadlineMatch[1]) : now.getFullYear();
+            const month = parseInt(deadlineMatch[2]) - 1; // 0-indexed
+            const day = parseInt(deadlineMatch[3]);
+            const hour = parseInt(deadlineMatch[4]);
+            const minute = deadlineMatch[5] ? parseInt(deadlineMatch[5]) : 0;
+
+            // 24:00는 다음날 0:00로 처리
+            let targetDate;
+            if (hour === 24) {
+                targetDate = new Date(year, month, day + 1, 0, minute);
+            } else {
+                targetDate = new Date(year, month, day, hour, minute);
+            }
+
+            // 현재 시간과의 차이를 시간 단위로 계산
+            const diffMs = targetDate.getTime() - now.getTime();
+            const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+
+            if (diffHours > 0 && diffHours <= 240) { // 최대 10일
+                // 마감일 라인을 descriptions에서 제거
+                descriptions.splice(i, 1);
+                return { hours: diffHours, deadline: targetDate };
+            }
+        }
+    }
+    return null;
 };
 
 // 투표 기간 파싱 함수 (예: "48시간", "7일", "3일")
@@ -105,6 +141,379 @@ const parseDuration = (text) => {
 
     // 기본값
     return { hours: DEFAULT_POLL_DURATION_HOURS, remaining: text };
+};
+
+// #투표 메시지 처리 함수 (다중 선택지 투표용)
+const handleCustomPoll = async (message) => {
+    const chatId = message.chat.id;
+    const text = message.text || '';
+    const userName = message.from?.first_name || message.from?.username || '익명';
+
+    // #투표 태그 확인
+    const pollMatch = text.match(/^#투표\s+(.+)/s);
+
+    if (!pollMatch) return false;
+
+    const rawContent = pollMatch[1].trim();
+
+    // 투표 기간 파싱
+    const { hours: pollDurationHours, remaining: contentWithOptions } = parseDuration(rawContent);
+
+    // 줄바꿈으로 분리하여 질문, 부가설명, 선택지 파싱
+    const lines = contentWithOptions.split('\n').map(line => line.trim()).filter(line => line);
+
+    if (lines.length < 1) {
+        await sendTelegramMessage(chatId,
+            `⚠️ @${message.from?.username || userName}님, 투표 형식이 올바르지 않습니다.\n\n사용법:\n#투표 질문 내용\n장소: OOO (선택)\n- 선택지1\n- 선택지2\n\n예시:\n#투표 오프라인 모임 날짜 선택\n장소: 방정환 도서관\n- 1월 2일\n- 1월 5일`
+        );
+        return true;
+    }
+
+    // 첫 줄은 질문
+    const question = lines[0];
+
+    // -로 시작하는 줄은 선택지, 나머지는 부가설명
+    const options = [];
+    const descriptions = [];
+
+    lines.slice(1).forEach(line => {
+        if (line.match(/^[-•]/)) {
+            // 선택지 (-로 시작)
+            options.push(line.replace(/^[-•]\s*/, '').trim());
+        } else if (line.length > 0) {
+            // 부가설명 (장소:, 준비물: 등)
+            descriptions.push(line);
+        }
+    });
+
+    // 참고사항에서 마감일 파싱 (예: "투표마감: 2026년 1월 1일 24:00")
+    const deadlineResult = parseDeadlineFromDescriptions(descriptions);
+    let finalPollDurationHours = pollDurationHours;
+    let deadline;
+
+    if (deadlineResult) {
+        // 마감일이 명시된 경우 해당 시간 사용
+        finalPollDurationHours = deadlineResult.hours;
+        deadline = deadlineResult.deadline;
+    } else {
+        // 기본 계산
+        deadline = new Date(Date.now() + pollDurationHours * 60 * 60 * 1000);
+    }
+
+    // 선택지가 없으면 오류
+    if (options.length < 2) {
+        await sendTelegramMessage(chatId,
+            `⚠️ @${message.from?.username || userName}님, 선택지가 2개 이상 필요합니다.\n\n사용법:\n#투표 질문 내용\n장소: OOO (선택)\n- 선택지1\n- 선택지2\n\n예시:\n#투표 오프라인 모임 날짜 선택\n장소: 방정환 도서관\n- 1월 2일\n- 1월 5일`
+        );
+        return true;
+    }
+
+    // 텔레그램 투표는 최대 10개 선택지
+    if (options.length > 10) {
+        await sendTelegramMessage(chatId,
+            `⚠️ @${message.from?.username || userName}님, 선택지는 최대 10개까지 가능합니다. (현재 ${options.length}개)`
+        );
+        return true;
+    }
+
+    // Firestore에 투표 저장
+    const pollData = {
+        content: question,
+        description: descriptions.join('\n'), // 부가설명 저장
+        options: options,
+        proposer: userName,
+        proposerId: message.from?.id,
+        chatId: chatId,
+        messageId: message.message_id,
+        createdAt: new Date(),
+        type: 'custom_poll', // 커스텀 투표 타입
+        status: 'voting',
+        pollDurationHours: finalPollDurationHours
+    };
+
+    const pollRef = await db.collection('telegram_proposals').add(pollData);
+
+    // 투표 기간 표시
+    const durationText = finalPollDurationHours >= 24 && finalPollDurationHours % 24 === 0
+        ? `${finalPollDurationHours / 24}일`
+        : `${finalPollDurationHours}시간`;
+
+    // 마감일 텍스트
+    const deadlineText = `${deadline.getMonth() + 1}월 ${deadline.getDate()}일 ${deadline.getHours().toString().padStart(2, '0')}:${deadline.getMinutes().toString().padStart(2, '0')}`;
+
+    // 부가설명 포맷팅
+    const descriptionText = descriptions.length > 0
+        ? `\n📝 참고사항:\n${descriptions.map(d => `  ${d}`).join('\n')}\n`
+        : '';
+
+    // 투표 안내 메시지
+    const announcementMsg = `🗳️ <b>새로운 투표가 등록되었습니다!</b>
+
+👤 제안자: ${userName}
+❓ 질문: ${question}
+${descriptionText}
+📋 선택지:
+${options.map((opt, i) => `  ${i + 1}. ${opt}`).join('\n')}
+
+⏰ 투표 기간: ${durationText}
+📅 마감: ${deadlineText}
+📋 투표번호: #${pollRef.id.slice(-6)}
+
+아래 투표에 참여해주세요! 👇`;
+
+    await sendTelegramMessage(chatId, announcementMsg);
+
+    // 투표 생성
+    const pollQuestion = question.length > 250
+        ? question.substring(0, 247) + '...'
+        : question;
+
+    const pollResult = await sendTelegramPoll(
+        chatId,
+        `[투표] ${pollQuestion}`,
+        options,
+        finalPollDurationHours * 3600
+    );
+
+    // 투표 ID 저장
+    if (pollResult.ok && pollResult.result?.poll) {
+        await pollRef.update({
+            pollId: pollResult.result.poll.id,
+            pollMessageId: pollResult.result.message_id
+        });
+    }
+
+    console.log(`Custom poll created: ${pollRef.id} by ${userName}`);
+    return true;
+};
+
+// #복수투표 메시지 처리 함수 (복수 선택 가능한 투표)
+const handleMultiPoll = async (message) => {
+    const chatId = message.chat.id;
+    const text = message.text || '';
+    const userName = message.from?.first_name || message.from?.username || '익명';
+
+    // #복수투표 태그 확인
+    const pollMatch = text.match(/^#복수투표\s+(.+)/s);
+
+    if (!pollMatch) return false;
+
+    const rawContent = pollMatch[1].trim();
+
+    // 투표 기간 파싱
+    const { hours: pollDurationHours, remaining: contentWithOptions } = parseDuration(rawContent);
+
+    // 줄바꿈으로 분리하여 질문, 부가설명, 선택지 파싱
+    const lines = contentWithOptions.split('\n').map(line => line.trim()).filter(line => line);
+
+    if (lines.length < 1) {
+        await sendTelegramMessage(chatId,
+            `⚠️ @${message.from?.username || userName}님, 복수투표 형식이 올바르지 않습니다.\n\n사용법:\n#복수투표 질문 내용\n장소: OOO (선택)\n- 선택지1\n- 선택지2\n\n예시:\n#복수투표 지역모임 일정 선택\n장소: 강남역 카페\n- 토요일 2시\n- 일요일 2시\n- 환경 문제 토론\n- 주민 자치 논의`
+        );
+        return true;
+    }
+
+    // 첫 줄은 질문
+    const question = lines[0];
+
+    // -로 시작하는 줄은 선택지, 나머지는 부가설명
+    const options = [];
+    const descriptions = [];
+
+    lines.slice(1).forEach(line => {
+        if (line.match(/^[-•]/)) {
+            options.push(line.replace(/^[-•]\s*/, '').trim());
+        } else if (line.length > 0) {
+            descriptions.push(line);
+        }
+    });
+
+    // 참고사항에서 마감일 파싱 (예: "투표마감: 2026년 1월 1일 24:00")
+    const deadlineResult = parseDeadlineFromDescriptions(descriptions);
+    let finalPollDurationHours = pollDurationHours;
+    let deadline;
+
+    if (deadlineResult) {
+        // 마감일이 명시된 경우 해당 시간 사용
+        finalPollDurationHours = deadlineResult.hours;
+        deadline = deadlineResult.deadline;
+    } else {
+        // 기본 계산
+        deadline = new Date(Date.now() + pollDurationHours * 60 * 60 * 1000);
+    }
+
+    // 선택지가 없으면 오류
+    if (options.length < 2) {
+        await sendTelegramMessage(chatId,
+            `⚠️ @${message.from?.username || userName}님, 선택지가 2개 이상 필요합니다.\n\n예시:\n#복수투표 지역모임 일정 선택\n- 토요일 2시\n- 일요일 2시\n- 환경 문제 토론`
+        );
+        return true;
+    }
+
+    if (options.length > 10) {
+        await sendTelegramMessage(chatId,
+            `⚠️ @${message.from?.username || userName}님, 선택지는 최대 10개까지 가능합니다. (현재 ${options.length}개)`
+        );
+        return true;
+    }
+
+    // Firestore에 투표 저장
+    const pollData = {
+        content: question,
+        description: descriptions.join('\n'),
+        options: options,
+        proposer: userName,
+        proposerId: message.from?.id,
+        chatId: chatId,
+        messageId: message.message_id,
+        createdAt: new Date(),
+        type: 'multi_poll', // 복수 선택 투표 타입
+        status: 'voting',
+        pollDurationHours: finalPollDurationHours
+    };
+
+    const pollRef = await db.collection('telegram_proposals').add(pollData);
+
+    // 투표 기간 표시
+    const durationText = finalPollDurationHours >= 24 && finalPollDurationHours % 24 === 0
+        ? `${finalPollDurationHours / 24}일`
+        : `${finalPollDurationHours}시간`;
+
+    // 마감일 텍스트
+    const deadlineText = `${deadline.getMonth() + 1}월 ${deadline.getDate()}일 ${deadline.getHours().toString().padStart(2, '0')}:${deadline.getMinutes().toString().padStart(2, '0')}`;
+
+    // 부가설명 포맷팅
+    const descriptionText = descriptions.length > 0
+        ? `\n📝 참고사항:\n${descriptions.map(d => `  ${d}`).join('\n')}\n`
+        : '';
+
+    // 투표 안내 메시지
+    const announcementMsg = `🗳️ <b>새로운 복수선택 투표가 등록되었습니다!</b>
+
+👤 제안자: ${userName}
+❓ 질문: ${question}
+${descriptionText}
+📋 선택지 (복수 선택 가능):
+${options.map((opt, i) => `  ${i + 1}. ${opt}`).join('\n')}
+
+⏰ 투표 기간: ${durationText}
+📅 마감: ${deadlineText}
+📋 투표번호: #${pollRef.id.slice(-6)}
+
+✅ <b>여러 개를 선택할 수 있습니다!</b>
+아래 투표에 참여해주세요! 👇`;
+
+    await sendTelegramMessage(chatId, announcementMsg);
+
+    // 복수 선택 투표 생성
+    const pollQuestion = question.length > 250
+        ? question.substring(0, 247) + '...'
+        : question;
+
+    const pollResult = await sendTelegramPoll(
+        chatId,
+        `[복수투표] ${pollQuestion}`,
+        options,
+        finalPollDurationHours * 3600,
+        true // 복수 선택 허용
+    );
+
+    // 투표 ID 저장
+    if (pollResult.ok && pollResult.result?.poll) {
+        await pollRef.update({
+            pollId: pollResult.result.poll.id,
+            pollMessageId: pollResult.result.message_id
+        });
+    }
+
+    console.log(`Multi poll created: ${pollRef.id} by ${userName}`);
+    return true;
+};
+
+// #설문 메시지 처리 함수 (간단한 의견 수렴용)
+const handleSurvey = async (message) => {
+    const chatId = message.chat.id;
+    const text = message.text || '';
+    const userName = message.from?.first_name || message.from?.username || '익명';
+
+    // #설문 태그 확인
+    const surveyMatch = text.match(/^#설문\s+(.+)/s);
+
+    if (!surveyMatch) return false;
+
+    const rawContent = surveyMatch[1].trim();
+
+    // 투표 기간 파싱
+    const { hours: pollDurationHours, remaining: surveyContent } = parseDuration(rawContent);
+
+    if (surveyContent.length < 5) {
+        await sendTelegramMessage(chatId,
+            `⚠️ @${message.from?.username || userName}님, 설문 내용이 너무 짧습니다.\n\n예시: #설문 다음 정기모임 날짜는 언제가 좋을까요?\n기간 지정: #설문 48시간 오프라인 모임 참석 가능하신가요?`
+        );
+        return true;
+    }
+
+    // Firestore에 설문 저장
+    const surveyData = {
+        content: surveyContent,
+        proposer: userName,
+        proposerId: message.from?.id,
+        chatId: chatId,
+        messageId: message.message_id,
+        createdAt: new Date(),
+        type: 'survey', // 설문 타입 표시
+        status: 'voting',
+        votes: { agree: 0, disagree: 0, abstain: 0 },
+        pollDurationHours: pollDurationHours
+    };
+
+    const surveyRef = await db.collection('telegram_proposals').add(surveyData);
+
+    // 투표 기간 표시
+    const durationText = pollDurationHours >= 24 && pollDurationHours % 24 === 0
+        ? `${pollDurationHours / 24}일`
+        : `${pollDurationHours}시간`;
+
+    // 마감일 계산
+    const deadline = new Date(Date.now() + pollDurationHours * 60 * 60 * 1000);
+    const deadlineText = `${deadline.getMonth() + 1}월 ${deadline.getDate()}일 ${deadline.getHours().toString().padStart(2, '0')}:${deadline.getMinutes().toString().padStart(2, '0')}`;
+
+    // 설문 안내 메시지
+    const announcementMsg = `📋 <b>새로운 설문이 등록되었습니다!</b>
+
+👤 제안자: ${userName}
+❓ 질문: ${surveyContent}
+
+⏰ 응답 기간: ${durationText}
+📅 마감: ${deadlineText}
+📋 설문번호: #${surveyRef.id.slice(-6)}
+
+아래 투표에 참여해주세요! 👇`;
+
+    await sendTelegramMessage(chatId, announcementMsg);
+
+    // 투표 생성
+    const pollQuestion = surveyContent.length > 250
+        ? surveyContent.substring(0, 247) + '...'
+        : surveyContent;
+
+    const pollResult = await sendTelegramPoll(
+        chatId,
+        `[설문] ${pollQuestion}`,
+        ['👍 예', '👎 아니오', '🤔 잘 모르겠음'],
+        pollDurationHours * 3600
+    );
+
+    // 투표 ID 저장
+    if (pollResult.ok && pollResult.result?.poll) {
+        await surveyRef.update({
+            pollId: pollResult.result.poll.id,
+            pollMessageId: pollResult.result.message_id
+        });
+    }
+
+    console.log(`Survey created: ${surveyRef.id} by ${userName}`);
+    return true;
 };
 
 // #제안 메시지 처리 함수
@@ -150,6 +559,10 @@ const handleProposal = async (message) => {
         ? `${pollDurationHours / 24}일`
         : `${pollDurationHours}시간`;
 
+    // 마감일 계산
+    const deadline = new Date(Date.now() + pollDurationHours * 60 * 60 * 1000);
+    const deadlineText = `${deadline.getMonth() + 1}월 ${deadline.getDate()}일 ${deadline.getHours().toString().padStart(2, '0')}:${deadline.getMinutes().toString().padStart(2, '0')}`;
+
     // 제안 접수 알림
     const announcementMsg = `📣 <b>새로운 제안이 등록되었습니다!</b>
 
@@ -157,6 +570,7 @@ const handleProposal = async (message) => {
 📝 내용: ${proposalContent}
 
 ⏰ 투표 기간: ${durationText}
+📅 마감: ${deadlineText}
 📋 제안번호: #${proposalRef.id.slice(-6)}
 
 아래 투표에 참여해주세요! 👇`;
@@ -253,8 +667,66 @@ const handlePollResult = async (poll) => {
         closedAt: new Date()
     });
 
-    // 결과 공지
-    const resultMsg = `📊 <b>투표 결과 발표</b>
+    // 타입별 결과 메시지 생성
+    let resultMsg;
+
+    if (proposal.type === 'custom_poll' || proposal.type === 'multi_poll') {
+        // 커스텀 투표/복수투표 결과 (다중 선택지)
+        const pollOptions = poll.options || [];
+        const optionResults = pollOptions.map((opt, i) =>
+            `  ${i + 1}. ${opt.text}: ${opt.voter_count || 0}표`
+        ).join('\n');
+
+        // 가장 많은 득표 옵션 찾기
+        let maxVotes = 0;
+        let winners = [];
+        pollOptions.forEach((opt) => {
+            const votes = opt.voter_count || 0;
+            if (votes > maxVotes) {
+                maxVotes = votes;
+                winners = [opt.text];
+            } else if (votes === maxVotes && votes > 0) {
+                winners.push(opt.text);
+            }
+        });
+
+        const winnerText = maxVotes > 0
+            ? (winners.length > 1 ? `동률: ${winners.join(', ')}` : `1위: ${winners[0]}`)
+            : '투표 참여 없음';
+
+        const pollTypeLabel = proposal.type === 'multi_poll' ? '복수투표' : '투표';
+
+        resultMsg = `🗳️ <b>${pollTypeLabel} 결과 발표</b>
+
+❓ 질문: ${proposal.content}
+👤 제안자: ${proposal.proposer}
+
+📈 투표 현황:
+${optionResults}
+  📊 총 참여: ${totalVotes}명
+
+🏆 <b>${winnerText}</b> (${maxVotes}표)
+
+📋 투표번호: #${proposalDoc.id.slice(-6)}`;
+    } else if (proposal.type === 'survey') {
+        // 설문 결과
+        const voteLabels = { yes: '👍 예', no: '👎 아니오', neutral: '🤔 잘 모르겠음' };
+        resultMsg = `📊 <b>설문 결과 발표</b>
+
+❓ 질문: ${proposal.content}
+👤 제안자: ${proposal.proposer}
+
+📈 응답 현황:
+  ${voteLabels.yes}: ${agreeVotes}표
+  ${voteLabels.no}: ${disagreeVotes}표
+  ${voteLabels.neutral}: ${abstainVotes}표
+  📊 총 참여: ${totalVotes}명
+
+📋 설문번호: #${proposalDoc.id.slice(-6)}`;
+    } else {
+        // 제안 결과
+        const voteLabels = { yes: '✅ 찬성', no: '❌ 반대', neutral: '⏸️ 기권' };
+        resultMsg = `📊 <b>투표 결과 발표</b>
 
 📝 제안: ${proposal.content}
 👤 제안자: ${proposal.proposer}
@@ -262,17 +734,18 @@ const handlePollResult = async (poll) => {
 ${resultEmoji} <b>결과: ${resultText}</b>
 
 📈 투표 현황:
-  ✅ 찬성: ${agreeVotes}표
-  ❌ 반대: ${disagreeVotes}표
-  ⏸️ 기권: ${abstainVotes}표
+  ${voteLabels.yes}: ${agreeVotes}표
+  ${voteLabels.no}: ${disagreeVotes}표
+  ${voteLabels.neutral}: ${abstainVotes}표
   📊 총 참여: ${totalVotes}명
 
 ${status === 'passed' ? '🎉 제안이 통과되었습니다! 커뮤니티 규칙에 반영됩니다.' : '제안이 부결되었습니다.'}
 
 📋 제안번호: #${proposalDoc.id.slice(-6)}`;
+    }
 
     await sendTelegramMessage(proposal.chatId, resultMsg);
-    console.log(`Poll result processed: ${proposalDoc.id} - ${status}`);
+    console.log(`Poll result processed: ${proposalDoc.id} - ${proposal.type}`);
 };
 
 // 텔레그램 Webhook 처리 (새 멤버 감지 + #제안 처리 + 투표 결과 처리)
@@ -299,11 +772,32 @@ exports.telegramWebhook = functions.https.onRequest(async (req, res) => {
             }
         }
 
-        // 2. #제안 메시지 처리
+        // 2. #제안, #설문, #투표 메시지 처리
         if (update.message && update.message.text) {
-            const handled = await handleProposal(update.message);
-            if (handled) {
-                console.log('Proposal handled');
+            let handled = false;
+
+            // #제안 처리
+            if (!handled) {
+                handled = await handleProposal(update.message);
+                if (handled) console.log('Proposal handled');
+            }
+
+            // #설문 처리
+            if (!handled) {
+                handled = await handleSurvey(update.message);
+                if (handled) console.log('Survey handled');
+            }
+
+            // #투표 처리 (커스텀 선택지)
+            if (!handled) {
+                handled = await handleCustomPoll(update.message);
+                if (handled) console.log('Custom poll handled');
+            }
+
+            // #복수투표 처리 (복수 선택 가능)
+            if (!handled) {
+                handled = await handleMultiPoll(update.message);
+                if (handled) console.log('Multi poll handled');
             }
         }
 
@@ -322,10 +816,17 @@ exports.telegramWebhook = functions.https.onRequest(async (req, res) => {
 // Webhook 설정 함수 (수동 호출용)
 exports.setWebhook = functions.https.onRequest(async (req, res) => {
     const webhookUrl = `https://us-central1-siminbupjung-blog.cloudfunctions.net/telegramWebhook`;
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/setWebhook?url=${encodeURIComponent(webhookUrl)}`;
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/setWebhook`;
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                url: webhookUrl,
+                allowed_updates: ['message', 'poll', 'chat_member', 'my_chat_member']
+            })
+        });
         const result = await response.json();
         console.log('Webhook set result:', result);
         res.json(result);
@@ -359,6 +860,177 @@ exports.getWebhookInfo = functions.https.onRequest(async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+});
+
+// ============================================
+// 투표 마감 확인 스케줄러 (5분마다 실행)
+// ============================================
+
+exports.checkExpiredPolls = functions.pubsub.schedule('every 5 minutes').onRun(async (context) => {
+    console.log('Checking for expired polls...');
+
+    const now = new Date();
+    const proposalsRef = db.collection('telegram_proposals');
+
+    // 투표 중인 제안들 조회
+    const snapshot = await proposalsRef.where('status', '==', 'voting').get();
+
+    if (snapshot.empty) {
+        console.log('No active polls found');
+        return null;
+    }
+
+    for (const doc of snapshot.docs) {
+        const proposal = doc.data();
+        const createdAt = proposal.createdAt?.toDate ? proposal.createdAt.toDate() : new Date(proposal.createdAt);
+        const durationHours = proposal.pollDurationHours || 24;
+        const expiresAt = new Date(createdAt.getTime() + durationHours * 60 * 60 * 1000);
+
+        // 마감 시간이 지났는지 확인
+        if (now >= expiresAt) {
+            console.log(`Poll expired: ${doc.id}`);
+
+            // 텔레그램에서 투표 결과 가져오기
+            if (proposal.pollMessageId) {
+                try {
+                    // 투표 종료 처리
+                    const stopUrl = `https://api.telegram.org/bot${BOT_TOKEN}/stopPoll`;
+                    const stopResponse = await fetch(stopUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: proposal.chatId,
+                            message_id: proposal.pollMessageId
+                        })
+                    });
+                    const stopResult = await stopResponse.json();
+
+                    if (stopResult.ok && stopResult.result) {
+                        const poll = stopResult.result;
+
+                        // 투표 결과 집계
+                        const options = poll.options || [];
+                        const agreeVotes = options[0]?.voter_count || 0;
+                        const disagreeVotes = options[1]?.voter_count || 0;
+                        const abstainVotes = options[2]?.voter_count || 0;
+                        const totalVotes = options.reduce((sum, opt) => sum + (opt.voter_count || 0), 0);
+
+                        // 결과 판정
+                        let status, resultEmoji, resultText;
+                        const effectiveVotes = agreeVotes + disagreeVotes;
+                        if (effectiveVotes === 0) {
+                            status = 'rejected';
+                            resultEmoji = '⚪';
+                            resultText = '무효 (투표 참여 없음)';
+                        } else if (agreeVotes > disagreeVotes) {
+                            status = 'passed';
+                            resultEmoji = '✅';
+                            resultText = '통과';
+                        } else if (agreeVotes < disagreeVotes) {
+                            status = 'rejected';
+                            resultEmoji = '❌';
+                            resultText = '부결';
+                        } else {
+                            status = 'rejected';
+                            resultEmoji = '⚖️';
+                            resultText = '부결 (동률)';
+                        }
+
+                        // Firestore 업데이트
+                        await doc.ref.update({
+                            status: status,
+                            votes: { agree: agreeVotes, disagree: disagreeVotes, abstain: abstainVotes },
+                            totalVotes: totalVotes,
+                            closedAt: new Date()
+                        });
+
+                        // 결과 메시지 생성
+                        let resultMsg;
+
+                        if (proposal.type === 'custom_poll' || proposal.type === 'multi_poll') {
+                            const optionResults = options.map((opt, i) =>
+                                `  ${i + 1}. ${opt.text}: ${opt.voter_count || 0}표`
+                            ).join('\n');
+
+                            let maxVotes = 0;
+                            let winners = [];
+                            options.forEach((opt) => {
+                                const votes = opt.voter_count || 0;
+                                if (votes > maxVotes) {
+                                    maxVotes = votes;
+                                    winners = [opt.text];
+                                } else if (votes === maxVotes && votes > 0) {
+                                    winners.push(opt.text);
+                                }
+                            });
+
+                            const winnerText = maxVotes > 0
+                                ? (winners.length > 1 ? `동률: ${winners.join(', ')}` : `1위: ${winners[0]}`)
+                                : '투표 참여 없음';
+
+                            const pollTypeLabel = proposal.type === 'multi_poll' ? '복수투표' : '투표';
+
+                            resultMsg = `🗳️ <b>${pollTypeLabel} 결과 발표</b>
+
+❓ 질문: ${proposal.content}
+👤 제안자: ${proposal.proposer}
+
+📈 투표 현황:
+${optionResults}
+  📊 총 참여: ${totalVotes}명
+
+🏆 <b>${winnerText}</b> (${maxVotes}표)
+
+📋 투표번호: #${doc.id.slice(-6)}`;
+                        } else if (proposal.type === 'survey') {
+                            resultMsg = `📊 <b>설문 결과 발표</b>
+
+❓ 질문: ${proposal.content}
+👤 제안자: ${proposal.proposer}
+
+📈 응답 현황:
+  👍 예: ${agreeVotes}표
+  👎 아니오: ${disagreeVotes}표
+  🤔 잘 모르겠음: ${abstainVotes}표
+  📊 총 참여: ${totalVotes}명
+
+📋 설문번호: #${doc.id.slice(-6)}`;
+                        } else {
+                            resultMsg = `📊 <b>투표 결과 발표</b>
+
+📝 제안: ${proposal.content}
+👤 제안자: ${proposal.proposer}
+
+${resultEmoji} <b>결과: ${resultText}</b>
+
+📈 투표 현황:
+  ✅ 찬성: ${agreeVotes}표
+  ❌ 반대: ${disagreeVotes}표
+  ⏸️ 기권: ${abstainVotes}표
+  📊 총 참여: ${totalVotes}명
+
+${status === 'passed' ? '🎉 제안이 통과되었습니다! 커뮤니티 규칙에 반영됩니다.' : '제안이 부결되었습니다.'}
+
+📋 제안번호: #${doc.id.slice(-6)}`;
+                        }
+
+                        await sendTelegramMessage(proposal.chatId, resultMsg);
+                        console.log(`Poll result sent: ${doc.id}`);
+                    }
+                } catch (error) {
+                    console.error(`Error processing poll ${doc.id}:`, error);
+                    // 오류 발생 시에도 상태 업데이트
+                    await doc.ref.update({
+                        status: 'error',
+                        error: error.message,
+                        closedAt: new Date()
+                    });
+                }
+            }
+        }
+    }
+
+    return null;
 });
 
 // ============================================

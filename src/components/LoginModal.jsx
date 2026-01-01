@@ -18,100 +18,183 @@ const GoogleIcon = () => (
     </svg>
 );
 
-export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
+// LoginModal - 상태를 App.jsx에서 관리하여 리렌더링 시에도 유지
+export default function LoginModal({
+    isOpen,
+    onClose,
+    onLoginSuccess,
+    step,
+    setStep,
+    selectedUser,
+    setSelectedUser,
+    selectedProvider,
+    setSelectedProvider,
+    googleLoginInProgress
+}) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [pendingUser, setPendingUser] = useState(null);
-    const [pendingProvider, setPendingProvider] = useState(null);
 
-    // Google 계정 선택 (아직 로그인 안됨)
-    const handleGoogleSelect = async () => {
-        setIsLoading(true);
-        setError('');
+    // 디버그 로그
+    console.log('[LoginModal] step:', step, 'selectedUser:', selectedUser?.email, 'googleLoginInProgress:', googleLoginInProgress?.current);
 
-        const result = await selectGoogleAccount();
-
-        if (result.success) {
-            setPendingUser(result.user);
-            setPendingProvider('google');
-        } else {
-            setError('계정 선택에 실패했습니다. 다시 시도해주세요.');
-        }
-
+    // 모달 초기화
+    const resetModal = () => {
         setIsLoading(false);
+        setError('');
+        setStep('select');
+        setSelectedUser(null);
+        setSelectedProvider(null);
     };
 
-    // Kakao 계정 선택 (아직 로그인 안됨)
-    const handleKakaoSelect = async () => {
-        setIsLoading(true);
-        setError('');
-
-        const result = await selectKakaoAccount();
-
-        if (result.success) {
-            setPendingUser(result.user);
-            setPendingProvider('kakao');
-        } else {
-            setError(result.error || '카카오 계정 선택에 실패했습니다.');
-        }
-
-        setIsLoading(false);
-    };
-
-    // Continue 버튼 클릭 - 실제 로그인 완료
-    const handleContinue = async () => {
-        setIsLoading(true);
-        setError('');
-
-        let result;
-        if (pendingProvider === 'google') {
-            result = await confirmGoogleLogin();
-        } else if (pendingProvider === 'kakao') {
-            result = await confirmKakaoLogin();
-        }
-
-        if (result?.success) {
-            onLoginSuccess(result.user);
-            resetAndClose();
-        } else {
-            setError(result?.error || '로그인에 실패했습니다. 다시 시도해주세요.');
-        }
-
-        setIsLoading(false);
-    };
-
-    // 뒤로가기 (다른 계정 선택)
-    const handleBack = () => {
-        setPendingUser(null);
-        setPendingProvider(null);
-        setError('');
-        // 임시 저장된 카카오 데이터 삭제
-        sessionStorage.removeItem('pendingKakaoUser');
-        sessionStorage.removeItem('pendingKakaoToken');
-    };
-
-    // 모달 닫기 및 상태 초기화
-    const resetAndClose = () => {
-        setError('');
-        setPendingUser(null);
-        setPendingProvider(null);
-        // 임시 저장된 카카오 데이터 삭제
+    // 모달 닫기
+    const handleClose = () => {
+        resetModal();
         sessionStorage.removeItem('pendingKakaoUser');
         sessionStorage.removeItem('pendingKakaoToken');
         onClose();
     };
 
+    // Google 로그인 버튼 클릭
+    const handleGoogleClick = async () => {
+        setIsLoading(true);
+        setError('');
+
+        // 1. 먼저 플래그 설정 (동기적으로!)
+        if (googleLoginInProgress) {
+            googleLoginInProgress.current = true;
+            console.log('[LoginModal] googleLoginInProgress.current = true 설정됨');
+        }
+
+        // 2. provider 설정
+        setSelectedProvider('google');
+
+        try {
+            console.log('[LoginModal] Google 로그인 시작');
+
+            const result = await selectGoogleAccount();
+            console.log('[LoginModal] Google 로그인 결과:', result.success, result.user?.email);
+
+            if (result.success && result.user) {
+                // 로그인 성공 - 확인 화면으로 이동
+                console.log('[LoginModal] 확인 화면으로 전환');
+                setSelectedUser(result.user);
+                setStep('confirm');
+                setIsLoading(false);
+                console.log('[LoginModal] setStep(confirm) 호출 완료');
+                return; // 여기서 종료
+            } else if (result.isRedirect) {
+                // 리다이렉트 방식으로 전환됨 - 페이지가 리다이렉트되므로 대기
+                console.log('[LoginModal] 리다이렉트 방식으로 전환됨');
+                return;
+            } else {
+                // 에러 처리 - 플래그 해제
+                if (googleLoginInProgress) {
+                    googleLoginInProgress.current = false;
+                }
+                setSelectedProvider(null);
+                const errorMsg = result.error || '';
+                if (errorMsg.includes('popup-closed') || errorMsg.includes('cancelled')) {
+                    // 팝업 닫기는 에러로 표시하지 않음
+                } else if (errorMsg.includes('popup-blocked')) {
+                    setError('팝업이 차단되었습니다. 팝업 차단을 해제해주세요.');
+                } else if (errorMsg.includes('network')) {
+                    setError('네트워크 오류가 발생했습니다.');
+                } else if (errorMsg) {
+                    setError('Google 로그인에 실패했습니다.');
+                }
+            }
+        } catch (err) {
+            console.error('[LoginModal] Google 로그인 에러:', err);
+            if (googleLoginInProgress) {
+                googleLoginInProgress.current = false;
+            }
+            setSelectedProvider(null);
+            setError('Google 로그인 중 오류가 발생했습니다.');
+        }
+
+        setIsLoading(false);
+    };
+
+    // Kakao 로그인 버튼 클릭
+    const handleKakaoClick = async () => {
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const result = await selectKakaoAccount();
+
+            if (result.success && result.user) {
+                // 로그인 성공 - 확인 화면으로 이동
+                setSelectedUser(result.user);
+                setSelectedProvider('kakao');
+                setStep('confirm');
+            } else {
+                setError(result.error || '카카오 로그인에 실패했습니다.');
+            }
+        } catch (err) {
+            setError('카카오 로그인 중 오류가 발생했습니다.');
+        }
+
+        setIsLoading(false);
+    };
+
+    // 계속하기 버튼 클릭 (로그인 완료 - 2차 검증)
+    const handleContinue = async () => {
+        setIsLoading(true);
+        setError('');
+
+        try {
+            let result;
+            if (selectedProvider === 'google') {
+                result = await confirmGoogleLogin();
+            } else if (selectedProvider === 'kakao') {
+                result = await confirmKakaoLogin();
+            }
+
+            if (result && result.success) {
+                // 로그인 완료 - 임시 데이터 정리
+                sessionStorage.removeItem('pendingKakaoUser');
+                sessionStorage.removeItem('pendingKakaoToken');
+
+                // 로컬 상태만 정리 (App.jsx의 handleLoginSuccess에서 모달 상태 초기화)
+                setIsLoading(false);
+                setError('');
+
+                // 성공 콜백 호출 (App.jsx의 handleLoginSuccess에서 모달 닫기 및 포스터 팝업 처리)
+                onLoginSuccess(result.user);
+                return;
+            } else {
+                setError(result?.error || '로그인에 실패했습니다.');
+            }
+        } catch (err) {
+            setError('로그인 처리 중 오류가 발생했습니다.');
+        }
+
+        setIsLoading(false);
+    };
+
+    // 뒤로 가기 (다른 계정 선택)
+    const handleBack = () => {
+        setStep('select');
+        setSelectedUser(null);
+        setSelectedProvider(null);
+        setError('');
+        sessionStorage.removeItem('pendingKakaoUser');
+        sessionStorage.removeItem('pendingKakaoToken');
+    };
+
     if (!isOpen) return null;
 
-    // 계정 선택 완료 후 확인 화면
-    if (pendingUser && pendingProvider) {
-        const isGoogle = pendingProvider === 'google';
-        const userName = pendingUser.displayName || pendingUser.email || '사용자';
-        const userEmail = pendingUser.email || '';
+    // 확인 화면 (2단계)
+    if (step === 'confirm' && selectedUser) {
+        const isGoogle = selectedProvider === 'google';
+        const userName = selectedUser.displayName || selectedUser.email || '사용자';
+        const userEmail = selectedUser.email || '';
 
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
                 <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+                    {/* 헤더 */}
                     <div className="px-8 pt-8 pb-4">
                         <div className="flex items-center justify-between mb-4">
                             <button
@@ -127,7 +210,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                                 {isGoogle ? 'Google' : '카카오'} 로그인
                             </h2>
                             <button
-                                onClick={resetAndClose}
+                                onClick={handleClose}
                                 className="text-gray-400 hover:text-gray-600 transition p-1"
                                 disabled={isLoading}
                             >
@@ -138,6 +221,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                         </div>
                     </div>
 
+                    {/* 내용 */}
                     <div className="px-8 pb-8 space-y-4">
                         {/* 에러 메시지 */}
                         {error && (
@@ -146,18 +230,16 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                             </div>
                         )}
 
-                        {/* 사용자 정보 표시 */}
+                        {/* 사용자 정보 */}
                         <div className="flex flex-col items-center py-4">
-                            {pendingUser.photoURL ? (
+                            {selectedUser.photoURL ? (
                                 <img
-                                    src={pendingUser.photoURL}
+                                    src={selectedUser.photoURL}
                                     alt={userName}
                                     className="w-16 h-16 rounded-full mb-3"
                                 />
                             ) : (
-                                <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 ${
-                                    isGoogle ? 'bg-gray-100' : 'bg-[#FEE500]'
-                                }`}>
+                                <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 ${isGoogle ? 'bg-gray-100' : 'bg-[#FEE500]'}`}>
                                     {isGoogle ? (
                                         <svg className="w-8 h-8" viewBox="0 0 24 24">
                                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -174,7 +256,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                             )}
 
                             <p className="text-lg font-medium text-gray-900">{userName}</p>
-
                             {userEmail && (
                                 <p className="text-sm text-gray-500">{userEmail}</p>
                             )}
@@ -184,7 +265,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                             이 계정으로 시민법정에 로그인합니다.
                         </p>
 
-                        {/* Continue 버튼 */}
+                        {/* 계속하기 버튼 */}
                         <button
                             onClick={handleContinue}
                             disabled={isLoading}
@@ -195,7 +276,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                             }`}
                         >
                             {isGoogle ? <GoogleIcon /> : <KakaoIcon />}
-                            <span>{isLoading ? '로그인 중...' : `Continue with ${isGoogle ? 'Google' : 'Kakao'}`}</span>
+                            <span>{isLoading ? '처리 중...' : '계속하기'}</span>
                         </button>
 
                         {/* 다른 계정 사용 */}
@@ -212,7 +293,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
         );
     }
 
-    // 기본 선택 화면
+    // 선택 화면 (1단계)
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
@@ -221,7 +302,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                     <div className="flex items-center justify-between mb-2">
                         <h2 className="text-2xl font-bold text-gray-900">간편 로그인</h2>
                         <button
-                            onClick={resetAndClose}
+                            onClick={handleClose}
                             className="text-gray-400 hover:text-gray-600 transition p-1"
                             disabled={isLoading}
                         >
@@ -246,7 +327,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
 
                     {/* Kakao 로그인 버튼 */}
                     <button
-                        onClick={handleKakaoSelect}
+                        onClick={handleKakaoClick}
                         disabled={isLoading}
                         className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-[#FEE500] hover:bg-[#FDD800] text-[#391B1B] rounded-xl font-medium transition-all disabled:opacity-50"
                     >
@@ -256,7 +337,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
 
                     {/* Google 로그인 버튼 */}
                     <button
-                        onClick={handleGoogleSelect}
+                        onClick={handleGoogleClick}
                         disabled={isLoading}
                         className="w-full flex items-center justify-center gap-3 px-6 py-4 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition-all disabled:opacity-50"
                     >
@@ -277,7 +358,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                 {/* 로그인 없이 서명하기 */}
                 <div className="px-8 py-6">
                     <button
-                        onClick={resetAndClose}
+                        onClick={handleClose}
                         disabled={isLoading}
                         className="w-full py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition disabled:opacity-50"
                     >
