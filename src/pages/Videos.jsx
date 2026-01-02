@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, limit, startAfter } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
+
+// 세션 캐시 (페이지 이동 후 돌아와도 유지)
+const videosCache = {
+    data: null,
+    timestamp: null,
+    CACHE_DURATION: 5 * 60 * 1000 // 5분
+};
 
 // SNS 아이콘들
 const KakaoIcon = ({ className = "w-5 h-5" }) => (
@@ -60,10 +67,15 @@ export default function Videos() {
     const [kakaoReady, setKakaoReady] = useState(false);
     const [copiedVideoId, setCopiedVideoId] = useState(null);
     const [openShareMenu, setOpenShareMenu] = useState(null); // 열린 공유 메뉴 videoId
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [lastDoc, setLastDoc] = useState(null);
+    const VIDEOS_PER_PAGE = 9;
 
-    // 카카오 SDK 초기화
+    // 카카오 SDK 초기화 (지연 로드)
     useEffect(() => {
-        const initKakao = () => {
+        // 페이지 로드 후 1초 뒤에 초기화 (동영상 렌더링 우선)
+        const timer = setTimeout(() => {
             if (window.Kakao && !window.Kakao.isInitialized()) {
                 try {
                     window.Kakao.init('83e843186c1251b9b5a8013fd5f29798');
@@ -74,19 +86,8 @@ export default function Videos() {
             } else if (window.Kakao?.isInitialized()) {
                 setKakaoReady(true);
             }
-        };
-
-        if (window.Kakao) {
-            initKakao();
-        } else {
-            const checkKakao = setInterval(() => {
-                if (window.Kakao) {
-                    clearInterval(checkKakao);
-                    initKakao();
-                }
-            }, 100);
-            setTimeout(() => clearInterval(checkKakao), 5000);
-        }
+        }, 1000);
+        return () => clearTimeout(timer);
     }, []);
 
     // 공유 함수들
@@ -162,26 +163,35 @@ export default function Videos() {
         alert('텍스트가 복사되었습니다!\n인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
     };
 
-    // Firestore에서 동영상 목록 불러오기
+    // Firestore에서 동영상 목록 불러오기 (캐싱 + 페이지네이션)
     useEffect(() => {
         const fetchVideos = async () => {
+            // 캐시 확인
+            if (videosCache.data && videosCache.timestamp &&
+                (Date.now() - videosCache.timestamp) < videosCache.CACHE_DURATION) {
+                setVideos(videosCache.data);
+                setLoading(false);
+                setHasMore(videosCache.data.length >= VIDEOS_PER_PAGE);
+                return;
+            }
+
             try {
                 const videosRef = collection(db, 'videos');
-                const querySnapshot = await getDocs(videosRef);
+                const q = query(videosRef, orderBy('createdAt', 'desc'), limit(VIDEOS_PER_PAGE));
+                const querySnapshot = await getDocs(q);
 
                 const firestoreVideos = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }));
 
-                // 클라이언트에서 정렬
-                firestoreVideos.sort((a, b) => {
-                    const dateA = a.createdAt?.toDate?.() || new Date(0);
-                    const dateB = b.createdAt?.toDate?.() || new Date(0);
-                    return dateB - dateA;
-                });
+                // 캐시 저장
+                videosCache.data = firestoreVideos;
+                videosCache.timestamp = Date.now();
 
                 setVideos(firestoreVideos);
+                setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
+                setHasMore(querySnapshot.docs.length >= VIDEOS_PER_PAGE);
             } catch (error) {
                 console.error('Error fetching videos:', error);
                 setVideos([]);
@@ -192,6 +202,33 @@ export default function Videos() {
 
         fetchVideos();
     }, []);
+
+    // 더 불러오기
+    const loadMore = async () => {
+        if (loadingMore || !hasMore || !lastDoc) return;
+
+        setLoadingMore(true);
+        try {
+            const videosRef = collection(db, 'videos');
+            const q = query(videosRef, orderBy('createdAt', 'desc'), startAfter(lastDoc), limit(VIDEOS_PER_PAGE));
+            const querySnapshot = await getDocs(q);
+
+            const moreVideos = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            const newVideos = [...videos, ...moreVideos];
+            setVideos(newVideos);
+            videosCache.data = newVideos; // 캐시 업데이트
+            setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
+            setHasMore(querySnapshot.docs.length >= VIDEOS_PER_PAGE);
+        } catch (error) {
+            console.error('Error loading more videos:', error);
+        } finally {
+            setLoadingMore(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -324,6 +361,24 @@ export default function Videos() {
                             {videos.length === 0 && (
                                 <div className="text-center py-12 text-gray-500">
                                     등록된 동영상이 없습니다.
+                                </div>
+                            )}
+
+                            {/* 더 불러오기 버튼 */}
+                            {hasMore && videos.length > 0 && (
+                                <div className="text-center mt-8">
+                                    <button
+                                        onClick={loadMore}
+                                        disabled={loadingMore}
+                                        className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 transition-colors"
+                                    >
+                                        {loadingMore ? (
+                                            <span className="flex items-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                불러오는 중...
+                                            </span>
+                                        ) : '더 보기'}
+                                    </button>
                                 </div>
                             )}
                         </>

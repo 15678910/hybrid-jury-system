@@ -6,7 +6,7 @@ import { collection, addDoc, getDocs, query, orderBy, where } from 'firebase/fir
 import { db, auth, RecaptchaVerifier, signInWithPhoneNumber } from './lib/firebase';
 import ConsentCheckbox from './components/ConsentCheckbox';
 import LoginModal from './components/LoginModal';
-import { onAuthChange, signOut as authSignOut, getUserInfo, checkUserSignature, checkGoogleRedirectResult } from './lib/auth';
+import { onAuthChange, signOut as authSignOut, getUserInfo, checkUserSignature, checkGoogleRedirectResult, checkKakaoRedirectResult } from './lib/auth';
 
 // 카카오톡 아이콘
 const KakaoIcon = ({ className = "w-6 h-6" }) => (
@@ -229,28 +229,42 @@ export default function App() {
             console.log('[App] initAuth 시작');
 
             // Google 리다이렉트 결과 확인 (먼저 처리해야 함 - URL 해시에 id_token이 있을 수 있음)
-            const redirectResult = await checkGoogleRedirectResult();
-            console.log('[App] redirectResult:', redirectResult);
+            const googleRedirectResult = await checkGoogleRedirectResult();
+            console.log('[App] googleRedirectResult:', googleRedirectResult);
 
-            if (redirectResult && redirectResult.success && redirectResult.user) {
+            if (googleRedirectResult && googleRedirectResult.success && googleRedirectResult.user) {
                 console.log('[App] Google 리다이렉트 성공');
                 // 리다이렉트 로그인 성공 - 포스터 팝업 표시
-                setUser(redirectResult.user);
+                setUser(googleRedirectResult.user);
+                setShowPosterModal(true);
+                return;
+            }
+
+            // 카카오 리다이렉트 결과 확인 (URL 해시에 access_token이 있을 수 있음)
+            const kakaoRedirectResult = await checkKakaoRedirectResult();
+            console.log('[App] kakaoRedirectResult:', kakaoRedirectResult);
+
+            if (kakaoRedirectResult && kakaoRedirectResult.success && kakaoRedirectResult.user) {
+                console.log('[App] 카카오 리다이렉트 성공');
+                // 리다이렉트 로그인 성공 - 포스터 팝업 표시
+                setUser(kakaoRedirectResult.user);
+                // 카카오 로그인 확정 (세션에 저장)
+                sessionStorage.setItem('kakaoUser', JSON.stringify(kakaoRedirectResult.user));
                 setShowPosterModal(true);
                 return;
             }
 
             // URL 해시가 있으면 모달 표시 안 함 (스크롤 링크로 접속한 경우)
-            // 단, id_token 해시는 이미 위에서 처리됨
+            // 단, id_token/access_token 해시는 이미 위에서 처리됨
             const hash = window.location.hash;
             console.log('[App] hash:', hash);
-            if (hash && !hash.includes('id_token')) {
+            if (hash && !hash.includes('id_token') && !hash.includes('access_token')) {
                 console.log('[App] 해시 있음 - 모달 표시 안 함');
                 return;
             }
 
-            // 카카오 로그인 확인
-            const kakaoUser = sessionStorage.getItem('kakaoUser') || localStorage.getItem('kakaoUser');
+            // 카카오 로그인 확인 (sessionStorage만 - 브라우저 닫으면 로그아웃)
+            const kakaoUser = sessionStorage.getItem('kakaoUser');
             if (kakaoUser) {
                 console.log('[App] 카카오 로그인 상태 확인됨');
                 // 이미 로그인됨 - 포스터 팝업만 표시

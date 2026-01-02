@@ -115,27 +115,31 @@ export default function LoginModal({
         setIsLoading(false);
     };
 
-    // Kakao 로그인 버튼 클릭
+    // Kakao 로그인 버튼 클릭 (SDK v1 팝업 방식)
     const handleKakaoClick = async () => {
         setIsLoading(true);
         setError('');
+        setSelectedProvider('kakao');
 
         try {
+            // SDK v1: 팝업 방식 - 결과가 바로 반환됨
             const result = await selectKakaoAccount();
 
-            if (result.success && result.user) {
+            if (result.success) {
                 // 로그인 성공 - 확인 화면으로 이동
                 setSelectedUser(result.user);
-                setSelectedProvider('kakao');
                 setStep('confirm');
             } else {
                 setError(result.error || '카카오 로그인에 실패했습니다.');
+                setSelectedProvider(null);
             }
         } catch (err) {
+            console.error('[LoginModal] Kakao 로그인 에러:', err);
+            setSelectedProvider(null);
             setError('카카오 로그인 중 오류가 발생했습니다.');
+        } finally {
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
     };
 
     // 계속하기 버튼 클릭 (로그인 완료 - 2차 검증)

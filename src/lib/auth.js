@@ -17,6 +17,7 @@ const initKakao = () => {
     }
 };
 
+// ⚠️ 수정금지: Google 로그인 코드 (정상 작동 중)
 // Google OAuth 설정
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '68915786798-unq8hgmt9q2f1egj34bmdvg4cokpcshs.apps.googleusercontent.com';
 
@@ -158,6 +159,15 @@ export const checkGoogleRedirectResult = async () => {
 
         console.log('[Auth] 사용자 정보 추출 성공:', user.email);
 
+        // Google Analytics 로그인 이벤트 추적 (안전하고 권한 필요 없음)
+        if (window.gtag) {
+            window.gtag('event', 'login', {
+                method: 'google',
+                user_id: user.uid
+            });
+            console.log('GA 로그인 이벤트 전송 완료 (google)');
+        }
+
         // 세션에 사용자 정보 저장 (즉시)
         sessionStorage.setItem('googleUser', JSON.stringify(user));
 
@@ -229,7 +239,12 @@ export const confirmGoogleLogin = async () => {
     };
 };
 
-// Kakao 계정 선택 (로그인 완료 전 - 정보만 가져오기)
+// 모바일 여부 확인
+const isMobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
+// Kakao 계정 선택 (SDK v1 - 모바일: 리다이렉트, 데스크탑: 팝업)
 export const selectKakaoAccount = () => {
     return new Promise((resolve) => {
         initKakao();
@@ -239,6 +254,21 @@ export const selectKakaoAccount = () => {
             return;
         }
 
+        // 모바일에서는 리다이렉트 방식 사용 (팝업 차단 방지)
+        if (isMobile()) {
+            sessionStorage.setItem('kakaoLoginPending', 'true');
+            sessionStorage.setItem('kakaoLoginReturnUrl', window.location.pathname);
+
+            // SDK v1 리다이렉트 방식 (이메일은 비즈앱만 가능하므로 제외)
+            window.Kakao.Auth.authorize({
+                redirectUri: window.location.origin,
+                scope: 'profile_nickname,profile_image'
+            });
+            // 리다이렉트되므로 resolve되지 않음
+            return;
+        }
+
+        // 데스크탑: SDK v1 팝업 방식
         window.Kakao.Auth.login({
             success: async (authObj) => {
                 try {
@@ -246,20 +276,25 @@ export const selectKakaoAccount = () => {
                     window.Kakao.API.request({
                         url: '/v2/user/me',
                         success: (res) => {
+                            // 프로필 이미지 URL을 HTTPS로 변환 (Mixed Content 방지)
+                            let photoURL = res.properties?.profile_image || null;
+                            if (photoURL && photoURL.startsWith('http://')) {
+                                photoURL = photoURL.replace('http://', 'https://');
+                            }
+
                             const kakaoUser = {
                                 uid: `kakao_${res.id}`,
                                 email: res.kakao_account?.email || '',
                                 displayName: res.properties?.nickname || '카카오 사용자',
-                                photoURL: res.properties?.profile_image || null,
+                                photoURL: photoURL,
                                 provider: 'kakao',
                                 kakaoId: res.id
                             };
 
-                            // 임시로 사용자 정보 저장 (확인 후 로그인 완료 시 사용)
+                            // pendingKakaoUser에 저장 (확인 화면용)
                             sessionStorage.setItem('pendingKakaoUser', JSON.stringify(kakaoUser));
                             sessionStorage.setItem('pendingKakaoToken', authObj.access_token);
 
-                            // 로그아웃하지 않고 정보만 반환 (확인 화면 표시용)
                             resolve({
                                 success: true,
                                 user: kakaoUser
@@ -271,7 +306,7 @@ export const selectKakaoAccount = () => {
                         }
                     });
                 } catch (error) {
-                    console.error('카카오 계정 선택 에러:', error);
+                    console.error('카카오 로그인 처리 에러:', error);
                     resolve({ success: false, error: error.message });
                 }
             },
@@ -281,6 +316,119 @@ export const selectKakaoAccount = () => {
             }
         });
     });
+};
+
+// Kakao 리다이렉트 결과 처리 (SDK v1 authorize 방식 - code 파라미터)
+export const checkKakaoRedirectResult = async () => {
+    try {
+        // URL 쿼리에서 code 파라미터 확인 (SDK v1 authorize 방식)
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+
+        // code가 없으면 카카오 리다이렉트가 아님
+        if (!code) {
+            // 대기 중이었는데 code가 없으면 정리
+            if (sessionStorage.getItem('kakaoLoginPending')) {
+                sessionStorage.removeItem('kakaoLoginPending');
+                sessionStorage.removeItem('kakaoLoginReturnUrl');
+            }
+            return null;
+        }
+
+        console.log('[Auth] 카카오 인증 코드 발견, 처리 중...');
+
+        // URL에서 code 파라미터 제거
+        window.history.replaceState(null, '', window.location.pathname);
+
+        // SDK 초기화
+        initKakao();
+
+        // code로 액세스 토큰 요청 (REST API 방식은 서버가 필요하므로, SDK 방식 사용)
+        // SDK v1에서는 authorize 후 code를 받으면 Kakao.Auth.setAccessToken을 직접 호출할 수 없음
+        // 대신 Kakao.Auth.login을 사용하여 세션 기반으로 처리
+
+        // 카카오 REST API로 토큰 요청 (클라이언트에서 직접)
+        const tokenResponse = await fetch('https://kauth.kakao.com/oauth/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                grant_type: 'authorization_code',
+                client_id: KAKAO_APP_KEY,
+                redirect_uri: window.location.origin,
+                code: code
+            })
+        });
+
+        if (!tokenResponse.ok) {
+            throw new Error('토큰 요청 실패');
+        }
+
+        const tokenData = await tokenResponse.json();
+        const accessToken = tokenData.access_token;
+
+        if (!accessToken) {
+            throw new Error('액세스 토큰을 받지 못했습니다.');
+        }
+
+        // SDK에 액세스 토큰 설정
+        window.Kakao.Auth.setAccessToken(accessToken);
+
+        // 사용자 정보 가져오기
+        const userInfo = await new Promise((resolve, reject) => {
+            window.Kakao.API.request({
+                url: '/v2/user/me',
+                success: (res) => resolve(res),
+                fail: (error) => reject(error)
+            });
+        });
+
+        // 프로필 이미지 URL을 HTTPS로 변환
+        let photoURL = userInfo.properties?.profile_image || null;
+        if (photoURL && photoURL.startsWith('http://')) {
+            photoURL = photoURL.replace('http://', 'https://');
+        }
+
+        const kakaoUser = {
+            uid: `kakao_${userInfo.id}`,
+            email: userInfo.kakao_account?.email || '',
+            displayName: userInfo.properties?.nickname || '카카오 사용자',
+            photoURL: photoURL,
+            provider: 'kakao',
+            kakaoId: userInfo.id
+        };
+
+        // pendingKakaoUser에 저장
+        sessionStorage.setItem('pendingKakaoUser', JSON.stringify(kakaoUser));
+        sessionStorage.setItem('pendingKakaoToken', accessToken);
+
+        // 대기 상태 제거
+        sessionStorage.removeItem('kakaoLoginPending');
+
+        const returnUrl = sessionStorage.getItem('kakaoLoginReturnUrl') || '/';
+        sessionStorage.removeItem('kakaoLoginReturnUrl');
+
+        return {
+            success: true,
+            user: kakaoUser,
+            returnUrl
+        };
+    } catch (error) {
+        console.error('[Auth] 카카오 리다이렉트 처리 에러:', error);
+        sessionStorage.removeItem('kakaoLoginPending');
+        sessionStorage.removeItem('kakaoLoginReturnUrl');
+
+        // URL 정리
+        if (window.location.search.includes('code=')) {
+            window.history.replaceState(null, '', window.location.pathname);
+        }
+
+        return {
+            success: false,
+            error: error.message || '카카오 로그인 처리 중 오류가 발생했습니다.'
+        };
+    }
 };
 
 // Kakao 로그인 완료 (확인 버튼 클릭 후)
@@ -294,18 +442,35 @@ export const confirmKakaoLogin = async () => {
 
         const kakaoUser = JSON.parse(pendingUser);
 
-        // Firestore에 사용자 정보 저장
-        await saveUserToFirestore(kakaoUser);
-
-        // 로그인 활동 로그 기록
-        await logLoginActivity(kakaoUser.uid, 'kakao');
-
-        // sessionStorage에 카카오 로그인 상태 저장 (브라우저 탭/창을 닫으면 로그아웃)
+        // sessionStorage에 카카오 로그인 상태 저장 (먼저 저장해서 즉시 로그인 처리)
         sessionStorage.setItem('kakaoUser', JSON.stringify(kakaoUser));
 
         // 임시 저장 데이터 삭제
         sessionStorage.removeItem('pendingKakaoUser');
         sessionStorage.removeItem('pendingKakaoToken');
+
+        console.log('로그인 성공:', kakaoUser);
+
+        // Google Analytics 로그인 이벤트 추적 (안전하고 권한 필요 없음)
+        if (window.gtag) {
+            window.gtag('event', 'login', {
+                method: 'kakao',
+                user_id: kakaoUser.uid
+            });
+            console.log('GA 로그인 이벤트 전송 완료 (kakao)');
+        }
+
+        // Firestore 저장은 백그라운드에서 비동기 처리 (기다리지 않음)
+        // 권한 에러가 발생해도 로그인에 영향 없음
+        Promise.race([
+            saveUserToFirestore(kakaoUser),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000))
+        ]).catch(e => console.warn('사용자 정보 저장 스킵:', e.message));
+
+        Promise.race([
+            logLoginActivity(kakaoUser.uid, 'kakao'),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000))
+        ]).catch(e => console.warn('로그인 활동 로그 스킵:', e.message));
 
         return {
             success: true,
@@ -517,8 +682,8 @@ export const getCurrentUser = () => {
         return auth.currentUser;
     }
 
-    // 카카오 사용자 확인 (sessionStorage 우선, localStorage는 기존 데이터 호환)
-    const kakaoUser = sessionStorage.getItem('kakaoUser') || localStorage.getItem('kakaoUser');
+    // 카카오 사용자 확인 (sessionStorage만 - 브라우저 닫으면 로그아웃)
+    const kakaoUser = sessionStorage.getItem('kakaoUser');
     if (kakaoUser) {
         return JSON.parse(kakaoUser);
     }
@@ -532,8 +697,8 @@ export const onAuthChange = (callback) => {
         if (firebaseUser) {
             callback(firebaseUser);
         } else {
-            // 카카오 사용자 확인 (sessionStorage 우선, localStorage는 기존 데이터 호환)
-            const kakaoUser = sessionStorage.getItem('kakaoUser') || localStorage.getItem('kakaoUser');
+            // 카카오 사용자 확인 (sessionStorage만 - 브라우저 닫으면 로그아웃)
+            const kakaoUser = sessionStorage.getItem('kakaoUser');
             if (kakaoUser) {
                 callback(JSON.parse(kakaoUser));
             } else {

@@ -13,7 +13,10 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+// Firestore (기본 설정 - 안정성 + 속도)
 export const db = getFirestore(app);
+
 export const auth = getAuth(app);
 
 export { RecaptchaVerifier, signInWithPhoneNumber };

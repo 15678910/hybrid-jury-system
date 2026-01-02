@@ -8,11 +8,22 @@ import {
     deleteDoc,
     doc,
     updateDoc,
+    addDoc,
     serverTimestamp,
-    where
+    where,
+    limit,
+    startAfter
 } from 'firebase/firestore';
+
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
+
+// 세션 캐시 (인증 후 빠른 로딩)
+const adminPostsCache = {
+    data: null,
+    timestamp: null,
+    CACHE_DURATION: 3 * 60 * 1000 // 3분
+};
 
 export default function AdminBlog() {
     // 작성자 코드 인증
@@ -26,6 +37,17 @@ export default function AdminBlog() {
     const [loadingPosts, setLoadingPosts] = useState(true);
     const [editingPost, setEditingPost] = useState(null);
     const [editForm, setEditForm] = useState({ title: '', content: '', author: '' });
+
+    // 페이지네이션
+    const [lastDoc, setLastDoc] = useState(null);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const POSTS_PER_PAGE = 15;
+
+    // 새 글 작성
+    const [showNewPost, setShowNewPost] = useState(false);
+    const [newPost, setNewPost] = useState({ title: '', content: '', summary: '' });
+    const [saving, setSaving] = useState(false);
 
     // 작성자 코드 검증
     const verifyWriterCode = async () => {
@@ -73,14 +95,23 @@ export default function AdminBlog() {
         }
     };
 
-    // 글 목록 불러오기
+    // 글 목록 불러오기 (캐싱 + 페이지네이션)
     useEffect(() => {
         if (!isVerified) return;
 
         const fetchPosts = async () => {
+            // 캐시 확인
+            if (adminPostsCache.data && adminPostsCache.timestamp &&
+                (Date.now() - adminPostsCache.timestamp) < adminPostsCache.CACHE_DURATION) {
+                setPosts(adminPostsCache.data);
+                setLoadingPosts(false);
+                setHasMore(adminPostsCache.data.length >= POSTS_PER_PAGE);
+                return;
+            }
+
             try {
                 const postsRef = collection(db, 'posts');
-                const q = query(postsRef, orderBy('createdAt', 'desc'));
+                const q = query(postsRef, orderBy('createdAt', 'desc'), limit(POSTS_PER_PAGE));
                 const querySnapshot = await getDocs(q);
 
                 const postsData = querySnapshot.docs.map(doc => ({
@@ -88,7 +119,14 @@ export default function AdminBlog() {
                     ...doc.data(),
                     date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
                 }));
+
+                // 캐시 저장
+                adminPostsCache.data = postsData;
+                adminPostsCache.timestamp = Date.now();
+
                 setPosts(postsData);
+                setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
+                setHasMore(querySnapshot.docs.length >= POSTS_PER_PAGE);
             } catch (error) {
                 console.error('Error fetching posts:', error);
             } finally {
@@ -98,6 +136,34 @@ export default function AdminBlog() {
 
         fetchPosts();
     }, [isVerified]);
+
+    // 더 불러오기
+    const loadMore = async () => {
+        if (loadingMore || !hasMore || !lastDoc) return;
+
+        setLoadingMore(true);
+        try {
+            const postsRef = collection(db, 'posts');
+            const q = query(postsRef, orderBy('createdAt', 'desc'), startAfter(lastDoc), limit(POSTS_PER_PAGE));
+            const querySnapshot = await getDocs(q);
+
+            const morePosts = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
+            }));
+
+            const newPosts = [...posts, ...morePosts];
+            setPosts(newPosts);
+            adminPostsCache.data = newPosts;
+            setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
+            setHasMore(querySnapshot.docs.length >= POSTS_PER_PAGE);
+        } catch (error) {
+            console.error('Error loading more posts:', error);
+        } finally {
+            setLoadingMore(false);
+        }
+    };
 
     // 글 삭제
     const handleDeletePost = async (postId) => {
@@ -127,6 +193,44 @@ export default function AdminBlog() {
     const handleCancelEdit = () => {
         setEditingPost(null);
         setEditForm({ title: '', content: '', author: '' });
+    };
+
+    // 새 글 저장
+    const handleSaveNewPost = async () => {
+        if (!newPost.title.trim() || !newPost.content.trim()) {
+            alert('제목과 내용을 입력해주세요.');
+            return;
+        }
+
+        setSaving(true);
+        try {
+            const docRef = await addDoc(collection(db, 'posts'), {
+                title: newPost.title,
+                content: newPost.content,
+                summary: newPost.summary || newPost.content.substring(0, 100),
+                author: writerName,
+                createdAt: serverTimestamp()
+            });
+
+            // 목록에 추가
+            setPosts([{
+                id: docRef.id,
+                title: newPost.title,
+                content: newPost.content,
+                summary: newPost.summary,
+                author: writerName,
+                date: new Date().toLocaleDateString('ko-KR')
+            }, ...posts]);
+
+            setNewPost({ title: '', content: '', summary: '' });
+            setShowNewPost(false);
+            alert('글이 등록되었습니다.');
+        } catch (error) {
+            console.error('Error saving post:', error);
+            alert('저장에 실패했습니다.');
+        } finally {
+            setSaving(false);
+        }
     };
 
     // 글 수정 저장
@@ -225,13 +329,52 @@ export default function AdminBlog() {
                     {/* 글 관리 */}
                     <div>
                         <div className="mb-4">
-                            <Link
-                                to="/blog/write"
-                                className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                            <button
+                                onClick={() => setShowNewPost(!showNewPost)}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                             >
-                                + 새 글 작성
-                            </Link>
+                                {showNewPost ? '취소' : '+ 새 글 작성'}
+                            </button>
                         </div>
+
+                        {/* 새 글 작성 폼 */}
+                        {showNewPost && (
+                            <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+                                <h2 className="text-xl font-bold text-gray-900 mb-4">새 글 작성</h2>
+                                <div className="space-y-4">
+                                    <input
+                                        type="text"
+                                        value={newPost.title}
+                                        onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                                        placeholder="제목"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={newPost.summary}
+                                        onChange={(e) => setNewPost({ ...newPost, summary: e.target.value })}
+                                        placeholder="요약 (선택사항 - 목록에 표시됨)"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                    <textarea
+                                        value={newPost.content}
+                                        onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                                        placeholder="내용"
+                                        rows={12}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                    <div className="flex justify-end">
+                                        <button
+                                            onClick={handleSaveNewPost}
+                                            disabled={saving}
+                                            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                                        >
+                                            {saving ? '저장 중...' : '글 등록'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         {loadingPosts ? (
                             <div className="text-center py-12">
                                 <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
@@ -241,92 +384,112 @@ export default function AdminBlog() {
                                 등록된 글이 없습니다.
                             </div>
                         ) : (
-                            <div className="bg-white rounded-xl shadow overflow-hidden">
-                                <table className="w-full">
-                                    <thead className="bg-gray-50 border-b">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">제목</th>
-                                            <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">작성자</th>
-                                            <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">날짜</th>
-                                            <th className="px-6 py-3 text-right text-sm font-medium text-gray-500">관리</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y">
-                                        {posts.map(post => (
-                                            <tr key={post.id} className="hover:bg-gray-50">
-                                                {editingPost === post.id ? (
-                                                    <td className="px-6 py-4" colSpan="4">
-                                                        <div className="space-y-4">
-                                                            <input
-                                                                type="text"
-                                                                value={editForm.title}
-                                                                onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                                                                placeholder="제목"
-                                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                            />
-                                                            <input
-                                                                type="text"
-                                                                value={editForm.author}
-                                                                onChange={(e) => setEditForm({ ...editForm, author: e.target.value })}
-                                                                placeholder="작성자"
-                                                                className="w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                            />
-                                                            <textarea
-                                                                value={editForm.content}
-                                                                onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
-                                                                placeholder="내용"
-                                                                rows={10}
-                                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                            />
-                                                            <div className="flex gap-2 justify-end">
-                                                                <button
-                                                                    onClick={handleCancelEdit}
-                                                                    className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
-                                                                >
-                                                                    취소
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleSaveEdit(post.id)}
-                                                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-                                                                >
-                                                                    저장
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                ) : (
-                                                    <>
-                                                        <td className="px-6 py-4">
-                                                            <Link
-                                                                to={`/blog/${post.id}`}
-                                                                className="text-gray-900 hover:text-blue-600 font-medium"
-                                                            >
-                                                                {post.title}
-                                                            </Link>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm text-gray-500">{post.author}</td>
-                                                        <td className="px-6 py-4 text-sm text-gray-500">{post.date}</td>
-                                                        <td className="px-6 py-4 text-right space-x-3">
-                                                            <button
-                                                                onClick={() => handleEditPost(post)}
-                                                                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                                                            >
-                                                                수정
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleDeletePost(post.id)}
-                                                                className="text-red-600 hover:text-red-800 text-sm font-medium"
-                                                            >
-                                                                삭제
-                                                            </button>
-                                                        </td>
-                                                    </>
-                                                )}
+                            <>
+                                <div className="bg-white rounded-xl shadow overflow-hidden">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-50 border-b">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">제목</th>
+                                                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">작성자</th>
+                                                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">날짜</th>
+                                                <th className="px-6 py-3 text-right text-sm font-medium text-gray-500">관리</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                        </thead>
+                                        <tbody className="divide-y">
+                                            {posts.map(post => (
+                                                <tr key={post.id} className="hover:bg-gray-50">
+                                                    {editingPost === post.id ? (
+                                                        <td className="px-6 py-4" colSpan="4">
+                                                            <div className="space-y-4">
+                                                                <input
+                                                                    type="text"
+                                                                    value={editForm.title}
+                                                                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                                                                    placeholder="제목"
+                                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                                />
+                                                                <input
+                                                                    type="text"
+                                                                    value={editForm.author}
+                                                                    onChange={(e) => setEditForm({ ...editForm, author: e.target.value })}
+                                                                    placeholder="작성자"
+                                                                    className="w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                                />
+                                                                <textarea
+                                                                    value={editForm.content}
+                                                                    onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
+                                                                    placeholder="내용"
+                                                                    rows={10}
+                                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                                />
+                                                                <div className="flex gap-2 justify-end">
+                                                                    <button
+                                                                        onClick={handleCancelEdit}
+                                                                        className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+                                                                    >
+                                                                        취소
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleSaveEdit(post.id)}
+                                                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                                                                    >
+                                                                        저장
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    ) : (
+                                                        <>
+                                                            <td className="px-6 py-4">
+                                                                <Link
+                                                                    to={`/blog/${post.id}`}
+                                                                    className="text-gray-900 hover:text-blue-600 font-medium"
+                                                                >
+                                                                    {post.title}
+                                                                </Link>
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm text-gray-500">{post.author}</td>
+                                                            <td className="px-6 py-4 text-sm text-gray-500">{post.date}</td>
+                                                            <td className="px-6 py-4 text-right space-x-3">
+                                                                <button
+                                                                    onClick={() => handleEditPost(post)}
+                                                                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                                                >
+                                                                    수정
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeletePost(post.id)}
+                                                                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                                                                >
+                                                                    삭제
+                                                                </button>
+                                                            </td>
+                                                        </>
+                                                    )}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* 더 불러오기 버튼 */}
+                                {hasMore && posts.length > 0 && (
+                                    <div className="text-center mt-6">
+                                        <button
+                                            onClick={loadMore}
+                                            disabled={loadingMore}
+                                            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+                                        >
+                                            {loadingMore ? (
+                                                <span className="flex items-center gap-2">
+                                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                    불러오는 중...
+                                                </span>
+                                            ) : '더 보기'}
+                                        </button>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

@@ -1,17 +1,29 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, limit, startAfter } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
+
+// 세션 캐시 (페이지 이동 후 돌아와도 유지)
+const postsCache = {
+    data: null,
+    timestamp: null,
+    CACHE_DURATION: 5 * 60 * 1000 // 5분
+};
 
 export default function Blog() {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [kakaoReady, setKakaoReady] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [lastDoc, setLastDoc] = useState(null);
+    const POSTS_PER_PAGE = 10;
 
-    // Kakao SDK 초기화
+    // Kakao SDK 초기화 (지연 로드)
     useEffect(() => {
-        const initKakao = () => {
+        // 페이지 로드 후 1초 뒤에 초기화 (블로그 렌더링 우선)
+        const timer = setTimeout(() => {
             if (window.Kakao && !window.Kakao.isInitialized()) {
                 try {
                     window.Kakao.init('83e843186c1251b9b5a8013fd5f29798');
@@ -22,27 +34,25 @@ export default function Blog() {
             } else if (window.Kakao?.isInitialized()) {
                 setKakaoReady(true);
             }
-        };
-
-        if (window.Kakao) {
-            initKakao();
-        } else {
-            const checkKakao = setInterval(() => {
-                if (window.Kakao) {
-                    clearInterval(checkKakao);
-                    initKakao();
-                }
-            }, 100);
-            setTimeout(() => clearInterval(checkKakao), 5000);
-        }
+        }, 1000);
+        return () => clearTimeout(timer);
     }, []);
 
-    // Firestore에서 글 불러오기
+    // Firestore에서 글 불러오기 (캐싱 + 페이지네이션)
     useEffect(() => {
         const fetchPosts = async () => {
+            // 캐시 확인
+            if (postsCache.data && postsCache.timestamp &&
+                (Date.now() - postsCache.timestamp) < postsCache.CACHE_DURATION) {
+                setPosts(postsCache.data);
+                setLoading(false);
+                setHasMore(postsCache.data.length >= POSTS_PER_PAGE);
+                return;
+            }
+
             try {
                 const postsRef = collection(db, 'posts');
-                const q = query(postsRef, orderBy('createdAt', 'desc'));
+                const q = query(postsRef, orderBy('createdAt', 'desc'), limit(POSTS_PER_PAGE));
                 const querySnapshot = await getDocs(q);
 
                 const firestorePosts = querySnapshot.docs.map(doc => ({
@@ -51,7 +61,13 @@ export default function Blog() {
                     date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
                 }));
 
+                // 캐시 저장
+                postsCache.data = firestorePosts;
+                postsCache.timestamp = Date.now();
+
                 setPosts(firestorePosts);
+                setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
+                setHasMore(querySnapshot.docs.length >= POSTS_PER_PAGE);
             } catch (error) {
                 console.error('Error fetching posts:', error);
                 setPosts([]);
@@ -63,17 +79,56 @@ export default function Blog() {
         fetchPosts();
     }, []);
 
+    // 더 불러오기
+    const loadMore = async () => {
+        if (loadingMore || !hasMore || !lastDoc) return;
+
+        setLoadingMore(true);
+        try {
+            const postsRef = collection(db, 'posts');
+            const q = query(postsRef, orderBy('createdAt', 'desc'), startAfter(lastDoc), limit(POSTS_PER_PAGE));
+            const querySnapshot = await getDocs(q);
+
+            const morePosts = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
+            }));
+
+            const newPosts = [...posts, ...morePosts];
+            setPosts(newPosts);
+            postsCache.data = newPosts; // 캐시 업데이트
+            setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
+            setHasMore(querySnapshot.docs.length >= POSTS_PER_PAGE);
+        } catch (error) {
+            console.error('Error loading more posts:', error);
+        } finally {
+            setLoadingMore(false);
+        }
+    };
+
     const filteredPosts = posts;
 
     // ⚠️ 수정금지: SNS 공유 URL - 영문 도메인 사용 (한글 도메인 인코딩 문제 방지)
-    // 공유 함수 - Web Share API 우선, 카카오/복사 폴백
+    // URL 복사 함수 (오픈채팅방 공유용)
+    const handleCopyLink = async (post) => {
+        const postUrl = `https://xn--lg3b0kt4n41f.kr/blog/${post.id}`;
+        try {
+            await navigator.clipboard.writeText(postUrl);
+            alert('링크가 복사되었습니다!\n오픈채팅방에 붙여넣기 하세요.');
+        } catch (err) {
+            alert('링크: ' + postUrl);
+        }
+    };
+
+    // 카카오톡 공유 함수 (개인/그룹 채팅용)
     const handleShare = async (post) => {
         const postUrl = `https://xn--lg3b0kt4n41f.kr/blog/${post.id}`;
 
         // 방법 1: Web Share API (모바일에서 모든 앱으로 공유 가능)
         if (navigator.share) {
             try {
-                const shareText = `📝 ${post.title}\n\n⚖️ #시민법정 #참심제`;
+                const shareText = `${post.title}\n\n#시민법정 #참심제`;
                 await navigator.share({
                     title: post.title,
                     text: shareText,
@@ -118,12 +173,7 @@ export default function Blog() {
         }
 
         // 방법 3: URL 복사 (최종 폴백)
-        try {
-            await navigator.clipboard.writeText(postUrl);
-            alert('링크가 복사되었습니다!\n원하는 곳에 붙여넣기 하세요.');
-        } catch (err) {
-            alert('공유에 실패했습니다. 링크: ' + postUrl);
-        }
+        handleCopyLink(post);
     };
 
     return (
@@ -168,12 +218,23 @@ export default function Blog() {
                                                     <span className="text-sm text-gray-400">
                                                         {post.date} · {post.author}
                                                     </span>
-                                                    <div className="flex items-center gap-3">
+                                                    <div className="flex items-center gap-2">
+                                                        {/* 링크 복사 버튼 (오픈채팅방용) */}
+                                                        <button
+                                                            onClick={() => handleCopyLink(post)}
+                                                            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                                            title="링크 복사 (오픈채팅방 공유)"
+                                                        >
+                                                            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                            </svg>
+                                                        </button>
+
                                                         {/* 카카오톡 공유 버튼 */}
                                                         <button
                                                             onClick={() => handleShare(post)}
                                                             className="p-2 hover:bg-yellow-50 rounded-full transition-colors"
-                                                            title="공유하기"
+                                                            title="카카오톡 공유"
                                                         >
                                                             <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
                                                                 <path d="M12 3c5.799 0 10.5 3.664 10.5 8.185 0 4.52-4.701 8.184-10.5 8.184a13.5 13.5 0 0 1-1.727-.11l-4.408 2.883c-.501.265-.678.236-.472-.413l.892-3.678c-2.88-1.46-4.785-3.99-4.785-6.866C1.5 6.665 6.201 3 12 3zm5.907 8.06l1.47-1.424a.472.472 0 0 0-.656-.678l-1.928 1.866V9.282a.472.472 0 0 0-.944 0v2.557a.471.471 0 0 0 0 .222V13.5a.472.472 0 0 0 .944 0v-1.363l.427-.413 1.428 2.033a.472.472 0 1 0 .773-.543l-1.514-2.155zm-2.958 1.924h-1.46V9.297a.472.472 0 0 0-.943 0v4.159c0 .26.21.472.471.472h1.932a.472.472 0 1 0 0-.944zm-5.857 0h-1.46V9.297a.472.472 0 0 0-.943 0v4.159c0 .26.21.472.471.472h1.932a.472.472 0 1 0 0-.944zm-5.857-1.03h.172l-1.03-2.9c-.093-.261-.44-.197-.44.093l-.001 3.807c0 .26.21.472.471.472h.943a.472.472 0 0 0 0-.944h-.472c.001-.01 0-.018 0-.028v-.5h.028zm7.858-3.754h-1.932a.472.472 0 0 0-.471.472v4.208a.472.472 0 0 0 .943 0v-1.364h1.46a.472.472 0 1 0 0-.944h-1.46v-.928h1.46a.472.472 0 1 0 0-.944z" />
@@ -197,6 +258,24 @@ export default function Blog() {
                             {filteredPosts.length === 0 && (
                                 <div className="text-center py-12 text-gray-500">
                                     등록된 글이 없습니다.
+                                </div>
+                            )}
+
+                            {/* 더 불러오기 버튼 */}
+                            {hasMore && filteredPosts.length > 0 && (
+                                <div className="text-center mt-8">
+                                    <button
+                                        onClick={loadMore}
+                                        disabled={loadingMore}
+                                        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+                                    >
+                                        {loadingMore ? (
+                                            <span className="flex items-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                불러오는 중...
+                                            </span>
+                                        ) : '더 보기'}
+                                    </button>
                                 </div>
                             )}
                         </>
