@@ -233,10 +233,13 @@ export default function App() {
             console.log('[App] googleRedirectResult:', googleRedirectResult);
 
             if (googleRedirectResult && googleRedirectResult.success && googleRedirectResult.user) {
-                console.log('[App] Google 리다이렉트 성공');
-                // 리다이렉트 로그인 성공 - 포스터 팝업 표시
-                setUser(googleRedirectResult.user);
-                setShowPosterModal(true);
+                console.log('[App] Google 리다이렉트 성공 - 확인 화면 표시');
+                // 리다이렉트 로그인 성공 - 확인 화면으로 이동 (바로 로그인하지 않음)
+                googleLoginInProgress.current = true;
+                setLoginModalUser(googleRedirectResult.user);
+                setLoginModalProvider('google');
+                setLoginModalStep('confirm');
+                setShowLoginModal(true);
                 return;
             }
 
@@ -245,12 +248,12 @@ export default function App() {
             console.log('[App] kakaoRedirectResult:', kakaoRedirectResult);
 
             if (kakaoRedirectResult && kakaoRedirectResult.success && kakaoRedirectResult.user) {
-                console.log('[App] 카카오 리다이렉트 성공');
-                // 리다이렉트 로그인 성공 - 포스터 팝업 표시
-                setUser(kakaoRedirectResult.user);
-                // 카카오 로그인 확정 (세션에 저장)
-                sessionStorage.setItem('kakaoUser', JSON.stringify(kakaoRedirectResult.user));
-                setShowPosterModal(true);
+                console.log('[App] 카카오 리다이렉트 성공 - 확인 화면 표시');
+                // 리다이렉트 로그인 성공 - 확인 화면으로 이동 (바로 로그인하지 않음)
+                setLoginModalUser(kakaoRedirectResult.user);
+                setLoginModalProvider('kakao');
+                setLoginModalStep('confirm');
+                setShowLoginModal(true);
                 return;
             }
 

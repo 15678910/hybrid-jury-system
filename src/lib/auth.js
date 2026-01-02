@@ -67,9 +67,16 @@ const decodeIdToken = (idToken) => {
             return null;
         }
 
-        // Base64Url 디코딩
+        // Base64Url 디코딩 (UTF-8 지원)
         const payload = parts[1];
-        const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+        const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+        const binaryString = atob(base64);
+        // UTF-8 바이트를 문자열로 변환
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        const decoded = new TextDecoder('utf-8').decode(bytes);
         const parsed = JSON.parse(decoded);
 
         console.log('[Auth] 디코딩된 토큰 정보:', {
@@ -159,17 +166,8 @@ export const checkGoogleRedirectResult = async () => {
 
         console.log('[Auth] 사용자 정보 추출 성공:', user.email);
 
-        // Google Analytics 로그인 이벤트 추적 (안전하고 권한 필요 없음)
-        if (window.gtag) {
-            window.gtag('event', 'login', {
-                method: 'google',
-                user_id: user.uid
-            });
-            console.log('GA 로그인 이벤트 전송 완료 (google)');
-        }
-
-        // 세션에 사용자 정보 저장 (즉시)
-        sessionStorage.setItem('googleUser', JSON.stringify(user));
+        // 임시 저장 (확인 후 최종 저장) - GA 이벤트도 확인 후 전송
+        sessionStorage.setItem('pendingGoogleUser', JSON.stringify(user));
 
         // 대기 상태 제거
         sessionStorage.removeItem('googleLoginPending');
@@ -225,14 +223,63 @@ export const checkGoogleRedirectResult = async () => {
 
 // Google 로그인 확인 (이미 로그인 완료됨, 저장된 사용자 정보 반환)
 export const confirmGoogleLogin = async () => {
-    // 이미 selectGoogleAccount에서 로그인 완료됨
-    // 현재 로그인된 사용자 반환
+    // pendingGoogleUser 확인 (리다이렉트 방식)
+    const pendingUser = sessionStorage.getItem('pendingGoogleUser');
+    if (pendingUser) {
+        const googleUser = JSON.parse(pendingUser);
+
+        // sessionStorage에 최종 저장
+        sessionStorage.setItem('googleUser', JSON.stringify(googleUser));
+
+        // 임시 데이터 삭제
+        sessionStorage.removeItem('pendingGoogleUser');
+
+        console.log('Google 로그인 확정:', googleUser.email);
+
+        // Google Analytics 로그인 이벤트 추적
+        if (window.gtag) {
+            window.gtag('event', 'login', {
+                method: 'google',
+                user_id: googleUser.uid
+            });
+            console.log('GA 로그인 이벤트 전송 완료 (google)');
+        }
+
+        // Firebase 로그인은 백그라운드에서 시도 (결과 기다리지 않음)
+        (async () => {
+            try {
+                await waitForAuth();
+                // Firebase credential 로그인은 이미 처리되었을 수 있음
+                await saveUserToFirestore(googleUser);
+                await logLoginActivity(googleUser.uid, 'google');
+            } catch (error) {
+                console.warn('[Auth] Firebase 백그라운드 처리 실패 (무시됨):', error.message);
+            }
+        })();
+
+        return {
+            success: true,
+            user: googleUser
+        };
+    }
+
+    // Firebase 사용자 확인 (팝업 방식)
     if (auth.currentUser) {
         return {
             success: true,
             user: auth.currentUser
         };
     }
+
+    // sessionStorage 확인
+    const googleUser = sessionStorage.getItem('googleUser');
+    if (googleUser) {
+        return {
+            success: true,
+            user: JSON.parse(googleUser)
+        };
+    }
+
     return {
         success: false,
         error: '로그인 세션이 만료되었습니다. 다시 시도해주세요.'
