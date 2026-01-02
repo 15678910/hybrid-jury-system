@@ -1954,6 +1954,10 @@ export default function App() {
                     setUser(null);
                     // Firebase Auth도 로그아웃 (백그라운드)
                     authSignOut().catch(() => {});
+                    // X 버튼 누르면 잠시 후 로그인 모달 다시 표시
+                    setTimeout(() => {
+                        setShowLoginModal(true);
+                    }, 500);
                 }}
                 onLoginSuccess={handleLoginSuccess}
                 step={loginModalStep}
