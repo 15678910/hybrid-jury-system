@@ -1942,12 +1942,18 @@ export default function App() {
             {/* 로그인 모달 */}
             <LoginModal
                 isOpen={showLoginModal}
-                onClose={() => {
+                onClose={async () => {
                     setShowLoginModal(false);
                     setLoginModalStep('select');
                     setLoginModalUser(null);
                     setLoginModalProvider(null);
                     googleLoginInProgress.current = false;
+                    // 모달 닫기 = 로그인 취소 (세션 정리 + Firebase 로그아웃)
+                    sessionStorage.removeItem('kakaoUser');
+                    sessionStorage.removeItem('googleUser');
+                    setUser(null);
+                    // Firebase Auth도 로그아웃 (백그라운드)
+                    authSignOut().catch(() => {});
                 }}
                 onLoginSuccess={handleLoginSuccess}
                 step={loginModalStep}
