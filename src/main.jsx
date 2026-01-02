@@ -15,6 +15,7 @@ import TermsOfService from './pages/TermsOfService'
 import Governance from './pages/Governance'
 import GovernanceAdmin from './pages/GovernanceAdmin'
 import Donate from './pages/Donate'
+import EuropeJurySystem from './pages/EuropeJurySystem'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -35,6 +36,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/governance" element={<Governance />} />
         <Route path="/governance/admin" element={<GovernanceAdmin />} />
         <Route path="/donate" element={<Donate />} />
+        <Route path="/europe-jury" element={<EuropeJurySystem />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,

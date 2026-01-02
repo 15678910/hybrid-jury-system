@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import Poster from './Poster'
+import Poster, { shouldShowPoster } from './Poster'
 import { Link, useNavigate } from 'react-router-dom'
 import FloatingChat from './CozeFloatingChat'
 import { collection, addDoc, getDocs, query, orderBy, where } from 'firebase/firestore';
@@ -7,6 +7,7 @@ import { db, auth, RecaptchaVerifier, signInWithPhoneNumber } from './lib/fireba
 import ConsentCheckbox from './components/ConsentCheckbox';
 import LoginModal from './components/LoginModal';
 import { onAuthChange, signOut as authSignOut, getUserInfo, checkUserSignature, checkGoogleRedirectResult, checkKakaoRedirectResult } from './lib/auth';
+import { fetchAllNews, cleanTitle, formatDate } from './lib/news';
 
 // 카카오톡 아이콘
 const KakaoIcon = ({ className = "w-6 h-6" }) => (
@@ -92,9 +93,13 @@ export default function App() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [mediaDropdownOpen, setMediaDropdownOpen] = useState(false);
     const [introDropdownOpen, setIntroDropdownOpen] = useState(false);
+    const [casesDropdownOpen, setCasesDropdownOpen] = useState(false);
 
     // 최신 블로그 글 상태
     const [latestPosts, setLatestPosts] = useState([]);
+
+    // 세계 뉴스 상태
+    const [worldNews, setWorldNews] = useState([]);
 
     // SMS 인증 관련 상태
     const [verificationCode, setVerificationCode] = useState('');
@@ -184,6 +189,19 @@ export default function App() {
         fetchLatestPosts();
     }, []);
 
+    // 세계 뉴스 불러오기
+    useEffect(() => {
+        const loadNews = async () => {
+            try {
+                const news = await fetchAllNews();
+                setWorldNews(news.all || []);
+            } catch (error) {
+                console.error('Error fetching world news:', error);
+            }
+        };
+        loadNews();
+    }, []);
+
     // 페이지 첫 로드 시 URL 파라미터 처리 (포스터/로그인 모달은 initAuth에서 처리)
     useEffect(() => {
         // URL 파라미터로 관리자 접근 확인 (먼저)
@@ -270,8 +288,10 @@ export default function App() {
             const kakaoUser = sessionStorage.getItem('kakaoUser');
             if (kakaoUser) {
                 console.log('[App] 카카오 로그인 상태 확인됨');
-                // 이미 로그인됨 - 포스터 팝업만 표시
-                setShowPosterModal(true);
+                // 이미 로그인됨 - 포스터 팝업 표시 (오늘 보지 않기 체크 확인)
+                if (shouldShowPoster()) {
+                    setShowPosterModal(true);
+                }
                 return;
             }
 
@@ -282,7 +302,9 @@ export default function App() {
                 try {
                     const parsedUser = JSON.parse(googleUser);
                     setUser(parsedUser);
-                    setShowPosterModal(true);
+                    if (shouldShowPoster()) {
+                        setShowPosterModal(true);
+                    }
                     return;
                 } catch (e) {
                     console.error('[App] Google 세션 파싱 실패:', e);
@@ -303,9 +325,11 @@ export default function App() {
             console.log('[App] Firebase currentUser:', currentUser?.email || 'null');
 
             if (currentUser) {
-                // 이미 로그인됨 - 포스터 팝업만 표시
+                // 이미 로그인됨 - 포스터 팝업 표시 (오늘 보지 않기 체크)
                 console.log('[App] 이미 로그인됨 - 포스터 팝업 표시');
-                setShowPosterModal(true);
+                if (shouldShowPoster()) {
+                    setShowPosterModal(true);
+                }
                 return;
             }
 
@@ -812,7 +836,39 @@ export default function App() {
                                 </div>
                             </div>
                             <button onClick={() => scrollToSection('necessity')} className="hover:text-blue-600 transition font-medium">도입 필요성</button>
-                            <button onClick={() => scrollToSection('cases')} className="hover:text-blue-600 transition font-medium">해외 사례</button>
+
+                            {/* 해외사례 드롭다운 */}
+                            <div
+                                className="relative"
+                                onMouseEnter={() => setCasesDropdownOpen(true)}
+                                onMouseLeave={() => setCasesDropdownOpen(false)}
+                            >
+                                <button
+                                    className="hover:text-blue-600 transition font-medium flex items-center gap-1"
+                                >
+                                    해외사례
+                                    <svg className={`w-4 h-4 transition-transform ${casesDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                <div className={`absolute top-full left-0 mt-0 pt-2 ${casesDropdownOpen ? 'block' : 'hidden'}`}>
+                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[160px] z-50">
+                                        <button
+                                            onClick={() => scrollToSection('cases')}
+                                            className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                        >
+                                            해외 사례 소개
+                                        </button>
+                                        <Link
+                                            to="/europe-jury"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                        >
+                                            유럽 참심제
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+
                             <button onClick={() => scrollToSection('constitution')} className="hover:text-blue-600 transition font-medium">헌법적 근거</button>
                             <button onClick={() => scrollToSection('bill')} className="hover:text-blue-600 transition font-medium">법안 제안</button>
 
@@ -888,6 +944,20 @@ export default function App() {
                             <div className="border-b border-gray-200 pb-2 mb-2">
                                 <div className="px-4 py-2 text-gray-500 text-sm font-medium">소통방</div>
                                 <Link
+                                    to="/blog"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    블로그
+                                </Link>
+                                <Link
+                                    to="/videos"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    동영상
+                                </Link>
+                                <Link
                                     to="/governance"
                                     onClick={() => setMobileMenuOpen(false)}
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
@@ -901,12 +971,24 @@ export default function App() {
                             >
                                 도입 필요성
                             </button>
-                            <button
-                                onClick={() => { scrollToSection('cases'); setMobileMenuOpen(false); }}
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
-                            >
-                                해외 사례
-                            </button>
+
+                            {/* 모바일 해외사례 서브메뉴 */}
+                            <div className="border-b border-gray-200 pb-2 mb-2">
+                                <div className="px-4 py-2 text-gray-500 text-sm font-medium">해외사례</div>
+                                <button
+                                    onClick={() => { scrollToSection('cases'); setMobileMenuOpen(false); }}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    해외 사례 소개
+                                </button>
+                                <Link
+                                    to="/europe-jury"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    유럽 참심제
+                                </Link>
+                            </div>
                             <button
                                 onClick={() => { scrollToSection('constitution'); setMobileMenuOpen(false); }}
                                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition"
@@ -997,36 +1079,68 @@ export default function App() {
 
             {/* 메인 히어로 */}
             <section id="necessity" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white pt-32 pb-20 px-4 mt-16">
-                <div className="container mx-auto text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                        헌법 개정 없이 가능한
-                    </h1>
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                        <span className="text-orange-400">시민법관 참심제!</span>
-                    </h1>
-                    <p className="text-lg md:text-xl mb-8 max-w-3xl mx-auto">
-                        '모든 권력은 국민으로부터 나온다'는 헌법 제1조 2항의 정신을 사법에서 실현합니다.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <button
-                            onClick={() => scrollToSection('signature')}
-                            className="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105"
-                        >
-                            준비위원으로 참여하기
-                        </button>
-                        <button
-                            onClick={() => window.location.href = '/proposal.html'}
-                            className="bg-orange-500 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-orange-600 transition transform hover:scale-105"
-                        >
-                            제안서 및 법률안
-                        </button>
-                    </div>
+                <div className="container mx-auto">
+                    <div className="flex items-start justify-center">
+                        {/* 메인 콘텐츠 */}
+                        <div className="text-center">
+                            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                                헌법 개정 없이 가능한
+                            </h1>
+                            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                                <span className="text-orange-400">시민법관 참심제!</span>
+                            </h1>
+                            <p className="text-lg md:text-xl mb-8 max-w-3xl mx-auto">
+                                '모든 권력은 국민으로부터 나온다'는 헌법 제1조 2항의 정신을 사법에서 실현합니다.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                                <button
+                                    onClick={() => scrollToSection('signature')}
+                                    className="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105"
+                                >
+                                    준비위원으로 참여하기
+                                </button>
+                                <button
+                                    onClick={() => window.location.href = '/proposal.html'}
+                                    className="bg-orange-500 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-orange-600 transition transform hover:scale-105"
+                                >
+                                    제안서 및 법률안
+                                </button>
+                            </div>
 
-                    {/* 추가 정보 */}
-                    <div className="mt-8 flex flex-col items-center gap-3 text-white">
-                        <p className="text-base md:text-lg">
-                            온라인 준비위원으로 <span className="font-bold text-yellow-300">1만명</span>이 참여하면 광장에서 주권자 세상 시작합니다.
-                        </p>
+                            {/* 추가 정보 */}
+                            <div className="mt-8 flex flex-col items-center gap-3 text-white">
+                                <p className="text-base md:text-lg">
+                                    온라인 준비위원으로 <span className="font-bold text-yellow-300">1만명</span>이 참여하면 광장에서 주권자 세상 시작합니다.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* 세계 뉴스 박스 - 데스크톱에서만 표시 */}
+                        <div className="hidden lg:block ml-16 w-72 flex-shrink-0">
+                            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                                <h3 className="text-sm font-bold mb-3 text-yellow-300">📰 세계 시민법관 뉴스</h3>
+                                {worldNews.length > 0 ? (
+                                    <ul className="space-y-2">
+                                        {worldNews.slice(0, 5).map((item, index) => (
+                                            <li key={index}>
+                                                <a
+                                                    href={item.link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="block text-xs hover:text-yellow-300 transition"
+                                                >
+                                                    <span className="mr-1">{item.flag}</span>
+                                                    <span className="line-clamp-1">{cleanTitle(item.title)}</span>
+                                                    <span className="text-white/60 text-[10px] ml-1">{formatDate(item.pubDate)}</span>
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-xs text-white/60">뉴스를 불러오는 중...</p>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
