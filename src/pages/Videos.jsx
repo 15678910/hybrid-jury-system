@@ -3,11 +3,36 @@ import { collection, getDocs, query, orderBy, limit, startAfter } from 'firebase
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 
-// 세션 캐시 (페이지 이동 후 돌아와도 유지)
-const videosCache = {
-    data: null,
-    timestamp: null,
-    CACHE_DURATION: 5 * 60 * 1000 // 5분
+// 로컬 스토리지 캐시 키
+const CACHE_KEY = 'videos_cache';
+const CACHE_DURATION = 5 * 60 * 1000; // 5분
+
+// 로컬 스토리지에서 캐시 가져오기
+const getLocalCache = () => {
+    try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+            const { data, timestamp } = JSON.parse(cached);
+            if (Date.now() - timestamp < CACHE_DURATION) {
+                return data;
+            }
+        }
+    } catch (e) {
+        console.log('Cache read error:', e);
+    }
+    return null;
+};
+
+// 로컬 스토리지에 캐시 저장
+const setLocalCache = (data) => {
+    try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+            data,
+            timestamp: Date.now()
+        }));
+    } catch (e) {
+        console.log('Cache write error:', e);
+    }
 };
 
 // SNS 아이콘들
@@ -62,8 +87,10 @@ const extractYouTubeId = (url) => {
 };
 
 export default function Videos() {
-    const [videos, setVideos] = useState([]);
-    const [loading, setLoading] = useState(true);
+    // 초기 데이터를 캐시에서 먼저 로드
+    const cachedData = getLocalCache();
+    const [videos, setVideos] = useState(cachedData || []);
+    const [loading, setLoading] = useState(!cachedData); // 캐시 있으면 로딩 안함
     const [kakaoReady, setKakaoReady] = useState(false);
     const [copiedVideoId, setCopiedVideoId] = useState(null);
     const [openShareMenu, setOpenShareMenu] = useState(null); // 열린 공유 메뉴 videoId
@@ -163,18 +190,10 @@ export default function Videos() {
         alert('텍스트가 복사되었습니다!\n인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
     };
 
-    // Firestore에서 동영상 목록 불러오기 (캐싱 + 페이지네이션)
+    // Firestore에서 동영상 목록 불러오기 (로컬 스토리지 캐싱 + 백그라운드 업데이트)
     useEffect(() => {
         const fetchVideos = async () => {
-            // 캐시 확인
-            if (videosCache.data && videosCache.timestamp &&
-                (Date.now() - videosCache.timestamp) < videosCache.CACHE_DURATION) {
-                setVideos(videosCache.data);
-                setLoading(false);
-                setHasMore(videosCache.data.length >= VIDEOS_PER_PAGE);
-                return;
-            }
-
+            // 캐시가 있으면 이미 표시 중이므로 백그라운드에서 최신 데이터 가져오기
             try {
                 const videosRef = collection(db, 'videos');
                 const q = query(videosRef, orderBy('createdAt', 'desc'), limit(VIDEOS_PER_PAGE));
@@ -185,16 +204,15 @@ export default function Videos() {
                     ...doc.data()
                 }));
 
-                // 캐시 저장
-                videosCache.data = firestoreVideos;
-                videosCache.timestamp = Date.now();
+                // 로컬 스토리지 캐시 저장
+                setLocalCache(firestoreVideos);
 
                 setVideos(firestoreVideos);
                 setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
                 setHasMore(querySnapshot.docs.length >= VIDEOS_PER_PAGE);
             } catch (error) {
                 console.error('Error fetching videos:', error);
-                setVideos([]);
+                if (!cachedData) setVideos([]);
             } finally {
                 setLoading(false);
             }

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Poster, { shouldShowPoster } from './Poster'
 import { Link, useNavigate } from 'react-router-dom'
-import FloatingChat from './CozeFloatingChat'
 import { collection, addDoc, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db, auth, RecaptchaVerifier, signInWithPhoneNumber } from './lib/firebase';
 import ConsentCheckbox from './components/ConsentCheckbox';
@@ -857,13 +856,13 @@ export default function App() {
                                             onClick={() => scrollToSection('cases')}
                                             className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                         >
-                                            해외 사례 소개
+                                            해외사례
                                         </button>
                                         <Link
                                             to="/europe-jury"
                                             className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                         >
-                                            유럽 참심제
+                                            유럽
                                         </Link>
                                     </div>
                                 </div>
@@ -944,20 +943,6 @@ export default function App() {
                             <div className="border-b border-gray-200 pb-2 mb-2">
                                 <div className="px-4 py-2 text-gray-500 text-sm font-medium">소통방</div>
                                 <Link
-                                    to="/blog"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    블로그
-                                </Link>
-                                <Link
-                                    to="/videos"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    동영상
-                                </Link>
-                                <Link
                                     to="/governance"
                                     onClick={() => setMobileMenuOpen(false)}
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
@@ -979,14 +964,14 @@ export default function App() {
                                     onClick={() => { scrollToSection('cases'); setMobileMenuOpen(false); }}
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
                                 >
-                                    해외 사례 소개
+                                    해외사례
                                 </button>
                                 <Link
                                     to="/europe-jury"
                                     onClick={() => setMobileMenuOpen(false)}
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
                                 >
-                                    유럽 참심제
+                                    유럽
                                 </Link>
                             </div>
                             <button
@@ -1241,10 +1226,10 @@ export default function App() {
                 </div>
             </section>
 
-            {/* 해외 사례 */}
+            {/* 해외사례 */}
             <section id="cases" className="py-20 px-4 bg-white">
                 <div className="container mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">시민참여 사법제도 해외 사례</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">시민참여 사법제도 해외사례</h2>
                     <p className="text-center text-gray-600 mb-12">
                         독일, 스웨덴, 핀란드, 노르웨이, 프랑스 등 다수의 대륙법계 국가가 혼합형 참심제도를 안정적으로 운영하고 있습니다.
                     </p>
@@ -2085,9 +2070,6 @@ export default function App() {
                 setSelectedProvider={setLoginModalProvider}
                 googleLoginInProgress={googleLoginInProgress}
             />
-
-            {/* 플로팅 챗봇 */}
-            <FloatingChat />
 
         </div>
     );

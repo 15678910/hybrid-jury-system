@@ -4,16 +4,43 @@ import { collection, query, orderBy, getDocs, limit, startAfter } from 'firebase
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 
-// 세션 캐시 (페이지 이동 후 돌아와도 유지)
-const postsCache = {
-    data: null,
-    timestamp: null,
-    CACHE_DURATION: 5 * 60 * 1000 // 5분
+// 로컬 스토리지 캐시 키
+const CACHE_KEY = 'blog_posts_cache';
+const CACHE_DURATION = 5 * 60 * 1000; // 5분
+
+// 로컬 스토리지에서 캐시 가져오기
+const getLocalCache = () => {
+    try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+            const { data, timestamp } = JSON.parse(cached);
+            if (Date.now() - timestamp < CACHE_DURATION) {
+                return data;
+            }
+        }
+    } catch (e) {
+        console.log('Cache read error:', e);
+    }
+    return null;
+};
+
+// 로컬 스토리지에 캐시 저장
+const setLocalCache = (data) => {
+    try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+            data,
+            timestamp: Date.now()
+        }));
+    } catch (e) {
+        console.log('Cache write error:', e);
+    }
 };
 
 export default function Blog() {
-    const [posts, setPosts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    // 초기 데이터를 캐시에서 먼저 로드
+    const cachedData = getLocalCache();
+    const [posts, setPosts] = useState(cachedData || []);
+    const [loading, setLoading] = useState(!cachedData); // 캐시 있으면 로딩 안함
     const [kakaoReady, setKakaoReady] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
@@ -38,18 +65,10 @@ export default function Blog() {
         return () => clearTimeout(timer);
     }, []);
 
-    // Firestore에서 글 불러오기 (캐싱 + 페이지네이션)
+    // Firestore에서 글 불러오기 (로컬 스토리지 캐싱 + 백그라운드 업데이트)
     useEffect(() => {
         const fetchPosts = async () => {
-            // 캐시 확인
-            if (postsCache.data && postsCache.timestamp &&
-                (Date.now() - postsCache.timestamp) < postsCache.CACHE_DURATION) {
-                setPosts(postsCache.data);
-                setLoading(false);
-                setHasMore(postsCache.data.length >= POSTS_PER_PAGE);
-                return;
-            }
-
+            // 캐시가 있으면 이미 표시 중이므로 백그라운드에서 최신 데이터 가져오기
             try {
                 const postsRef = collection(db, 'posts');
                 const q = query(postsRef, orderBy('createdAt', 'desc'), limit(POSTS_PER_PAGE));
@@ -61,16 +80,15 @@ export default function Blog() {
                     date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
                 }));
 
-                // 캐시 저장
-                postsCache.data = firestorePosts;
-                postsCache.timestamp = Date.now();
+                // 로컬 스토리지 캐시 저장
+                setLocalCache(firestorePosts);
 
                 setPosts(firestorePosts);
                 setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
                 setHasMore(querySnapshot.docs.length >= POSTS_PER_PAGE);
             } catch (error) {
                 console.error('Error fetching posts:', error);
-                setPosts([]);
+                if (!cachedData) setPosts([]);
             } finally {
                 setLoading(false);
             }

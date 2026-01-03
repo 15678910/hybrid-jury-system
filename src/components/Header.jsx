@@ -5,6 +5,7 @@ export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [mediaDropdownOpen, setMediaDropdownOpen] = useState(false);
     const [introDropdownOpen, setIntroDropdownOpen] = useState(false);
+    const [casesDropdownOpen, setCasesDropdownOpen] = useState(false);
 
     const scrollToSection = (sectionId) => {
         // 메인 페이지로 이동 후 해당 섹션으로 스크롤
@@ -50,7 +51,39 @@ export default function Header() {
                             </div>
                         </div>
                         <button onClick={() => scrollToSection('necessity')} className="hover:text-blue-600 transition font-medium">도입 필요성</button>
-                        <button onClick={() => scrollToSection('cases')} className="hover:text-blue-600 transition font-medium">해외 사례</button>
+
+                        {/* 해외사례 드롭다운 */}
+                        <div
+                            className="relative"
+                            onMouseEnter={() => setCasesDropdownOpen(true)}
+                            onMouseLeave={() => setCasesDropdownOpen(false)}
+                        >
+                            <button
+                                className="hover:text-blue-600 transition font-medium flex items-center gap-1"
+                            >
+                                해외사례
+                                <svg className={`w-4 h-4 transition-transform ${casesDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div className={`absolute top-full left-0 mt-0 pt-2 ${casesDropdownOpen ? 'block' : 'hidden'}`}>
+                                <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[160px] z-50">
+                                    <button
+                                        onClick={() => scrollToSection('cases')}
+                                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                    >
+                                        해외사례
+                                    </button>
+                                    <Link
+                                        to="/europe-jury"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                    >
+                                        유럽
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+
                         <button onClick={() => scrollToSection('constitution')} className="hover:text-blue-600 transition font-medium">헌법적 근거</button>
                         <button onClick={() => scrollToSection('bill')} className="hover:text-blue-600 transition font-medium">법안 제안</button>
 
@@ -116,11 +149,20 @@ export default function Header() {
                                 <Link to="/governance" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>의사결정</Link>
                             </div>
                             <button onClick={() => { scrollToSection('necessity'); setMobileMenuOpen(false); }} className="text-left hover:text-blue-600 transition font-medium">도입 필요성</button>
-                            <button onClick={() => { scrollToSection('cases'); setMobileMenuOpen(false); }} className="text-left hover:text-blue-600 transition font-medium">해외 사례</button>
+                            {/* 모바일 해외사례 서브메뉴 */}
+                            <div className="pl-4 border-l-2 border-gray-200">
+                                <p className="text-gray-500 text-sm mb-2">해외사례</p>
+                                <button onClick={() => { scrollToSection('cases'); setMobileMenuOpen(false); }} className="block text-left hover:text-blue-600 transition font-medium mb-2">해외사례</button>
+                                <Link to="/europe-jury" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>유럽</Link>
+                            </div>
                             <button onClick={() => { scrollToSection('constitution'); setMobileMenuOpen(false); }} className="text-left hover:text-blue-600 transition font-medium">헌법적 근거</button>
                             <button onClick={() => { scrollToSection('bill'); setMobileMenuOpen(false); }} className="text-left hover:text-blue-600 transition font-medium">법안 제안</button>
-                            <Link to="/blog" className="hover:text-blue-600 transition font-medium">블로그</Link>
-                            <Link to="/videos" className="hover:text-blue-600 transition font-medium">동영상</Link>
+                            {/* 모바일 미디어 서브메뉴 */}
+                            <div className="pl-4 border-l-2 border-gray-200">
+                                <p className="text-gray-500 text-sm mb-2">미디어</p>
+                                <Link to="/blog" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>블로그</Link>
+                                <Link to="/videos" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
+                            </div>
                             <button onClick={() => { scrollToSection('signature'); setMobileMenuOpen(false); }} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg text-center">
                                 참여하기
                             </button>

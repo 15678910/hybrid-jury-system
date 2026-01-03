@@ -375,7 +375,15 @@
                     </div>
                 </div>
                 <a href="/#necessity" class="nav-item">도입 필요성</a>
-                <a href="/#cases" class="nav-item">해외 사례</a>
+                <div class="nav-dropdown">
+                    <span class="nav-item">해외사례 <svg style="width:12px;height:12px;vertical-align:middle;display:inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></span>
+                    <div class="dropdown-content">
+                        <div class="dropdown-content-inner">
+                            <a href="/#cases">해외사례</a>
+                            <a href="/europe-jury">유럽</a>
+                        </div>
+                    </div>
+                </div>
                 <a href="/#constitution" class="nav-item">헌법적 근거</a>
                 <a href="/#bill" class="nav-item">법안 제안</a>
                 <div class="nav-dropdown">
@@ -399,7 +407,11 @@
                 <a href="/governance">의사결정</a>
             </div>
             <a href="/#necessity">도입 필요성</a>
-            <a href="/#cases">해외 사례</a>
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">해외사례</div>
+                <a href="/#cases">해외사례</a>
+                <a href="/europe-jury">유럽</a>
+            </div>
             <a href="/#constitution">헌법적 근거</a>
             <a href="/#bill">법안 제안</a>
             <div class="mobile-menu-section">
@@ -488,5 +500,37 @@
             <a href="/">www.시민법정.kr</a>
         </p>
     </footer>
+
+    <!-- 플로팅 챗봇 버튼 -->
+    <a href="/" id="floatingChatBtn" style="
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        cursor: pointer;
+        z-index: 1000;
+        text-decoration: none;
+        font-size: 28px;
+        transition: transform 0.3s, box-shadow 0.3s;
+    " title="AI 상담사와 대화하기">
+        ⚖️
+    </a>
+    <script>
+        document.getElementById('floatingChatBtn').addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+            this.style.boxShadow = '0 6px 20px rgba(37, 99, 235, 0.5)';
+        });
+        document.getElementById('floatingChatBtn').addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = '0 4px 15px rgba(37, 99, 235, 0.4)';
+        });
+    </script>
 </body>
 </html>
