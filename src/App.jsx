@@ -245,13 +245,34 @@ export default function App() {
         const initAuth = async () => {
             console.log('[App] initAuth 시작');
 
+            // 블로그/동영상 페이지에서는 로그인 모달 표시 안 함 (로그인 없이 열람 가능)
+            const path = window.location.pathname;
+            if (path.startsWith('/blog') || path.startsWith('/videos')) {
+                console.log('[App] 콘텐츠 페이지 - 로그인 모달 표시 안 함');
+                return;
+            }
+
             // Google 리다이렉트 결과 확인 (먼저 처리해야 함 - URL 해시에 id_token이 있을 수 있음)
             const googleRedirectResult = await checkGoogleRedirectResult();
             console.log('[App] googleRedirectResult:', googleRedirectResult);
 
             if (googleRedirectResult && googleRedirectResult.success && googleRedirectResult.user) {
-                console.log('[App] Google 리다이렉트 성공 - 확인 화면 표시');
-                // 리다이렉트 로그인 성공 - 확인 화면으로 이동 (바로 로그인하지 않음)
+                console.log('[App] Google 리다이렉트 성공');
+                console.log('[App] returnUrl:', googleRedirectResult.returnUrl);
+
+                // 블로그 페이지에서 로그인 시도한 경우, 해당 페이지로 리다이렉트
+                const returnUrl = googleRedirectResult.returnUrl;
+                if (returnUrl && returnUrl !== '/' && returnUrl.startsWith('/blog')) {
+                    console.log('[App] 블로그 페이지로 즉시 리다이렉트:', returnUrl);
+                    // 사용자 정보를 세션에 저장하고 블로그 페이지로 이동
+                    sessionStorage.setItem('googleUser', JSON.stringify(googleRedirectResult.user));
+                    sessionStorage.removeItem('pendingGoogleUser');
+                    // 즉시 리다이렉트 (React Router navigate 대신 직접 이동)
+                    window.location.replace(returnUrl);
+                    return;
+                }
+
+                // 메인 페이지에서 로그인 - 확인 화면으로 이동
                 googleLoginInProgress.current = true;
                 setLoginModalUser(googleRedirectResult.user);
                 setLoginModalProvider('google');
@@ -265,8 +286,23 @@ export default function App() {
             console.log('[App] kakaoRedirectResult:', kakaoRedirectResult);
 
             if (kakaoRedirectResult && kakaoRedirectResult.success && kakaoRedirectResult.user) {
-                console.log('[App] 카카오 리다이렉트 성공 - 확인 화면 표시');
-                // 리다이렉트 로그인 성공 - 확인 화면으로 이동 (바로 로그인하지 않음)
+                console.log('[App] 카카오 리다이렉트 성공');
+                console.log('[App] returnUrl:', kakaoRedirectResult.returnUrl);
+
+                // 블로그 페이지에서 로그인 시도한 경우, 해당 페이지로 리다이렉트
+                const returnUrl = kakaoRedirectResult.returnUrl;
+                if (returnUrl && returnUrl !== '/' && returnUrl.startsWith('/blog')) {
+                    console.log('[App] 블로그 페이지로 즉시 리다이렉트:', returnUrl);
+                    // 사용자 정보를 세션에 저장하고 블로그 페이지로 이동
+                    sessionStorage.setItem('kakaoUser', JSON.stringify(kakaoRedirectResult.user));
+                    sessionStorage.removeItem('pendingKakaoUser');
+                    sessionStorage.removeItem('pendingKakaoToken');
+                    // 즉시 리다이렉트 (React Router navigate 대신 직접 이동)
+                    window.location.replace(returnUrl);
+                    return;
+                }
+
+                // 메인 페이지에서 로그인 - 확인 화면으로 이동
                 setLoginModalUser(kakaoRedirectResult.user);
                 setLoginModalProvider('kakao');
                 setLoginModalStep('confirm');

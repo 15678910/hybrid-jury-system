@@ -274,16 +274,6 @@ const EUROPE_JURY_DATA = [
         features: ['중죄사건 전담', '프랑스법 영향', '드물게 사용'],
         established: '19세기'
     },
-    {
-        country: '네덜란드',
-        flag: '🇳🇱',
-        system: '없음',
-        systemType: 'none',
-        localName: '-',
-        description: '시민참여재판 제도 없음. 직업법관 단독재판 체제.',
-        features: ['직업법관제', '시민참여 없음', '유일한 미도입국'],
-        established: '-'
-    }
 ];
 
 // 시스템 타입별 색상
@@ -343,8 +333,7 @@ export default function EuropeJurySystem() {
         lay_judge: EUROPE_JURY_DATA.filter(d => d.systemType === 'lay_judge').length,
         jury: EUROPE_JURY_DATA.filter(d => d.systemType === 'jury').length,
         mixed: EUROPE_JURY_DATA.filter(d => d.systemType === 'mixed').length,
-        abolished: EUROPE_JURY_DATA.filter(d => d.systemType === 'abolished').length,
-        none: EUROPE_JURY_DATA.filter(d => d.systemType === 'none').length
+        abolished: EUROPE_JURY_DATA.filter(d => d.systemType === 'abolished').length
     };
 
     return (
@@ -493,7 +482,7 @@ export default function EuropeJurySystem() {
                 <div className="container mx-auto px-4">
                     <h1 className="text-4xl font-bold mb-4">유럽 시민참여재판 제도</h1>
                     <p className="text-xl text-white/90">
-                        유럽 28개국의 참심제, 배심제 운용 현황
+                        유럽 27개국의 참심제, 배심제 운용 현황
                     </p>
                 </div>
             </div>
@@ -501,7 +490,7 @@ export default function EuropeJurySystem() {
             {/* 통계 */}
             <section className="py-8 bg-white border-b">
                 <div className="container mx-auto px-4">
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="text-center p-4 bg-blue-50 rounded-lg">
                             <div className="text-3xl font-bold text-blue-600">{stats.lay_judge}</div>
                             <div className="text-sm text-gray-600">참심제</div>
@@ -517,10 +506,6 @@ export default function EuropeJurySystem() {
                         <div className="text-center p-4 bg-gray-50 rounded-lg border">
                             <div className="text-3xl font-bold text-gray-600">{stats.abolished}</div>
                             <div className="text-sm text-gray-600">폐지</div>
-                        </div>
-                        <div className="text-center p-4 bg-red-50 rounded-lg">
-                            <div className="text-3xl font-bold text-red-600">{stats.none}</div>
-                            <div className="text-sm text-gray-600">미도입</div>
                         </div>
                     </div>
                 </div>
