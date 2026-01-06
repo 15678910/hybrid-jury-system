@@ -506,30 +506,21 @@
         position: fixed;
         bottom: 24px;
         right: 24px;
-        width: 56px;
-        height: 56px;
-        background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        width: 64px;
+        height: 64px;
         cursor: pointer;
         z-index: 1000;
         text-decoration: none;
-        font-size: 28px;
-        transition: transform 0.3s, box-shadow 0.3s;
+        transition: transform 0.3s;
     " title="AI 상담사와 대화하기">
-        ⚖️
+        <img src="/Chatbot_Message_Bubble__1.png" alt="챗봇" style="width: 100%; height: 100%; object-fit: contain;">
     </a>
     <script>
         document.getElementById('floatingChatBtn').addEventListener('mouseenter', function() {
             this.style.transform = 'scale(1.1)';
-            this.style.boxShadow = '0 6px 20px rgba(37, 99, 235, 0.5)';
         });
         document.getElementById('floatingChatBtn').addEventListener('mouseleave', function() {
             this.style.transform = 'scale(1)';
-            this.style.boxShadow = '0 4px 15px rgba(37, 99, 235, 0.4)';
         });
     </script>
 </body>
