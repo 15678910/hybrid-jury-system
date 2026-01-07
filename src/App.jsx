@@ -1712,6 +1712,7 @@ export default function App() {
                                     placeholder="예: 홍길동, OOOO시민단체"
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     required
+                                    autoComplete="off"
                                 />
                             </div>
 
@@ -1819,6 +1820,7 @@ export default function App() {
                                         placeholder="숫자만 입력"
                                         className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${isPhoneVerified ? 'border-green-500 bg-green-50' : 'border-gray-300'}`}
                                         required
+                                    autoComplete="off"
                                         disabled={isPhoneVerified}
                                     />
                                     {!isPhoneVerified && !confirmationResult && (
