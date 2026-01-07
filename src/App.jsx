@@ -246,6 +246,15 @@ export default function App() {
             console.log('[App] initAuth 시작');
 
             // 블로그/동영상 페이지에서는 로그인 모달 표시 안 함 (로그인 없이 열람 가능)
+            // 로그인 기능 비활성화 - 로그인 없이 모든 기능 사용 가능
+            console.log('[App] 로그인 기능 비활성화됨 - 로그인 모달 표시 안 함');
+            if (shouldShowPoster()) {
+                setShowPosterModal(true);
+            }
+            return;
+
+            // === 아래 로그인 코드는 비활성화됨 ===
+
             const path = window.location.pathname;
             if (path.startsWith('/blog') || path.startsWith('/videos')) {
                 console.log('[App] 콘텐츠 페이지 - 로그인 모달 표시 안 함');
