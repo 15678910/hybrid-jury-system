@@ -1220,7 +1220,7 @@ export default function App() {
             {/* 제안 모델 */}
             <section id="model" className="py-20 px-4 bg-gray-50">
                 <div className="container mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">제안 모델: 혼합형 참심 재판부</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">제안 모델: 참심 재판부</h2>
                     <p className="text-center text-gray-600 mb-12">
                         독일, 프랑스 등 유럽을 참고하여 3:6 구성을 제안합니다.
                     </p>
@@ -1234,7 +1234,7 @@ export default function App() {
                                 <div className="text-xl font-bold text-gray-700 mb-4">직업법관</div>
                                 <div className="flex gap-2">
                                     {[1, 2, 3].map(i => (
-                                        <div key={i} className="w-20 h-20 rounded-full bg-gray-800 text-white flex items-center justify-center font-bold text-sm">
+                                        <div key={i} className="w-20 h-20 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-sm">
                                             법관
                                         </div>
                                     ))}
@@ -1249,7 +1249,7 @@ export default function App() {
                                 <div className="text-xl font-bold text-gray-700 mb-4">시민법관</div>
                                 <div className="grid grid-cols-3 gap-2">
                                     {[1, 2, 3, 4, 5, 6].map(i => (
-                                        <div key={i} className="w-20 h-20 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm">
+                                        <div key={i} className="w-20 h-20 rounded-full bg-blue-700 text-white flex items-center justify-center font-bold text-sm">
                                             시민
                                         </div>
                                     ))}
