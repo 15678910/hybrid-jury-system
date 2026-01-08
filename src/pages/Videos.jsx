@@ -1,21 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { collection, getDocs, query, orderBy, limit, startAfter } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 
 // 로컬 스토리지 캐시 키
 const CACHE_KEY = 'videos_cache';
-const CACHE_DURATION = 5 * 60 * 1000; // 5분
+const CACHE_DURATION = 30 * 60 * 1000; // 30분으로 연장
 
-// 로컬 스토리지에서 캐시 가져오기
+// 로컬 스토리지에서 캐시 가져오기 (만료되어도 일단 반환)
 const getLocalCache = () => {
     try {
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
             const { data, timestamp } = JSON.parse(cached);
-            if (Date.now() - timestamp < CACHE_DURATION) {
-                return data;
-            }
+            const isStale = Date.now() - timestamp >= CACHE_DURATION;
+            // 만료되어도 데이터가 있으면 반환 (UI 즉시 표시용)
+            return { data, isStale };
         }
     } catch (e) {
         console.log('Cache read error:', e);
@@ -87,8 +88,17 @@ const extractYouTubeId = (url) => {
 };
 
 export default function Videos() {
-    // 초기 데이터를 캐시에서 먼저 로드
-    const cachedData = getLocalCache();
+    // URL 파라미터에서 동영상 ID 가져오기
+    const [searchParams, setSearchParams] = useSearchParams();
+    const sharedVideoId = searchParams.get('v');
+    const videoRefs = useRef({});
+    const [showVideoModal, setShowVideoModal] = useState(false);
+    const [modalVideoId, setModalVideoId] = useState(null);
+    const [modalVideoTitle, setModalVideoTitle] = useState('');
+
+    // 초기 데이터를 캐시에서 먼저 로드 (만료되어도 일단 표시)
+    const cacheResult = getLocalCache();
+    const cachedData = cacheResult?.data || null;
     const [videos, setVideos] = useState(cachedData || []);
     const [loading, setLoading] = useState(!cachedData); // 캐시 있으면 로딩 안함
     const [kakaoReady, setKakaoReady] = useState(false);
@@ -98,6 +108,31 @@ export default function Videos() {
     const [hasMore, setHasMore] = useState(true);
     const [lastDoc, setLastDoc] = useState(null);
     const VIDEOS_PER_PAGE = 9;
+
+    // 공유된 동영상 모달로 표시
+    useEffect(() => {
+        if (sharedVideoId && !loading) {
+            // 동영상 정보 찾기
+            const sharedVideo = videos.find(v => {
+                const vId = v.videoId || extractYouTubeId(v.url);
+                return vId === sharedVideoId;
+            });
+            if (sharedVideo) {
+                setModalVideoId(sharedVideoId);
+                setModalVideoTitle(sharedVideo.title);
+                setShowVideoModal(true);
+            }
+        }
+    }, [sharedVideoId, loading, videos]);
+
+    // 모달 닫기
+    const closeVideoModal = () => {
+        setShowVideoModal(false);
+        setModalVideoId(null);
+        setModalVideoTitle('');
+        // URL에서 v 파라미터 제거
+        setSearchParams({});
+    };
 
     // 카카오 SDK 초기화 (지연 로드)
     useEffect(() => {
@@ -117,9 +152,10 @@ export default function Videos() {
         return () => clearTimeout(timer);
     }, []);
 
+    // ⚠️ 수정금지: SNS 공유 URL - 영문 도메인 사용 (한글 도메인 인코딩 문제 방지)
     // 공유 함수들
     const shareToKakao = (video, videoId) => {
-        const videoUrl = `https://youtu.be/${videoId}`;
+        const videoUrl = `https://xn--lg3b0kt4n41f.kr/videos?v=${videoId}`;
 
         if (kakaoReady && window.Kakao?.isInitialized()) {
             try {
@@ -127,7 +163,7 @@ export default function Videos() {
                     objectType: 'feed',
                     content: {
                         title: video.title,
-                        description: '시민법정 - 참심제와 사법개혁',
+                        description: video.description || '시민법정 - 참심제와 사법개혁',
                         imageUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
                         link: {
                             mobileWebUrl: videoUrl,
@@ -252,6 +288,36 @@ export default function Videos() {
         <div className="min-h-screen bg-gray-50">
             <Header />
 
+            {/* 공유된 동영상 모달 */}
+            {showVideoModal && modalVideoId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={closeVideoModal}>
+                    <div className="relative w-full max-w-4xl mx-4" onClick={e => e.stopPropagation()}>
+                        {/* 닫기 버튼 */}
+                        <button
+                            onClick={closeVideoModal}
+                            className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+                        >
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        {/* 제목 */}
+                        <h3 className="text-white text-lg font-bold mb-3 truncate">{modalVideoTitle}</h3>
+                        {/* 동영상 */}
+                        <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                            <iframe
+                                src={`https://www.youtube.com/embed/${modalVideoId}?autoplay=1`}
+                                title={modalVideoTitle}
+                                className="w-full h-full"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* 메인 콘텐츠 */}
             <main className="pt-24 pb-16 px-4">
                 <div className="container mx-auto max-w-6xl">
@@ -274,7 +340,10 @@ export default function Videos() {
                                 {videos.map(video => {
                                     const videoId = video.videoId || extractYouTubeId(video.url);
                                     return (
-                                        <div key={video.id} className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow relative">
+                                        <div
+                                            key={video.id}
+                                            className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all relative"
+                                        >
                                             {/* 썸네일/영상 */}
                                             <div className="aspect-video overflow-hidden rounded-t-xl">
                                                 <iframe
