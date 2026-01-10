@@ -1454,3 +1454,117 @@ exports.kakaoToken = functions.https.onRequest(async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+// ============================================
+// 동영상 SSR - 동적 OG 태그 생성 (YouTube 썸네일)
+// ============================================
+
+exports.videos = functions.https.onRequest(async (req, res) => {
+    try {
+        // URL에서 video ID 추출 (/v/VIDEO_ID 또는 ?v=VIDEO_ID)
+        const pathParts = req.path.split('/').filter(p => p);
+        const videoId = pathParts[pathParts.length - 1] !== 'v' ? pathParts[pathParts.length - 1] : req.query.v;
+
+        // User-Agent 체크 - 크롤러/스크래퍼만 OG 태그 HTML 반환
+        const userAgent = req.get('User-Agent') || '';
+        const isCrawler = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
+
+        // 일반 사용자는 SPA의 Videos 페이지로 리다이렉트
+        if (!isCrawler) {
+            const redirectUrl = videoId ? `/videos?v=${videoId}` : '/videos';
+            return res.redirect(302, redirectUrl);
+        }
+
+        // 크롤러: 동적 OG 태그 생성
+        let title = '시민법정 동영상';
+        let description = '시민법정 - 참심제로 시민이 법관이 되는 사법개혁';
+        let imageUrl = 'https://siminbupjung-blog.web.app/og-image.jpg';
+        const pageUrl = videoId
+            ? `https://siminbupjung-blog.web.app/v/${videoId}`
+            : 'https://siminbupjung-blog.web.app/v/';
+
+        // videoId가 있으면 Firestore에서 동영상 정보 가져오기
+        if (videoId) {
+            // YouTube 썸네일 URL
+            imageUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+
+            // Firestore에서 동영상 제목 가져오기
+            try {
+                const videosRef = db.collection('videos');
+                const snapshot = await videosRef.where('videoId', '==', videoId).limit(1).get();
+
+                if (!snapshot.empty) {
+                    const video = snapshot.docs[0].data();
+                    title = escapeHtml(video.title) || title;
+                    description = escapeHtml(video.description || video.title) || description;
+                }
+            } catch (dbError) {
+                console.error('Firestore error:', dbError);
+            }
+        }
+
+        // 크롤러를 위한 HTML (메타 태그)
+        const html = `<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO 메타태그 -->
+    <title>${title} - 시민법정</title>
+    <meta name="description" content="${description}" />
+    <meta name="author" content="시민법정" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="${pageUrl}" />
+
+    <!-- Open Graph (Facebook, KakaoTalk, Telegram 등) -->
+    <meta property="og:type" content="video.other" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="720" />
+    <meta property="og:url" content="${pageUrl}" />
+    <meta property="og:site_name" content="시민법정" />
+    <meta property="og:locale" content="ko_KR" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${imageUrl}" />
+
+    <!-- 네이버 검색 등록 -->
+    <meta name="naver-site-verification" content="3a332da27c6871ed25fd1c673e8337e0a534f90f" />
+
+    <!-- 구조화 데이터 (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      "name": "${title}",
+      "description": "${description}",
+      "thumbnailUrl": "${imageUrl}",
+      "url": "${pageUrl}",
+      "publisher": {
+        "@type": "Organization",
+        "name": "시민법정",
+        "url": "https://xn--lg3b0kt4n41f.kr"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <h1>${title}</h1>
+    <p>${description}</p>
+  </body>
+</html>`;
+
+        res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+        res.status(200).send(html);
+
+    } catch (error) {
+        console.error('Videos SSR error:', error);
+        res.redirect(302, '/');
+    }
+});

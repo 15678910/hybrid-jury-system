@@ -16,6 +16,10 @@
         "function": "blog"
       },
       {
+        "source": "/v/**",
+        "function": "videos"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

@@ -73,6 +73,12 @@ const InstagramIcon = ({ className = "w-5 h-5" }) => (
     </svg>
 );
 
+const TelegramIcon = ({ className = "w-5 h-5" }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+    </svg>
+);
+
 // YouTube URL에서 비디오 ID 추출
 const extractYouTubeId = (url) => {
     const patterns = [
@@ -224,6 +230,13 @@ export default function Videos() {
         const videoUrl = `https://youtu.be/${videoId}`;
         navigator.clipboard.writeText(`${video.title} ${videoUrl}`);
         alert('텍스트가 복사되었습니다!\n인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
+    };
+
+    const shareToTelegram = (video, videoId) => {
+        // 사이트 URL 공유 (Open Graph 메타태그로 썸네일 표시) - /v/ 경로 사용
+        const siteUrl = `https://siminbupjung-blog.web.app/v/${videoId}`;
+        // 텔레그램 앱으로 바로 공유 (대화방 선택 직접 열기)
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(video.title)}`, '_blank');
     };
 
     // Firestore에서 동영상 목록 불러오기 (로컬 스토리지 캐싱 + 백그라운드 업데이트)
@@ -410,6 +423,13 @@ export default function Videos() {
                                                                             title="인스타그램"
                                                                         >
                                                                             <InstagramIcon className="w-6 h-6 text-white" />
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => { shareToTelegram(video, videoId); setOpenShareMenu(null); }}
+                                                                            className="w-11 h-11 flex items-center justify-center bg-[#0088cc] rounded-full hover:scale-110 transition-transform shadow-md"
+                                                                            title="텔레그램"
+                                                                        >
+                                                                            <TelegramIcon className="w-6 h-6 text-white" />
                                                                         </button>
                                                                         <button
                                                                             onClick={() => { copyLink(video, videoId); setOpenShareMenu(null); }}
