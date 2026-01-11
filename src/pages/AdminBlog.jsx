@@ -49,6 +49,70 @@ export default function AdminBlog() {
     const [newPost, setNewPost] = useState({ title: '', content: '', summary: '' });
     const [saving, setSaving] = useState(false);
 
+    // 이미지 업로드
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
+    const [uploadingImage, setUploadingImage] = useState(false);
+
+    // 이미지 선택 핸들러
+    const handleImageSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                alert('이미지 크기는 5MB 이하여야 합니다.');
+                return;
+            }
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // 이미지 압축 및 Base64 변환 함수
+    const compressImageToBase64 = (file) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let { width, height } = img;
+
+                    // 고해상도: 1200x630 (SNS 최적화)
+                    const maxWidth = 1200;
+                    const maxHeight = 630;
+
+                    if (width > maxWidth || height > maxHeight) {
+                        const ratio = Math.min(maxWidth / width, maxHeight / height);
+                        width = Math.round(width * ratio);
+                        height = Math.round(height * ratio);
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Base64로 변환 (품질 70%)
+                    const base64 = canvas.toDataURL('image/jpeg', 0.7);
+                    console.log('압축 후 크기:', Math.round(base64.length / 1024), 'KB');
+                    resolve(base64);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    // 이미지 처리 함수 (Base64 반환) - Storage 대신 직접 저장
+    const uploadImage = async (file) => {
+        return await compressImageToBase64(file);
+    };
+
     // 작성자 코드 검증
     const verifyWriterCode = async () => {
         if (!writerCode.trim()) {
@@ -179,20 +243,46 @@ export default function AdminBlog() {
         }
     };
 
+    // 수정용 이미지 상태
+    const [editImageFile, setEditImageFile] = useState(null);
+    const [editImagePreview, setEditImagePreview] = useState(null);
+
+    // 수정용 이미지 선택 핸들러
+    const handleEditImageSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                alert('이미지 크기는 5MB 이하여야 합니다.');
+                return;
+            }
+            setEditImageFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setEditImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     // 글 수정 시작
     const handleEditPost = (post) => {
         setEditingPost(post.id);
         setEditForm({
             title: post.title,
             content: post.content,
-            author: post.author
+            author: post.author,
+            imageUrl: post.imageUrl || ''
         });
+        setEditImagePreview(post.imageUrl || null);
+        setEditImageFile(null);
     };
 
     // 글 수정 취소
     const handleCancelEdit = () => {
         setEditingPost(null);
-        setEditForm({ title: '', content: '', author: '' });
+        setEditForm({ title: '', content: '', author: '', imageUrl: '' });
+        setEditImageFile(null);
+        setEditImagePreview(null);
     };
 
     // 새 글 저장
@@ -204,11 +294,20 @@ export default function AdminBlog() {
 
         setSaving(true);
         try {
+            // 이미지 업로드
+            let imageUrl = 'https://siminbupjung-blog.web.app/og-image.jpg';
+            if (imageFile) {
+                setUploadingImage(true);
+                imageUrl = await uploadImage(imageFile);
+                setUploadingImage(false);
+            }
+
             const docRef = await addDoc(collection(db, 'posts'), {
                 title: newPost.title,
                 content: newPost.content,
                 summary: newPost.summary || newPost.content.substring(0, 100),
                 author: writerName,
+                imageUrl: imageUrl,
                 createdAt: serverTimestamp()
             });
 
@@ -219,10 +318,13 @@ export default function AdminBlog() {
                 content: newPost.content,
                 summary: newPost.summary,
                 author: writerName,
+                imageUrl: imageUrl,
                 date: new Date().toLocaleDateString('ko-KR')
             }, ...posts]);
 
             setNewPost({ title: '', content: '', summary: '' });
+            setImageFile(null);
+            setImagePreview(null);
             setShowNewPost(false);
             alert('글이 등록되었습니다.');
         } catch (error) {
@@ -230,6 +332,7 @@ export default function AdminBlog() {
             alert('저장에 실패했습니다.');
         } finally {
             setSaving(false);
+            setUploadingImage(false);
         }
     };
 
@@ -241,21 +344,33 @@ export default function AdminBlog() {
         }
 
         try {
+            // 새 이미지가 있으면 업로드
+            let imageUrl = editForm.imageUrl;
+            if (editImageFile) {
+                setUploadingImage(true);
+                imageUrl = await uploadImage(editImageFile);
+                setUploadingImage(false);
+            }
+
             await updateDoc(doc(db, 'posts', postId), {
                 title: editForm.title,
                 content: editForm.content,
                 author: editForm.author,
+                imageUrl: imageUrl,
                 updatedAt: serverTimestamp()
             });
             setPosts(posts.map(p =>
-                p.id === postId ? { ...p, ...editForm } : p
+                p.id === postId ? { ...p, ...editForm, imageUrl } : p
             ));
             setEditingPost(null);
-            setEditForm({ title: '', content: '', author: '' });
+            setEditForm({ title: '', content: '', author: '', imageUrl: '' });
+            setEditImageFile(null);
+            setEditImagePreview(null);
             alert('글이 수정되었습니다.');
         } catch (error) {
             console.error('Error updating post:', error);
             alert('수정에 실패했습니다.');
+            setUploadingImage(false);
         }
     };
 
@@ -363,13 +478,49 @@ export default function AdminBlog() {
                                         rows={12}
                                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     />
+
+                                    {/* 대표 이미지 업로드 */}
+                                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            대표 이미지 (SNS 공유 시 표시)
+                                        </label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageSelect}
+                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                        />
+                                        {imagePreview && (
+                                            <div className="mt-3 relative">
+                                                <img
+                                                    src={imagePreview}
+                                                    alt="미리보기"
+                                                    className="w-full max-w-md h-48 object-cover rounded-lg"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setImageFile(null);
+                                                        setImagePreview(null);
+                                                    }}
+                                                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        )}
+                                        <p className="mt-2 text-xs text-gray-500">
+                                            권장 크기: 1200x630px (SNS 최적화), 최대 5MB
+                                        </p>
+                                    </div>
+
                                     <div className="flex justify-end">
                                         <button
                                             onClick={handleSaveNewPost}
-                                            disabled={saving}
+                                            disabled={saving || uploadingImage}
                                             className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                                         >
-                                            {saving ? '저장 중...' : '글 등록'}
+                                            {uploadingImage ? '이미지 업로드 중...' : saving ? '저장 중...' : '글 등록'}
                                         </button>
                                     </div>
                                 </div>
@@ -385,6 +536,88 @@ export default function AdminBlog() {
                             </div>
                         ) : (
                             <>
+                                {/* 글 수정 폼 - 테이블 위에 별도 카드로 표시 */}
+                                {editingPost && (
+                                    <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+                                        <h2 className="text-xl font-bold text-gray-900 mb-4">글 수정</h2>
+                                        <div className="space-y-4">
+                                            <input
+                                                type="text"
+                                                value={editForm.title}
+                                                onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                                                placeholder="제목"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                            <input
+                                                type="text"
+                                                value={editForm.author}
+                                                onChange={(e) => setEditForm({ ...editForm, author: e.target.value })}
+                                                placeholder="작성자"
+                                                className="w-1/3 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                            <textarea
+                                                value={editForm.content}
+                                                onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
+                                                placeholder="내용"
+                                                rows={12}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+
+                                            {/* 대표 이미지 수정 */}
+                                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    대표 이미지 (SNS 공유 시 표시)
+                                                </label>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleEditImageSelect}
+                                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                                />
+                                                {editImagePreview && (
+                                                    <div className="mt-3 relative">
+                                                        <img
+                                                            src={editImagePreview}
+                                                            alt="미리보기"
+                                                            className="w-full max-w-md h-48 object-cover rounded-lg"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setEditImageFile(null);
+                                                                setEditImagePreview(null);
+                                                                setEditForm({ ...editForm, imageUrl: '' });
+                                                            }}
+                                                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                )}
+                                                <p className="mt-2 text-xs text-gray-500">
+                                                    권장 크기: 1200x630px (SNS 최적화), 최대 5MB
+                                                </p>
+                                            </div>
+
+                                            <div className="flex gap-2 justify-end">
+                                                <button
+                                                    onClick={handleCancelEdit}
+                                                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
+                                                >
+                                                    취소
+                                                </button>
+                                                <button
+                                                    onClick={() => handleSaveEdit(editingPost)}
+                                                    disabled={uploadingImage}
+                                                    className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                                                >
+                                                    {uploadingImage ? '이미지 업로드 중...' : '저장'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="bg-white rounded-xl shadow overflow-hidden">
                                     <table className="w-full">
                                         <thead className="bg-gray-50 border-b">
@@ -397,75 +630,31 @@ export default function AdminBlog() {
                                         </thead>
                                         <tbody className="divide-y">
                                             {posts.map(post => (
-                                                <tr key={post.id} className="hover:bg-gray-50">
-                                                    {editingPost === post.id ? (
-                                                        <td className="px-6 py-4" colSpan="4">
-                                                            <div className="space-y-4">
-                                                                <input
-                                                                    type="text"
-                                                                    value={editForm.title}
-                                                                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                                                                    placeholder="제목"
-                                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                                />
-                                                                <input
-                                                                    type="text"
-                                                                    value={editForm.author}
-                                                                    onChange={(e) => setEditForm({ ...editForm, author: e.target.value })}
-                                                                    placeholder="작성자"
-                                                                    className="w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                                />
-                                                                <textarea
-                                                                    value={editForm.content}
-                                                                    onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
-                                                                    placeholder="내용"
-                                                                    rows={10}
-                                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                                />
-                                                                <div className="flex gap-2 justify-end">
-                                                                    <button
-                                                                        onClick={handleCancelEdit}
-                                                                        className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
-                                                                    >
-                                                                        취소
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => handleSaveEdit(post.id)}
-                                                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-                                                                    >
-                                                                        저장
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    ) : (
-                                                        <>
-                                                            <td className="px-6 py-4">
-                                                                <Link
-                                                                    to={`/blog/${post.id}`}
-                                                                    className="text-gray-900 hover:text-blue-600 font-medium"
-                                                                >
-                                                                    {post.title}
-                                                                </Link>
-                                                            </td>
-                                                            <td className="px-6 py-4 text-sm text-gray-500">{post.author}</td>
-                                                            <td className="px-6 py-4 text-sm text-gray-500">{post.date}</td>
-                                                            <td className="px-6 py-4 text-right space-x-3">
-                                                                <button
-                                                                    onClick={() => handleEditPost(post)}
-                                                                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                                                                >
-                                                                    수정
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDeletePost(post.id)}
-                                                                    className="text-red-600 hover:text-red-800 text-sm font-medium"
-                                                                >
-                                                                    삭제
-                                                                </button>
-                                                            </td>
-                                                        </>
-                                                    )}
+                                                <tr key={post.id} className={`hover:bg-gray-50 ${editingPost === post.id ? 'bg-blue-50' : ''}`}>
+                                                    <td className="px-6 py-4">
+                                                        <Link
+                                                            to={`/blog/${post.id}`}
+                                                            className="text-gray-900 hover:text-blue-600 font-medium"
+                                                        >
+                                                            {post.title}
+                                                        </Link>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-500">{post.author}</td>
+                                                    <td className="px-6 py-4 text-sm text-gray-500">{post.date}</td>
+                                                    <td className="px-6 py-4 text-right space-x-3">
+                                                        <button
+                                                            onClick={() => handleEditPost(post)}
+                                                            className={`text-sm font-medium ${editingPost === post.id ? 'text-green-600' : 'text-blue-600 hover:text-blue-800'}`}
+                                                        >
+                                                            {editingPost === post.id ? '수정 중' : '수정'}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeletePost(post.id)}
+                                                            className="text-red-600 hover:text-red-800 text-sm font-medium"
+                                                        >
+                                                            삭제
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>

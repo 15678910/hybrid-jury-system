@@ -6,17 +6,17 @@ import Header from '../components/Header';
 
 // 로컬 스토리지 캐시 키
 const CACHE_KEY = 'blog_posts_cache';
-const CACHE_DURATION = 5 * 60 * 1000; // 5분
+const CACHE_DURATION = 30 * 60 * 1000; // 30분으로 연장
 
-// 로컬 스토리지에서 캐시 가져오기
+// 로컬 스토리지에서 캐시 가져오기 (만료되어도 일단 반환, isStale 플래그로 구분)
 const getLocalCache = () => {
     try {
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
             const { data, timestamp } = JSON.parse(cached);
-            if (Date.now() - timestamp < CACHE_DURATION) {
-                return data;
-            }
+            const isStale = Date.now() - timestamp >= CACHE_DURATION;
+            // 만료되어도 데이터가 있으면 반환 (UI 즉시 표시용)
+            return { data, isStale };
         }
     } catch (e) {
         console.log('Cache read error:', e);
@@ -37,8 +37,9 @@ const setLocalCache = (data) => {
 };
 
 export default function Blog() {
-    // 초기 데이터를 캐시에서 먼저 로드
-    const cachedData = getLocalCache();
+    // 초기 데이터를 캐시에서 먼저 로드 (만료되어도 일단 표시)
+    const cacheResult = getLocalCache();
+    const cachedData = cacheResult?.data || null;
     const [posts, setPosts] = useState(cachedData || []);
     const [loading, setLoading] = useState(!cachedData); // 캐시 있으면 로딩 안함
     const [kakaoReady, setKakaoReady] = useState(false);
@@ -200,7 +201,7 @@ export default function Blog() {
 
             {/* 메인 콘텐츠 */}
             <main className="pt-24 pb-16 px-4">
-                <div className="container mx-auto max-w-4xl">
+                <div className="container mx-auto max-w-6xl">
                     {/* 페이지 타이틀 */}
                     <div className="text-center mb-12">
                         <h1 className="text-4xl font-bold text-gray-900 mb-4">블로그</h1>
@@ -215,35 +216,51 @@ export default function Blog() {
                         </div>
                     ) : (
                         <>
-                            {/* 블로그 목록 */}
-                            <div className="space-y-6">
+                            {/* 블로그 카드 그리드 */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {filteredPosts.map(post => (
                                     <article
                                         key={post.id}
-                                        className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6"
+                                        className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:-translate-y-1 overflow-hidden flex flex-col"
                                     >
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex-1">
-                                                <Link to={`/blog/${post.id}`}>
-                                                    <h2 className="text-xl font-bold text-gray-900 hover:text-blue-600 mb-2">
-                                                        {post.title}
-                                                    </h2>
-                                                </Link>
-                                                <p className="text-gray-600 mb-4 line-clamp-2">
-                                                    {post.summary}
-                                                </p>
+                                        {/* 이미지 영역 (이미지가 있는 경우만) */}
+                                        {post.imageUrl && post.imageUrl !== 'https://siminbupjung-blog.web.app/og-image.jpg' && (
+                                            <Link to={`/blog/${post.id}`} className="block">
+                                                <div className="aspect-video overflow-hidden">
+                                                    <img
+                                                        src={post.imageUrl}
+                                                        alt={post.title}
+                                                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                                    />
+                                                </div>
+                                            </Link>
+                                        )}
+
+                                        {/* 콘텐츠 영역 */}
+                                        <div className="p-5 flex flex-col flex-1">
+                                            <Link to={`/blog/${post.id}`}>
+                                                <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 mb-2 line-clamp-2">
+                                                    {post.title}
+                                                </h2>
+                                            </Link>
+                                            <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-1">
+                                                {post.summary}
+                                            </p>
+
+                                            {/* 하단 정보 */}
+                                            <div className="mt-auto">
+                                                <div className="text-xs text-gray-400 mb-3">
+                                                    {post.date} · {post.author}
+                                                </div>
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-sm text-gray-400">
-                                                        {post.date} · {post.author}
-                                                    </span>
-                                                    <div className="flex items-center gap-2">
-                                                        {/* 링크 복사 버튼 (오픈채팅방용) */}
+                                                    <div className="flex items-center gap-1">
+                                                        {/* 링크 복사 버튼 */}
                                                         <button
                                                             onClick={() => handleCopyLink(post)}
-                                                            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                                                            title="링크 복사 (오픈채팅방 공유)"
+                                                            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+                                                            title="링크 복사"
                                                         >
-                                                            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                                             </svg>
                                                         </button>
@@ -251,21 +268,21 @@ export default function Blog() {
                                                         {/* 카카오톡 공유 버튼 */}
                                                         <button
                                                             onClick={() => handleShare(post)}
-                                                            className="p-2 hover:bg-yellow-50 rounded-full transition-colors"
+                                                            className="p-1.5 hover:bg-yellow-50 rounded-full transition-colors"
                                                             title="카카오톡 공유"
                                                         >
-                                                            <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                                                            <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
                                                                 <path d="M12 3c5.799 0 10.5 3.664 10.5 8.185 0 4.52-4.701 8.184-10.5 8.184a13.5 13.5 0 0 1-1.727-.11l-4.408 2.883c-.501.265-.678.236-.472-.413l.892-3.678c-2.88-1.46-4.785-3.99-4.785-6.866C1.5 6.665 6.201 3 12 3zm5.907 8.06l1.47-1.424a.472.472 0 0 0-.656-.678l-1.928 1.866V9.282a.472.472 0 0 0-.944 0v2.557a.471.471 0 0 0 0 .222V13.5a.472.472 0 0 0 .944 0v-1.363l.427-.413 1.428 2.033a.472.472 0 1 0 .773-.543l-1.514-2.155zm-2.958 1.924h-1.46V9.297a.472.472 0 0 0-.943 0v4.159c0 .26.21.472.471.472h1.932a.472.472 0 1 0 0-.944zm-5.857 0h-1.46V9.297a.472.472 0 0 0-.943 0v4.159c0 .26.21.472.471.472h1.932a.472.472 0 1 0 0-.944zm-5.857-1.03h.172l-1.03-2.9c-.093-.261-.44-.197-.44.093l-.001 3.807c0 .26.21.472.471.472h.943a.472.472 0 0 0 0-.944h-.472c.001-.01 0-.018 0-.028v-.5h.028zm7.858-3.754h-1.932a.472.472 0 0 0-.471.472v4.208a.472.472 0 0 0 .943 0v-1.364h1.46a.472.472 0 1 0 0-.944h-1.46v-.928h1.46a.472.472 0 1 0 0-.944z" />
                                                             </svg>
                                                         </button>
-
-                                                        <Link
-                                                            to={`/blog/${post.id}`}
-                                                            className="text-blue-600 text-sm font-medium hover:underline"
-                                                        >
-                                                            자세히 보기 →
-                                                        </Link>
                                                     </div>
+
+                                                    <Link
+                                                        to={`/blog/${post.id}`}
+                                                        className="text-blue-600 text-sm font-medium hover:underline"
+                                                    >
+                                                        자세히 보기 →
+                                                    </Link>
                                                 </div>
                                             </div>
                                         </div>

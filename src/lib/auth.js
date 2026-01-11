@@ -5,7 +5,7 @@ import {
     onAuthStateChanged
 } from 'firebase/auth';
 import { auth, db } from './firebase';
-import { collection, query, where, getDocs, doc, setDoc, getDoc, addDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, setDoc, addDoc } from 'firebase/firestore';
 
 // 카카오 앱 키
 const KAKAO_APP_KEY = '83e843186c1251b9b5a8013fd5f29798';
@@ -104,7 +104,9 @@ export const selectGoogleAccount = async () => {
         console.log('[Auth] Google OAuth 로그인 시작...');
 
         // 현재 URL 저장 (로그인 후 돌아올 위치)
-        sessionStorage.setItem('googleLoginReturnUrl', window.location.pathname);
+        const currentPath = window.location.pathname;
+        console.log('[Auth] 현재 경로 저장:', currentPath);
+        sessionStorage.setItem('googleLoginReturnUrl', currentPath);
         sessionStorage.setItem('googleLoginPending', 'true');
 
         // Google OAuth 페이지로 리다이렉트
@@ -174,6 +176,7 @@ export const checkGoogleRedirectResult = async () => {
 
         // 원래 페이지로 돌아갈 URL
         const returnUrl = sessionStorage.getItem('googleLoginReturnUrl') || '/';
+        console.log('[Auth] 저장된 returnUrl:', returnUrl);
         sessionStorage.removeItem('googleLoginReturnUrl');
 
         // Firebase 로그인은 백그라운드에서 시도 (결과 기다리지 않음)
@@ -303,8 +306,10 @@ export const selectKakaoAccount = () => {
 
         // 모바일에서는 리다이렉트 방식 사용 (팝업 차단 방지)
         if (isMobile()) {
+            const currentPath = window.location.pathname;
+            console.log('[Auth] 카카오 현재 경로 저장:', currentPath);
             sessionStorage.setItem('kakaoLoginPending', 'true');
-            sessionStorage.setItem('kakaoLoginReturnUrl', window.location.pathname);
+            sessionStorage.setItem('kakaoLoginReturnUrl', currentPath);
 
             // SDK v1 리다이렉트 방식 (이메일은 비즈앱만 가능하므로 제외)
             window.Kakao.Auth.authorize({
@@ -454,6 +459,7 @@ export const checkKakaoRedirectResult = async () => {
         sessionStorage.removeItem('kakaoLoginPending');
 
         const returnUrl = sessionStorage.getItem('kakaoLoginReturnUrl') || '/';
+        console.log('[Auth] 카카오 저장된 returnUrl:', returnUrl);
         sessionStorage.removeItem('kakaoLoginReturnUrl');
 
         return {
@@ -660,24 +666,19 @@ const logLogoutActivity = async (userId) => {
 };
 
 // Firestore에 사용자 정보 저장
+// 카카오 로그인 사용자는 Firebase Auth가 없으므로 getDoc 대신 setDoc with merge 사용
 const saveUserToFirestore = async (userData) => {
     try {
         const userRef = doc(db, 'users', userData.uid);
-        const userSnap = await getDoc(userRef);
 
-        if (!userSnap.exists()) {
-            // 새 사용자
-            await setDoc(userRef, {
-                ...userData,
-                createdAt: new Date(),
-                lastLoginAt: new Date()
-            });
-        } else {
-            // 기존 사용자 - 마지막 로그인 시간 업데이트
-            await setDoc(userRef, {
-                lastLoginAt: new Date()
-            }, { merge: true });
-        }
+        // getDoc 대신 setDoc with merge 사용 (read 권한 없이도 동작)
+        // 새 사용자면 모든 필드 생성, 기존 사용자면 lastLoginAt만 업데이트
+        await setDoc(userRef, {
+            ...userData,
+            lastLoginAt: new Date()
+        }, { merge: true });
+
+        console.log('[Auth] 사용자 정보 저장 성공:', userData.uid);
     } catch (error) {
         console.error('사용자 정보 저장 에러:', error);
     }

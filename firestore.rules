@@ -42,9 +42,9 @@ service cloud.firestore {
                     && request.resource.data.title is string
                     && request.resource.data.content is string;
 
-      // 수정: 글 내용(title, content, author, updatedAt, musicUrl) 또는 좋아요(likes, views) 허용
+      // 수정: 글 내용(title, content, author, updatedAt, musicUrl, imageUrl) 또는 좋아요(likes, views) 허용
       allow update: if request.resource.data.diff(resource.data).affectedKeys()
-                       .hasOnly(['title', 'content', 'author', 'updatedAt', 'likes', 'views', 'summary', 'category', 'musicUrl']);
+                       .hasOnly(['title', 'content', 'author', 'updatedAt', 'likes', 'views', 'summary', 'category', 'musicUrl', 'imageUrl']);
 
       allow delete: if false;
 

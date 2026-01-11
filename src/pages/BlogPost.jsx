@@ -336,6 +336,17 @@ export default function BlogPost() {
                         </div>
                     </header>
 
+                    {/* 대표 이미지 */}
+                    {post.imageUrl && post.imageUrl !== 'https://siminbupjung-blog.web.app/og-image.jpg' && (
+                        <div className="mb-8">
+                            <img
+                                src={post.imageUrl}
+                                alt={post.title}
+                                className="w-full rounded-xl shadow-md object-cover max-h-96"
+                            />
+                        </div>
+                    )}
+
                     {/* 본문 */}
                     <div className="bg-white rounded-xl shadow-md p-6 md:p-10 mb-8">
                         <div className="prose prose-lg max-w-none">

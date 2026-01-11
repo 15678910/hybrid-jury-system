@@ -1358,6 +1358,7 @@ exports.blog = functions.https.onRequest(async (req, res) => {
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@siminbupjung" />
     <meta name="twitter:title" content="${title}" />
     <meta name="twitter:description" content="${description}" />
     <meta name="twitter:image" content="${imageUrl}" />
@@ -1530,6 +1531,7 @@ exports.videos = functions.https.onRequest(async (req, res) => {
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@siminbupjung" />
     <meta name="twitter:title" content="${title}" />
     <meta name="twitter:description" content="${description}" />
     <meta name="twitter:image" content="${imageUrl}" />

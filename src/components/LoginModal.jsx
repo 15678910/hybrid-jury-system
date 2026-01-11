@@ -1,6 +1,46 @@
 import { useState } from 'react';
 import { selectGoogleAccount, confirmGoogleLogin, selectKakaoAccount, confirmKakaoLogin } from '../lib/auth';
 
+// WebView(인앱 브라우저) 감지 - Google OAuth가 차단됨 (403 disallowed_useragent)
+const checkIsInAppBrowser = () => {
+    const ua = navigator.userAgent || '';
+
+    // 명시적인 인앱 브라우저 키워드 감지
+    const inAppKeywords = [
+        'KAKAOTALK', 'KAKAO',           // 카카오톡
+        'FBAN', 'FBAV', 'FB_IAB',       // 페이스북
+        'Instagram',                     // 인스타그램
+        'Line',                          // 라인
+        'NAVER', 'BAND',                // 네이버, 밴드
+        'Whale',                         // 네이버 웨일
+        'Twitter', 'TwitterAndroid',    // 트위터/X
+        'MicroMessenger',               // 위챗
+        'DaumApps',                      // 다음앱
+        'GSA',                           // Google Search App
+    ];
+
+    if (inAppKeywords.some(keyword => ua.includes(keyword))) {
+        return true;
+    }
+
+    // iOS WebView 감지 (Safari가 아닌 WebKit)
+    if (/(iPhone|iPod|iPad)/.test(ua) && /AppleWebKit/.test(ua) && !/Safari/.test(ua)) {
+        return true;
+    }
+
+    // Android WebView 감지 (wv 포함)
+    if (/Android/.test(ua) && /wv\)|Version\/[0-9]/.test(ua)) {
+        return true;
+    }
+
+    // standalone 모드 (홈 화면에서 실행된 PWA) - Google OAuth 지원 안 함
+    if (window.navigator.standalone === true) {
+        return true;
+    }
+
+    return false;
+};
+
 // Kakao 아이콘
 const KakaoIcon = () => (
     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -29,7 +69,8 @@ export default function LoginModal({
     setSelectedUser,
     selectedProvider,
     setSelectedProvider,
-    googleLoginInProgress
+    googleLoginInProgress,
+    allowClose = true // 닫기 버튼 허용 여부 (기본값: true)
 }) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -305,15 +346,17 @@ export default function LoginModal({
                 <div className="px-8 pt-8 pb-4">
                     <div className="flex items-center justify-between mb-2">
                         <h2 className="text-2xl font-bold text-gray-900">간편 로그인</h2>
-                        <button
-                            onClick={handleClose}
-                            className="text-gray-400 hover:text-gray-600 transition p-1"
-                            disabled={isLoading}
-                        >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+                        {allowClose && (
+                            <button
+                                onClick={handleClose}
+                                className="text-gray-400 hover:text-gray-600 transition p-1"
+                                disabled={isLoading}
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        )}
                     </div>
                     <p className="text-gray-500 text-sm">
                         소셜 계정으로 간편하게 로그인하세요.
@@ -339,37 +382,29 @@ export default function LoginModal({
                         <span>{isLoading ? '로딩 중...' : '카카오로 계속하기'}</span>
                     </button>
 
-                    {/* Google 로그인 버튼 */}
-                    <button
-                        onClick={handleGoogleClick}
-                        disabled={isLoading}
-                        className="w-full flex items-center justify-center gap-3 px-6 py-4 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition-all disabled:opacity-50"
-                    >
-                        <GoogleIcon />
-                        <span>{isLoading ? '로딩 중...' : 'Google로 계속하기'}</span>
-                    </button>
+                    {/* Google 로그인 버튼 - 인앱 브라우저에서는 숨김 (403 disallowed_useragent 오류 방지) */}
+                    {!checkIsInAppBrowser() && (
+                        <button
+                            onClick={handleGoogleClick}
+                            disabled={isLoading}
+                            className="w-full flex items-center justify-center gap-3 px-6 py-4 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition-all disabled:opacity-50"
+                        >
+                            <GoogleIcon />
+                            <span>{isLoading ? '로딩 중...' : 'Google로 계속하기'}</span>
+                        </button>
+                    )}
+
+                    {/* 인앱 브라우저 안내 메시지 */}
+                    {checkIsInAppBrowser() && (
+                        <p className="text-xs text-gray-500 text-center">
+                            Google 로그인은 외부 브라우저에서 이용 가능합니다.
+                        </p>
+                    )}
                 </div>
 
-                {/* 구분선 */}
-                <div className="px-8">
-                    <div className="flex items-center">
-                        <div className="flex-1 border-t border-gray-200"></div>
-                        <span className="px-4 text-sm text-gray-400">또는</span>
-                        <div className="flex-1 border-t border-gray-200"></div>
-                    </div>
-                </div>
-
-                {/* 로그인 없이 서명하기 */}
+                {/* 개인정보 처리방침 */}
                 <div className="px-8 py-6">
-                    <button
-                        onClick={handleClose}
-                        disabled={isLoading}
-                        className="w-full py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition disabled:opacity-50"
-                    >
-                        로그인 없이 서명하기
-                    </button>
-
-                    <p className="mt-4 text-xs text-gray-400 text-center">
+                    <p className="text-xs text-gray-400 text-center">
                         시민법정의 <a href="/privacy" target="_blank" className="text-blue-600 hover:underline">개인정보 처리방침</a>을 확인하세요.
                     </p>
                 </div>
