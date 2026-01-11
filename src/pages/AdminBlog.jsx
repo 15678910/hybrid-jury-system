@@ -15,7 +15,8 @@ import {
     startAfter
 } from 'firebase/firestore';
 
-import { db } from '../lib/firebase';
+import { db, storage } from '../lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Header from '../components/Header';
 
 // 세션 캐시 (인증 후 빠른 로딩)
@@ -71,8 +72,8 @@ export default function AdminBlog() {
         }
     };
 
-    // 이미지 압축 및 Base64 변환 함수
-    const compressImageToBase64 = (file) => {
+    // 이미지 압축 함수 (Blob 반환)
+    const compressImage = (file) => {
         return new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -97,10 +98,11 @@ export default function AdminBlog() {
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Base64로 변환 (품질 70%)
-                    const base64 = canvas.toDataURL('image/jpeg', 0.7);
-                    console.log('압축 후 크기:', Math.round(base64.length / 1024), 'KB');
-                    resolve(base64);
+                    // Blob으로 변환 (품질 70%)
+                    canvas.toBlob((blob) => {
+                        console.log('압축 후 크기:', Math.round(blob.size / 1024), 'KB');
+                        resolve(blob);
+                    }, 'image/jpeg', 0.7);
                 };
                 img.src = e.target.result;
             };
@@ -108,9 +110,19 @@ export default function AdminBlog() {
         });
     };
 
-    // 이미지 처리 함수 (Base64 반환) - Storage 대신 직접 저장
+    // 이미지를 Firebase Storage에 업로드하고 공개 URL 반환
     const uploadImage = async (file) => {
-        return await compressImageToBase64(file);
+        const compressedBlob = await compressImage(file);
+        const fileName = `blog_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
+        const storageRef = ref(storage, `blog-images/${fileName}`);
+
+        await uploadBytes(storageRef, compressedBlob, {
+            contentType: 'image/jpeg'
+        });
+
+        const downloadURL = await getDownloadURL(storageRef);
+        console.log('이미지 업로드 완료:', downloadURL);
+        return downloadURL;
     };
 
     // 작성자 코드 검증

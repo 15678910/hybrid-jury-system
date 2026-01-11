@@ -239,7 +239,7 @@ export default function BlogPost() {
                     content: {
                         title: post.title,
                         description: description,
-                        imageUrl: 'https://xn--lg3b0kt4n41f.kr/og-image.jpg',
+                        imageUrl: post.imageUrl || 'https://xn--lg3b0kt4n41f.kr/og-image.jpg',
                         link: {
                             mobileWebUrl: postUrl,
                             webUrl: postUrl,
