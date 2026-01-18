@@ -1,46 +1,62 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import App from './App.jsx'
-import Admin from './Admin.jsx'
-import HybridChat from './pages/HybridChat'
-import FAQTest from './pages/FAQTest'
-import Blog from './pages/Blog'
-import BlogPost from './pages/BlogPost'
-import AdminBlog from './pages/AdminBlog'
-import Videos from './pages/Videos'
-import AdminVideos from './pages/AdminVideos'
-import PrivacyPolicy from './pages/PrivacyPolicy'
-import TermsOfService from './pages/TermsOfService'
-import Governance from './pages/Governance'
-import GovernanceAdmin from './pages/GovernanceAdmin'
-import Donate from './pages/Donate'
-import EuropeJurySystem from './pages/EuropeJurySystem'
-import FloatingChat from './CozeFloatingChat'
 import './index.css'
+
+// 홈페이지는 즉시 로드 (사용자가 가장 먼저 보는 페이지)
+import App from './App.jsx'
+
+// 나머지 페이지는 필요할 때 로드 (코드 분할)
+const Admin = lazy(() => import('./Admin.jsx'))
+const HybridChat = lazy(() => import('./pages/HybridChat'))
+const FAQTest = lazy(() => import('./pages/FAQTest'))
+const Blog = lazy(() => import('./pages/Blog'))
+const BlogPost = lazy(() => import('./pages/BlogPost'))
+const AdminBlog = lazy(() => import('./pages/AdminBlog'))
+const Videos = lazy(() => import('./pages/Videos'))
+const AdminVideos = lazy(() => import('./pages/AdminVideos'))
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
+const TermsOfService = lazy(() => import('./pages/TermsOfService'))
+const Governance = lazy(() => import('./pages/Governance'))
+const GovernanceAdmin = lazy(() => import('./pages/GovernanceAdmin'))
+const Donate = lazy(() => import('./pages/Donate'))
+const EuropeJurySystem = lazy(() => import('./pages/EuropeJurySystem'))
+const FloatingChat = lazy(() => import('./CozeFloatingChat'))
+
+// 로딩 컴포넌트
+const PageLoader = () => (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+            <div className="inline-block w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-gray-500">페이지를 불러오는 중...</p>
+        </div>
+    </div>
+)
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/blog/admin" element={<AdminBlog />} />
-        <Route path="/videos/admin" element={<AdminVideos />} />
-        <Route path="/chat" element={<HybridChat />} />
-        <Route path="/faq-test" element={<FAQTest />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:id" element={<BlogPost />} />
-        <Route path="/videos" element={<Videos />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="/governance" element={<Governance />} />
-        <Route path="/governance/admin" element={<GovernanceAdmin />} />
-        <Route path="/donate" element={<Donate />} />
-        <Route path="/europe-jury" element={<EuropeJurySystem />} />
-      </Routes>
-      {/* 모든 페이지에서 보이는 플로팅 챗봇 */}
-      <FloatingChat />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/blog/admin" element={<AdminBlog />} />
+          <Route path="/videos/admin" element={<AdminVideos />} />
+          <Route path="/chat" element={<HybridChat />} />
+          <Route path="/faq-test" element={<FAQTest />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:id" element={<BlogPost />} />
+          <Route path="/videos" element={<Videos />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/governance" element={<Governance />} />
+          <Route path="/governance/admin" element={<GovernanceAdmin />} />
+          <Route path="/donate" element={<Donate />} />
+          <Route path="/europe-jury" element={<EuropeJurySystem />} />
+        </Routes>
+        {/* 모든 페이지에서 보이는 플로팅 챗봇 */}
+        <FloatingChat />
+      </Suspense>
     </BrowserRouter>
   </React.StrictMode>,
 )

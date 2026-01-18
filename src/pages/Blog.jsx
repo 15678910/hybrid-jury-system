@@ -116,7 +116,7 @@ export default function Blog() {
 
             const newPosts = [...posts, ...morePosts];
             setPosts(newPosts);
-            postsCache.data = newPosts; // 캐시 업데이트
+            setLocalCache(newPosts); // 캐시 업데이트
             setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
             setHasMore(querySnapshot.docs.length >= POSTS_PER_PAGE);
         } catch (error) {

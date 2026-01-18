@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { selectGoogleAccount, confirmGoogleLogin, selectKakaoAccount, confirmKakaoLogin } from '../lib/auth';
+import { KakaoIcon } from './icons';
 
 // WebView(인앱 브라우저) 감지 - Google OAuth가 차단됨 (403 disallowed_useragent)
 const checkIsInAppBrowser = () => {
@@ -40,13 +41,6 @@ const checkIsInAppBrowser = () => {
 
     return false;
 };
-
-// Kakao 아이콘
-const KakaoIcon = () => (
-    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 3C6.48 3 2 6.58 2 11c0 2.84 1.89 5.33 4.71 6.73l-.96 3.57c-.07.27.2.5.45.38l4.27-2.43c.49.05 1 .08 1.53.08 5.52 0 10-3.58 10-8s-4.48-8-10-8z" />
-    </svg>
-);
 
 // Google 아이콘
 const GoogleIcon = () => (
