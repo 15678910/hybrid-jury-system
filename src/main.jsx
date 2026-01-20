@@ -15,8 +15,9 @@ const BlogPost = lazy(() => import('./pages/BlogPost'))
 const AdminBlog = lazy(() => import('./pages/AdminBlog'))
 const Videos = lazy(() => import('./pages/Videos'))
 const AdminVideos = lazy(() => import('./pages/AdminVideos'))
-const CardNews = lazy(() => import('./pages/CardNews'))
-const AdminCardNews = lazy(() => import('./pages/AdminCardNews'))
+// 카드뉴스 임시 비활성화
+// const CardNews = lazy(() => import('./pages/CardNews'))
+// const AdminCardNews = lazy(() => import('./pages/AdminCardNews'))
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
 const TermsOfService = lazy(() => import('./pages/TermsOfService'))
 const Governance = lazy(() => import('./pages/Governance'))
@@ -49,8 +50,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:id" element={<BlogPost />} />
           <Route path="/videos" element={<Videos />} />
-          <Route path="/cardnews" element={<CardNews />} />
-          <Route path="/cardnews/admin" element={<AdminCardNews />} />
+          {/* 카드뉴스 임시 비활성화 */}
+          {/* <Route path="/cardnews" element={<CardNews />} /> */}
+          {/* <Route path="/cardnews/admin" element={<AdminCardNews />} /> */}
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/governance" element={<Governance />} />
