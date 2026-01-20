@@ -76,6 +76,25 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // cardnews 컬렉션: 카드뉴스
+    match /cardnews/{cardId} {
+      // 읽기: 모든 사용자 허용 (공개 카드뉴스)
+      allow read: if true;
+
+      // 생성: 필수 필드 검증
+      allow create: if request.resource.data.keys().hasAll(['title', 'images'])
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() > 0
+                    && request.resource.data.images is list;
+
+      // 수정: 제목, 설명, 카테고리, 이미지 필드 업데이트 허용
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly(['title', 'description', 'category', 'images', 'updatedAt']);
+
+      // 삭제: 관리자 페이지에서 코드 검증 후 삭제 허용
+      allow delete: if true;
+    }
+
     // 의제별 투표 컬렉션 (법왜곡죄, 내란전담재판부, 시민법관참심제)
     // 문서 ID = 사용자 UID로 중복 투표 방지
     match /votes_lawDistortion/{oderId} {

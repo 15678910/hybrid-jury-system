@@ -749,7 +749,21 @@ export default function App() {
                 setIsDailyLimitReached(true);
             }
 
-            alert('✅ 지지 서명이 등록되었습니다!');
+            // 현재 참여자 수 계산
+            const newTotal = stats.total + 1;
+            const remaining = 10000 - newTotal;
+
+            // 감사 메시지 (목표까지 남은 인원 표시)
+            const thankYouMessage = remaining > 0
+                ? `🎉 ${formData.name}님, 서명 감사합니다!\n\n` +
+                  `현재 ${newTotal.toLocaleString()}명이 참여했습니다.\n` +
+                  `1만 명 목표까지 ${remaining.toLocaleString()}명 남았습니다!\n\n` +
+                  `📢 SNS에 공유하여 더 많은 분들의 참여를 이끌어주세요!`
+                : `🎉 ${formData.name}님, 서명 감사합니다!\n\n` +
+                  `🎊 드디어 1만 명 목표를 달성했습니다!\n` +
+                  `함께해주신 모든 분들께 진심으로 감사드립니다!`;
+
+            alert(thankYouMessage);
         } catch (error) {
             console.error('Error saving signature:', error);
             alert('서명 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
@@ -889,6 +903,12 @@ export default function App() {
                                         >
                                             동영상
                                         </Link>
+                                        <Link
+                                            to="/cardnews"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                        >
+                                            카드뉴스
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
@@ -993,6 +1013,13 @@ export default function App() {
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
                                 >
                                     동영상
+                                </Link>
+                                <Link
+                                    to="/cardnews"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    카드뉴스
                                 </Link>
                             </div>
 
@@ -1925,7 +1952,7 @@ export default function App() {
             {/* 실시간 현황 */}
             <section id="stats" className="py-20 px-4 bg-white">
                 <div className="container mx-auto">
-                    <div className="flex justify-between items-center mb-12 max-w-4xl mx-auto">
+                    <div className="flex justify-between items-center mb-8 max-w-4xl mx-auto">
                         <h2 className="text-3xl md:text-4xl font-bold">실시간 참가 현황</h2>
                         {isAdmin && (
                             <button
@@ -1935,6 +1962,70 @@ export default function App() {
                                 📊 엑셀 다운로드
                             </button>
                         )}
+                    </div>
+
+                    {/* 1만 명 목표 캠페인 */}
+                    <div className="max-w-4xl mx-auto mb-12">
+                        <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl p-8 text-white shadow-xl">
+                            <div className="text-center mb-6">
+                                <h3 className="text-2xl md:text-3xl font-bold mb-2">🎯 1만 명 서명 캠페인</h3>
+                                <p className="text-white/80">온라인 준비위원 1만 명이 참여하면 광장에서 주권자 세상이 시작됩니다!</p>
+                            </div>
+
+                            {/* 진행률 바 */}
+                            <div className="mb-4">
+                                <div className="flex justify-between text-sm mb-2">
+                                    <span>현재 {stats.total.toLocaleString()}명 참여</span>
+                                    <span>목표 10,000명</span>
+                                </div>
+                                <div className="w-full bg-white/30 rounded-full h-6 overflow-hidden">
+                                    <div
+                                        className="bg-white h-full rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
+                                        style={{ width: `${Math.min((stats.total / 10000) * 100, 100)}%` }}
+                                    >
+                                        {stats.total >= 100 && (
+                                            <span className="text-red-600 text-xs font-bold">{((stats.total / 10000) * 100).toFixed(1)}%</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 단계별 목표 */}
+                            <div className="grid grid-cols-4 gap-2 text-center text-xs mb-6">
+                                <div className={`p-2 rounded ${stats.total >= 1000 ? 'bg-white/30' : 'bg-white/10'}`}>
+                                    <div className="font-bold">1,000명</div>
+                                    <div className="text-white/70">1단계</div>
+                                </div>
+                                <div className={`p-2 rounded ${stats.total >= 3000 ? 'bg-white/30' : 'bg-white/10'}`}>
+                                    <div className="font-bold">3,000명</div>
+                                    <div className="text-white/70">2단계</div>
+                                </div>
+                                <div className={`p-2 rounded ${stats.total >= 5000 ? 'bg-white/30' : 'bg-white/10'}`}>
+                                    <div className="font-bold">5,000명</div>
+                                    <div className="text-white/70">3단계</div>
+                                </div>
+                                <div className={`p-2 rounded ${stats.total >= 10000 ? 'bg-white/30' : 'bg-white/10'}`}>
+                                    <div className="font-bold">10,000명</div>
+                                    <div className="text-white/70">최종목표</div>
+                                </div>
+                            </div>
+
+                            {/* 참여 독려 메시지 */}
+                            <div className="text-center">
+                                <p className="text-lg font-medium">
+                                    {stats.total < 1000
+                                        ? `🔥 1단계 달성까지 ${(1000 - stats.total).toLocaleString()}명 남았습니다!`
+                                        : stats.total < 3000
+                                        ? `🔥 2단계 달성까지 ${(3000 - stats.total).toLocaleString()}명 남았습니다!`
+                                        : stats.total < 5000
+                                        ? `🔥 3단계 달성까지 ${(5000 - stats.total).toLocaleString()}명 남았습니다!`
+                                        : stats.total < 10000
+                                        ? `🔥 최종 목표까지 ${(10000 - stats.total).toLocaleString()}명 남았습니다!`
+                                        : `🎉 목표 달성! 함께해주셔서 감사합니다!`
+                                    }
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     {/* 통계 */}
