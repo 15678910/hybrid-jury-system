@@ -903,12 +903,6 @@ export default function App() {
                                         >
                                             동영상
                                         </Link>
-                                        <Link
-                                            to="/cardnews"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                        >
-                                            카드뉴스
-                                        </Link>
                                     </div>
                                 </div>
                             </div>
@@ -1013,13 +1007,6 @@ export default function App() {
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
                                 >
                                     동영상
-                                </Link>
-                                <Link
-                                    to="/cardnews"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    카드뉴스
                                 </Link>
                             </div>
 
