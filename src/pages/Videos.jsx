@@ -76,16 +76,16 @@ export default function Videos() {
     // 공유된 동영상 모달로 표시
     useEffect(() => {
         if (sharedVideoId && !loading) {
-            // 동영상 정보 찾기
+            // 동영상 정보 찾기 (로드된 목록에서)
             const sharedVideo = videos.find(v => {
                 const vId = v.videoId || extractYouTubeId(v.url);
                 return vId === sharedVideoId;
             });
-            if (sharedVideo) {
-                setModalVideoId(sharedVideoId);
-                setModalVideoTitle(sharedVideo.title);
-                setShowVideoModal(true);
-            }
+
+            // 목록에 있든 없든 모달 열기 (더보기로 가려진 동영상도 재생 가능)
+            setModalVideoId(sharedVideoId);
+            setModalVideoTitle(sharedVideo?.title || '동영상');
+            setShowVideoModal(true);
         }
     }, [sharedVideoId, loading, videos]);
 
@@ -169,7 +169,9 @@ export default function Videos() {
 
     const shareToTwitter = (video, videoId) => {
         const videoUrl = `https://youtu.be/${videoId}`;
-        const tweetText = `${video.title}\n\n#시민법정 #참심제 #사법개혁`;
+        // 중복 트윗 방지를 위해 날짜 추가
+        const today = new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
+        const tweetText = `${video.title} (${today})\n\n#시민법정 #참심제 #사법개혁`;
         window.open(
             `https://twitter.com/intent/tweet?url=${encodeURIComponent(videoUrl)}&text=${encodeURIComponent(tweetText)}`,
             '_blank',
@@ -188,6 +190,7 @@ export default function Videos() {
         const videoUrl = `https://youtu.be/${videoId}`;
         navigator.clipboard.writeText(`${video.title} ${videoUrl}`);
         alert('텍스트가 복사되었습니다!\n인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
+        window.open('https://www.instagram.com/', '_blank');
     };
 
     const shareToTelegram = (video, videoId) => {
