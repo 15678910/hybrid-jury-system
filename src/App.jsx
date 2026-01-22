@@ -1132,6 +1132,33 @@ export default function App() {
                         </div>
                     </div>
                 </div>
+
+                {/* 모바일용 세계 뉴스 - lg 미만에서만 표시 */}
+                <div className="lg:hidden container mx-auto px-4 pb-8">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                        <h3 className="text-sm font-bold mb-3 text-yellow-300">📰 세계 시민법관 뉴스</h3>
+                        {worldNews.length > 0 ? (
+                            <ul className="space-y-2">
+                                {worldNews.slice(0, 5).map((item, index) => (
+                                    <li key={index}>
+                                        <a
+                                            href={item.link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block text-xs hover:text-yellow-300 transition"
+                                        >
+                                            <span className="mr-1">{item.flag}</span>
+                                            <span className="line-clamp-1">{cleanTitle(item.title)}</span>
+                                            <span className="text-white/60 text-[10px] ml-1">{formatDate(item.pubDate)}</span>
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-xs text-white/60">뉴스를 불러오는 중...</p>
+                        )}
+                    </div>
+                </div>
             </section>
 
             {/* 국민 동의 */}
@@ -1166,7 +1193,7 @@ export default function App() {
                             </div>
 
                             <div className="bg-green-50 p-6 rounded-lg">
-                                <h3 className="font-bold text-lg mb-2">이제는 '혼합형 참심제'</h3>
+                                <h3 className="font-bold text-lg mb-2">이제는 '참심제'</h3>
                                 <p className="text-gray-700 text-sm">
                                     직업 법관과 시민법관이 '함께' 평의하고 '동등하게' 판결하는 진정한 시민 참여를 실현합니다.
                                 </p>

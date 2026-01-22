@@ -51,8 +51,8 @@ const fetchRssFeed = async (region) => {
             return [];
         }
 
-        // 뉴스 아이템 가공
-        return data.items.slice(0, 3).map(item => ({
+        // 뉴스 아이템 가공 (날짜순 정렬 후 최신 3개)
+        const items = data.items.map(item => ({
             title: item.title,
             link: item.link,
             pubDate: item.pubDate,
@@ -61,6 +61,8 @@ const fetchRssFeed = async (region) => {
             regionLabel: feed.label,
             flag: feed.flag
         }));
+        items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+        return items.slice(0, 3);
     } catch (error) {
         console.error(`[News] 뉴스 가져오기 실패 (${region}):`, error);
         return [];
