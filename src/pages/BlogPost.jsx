@@ -250,7 +250,9 @@ export default function BlogPost() {
     };
 
     const shareToTwitter = () => {
-        const tweetText = `${postText}\n\n#시민법정 #참심제 #사법개혁`;
+        // 중복 트윗 방지를 위해 날짜 추가
+        const today = new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
+        const tweetText = `${postText} (${today})\n\n#시민법정 #참심제 #사법개혁`;
         window.open(
             `https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(tweetText)}`,
             '_blank',
@@ -321,54 +323,32 @@ export default function BlogPost() {
 
                     {/* 본문 */}
                     <div className="bg-white rounded-xl shadow-md p-6 md:p-10 mb-8">
-                        <div className="prose prose-lg max-w-none">
-                            {post.content.split('\n').map((line, index) => {
-                                // 링크 변환 함수: [텍스트](URL) 또는 URL 자체를 링크로 변환
-                                const renderWithLinks = (text) => {
-                                    // 마크다운 링크 [텍스트](URL) 패턴 - 괄호 안의 URL을 더 정확하게 매칭
-                                    const markdownLinkRegex = /\[([^\]]+)\]\(([^)\s]+)\)/g;
-                                    // URL 패턴 (마크다운 링크가 아닌 경우)
-                                    const urlRegex = /(https?:\/\/[^\s<]+)/g;
+                        {/* HTML 콘텐츠 (Quill 에디터) 또는 일반 텍스트 렌더링 */}
+                        {post.content.trim().startsWith('<') ? (
+                            // HTML 콘텐츠 (리치 텍스트 에디터로 작성된 글)
+                            <div
+                                className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700"
+                                dangerouslySetInnerHTML={{ __html: post.content }}
+                            />
+                        ) : (
+                            // 일반 텍스트 (기존 글 호환)
+                            <div className="prose prose-lg max-w-none">
+                                {post.content.split('\n').map((line, index) => {
+                                    // URL을 링크로 변환
+                                    const renderWithLinks = (text) => {
+                                        const urlRegex = /(https?:\/\/[^\s<]+)/g;
+                                        const parts = [];
+                                        let lastIndex = 0;
+                                        const matches = [...text.matchAll(urlRegex)];
 
-                                    // 먼저 마크다운 링크를 처리
-                                    let parts = [];
-                                    let lastIndex = 0;
+                                        if (matches.length === 0) return text;
 
-                                    // 마크다운 링크 찾기
-                                    const mdMatches = [...text.matchAll(markdownLinkRegex)];
-
-                                    if (mdMatches.length > 0) {
-                                        mdMatches.forEach((m, i) => {
-                                            // 링크 이전 텍스트
-                                            if (m.index > lastIndex) {
-                                                parts.push(text.slice(lastIndex, m.index));
-                                            }
-                                            // 링크
-                                            parts.push(
-                                                <a key={`md-${i}`} href={m[2]} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                                                    {m[1]}
-                                                </a>
-                                            );
-                                            lastIndex = m.index + m[0].length;
-                                        });
-                                        // 나머지 텍스트
-                                        if (lastIndex < text.length) {
-                                            parts.push(text.slice(lastIndex));
-                                        }
-                                        return parts;
-                                    }
-
-                                    // 마크다운 링크가 없으면 일반 URL 처리
-                                    lastIndex = 0;
-                                    const urlMatches = [...text.matchAll(urlRegex)];
-
-                                    if (urlMatches.length > 0) {
-                                        urlMatches.forEach((m, i) => {
+                                        matches.forEach((m, i) => {
                                             if (m.index > lastIndex) {
                                                 parts.push(text.slice(lastIndex, m.index));
                                             }
                                             parts.push(
-                                                <a key={`url-${i}`} href={m[0]} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                                <a key={i} href={m[0]} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                                                     {m[0]}
                                                 </a>
                                             );
@@ -378,26 +358,13 @@ export default function BlogPost() {
                                             parts.push(text.slice(lastIndex));
                                         }
                                         return parts;
-                                    }
+                                    };
 
-                                    return text;
-                                };
-
-                                if (line.startsWith('## ')) {
-                                    return <h2 key={index} className="text-xl font-bold text-gray-900 mt-6 mb-3">{renderWithLinks(line.replace('## ', ''))}</h2>;
-                                }
-                                if (line.startsWith('- ')) {
-                                    return <li key={index} className="text-gray-700 ml-4">{renderWithLinks(line.replace('- ', ''))}</li>;
-                                }
-                                if (line.match(/^\d+\./)) {
-                                    return <li key={index} className="text-gray-700 ml-4 list-disc">{renderWithLinks(line.replace(/^\d+\.\s*/, ''))}</li>;
-                                }
-                                if (line.trim() === '') {
-                                    return <br key={index} />;
-                                }
-                                return <p key={index} className="text-gray-700 mb-4 leading-relaxed">{renderWithLinks(line)}</p>;
-                            })}
-                        </div>
+                                    if (line.trim() === '') return <br key={index} />;
+                                    return <p key={index} className="text-gray-700 mb-4 leading-relaxed">{renderWithLinks(line)}</p>;
+                                })}
+                            </div>
+                        )}
                     </div>
 
                     {/* 참여 안내 */}

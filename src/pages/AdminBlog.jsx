@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import {
     collection,
     query,
@@ -483,13 +485,29 @@ export default function AdminBlog() {
                                         placeholder="요약 (선택사항 - 목록에 표시됨)"
                                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     />
-                                    <textarea
-                                        value={newPost.content}
-                                        onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-                                        placeholder="내용"
-                                        rows={12}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
+                                    <div className="quill-wrapper">
+                                        <ReactQuill
+                                            theme="snow"
+                                            value={newPost.content}
+                                            onChange={(value) => setNewPost({ ...newPost, content: value })}
+                                            placeholder="내용을 입력하세요..."
+                                            modules={{
+                                                toolbar: [
+                                                    [{ 'header': [1, 2, false] }],
+                                                    ['bold', 'italic', 'underline'],
+                                                    [{ 'background': ['yellow', '#90EE90', '#98FB98', '#FFDAB9', 'cyan', 'white'] }],
+                                                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                                    ['link'],
+                                                    ['clean']
+                                                ]
+                                            }}
+                                            style={{ minHeight: '300px' }}
+                                        />
+                                    </div>
+                                    <style>{`
+                                        .quill-wrapper .ql-container { min-height: 250px; font-size: 16px; }
+                                        .quill-wrapper .ql-editor { min-height: 250px; }
+                                    `}</style>
 
                                     {/* 대표 이미지 업로드 */}
                                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
@@ -567,13 +585,25 @@ export default function AdminBlog() {
                                                 placeholder="작성자"
                                                 className="w-1/3 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
-                                            <textarea
-                                                value={editForm.content}
-                                                onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
-                                                placeholder="내용"
-                                                rows={12}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
+                                            <div className="quill-wrapper">
+                                                <ReactQuill
+                                                    theme="snow"
+                                                    value={editForm.content}
+                                                    onChange={(value) => setEditForm({ ...editForm, content: value })}
+                                                    placeholder="내용을 입력하세요..."
+                                                    modules={{
+                                                        toolbar: [
+                                                            [{ 'header': [1, 2, false] }],
+                                                            ['bold', 'italic', 'underline'],
+                                                            [{ 'background': ['yellow', '#90EE90', '#98FB98', '#FFDAB9', 'cyan', 'white'] }],
+                                                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                                            ['link'],
+                                                            ['clean']
+                                                        ]
+                                                    }}
+                                                    style={{ minHeight: '300px' }}
+                                                />
+                                            </div>
 
                                             {/* 대표 이미지 수정 */}
                                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
