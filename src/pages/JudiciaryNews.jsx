@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { collection, query, orderBy, where, getDocs, limit, startAfter } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, limit, startAfter } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 
@@ -48,22 +48,21 @@ export default function JudiciaryNews() {
                 const postsRef = collection(db, 'posts');
                 const q = query(
                     postsRef,
-                    where('category', '==', '사법뉴스'),
-                    orderBy('createdAt', 'desc'),
-                    limit(POSTS_PER_PAGE)
+                    orderBy('createdAt', 'desc')
                 );
                 const querySnapshot = await getDocs(q);
 
-                const firestorePosts = querySnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
-                }));
+                const firestorePosts = querySnapshot.docs
+                    .filter(doc => doc.data().category === '사법뉴스')
+                    .map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
+                    }));
 
                 setLocalCache(firestorePosts);
                 setPosts(firestorePosts);
-                setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
-                setHasMore(querySnapshot.docs.length >= POSTS_PER_PAGE);
+                setHasMore(false);
             } catch (error) {
                 console.error('Error fetching news:', error);
                 if (!cachedData) setPosts([]);
@@ -128,13 +127,6 @@ export default function JudiciaryNews() {
                     <div className="text-center mb-12">
                         <h1 className="text-4xl font-bold text-gray-900 mb-4">📰 사법뉴스</h1>
                         <p className="text-gray-600">매일 자동 수집되는 사법 관련 주요 뉴스</p>
-                        <div className="flex flex-wrap justify-center gap-2 mt-4">
-                            {['검찰개혁', '법원개혁', '사법개혁', '참심제', '국민참여재판', '공수처', '대법관', '헌법재판소'].map(tag => (
-                                <span key={tag} className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
-                                    #{tag}
-                                </span>
-                            ))}
-                        </div>
                     </div>
 
                     {/* 로딩 상태 */}

@@ -126,7 +126,7 @@ export default function Blog() {
         }
     };
 
-    const filteredPosts = posts;
+    const filteredPosts = posts.filter(post => post.category !== '사법뉴스');
 
     // ⚠️ 수정금지: SNS 공유 URL - 영문 도메인 사용 (한글 도메인 인코딩 문제 방지)
     // URL 복사 함수 (오픈채팅방 공유용)
@@ -238,11 +238,6 @@ export default function Blog() {
 
                                         {/* 콘텐츠 영역 */}
                                         <div className="p-5 flex flex-col flex-1">
-                                            {post.category === '사법뉴스' && (
-                                                <span className="inline-block w-fit px-2 py-0.5 bg-red-100 text-red-700 text-xs font-semibold rounded mb-2">
-                                                    📰 사법뉴스
-                                                </span>
-                                            )}
                                             <Link to={`/blog/${post.id}`}>
                                                 <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 mb-2 line-clamp-2">
                                                     {post.title}
