@@ -177,7 +177,7 @@ export default function Blog() {
                     },
                     buttons: [
                         {
-                            title: '자세히 보기',
+                            title: '더 보기',
                             link: {
                                 mobileWebUrl: postUrl,
                                 webUrl: postUrl,
@@ -238,13 +238,18 @@ export default function Blog() {
 
                                         {/* 콘텐츠 영역 */}
                                         <div className="p-5 flex flex-col flex-1">
+                                            {post.category === '사법뉴스' && (
+                                                <span className="inline-block w-fit px-2 py-0.5 bg-red-100 text-red-700 text-xs font-semibold rounded mb-2">
+                                                    📰 사법뉴스
+                                                </span>
+                                            )}
                                             <Link to={`/blog/${post.id}`}>
                                                 <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 mb-2 line-clamp-2">
                                                     {post.title}
                                                 </h2>
                                             </Link>
-                                            <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-1">
-                                                {post.summary}
+                                            <p className="text-gray-600 text-sm mb-4 line-clamp-4 flex-1">
+                                                {post.summary || (post.content ? post.content.replace(/<[^>]*>/g, '').slice(0, 200) : '')}
                                             </p>
 
                                             {/* 하단 정보 */}
@@ -281,7 +286,7 @@ export default function Blog() {
                                                         to={`/blog/${post.id}`}
                                                         className="text-blue-600 text-sm font-medium hover:underline"
                                                     >
-                                                        자세히 보기 →
+                                                        더 보기 →
                                                     </Link>
                                                 </div>
                                             </div>

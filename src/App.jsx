@@ -892,6 +892,12 @@ export default function App() {
                                 <div className={`absolute top-full left-0 mt-0 pt-2 ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
                                     <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px] z-50">
                                         <Link
+                                            to="/news"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                        >
+                                            사법뉴스
+                                        </Link>
+                                        <Link
                                             to="/blog"
                                             className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                         >
@@ -994,6 +1000,13 @@ export default function App() {
                             {/* 모바일 미디어 서브메뉴 */}
                             <div className="border-t border-gray-200 pt-2 mt-2">
                                 <div className="px-4 py-2 text-gray-500 text-sm font-medium">미디어</div>
+                                <Link
+                                    to="/news"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    사법뉴스
+                                </Link>
                                 <Link
                                     to="/blog"
                                     onClick={() => setMobileMenuOpen(false)}

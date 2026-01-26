@@ -438,7 +438,7 @@ export default function Videos() {
                                     <button
                                         onClick={loadMore}
                                         disabled={loadingMore}
-                                        className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 transition-colors"
+                                        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
                                     >
                                         {loadingMore ? (
                                             <span className="flex items-center gap-2">

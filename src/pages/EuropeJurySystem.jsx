@@ -619,7 +619,7 @@ export default function EuropeJurySystem() {
 
                                     <div className="mt-4 text-center">
                                         <span className="text-blue-600 text-sm">
-                                            {selectedCountry === index ? '접기 ▲' : '자세히 보기 ▼'}
+                                            {selectedCountry === index ? '접기 ▲' : '더 보기 ▼'}
                                         </span>
                                     </div>
                                 </div>

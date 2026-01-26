@@ -87,7 +87,7 @@ export default function CardNews() {
                     },
                     buttons: [
                         {
-                            title: '자세히 보기',
+                            title: '더 보기',
                             link: {
                                 mobileWebUrl: cardUrl,
                                 webUrl: cardUrl,

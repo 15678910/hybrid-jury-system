@@ -42,7 +42,7 @@ export default function ConsentCheckbox({ consents, onChange, showMarketing = fa
                         className="text-blue-600 hover:text-blue-800 underline"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        (자세히 보기)
+                        (더 보기)
                     </Link>
                 </span>
             </label>
@@ -64,7 +64,7 @@ export default function ConsentCheckbox({ consents, onChange, showMarketing = fa
                         className="text-blue-600 hover:text-blue-800 underline"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        (자세히 보기)
+                        (더 보기)
                     </Link>
                 </span>
             </label>

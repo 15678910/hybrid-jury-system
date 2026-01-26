@@ -1457,6 +1457,206 @@ exports.kakaoToken = functions.https.onRequest(async (req, res) => {
 });
 
 // ============================================
+// 사법 뉴스 자동 수집 (2일마다 실행)
+// ============================================
+
+const NEWS_KEYWORDS = [
+    '검찰개혁', '법원개혁', '사법개혁', '참심제',
+    '국민참여재판', '배심원제', '사법민주화', '법관인사',
+    '검찰수사권', '공수처', '국가수사본부', '전담재판부',
+    '중수청', '공소청', '대법관', '헌법재판소'
+];
+
+const RSS2JSON_API = 'https://api.rss2json.com/v1/api.json';
+
+// 뉴스 제목에서 출처 추출 (Google News: "제목 - 출처" 형식)
+const extractNewsSource = (title) => {
+    const parts = title.split(' - ');
+    return parts.length > 1 ? parts[parts.length - 1].trim() : '';
+};
+
+// 뉴스 제목에서 출처 제거
+const cleanNewsTitle = (title) => {
+    const parts = title.split(' - ');
+    return parts.length > 1 ? parts.slice(0, -1).join(' - ').trim() : title;
+};
+
+// 날짜 포맷팅
+const formatNewsDate = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.getMonth() + 1}/${date.getDate()}`;
+};
+
+// 키워드별 뉴스 수집
+const fetchNewsForKeyword = async (keyword) => {
+    try {
+        const googleNewsUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(keyword)}&hl=ko&gl=KR&ceid=KR:ko`;
+        const url = `${RSS2JSON_API}?rss_url=${encodeURIComponent(googleNewsUrl)}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status === 'ok' && data.items) {
+            return data.items.slice(0, 3).map(item => ({
+                title: cleanNewsTitle(item.title),
+                link: item.link,
+                pubDate: item.pubDate,
+                source: extractNewsSource(item.title),
+                keyword: keyword
+            }));
+        }
+    } catch (error) {
+        console.error(`Error fetching news for "${keyword}":`, error);
+    }
+    return [];
+};
+
+// URL 기준 중복 제거
+const deduplicateNews = (newsItems) => {
+    const seen = new Set();
+    return newsItems.filter(item => {
+        const key = item.title;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+};
+
+// 뉴스 수집 및 블로그 포스트 생성 (공통 로직)
+const collectAndPostNews = async () => {
+    console.log('Starting news collection...');
+
+    // 오늘 이미 수집했는지 확인 (최근 포스트 중 자동뉴스 확인)
+    const now = new Date();
+    const koreaOffset = 9 * 60 * 60 * 1000;
+    const koreaTime = new Date(now.getTime() + koreaOffset);
+    const todayStart = new Date(koreaTime.getFullYear(), koreaTime.getMonth(), koreaTime.getDate());
+    todayStart.setTime(todayStart.getTime() - koreaOffset);
+
+    const recentPosts = await db.collection('posts')
+        .orderBy('createdAt', 'desc')
+        .limit(5)
+        .get();
+
+    const alreadyCollected = recentPosts.docs.some(doc => {
+        const data = doc.data();
+        const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : null;
+        return data.isAutoNews === true && createdAt && createdAt >= todayStart;
+    });
+
+    if (alreadyCollected) {
+        console.log('News already collected today, skipping');
+        return { skipped: true, message: '오늘 이미 뉴스가 수집되었습니다.' };
+    }
+
+    // 모든 키워드에 대해 뉴스 수집
+    let allNews = [];
+
+    for (const keyword of NEWS_KEYWORDS) {
+        const news = await fetchNewsForKeyword(keyword);
+        allNews = allNews.concat(news);
+        // API 과부하 방지
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 중복 제거
+    allNews = deduplicateNews(allNews);
+
+    if (allNews.length === 0) {
+        console.log('No news found');
+        return { skipped: true, message: '수집된 뉴스가 없습니다.' };
+    }
+
+    // 키워드별 그룹핑 (뉴스가 있는 키워드만)
+    const grouped = {};
+    allNews.forEach(news => {
+        if (!grouped[news.keyword]) {
+            grouped[news.keyword] = [];
+        }
+        grouped[news.keyword].push(news);
+    });
+
+    const dateStr = `${koreaTime.getFullYear()}년 ${koreaTime.getMonth() + 1}월 ${koreaTime.getDate()}일`;
+
+    // HTML 콘텐츠 생성
+    let content = '';
+
+    for (const [keyword, items] of Object.entries(grouped)) {
+        if (items.length === 0) continue;
+        content += `<h3>📌 ${keyword}</h3>\n<ul>\n`;
+        items.forEach(item => {
+            const sourceText = item.source ? ` | 📰 ${item.source}` : '';
+            content += `<li><a href="${item.link}" target="_blank" rel="noopener noreferrer"><strong>${item.title}</strong></a><br/>${formatNewsDate(item.pubDate)}${sourceText}</li>\n`;
+        });
+        content += `</ul>\n`;
+    }
+
+    content += `<hr/>\n<p style="color: #888; font-size: 0.9em;">※ 이 글은 자동 수집된 뉴스입니다. 원문 링크를 통해 전체 기사를 확인해 주세요.</p>`;
+
+    // 요약 생성
+    const activeKeywords = Object.keys(grouped).slice(0, 5).join(', ');
+    const summary = `${dateStr} 사법 관련 주요 뉴스입니다. ${activeKeywords} 등 ${allNews.length}건의 뉴스를 수집했습니다.`;
+
+    // Firestore에 저장
+    const postData = {
+        title: `[사법뉴스] ${dateStr} 주요 소식`,
+        summary: summary,
+        content: content,
+        category: '사법뉴스',
+        author: '시민법정 뉴스봇',
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        isAutoNews: true
+    };
+
+    const postRef = await db.collection('posts').add(postData);
+    console.log(`News post created: ${postRef.id} with ${allNews.length} articles`);
+
+    // 텔레그램 알림
+    try {
+        const telegramMsg = `📰 <b>[사법뉴스] ${dateStr} 주요 소식</b>\n\n${allNews.length}건의 사법 관련 뉴스가 자동 수집되었습니다.\n\n👉 https://siminbupjung-blog.web.app/blog/${postRef.id}`;
+        await sendTelegramMessage(GROUP_CHAT_ID, telegramMsg);
+    } catch (e) {
+        console.error('Telegram notification failed:', e);
+    }
+
+    return { success: true, postId: postRef.id, newsCount: allNews.length };
+};
+
+// 매일 오전 9시(한국시간) 자동 실행
+exports.autoCollectNews = functions
+    .runWith({ timeoutSeconds: 120, memory: '256MB' })
+    .pubsub.schedule('0 9 * * *')
+    .timeZone('Asia/Seoul')
+    .onRun(async (context) => {
+        try {
+            await collectAndPostNews();
+        } catch (error) {
+            console.error('Auto news collection error:', error);
+        }
+        return null;
+    });
+
+// 수동 뉴스 수집 (관리자용 테스트)
+exports.collectNewsManual = functions.https.onRequest(async (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+    }
+
+    try {
+        const result = await collectAndPostNews();
+        res.json(result);
+    } catch (error) {
+        console.error('Manual news collection error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
 // 동영상 SSR - 동적 OG 태그 생성 (YouTube 썸네일)
 // ============================================
 

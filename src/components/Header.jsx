@@ -105,6 +105,12 @@ export default function Header() {
                             <div className={`absolute top-full left-0 mt-0 pt-2 ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
                                 <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px] z-50">
                                     <Link
+                                        to="/news"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                    >
+                                        사법뉴스
+                                    </Link>
+                                    <Link
                                         to="/blog"
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                     >
@@ -161,6 +167,7 @@ export default function Header() {
                             {/* 모바일 미디어 서브메뉴 */}
                             <div className="pl-4 border-l-2 border-gray-200">
                                 <p className="text-gray-500 text-sm mb-2">미디어</p>
+                                <Link to="/news" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>사법뉴스</Link>
                                 <Link to="/blog" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>블로그</Link>
                                 <Link to="/videos" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
                             </div>
