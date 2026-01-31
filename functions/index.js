@@ -1,10 +1,15 @@
 const functions = require('firebase-functions');
 const fetch = require('node-fetch');
 const admin = require('firebase-admin');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // Firebase Admin 초기화
 admin.initializeApp();
 const db = admin.firestore();
+
+// Google AI 설정
+const GOOGLE_API_KEY = functions.config().google?.api_key || process.env.GOOGLE_API_KEY;
+const genAI = GOOGLE_API_KEY ? new GoogleGenerativeAI(GOOGLE_API_KEY) : null;
 
 // 텔레그램 봇 설정 (환경변수에서 가져옴)
 const BOT_TOKEN = functions.config().telegram?.bot_token || process.env.TELEGRAM_BOT_TOKEN;
@@ -1523,6 +1528,62 @@ const deduplicateNews = (newsItems) => {
     });
 };
 
+// AI 요약 함수
+const summarizeNewsWithAI = async (newsItems) => {
+    // genAI가 없으면 기본 요약 방식 사용
+    if (!genAI) {
+        console.log('Google AI not configured, using default summary');
+        const grouped = {};
+        newsItems.forEach(news => {
+            if (!grouped[news.keyword]) {
+                grouped[news.keyword] = [];
+            }
+            grouped[news.keyword].push(news);
+        });
+        const activeKeywords = Object.keys(grouped).slice(0, 5).join(', ');
+        return `오늘의 사법 관련 주요 뉴스입니다. ${activeKeywords} 등 ${newsItems.length}건의 뉴스를 수집했습니다.`;
+    }
+
+    try {
+        // 뉴스 제목 리스트 생성
+        const titles = newsItems.map(item => `- ${item.title}`).join('\n');
+
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const prompt = `다음은 오늘의 사법 관련 뉴스 제목들입니다. 전체적인 동향을 2-3문장으로 요약해주세요.\n\n${titles}`;
+
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+        const summary = response.text();
+
+        console.log('AI summary generated:', summary);
+        return summary.trim();
+    } catch (error) {
+        console.error('AI summarization error:', error);
+        // 에러 발생 시 기본 요약 방식으로 폴백
+        const grouped = {};
+        newsItems.forEach(news => {
+            if (!grouped[news.keyword]) {
+                grouped[news.keyword] = [];
+            }
+            grouped[news.keyword].push(news);
+        });
+        const activeKeywords = Object.keys(grouped).slice(0, 5).join(', ');
+        return `오늘의 사법 관련 주요 뉴스입니다. ${activeKeywords} 등 ${newsItems.length}건의 뉴스를 수집했습니다.`;
+    }
+};
+
+// 최근 24시간 내 뉴스만 필터링
+const filterRecentNews = (newsItems) => {
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    return newsItems.filter(item => {
+        if (!item.pubDate) return false;
+        const pubDate = new Date(item.pubDate);
+        return pubDate >= twentyFourHoursAgo;
+    });
+};
+
 // 뉴스 수집 및 블로그 포스트 생성 (공통 로직)
 const collectAndPostNews = async () => {
     console.log('Starting news collection...');
@@ -1563,9 +1624,13 @@ const collectAndPostNews = async () => {
     // 중복 제거
     allNews = deduplicateNews(allNews);
 
+    // 최근 24시간 내 뉴스만 필터링
+    allNews = filterRecentNews(allNews);
+    console.log(`Filtered to ${allNews.length} news items from last 24 hours`);
+
     if (allNews.length === 0) {
-        console.log('No news found');
-        return { skipped: true, message: '수집된 뉴스가 없습니다.' };
+        console.log('No news found in last 24 hours');
+        return { skipped: true, message: '최근 24시간 내 수집된 뉴스가 없습니다.' };
     }
 
     // 키워드별 그룹핑 (뉴스가 있는 키워드만)
@@ -1594,9 +1659,8 @@ const collectAndPostNews = async () => {
 
     content += `<hr/>\n<p style="color: #888; font-size: 0.9em;">※ 이 글은 자동 수집된 뉴스입니다. 원문 링크를 통해 전체 기사를 확인해 주세요.</p>`;
 
-    // 요약 생성
-    const activeKeywords = Object.keys(grouped).slice(0, 5).join(', ');
-    const summary = `${dateStr} 사법 관련 주요 뉴스입니다. ${activeKeywords} 등 ${allNews.length}건의 뉴스를 수집했습니다.`;
+    // AI 요약 생성
+    const summary = await summarizeNewsWithAI(allNews);
 
     // Firestore에 저장
     const postData = {
@@ -1771,3 +1835,1028 @@ exports.videos = functions.https.onRequest(async (req, res) => {
         res.redirect(302, '/');
     }
 });
+
+// ============================================
+// 재판분석 데이터 자동 크롤링
+// ============================================
+
+// 내란 관련 인물 목록
+const SENTENCING_PERSONS = [
+    { name: '곽종근', position: '전 육군특수전사령관' },
+    { name: '김건희', position: '대통령 배우자' },
+    { name: '김용현', position: '전 국방부 장관' },
+    { name: '박성재', position: '법무부 장관' },
+    { name: '박종준', position: '대통령경호처장' },
+    { name: '여인형', position: '전 국군방첩사령관' },
+    { name: '윤석열', position: '대통령 (직무정지)' },
+    { name: '이상민', position: '전 행정안전부 장관' },
+    { name: '이진우', position: '전 수도방위사령관' },
+    { name: '조태용', position: '전 국정원장' },
+    { name: '최상목', position: '기획재정부 장관' },
+    { name: '한덕수', position: '전 국무총리' }
+];
+
+// Bing 뉴스 RSS 검색 함수 (Google이 서버 IP 차단하므로 Bing 사용)
+const searchNews = async (query, display = 10) => {
+    try {
+        // Bing 뉴스 RSS (한국어)
+        const bingNewsUrl = `https://www.bing.com/news/search?q=${encodeURIComponent(query)}&format=RSS&mkt=ko-KR`;
+        console.log('Fetching Bing News RSS:', bingNewsUrl);
+
+        const response = await fetch(bingNewsUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+                'Accept-Language': 'ko-KR,ko;q=0.9'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('Bing News RSS response not OK:', response.status);
+            return [];
+        }
+
+        const xmlText = await response.text();
+        console.log('Bing News RSS response length:', xmlText.length);
+
+        // XML 파싱: <item>...</item> 추출
+        const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+        const items = [];
+        let match;
+
+        while ((match = itemRegex.exec(xmlText)) !== null && items.length < display) {
+            const itemContent = match[1];
+
+            // 각 필드 추출
+            const titleMatch = itemContent.match(/<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/s);
+            const linkMatch = itemContent.match(/<link>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/link>/);
+            const pubDateMatch = itemContent.match(/<pubDate>(.*?)<\/pubDate>/);
+            const descriptionMatch = itemContent.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/);
+
+            if (titleMatch && linkMatch) {
+                items.push({
+                    title: titleMatch[1].trim().replace(/<[^>]*>/g, ''),
+                    link: linkMatch[1].trim().replace(/&amp;/g, '&'),
+                    pubDate: pubDateMatch ? pubDateMatch[1] : '',
+                    description: descriptionMatch ? descriptionMatch[1].replace(/<[^>]*>/g, '').trim() : ''
+                });
+            }
+        }
+
+        console.log('Parsed news items count:', items.length);
+        return items;
+    } catch (error) {
+        console.error('Bing News RSS search error:', error);
+        return [];
+    }
+};
+
+// Bing 리다이렉트 URL에서 실제 기사 URL 추출
+const extractRealUrl = (bingUrl) => {
+    if (bingUrl.includes('bing.com/news/apiclick.aspx')) {
+        const urlMatch = bingUrl.match(/[?&]url=([^&]+)/);
+        if (urlMatch) {
+            return decodeURIComponent(urlMatch[1]);
+        }
+    }
+    return bingUrl;
+};
+
+// 뉴스 기사 본문 가져오기
+const fetchArticleContent = async (url) => {
+    try {
+        // Bing 리다이렉트 URL에서 실제 URL 추출
+        const actualUrl = extractRealUrl(url);
+        console.log('Fetching article from:', actualUrl);
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        const response = await fetch(actualUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'ko-KR,ko;q=0.9'
+            },
+            redirect: 'follow',
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            console.log('Article fetch failed:', response.status);
+            return null;
+        }
+
+        const html = await response.text();
+        console.log('HTML fetched, length:', html.length);
+
+        // 1. JSON-LD 구조화 데이터에서 기사 본문 추출 (가장 정확)
+        let content = '';
+        const jsonLdMatches = html.match(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi) || [];
+        for (const jsonLdTag of jsonLdMatches) {
+            try {
+                const jsonStr = jsonLdTag.replace(/<script[^>]*>/, '').replace(/<\/script>/, '').trim();
+                const jsonData = JSON.parse(jsonStr);
+                // NewsArticle 또는 Article 타입 확인
+                const articleData = Array.isArray(jsonData) ? jsonData.find(d => d['@type'] && d['@type'].includes('Article')) : jsonData;
+                if (articleData && articleData.articleBody) {
+                    content = articleData.articleBody;
+                    console.log('Extracted from JSON-LD articleBody');
+                    break;
+                }
+            } catch (e) {
+                // JSON 파싱 실패 무시
+            }
+        }
+
+        // 2. <meta> og:description 추출 (JSON-LD 없을 때)
+        if (!content || content.length < 100) {
+            const ogDescMatch = html.match(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/i) ||
+                                html.match(/<meta[^>]*content="([^"]*)"[^>]*property="og:description"[^>]*>/i);
+            if (ogDescMatch && ogDescMatch[1].length > 50) {
+                content = ogDescMatch[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+                console.log('Extracted from og:description');
+            }
+        }
+
+        // 3. <article> 태그 내용
+        if (!content || content.length < 100) {
+            const articleMatch = html.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
+            if (articleMatch) {
+                content = articleMatch[1];
+                console.log('Extracted from <article> tag');
+            }
+        }
+
+        // 4. 본문 영역 클래스/ID 기반 추출
+        if (!content || content.length < 100) {
+            const bodyPatterns = [
+                /<div[^>]*class="[^"]*article[_-]?body[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+                /<div[^>]*class="[^"]*news[_-]?content[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+                /<div[^>]*class="[^"]*content[_-]?body[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+                /<div[^>]*class="[^"]*news[_-]?body[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+                /<div[^>]*class="[^"]*article[_-]?content[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+                /<div[^>]*id="[^"]*article[_-]?body[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+                /<div[^>]*id="[^"]*news[_-]?body[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+                // MSN 특화
+                /<div[^>]*class="[^"]*body-content[^"]*"[^>]*>([\s\S]*?)<\/div>/i
+            ];
+
+            for (const pattern of bodyPatterns) {
+                const match = html.match(pattern);
+                if (match && match[1].length > 200) {
+                    content = match[1];
+                    console.log('Extracted from body div pattern');
+                    break;
+                }
+            }
+        }
+
+        // 5. <p> 태그 추출 (최후의 수단)
+        if (!content || content.length < 100) {
+            const pMatches = html.match(/<p[^>]*>([\s\S]*?)<\/p>/gi) || [];
+            const meaningfulPs = pMatches.filter(p => {
+                const text = p.replace(/<[^>]+>/g, '').trim();
+                return text.length > 30; // 의미 있는 단락만
+            });
+            if (meaningfulPs.length > 0) {
+                content = meaningfulPs.slice(0, 20).join(' ');
+                console.log('Extracted from <p> tags');
+            }
+        }
+
+        // HTML 태그 제거 및 정제
+        content = content
+            .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+            .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#\d+;/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        // 최소 100자 이상인 경우만 반환, 최대 5000자
+        if (content.length > 100) {
+            console.log(`Article content: ${content.length} chars from ${actualUrl}`);
+            return content.substring(0, 5000);
+        }
+
+        console.log(`Article content too short (${content.length} chars) from ${actualUrl}`);
+        return null;
+    } catch (error) {
+        console.error('Article fetch error:', error.message);
+        return null;
+    }
+};
+
+// AI로 판결 정보 추출 (뉴스 본문 기반)
+const extractVerdictInfo = async (personName, newsItems) => {
+    if (!genAI || newsItems.length === 0) {
+        return null;
+    }
+
+    try {
+        // 각 뉴스 기사의 본문 가져오기 (최대 5개)
+        const articlesToFetch = newsItems.slice(0, 5);
+        const articleContents = [];
+
+        for (const item of articlesToFetch) {
+            const content = await fetchArticleContent(item.link);
+            if (content) {
+                articleContents.push({
+                    title: item.title.replace(/<[^>]*>/g, ''),
+                    content: content
+                });
+            }
+            // API 과부하 방지
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        // 본문을 가져온 기사가 없으면 기존 방식으로 폴백
+        let newsText;
+        if (articleContents.length > 0) {
+            newsText = articleContents.map(item =>
+                `제목: ${item.title}\n본문: ${item.content}`
+            ).join('\n\n---\n\n');
+            console.log(`Using ${articleContents.length} article contents for AI analysis`);
+        } else {
+            // 폴백: RSS의 제목과 설명 사용
+            newsText = newsItems.map(item => {
+                const title = item.title.replace(/<[^>]*>/g, '');
+                const desc = item.description.replace(/<[^>]*>/g, '');
+                return `제목: ${title}\n내용: ${desc}`;
+            }).join('\n\n');
+            console.log('Fallback: Using RSS title/description only');
+        }
+
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const prompt = `다음은 "${personName}"의 재판 관련 최신 뉴스 기사입니다. 기사 본문을 분석하여 정확한 재판 정보를 JSON 형식으로 추출해주세요.
+
+뉴스 기사:
+${newsText}
+
+다음 JSON 형식으로만 응답해주세요 (다른 텍스트 없이):
+{
+    "hasVerdict": true/false (1심 선고가 있었는지),
+    "verdictDate": "YYYY년 M월 D일" 또는 null,
+    "status": "구속" 또는 "불구속" 또는 "직무정지" 또는 null,
+    "verdict": "징역 X년" 또는 "무죄" 또는 "재판 진행 중",
+    "charges": [
+        {
+            "name": "혐의명",
+            "law": "적용 법률 (예: 형법 제000조)",
+            "verdict": "유죄/무죄/재판 진행 중",
+            "sentence": "형량 (예: 징역 3년) 또는 null"
+        }
+    ],
+    "summary": "1-2문장 요약",
+    "keyFacts": ["핵심 사실 1", "핵심 사실 2", "핵심 사실 3"],
+    "trialStatus": "1심 선고 완료" 또는 "1심 재판 진행 중" 또는 "헌법재판소 심판 중" 등
+}
+
+기사에 명시적으로 언급된 정보만 기입하고, 정보가 부족하면 해당 필드는 null로 두세요.
+특히 선고일, 형량, 혐의별 판결 내용은 기사에서 정확히 확인된 경우에만 기입해주세요.`;
+
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+        const text = response.text();
+
+        // JSON 파싱 시도
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
+        }
+        return null;
+    } catch (error) {
+        console.error('AI extraction error for', personName, ':', error);
+        return null;
+    }
+};
+
+// 단일 인물 데이터 크롤링 및 저장
+const crawlPersonSentencing = async (person) => {
+    console.log(`Crawling sentencing data for: ${person.name}`);
+
+    // 뉴스 검색 (판결, 선고 관련)
+    const newsItems = await searchNews(`${person.name} 판결 선고 재판`, 15);
+
+    if (newsItems.length === 0) {
+        console.log(`No news found for ${person.name}`);
+        return null;
+    }
+
+    console.log(`Found ${newsItems.length} news items for ${person.name}`);
+
+    // AI로 정보 추출 시도
+    let verdictInfo = await extractVerdictInfo(person.name, newsItems);
+
+    // AI 추출 실패 시 기본 데이터로 저장
+    if (!verdictInfo) {
+        console.log(`AI extraction failed for ${person.name}, saving basic news data`);
+
+        // 뉴스 제목에서 판결 관련 키워드 확인
+        const titles = newsItems.map(n => n.title).join(' ');
+        const hasVerdictKeyword = /선고|판결|징역|무죄|유죄|구속|석방/.test(titles);
+
+        verdictInfo = {
+            hasVerdict: hasVerdictKeyword,
+            verdictDate: null,
+            status: null,
+            verdict: '재판 진행 중',
+            charges: [],
+            summary: newsItems.slice(0, 3).map(n => n.title).join(' | '),
+            keyFacts: newsItems.slice(0, 5).map(n => n.title),
+            trialStatus: hasVerdictKeyword ? '최근 재판 관련 뉴스 있음' : '재판 진행 중'
+        };
+    }
+
+    // Firestore에 저장
+    const docRef = db.collection('sentencingData').doc(person.name);
+    const data = {
+        name: person.name,
+        position: person.position,
+        ...verdictInfo,
+        lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+        newsCount: newsItems.length,
+        recentNews: newsItems.slice(0, 5).map(n => ({
+            title: n.title,
+            link: n.link,
+            pubDate: n.pubDate
+        }))
+    };
+
+    await docRef.set(data, { merge: true });
+    console.log(`Saved sentencing data for ${person.name}`);
+
+    return data;
+};
+
+// 모든 인물 데이터 크롤링 (스케줄 함수)
+exports.crawlAllSentencingData = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 540, memory: '1GB' })
+    .pubsub.schedule('0 6,18 * * *') // 매일 오전 6시, 오후 6시
+    .timeZone('Asia/Seoul')
+    .onRun(async (context) => {
+        console.log('Starting scheduled sentencing data crawl...');
+
+        const results = [];
+        for (const person of SENTENCING_PERSONS) {
+            try {
+                const result = await crawlPersonSentencing(person);
+                if (result) {
+                    results.push({ name: person.name, success: true });
+                } else {
+                    results.push({ name: person.name, success: false });
+                }
+                // API 제한 방지를 위한 딜레이
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            } catch (error) {
+                console.error(`Error crawling ${person.name}:`, error);
+                results.push({ name: person.name, success: false, error: error.message });
+            }
+        }
+
+        console.log('Sentencing data crawl completed:', results);
+        return null;
+    });
+
+// 수동 트리거 (HTTP)
+exports.triggerSentencingCrawl = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 540, memory: '1GB' })
+    .https.onRequest(async (req, res) => {
+        // CORS 설정
+        res.set('Access-Control-Allow-Origin', '*');
+        if (req.method === 'OPTIONS') {
+            res.set('Access-Control-Allow-Methods', 'GET, POST');
+            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.status(204).send('');
+            return;
+        }
+
+        const personName = req.query.person;
+
+        try {
+            if (personName) {
+                // 특정 인물만 크롤링
+                const person = SENTENCING_PERSONS.find(p => p.name === personName);
+                if (!person) {
+                    res.status(404).json({ error: '인물을 찾을 수 없습니다' });
+                    return;
+                }
+                const result = await crawlPersonSentencing(person);
+                res.json({ success: true, data: result });
+            } else {
+                // 전체 크롤링
+                const results = [];
+                for (const person of SENTENCING_PERSONS) {
+                    try {
+                        const result = await crawlPersonSentencing(person);
+                        results.push({ name: person.name, success: !!result, data: result });
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                    } catch (error) {
+                        results.push({ name: person.name, success: false, error: error.message });
+                    }
+                }
+                res.json({ success: true, results });
+            }
+        } catch (error) {
+            console.error('Trigger sentencing crawl error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+// 특정 인물 데이터 조회 API
+exports.getSentencingData = functions
+    .region('asia-northeast3')
+    .https.onRequest(async (req, res) => {
+        res.set('Access-Control-Allow-Origin', '*');
+        if (req.method === 'OPTIONS') {
+            res.set('Access-Control-Allow-Methods', 'GET');
+            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.status(204).send('');
+            return;
+        }
+
+        try {
+            const personName = req.query.person;
+
+            if (personName) {
+                // 특정 인물 조회
+                const doc = await db.collection('sentencingData').doc(personName).get();
+                if (doc.exists) {
+                    res.json({ success: true, data: doc.data() });
+                } else {
+                    res.status(404).json({ error: '데이터가 없습니다' });
+                }
+            } else {
+                // 전체 목록 조회
+                const snapshot = await db.collection('sentencingData').get();
+                const data = {};
+                snapshot.forEach(doc => {
+                    data[doc.id] = doc.data();
+                });
+                res.json({ success: true, data });
+            }
+        } catch (error) {
+            console.error('Get sentencing data error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+// ============================================
+// 판사별 판결 이력 크롤링
+// ============================================
+
+const JUDGES_TO_CRAWL = [
+    { name: '우인성', position: '서울중앙지방법원 형사합의27부 부장판사' }
+];
+
+// AI로 판사 판결 사례 추출
+const extractJudgeCases = async (judgeName, newsItems) => {
+    if (!genAI || newsItems.length === 0) return null;
+
+    try {
+        const articlesToFetch = newsItems.slice(0, 5);
+        const articleContents = [];
+
+        for (const item of articlesToFetch) {
+            const content = await fetchArticleContent(item.link);
+            if (content) {
+                articleContents.push({
+                    title: item.title.replace(/<[^>]*>/g, ''),
+                    content: content
+                });
+            }
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        let newsText;
+        if (articleContents.length > 0) {
+            newsText = articleContents.map(item =>
+                `제목: ${item.title}\n본문: ${item.content}`
+            ).join('\n\n---\n\n');
+        } else {
+            newsText = newsItems.map(item => {
+                const title = item.title.replace(/<[^>]*>/g, '');
+                const desc = item.description.replace(/<[^>]*>/g, '');
+                return `제목: ${title}\n내용: ${desc}`;
+            }).join('\n\n');
+        }
+
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const prompt = `다음은 "${judgeName}" 판사에 대한 뉴스 기사입니다. 기사에서 이 판사의 판결 사례, 논란, 여론 등을 추출해주세요.
+
+뉴스 기사:
+${newsText}
+
+다음 JSON 형식으로만 응답해주세요:
+{
+    "cases": [
+        {
+            "year": "YYYY",
+            "caseName": "사건명",
+            "verdict": "판결 내용 (유죄/무죄, 형량 등)",
+            "controversy": "논란이 있다면 요약, 없으면 null"
+        }
+    ],
+    "publicOpinion": ["여론/비판 1", "여론/비판 2"],
+    "recentNews": ["최신 뉴스 요약 1", "최신 뉴스 요약 2"],
+    "tendencyAnalysis": "이 판사의 판결 성향 분석 (1-2문장)"
+}
+
+기사에 명시적으로 언급된 정보만 기입해주세요.`;
+
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
+        }
+        return null;
+    } catch (error) {
+        console.error('Judge case extraction error:', error);
+        return null;
+    }
+};
+
+// 판사 뉴스 크롤링
+const crawlJudgeNews = async (judge) => {
+    console.log(`Crawling judge data for: ${judge.name}`);
+
+    const queries = [
+        `${judge.name} 판사 판결`,
+        `${judge.name} 부장판사 논란`,
+        `${judge.name} 판사 재판`
+    ];
+
+    let allNewsItems = [];
+    for (const query of queries) {
+        const items = await searchNews(query, 10);
+        allNewsItems = allNewsItems.concat(items);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // 중복 제거 (제목 기준)
+    const seen = new Set();
+    allNewsItems = allNewsItems.filter(item => {
+        const key = item.title.replace(/<[^>]*>/g, '').trim();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+
+    console.log(`Found ${allNewsItems.length} unique news items for judge ${judge.name}`);
+
+    if (allNewsItems.length === 0) return null;
+
+    const judgeInfo = await extractJudgeCases(judge.name, allNewsItems);
+
+    const docRef = db.collection('judgeData').doc(judge.name);
+    const data = {
+        name: judge.name,
+        position: judge.position,
+        ...judgeInfo,
+        lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+        newsCount: allNewsItems.length,
+        recentNewsLinks: allNewsItems.slice(0, 10).map(n => ({
+            title: n.title.replace(/<[^>]*>/g, ''),
+            link: n.link,
+            pubDate: n.pubDate
+        }))
+    };
+
+    await docRef.set(data, { merge: true });
+    console.log(`Saved judge data for ${judge.name}`);
+    return data;
+};
+
+// ============================================
+// YouTube 자막 크롤링
+// ============================================
+
+// YouTube 동영상 검색 (YouTube 검색 페이지 직접 스크래핑)
+const searchYouTubeVideos = async (query, maxResults = 5) => {
+    try {
+        const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}&sp=CAI%253D`;
+
+        const response = await fetch(searchUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept-Language': 'ko-KR,ko;q=0.9'
+            }
+        });
+
+        const html = await response.text();
+
+        // ytInitialData에서 비디오 ID 추출
+        const videoIds = new Set();
+
+        // 방법 1: ytInitialData JSON에서 추출
+        const ytDataMatch = html.match(/var ytInitialData\s*=\s*(\{[\s\S]*?\});\s*<\/script>/);
+        if (ytDataMatch) {
+            try {
+                const videoIdMatches = ytDataMatch[1].match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"/g) || [];
+                for (const m of videoIdMatches) {
+                    const id = m.match(/"([a-zA-Z0-9_-]{11})"/);
+                    if (id && videoIds.size < maxResults) {
+                        videoIds.add(id[1]);
+                    }
+                }
+            } catch (e) {
+                console.log('ytInitialData parse error:', e.message);
+            }
+        }
+
+        // 방법 2: HTML에서 직접 추출 (fallback)
+        if (videoIds.size === 0) {
+            const idRegex = /\/watch\?v=([a-zA-Z0-9_-]{11})/g;
+            let match;
+            while ((match = idRegex.exec(html)) !== null && videoIds.size < maxResults) {
+                videoIds.add(match[1]);
+            }
+        }
+
+        console.log(`Found ${videoIds.size} YouTube videos for: ${query}`);
+        return Array.from(videoIds);
+    } catch (error) {
+        console.error('YouTube search error:', error);
+        return [];
+    }
+};
+
+// YouTube 영상 정보 추출 (oEmbed API + 메타태그)
+const fetchYouTubeVideoInfo = async (videoId) => {
+    try {
+        let title = '';
+        let description = '';
+        let channelName = '';
+
+        // 1. oEmbed API로 기본 정보 (제목, 채널명)
+        try {
+            const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+            const oembedResponse = await fetch(oembedUrl, {
+                headers: { 'User-Agent': 'Mozilla/5.0' }
+            });
+            if (oembedResponse.ok) {
+                const oembedData = await oembedResponse.json();
+                title = oembedData.title || '';
+                channelName = oembedData.author_name || '';
+            }
+        } catch (e) {
+            console.log(`oEmbed failed for ${videoId}:`, e.message);
+        }
+
+        // 2. 영상 페이지에서 설명 추출 (og:description 메타 태그)
+        try {
+            const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+            const pageResponse = await fetch(watchUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+                    'Accept-Language': 'ko-KR,ko;q=0.9'
+                },
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (pageResponse.ok) {
+                const html = await pageResponse.text();
+
+                // og:description에서 설명 추출
+                const descMatch = html.match(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"/) ||
+                                   html.match(/<meta[^>]*content="([^"]*)"[^>]*property="og:description"/);
+                if (descMatch) {
+                    description = descMatch[1]
+                        .replace(/&amp;/g, '&')
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&quot;/g, '"')
+                        .replace(/&#39;/g, "'");
+                }
+
+                // 제목이 없으면 og:title에서
+                if (!title) {
+                    const titleMatch = html.match(/<meta[^>]*property="og:title"[^>]*content="([^"]*)"/) ||
+                                       html.match(/<meta[^>]*content="([^"]*)"[^>]*property="og:title"/);
+                    if (titleMatch) title = titleMatch[1];
+                }
+
+                // 채널명이 없으면 메타태그에서
+                if (!channelName) {
+                    const channelMatch = html.match(/"ownerChannelName"\s*:\s*"([^"]+)"/) ||
+                                         html.match(/<link[^>]*itemprop="name"[^>]*content="([^"]*)"/) ;
+                    if (channelMatch) channelName = channelMatch[1];
+                }
+            }
+        } catch (e) {
+            if (e.name !== 'AbortError') {
+                console.log(`Page fetch failed for ${videoId}:`, e.message);
+            }
+        }
+
+        if (!title) {
+            console.log(`No info found for video: ${videoId}`);
+            return null;
+        }
+
+        console.log(`Video info: ${videoId} - ${title} (${channelName})`);
+
+        return {
+            videoId,
+            title,
+            description: description.substring(0, 2000),
+            channelName,
+            viewCount: 0,
+            duration: 0,
+            transcript: null,
+            url: `https://www.youtube.com/watch?v=${videoId}`
+        };
+    } catch (error) {
+        console.error(`YouTube video info error for ${videoId}:`, error.message);
+        return null;
+    }
+};
+
+// YouTube에서 판사 관련 정보 크롤링
+const crawlYouTubeForJudge = async (judgeName) => {
+    console.log(`Crawling YouTube for judge: ${judgeName}`);
+
+    const queries = [
+        `${judgeName} 판사`,
+        `${judgeName} 판결 논란`,
+        `${judgeName} 부장판사`
+    ];
+
+    const allVideoIds = new Set();
+    for (const query of queries) {
+        const ids = await searchYouTubeVideos(query, 5);
+        ids.forEach(id => allVideoIds.add(id));
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    console.log(`Total unique YouTube videos found: ${allVideoIds.size}`);
+
+    const videoInfos = [];
+    for (const videoId of allVideoIds) {
+        const info = await fetchYouTubeVideoInfo(videoId);
+        if (info) {
+            videoInfos.push(info);
+        }
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    console.log(`Got ${videoInfos.length} video infos out of ${allVideoIds.size} videos`);
+
+    if (videoInfos.length === 0) return null;
+
+    // AI로 영상 정보에서 판사 관련 정보 추출
+    try {
+        const videoText = videoInfos.map(v =>
+            `[영상: ${v.title}] (채널: ${v.channelName}, 조회수: ${v.viewCount.toLocaleString()})\n설명: ${v.description}${v.transcript ? '\n자막: ' + v.transcript : ''}`
+        ).join('\n\n---\n\n').substring(0, 15000);
+
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const prompt = `다음은 "${judgeName}" 판사에 대한 YouTube 영상 정보입니다. 영상 제목, 설명, 자막(있는 경우)에서 이 판사에 대한 평가, 비판, 분석 등을 추출해주세요.
+
+영상 정보:
+${videoText}
+
+다음 JSON 형식으로만 응답해주세요:
+{
+    "mentions": [
+        {
+            "videoTitle": "영상 제목",
+            "context": "이 판사가 언급된 맥락 요약 (1-2문장)",
+            "sentiment": "긍정/부정/중립",
+            "keyQuotes": ["인용문 1", "인용문 2"]
+        }
+    ],
+    "overallSentiment": "전체적인 여론 평가 (1-2문장)",
+    "controversies": ["논란 1", "논란 2"]
+}
+
+"${judgeName}"이 관련된 영상의 정보만 추출해주세요. 관련 없으면 mentions를 빈 배열로 두세요.`;
+
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            const youtubeData = JSON.parse(jsonMatch[0]);
+
+            // Firestore에 저장
+            const docRef = db.collection('judgeYouTubeData').doc(judgeName);
+            await docRef.set({
+                name: judgeName,
+                ...youtubeData,
+                videoCount: videoInfos.length,
+                videos: videoInfos.map(v => ({
+                    videoId: v.videoId,
+                    title: v.title,
+                    channelName: v.channelName,
+                    viewCount: v.viewCount,
+                    url: v.url,
+                    hasTranscript: !!v.transcript
+                })),
+                lastUpdated: admin.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            console.log(`Saved YouTube data for judge ${judgeName}`);
+            return youtubeData;
+        }
+    } catch (error) {
+        console.error('YouTube AI extraction error:', error);
+    }
+
+    return null;
+};
+
+// ============================================
+// 국가법령정보 판례 API 연동
+// ============================================
+
+const crawlCourtCases = async (judgeName) => {
+    console.log(`Crawling court cases for judge: ${judgeName}`);
+
+    try {
+        // 국가법령정보 판례 검색 API
+        // API 키가 없으면 스킵
+        const courtApiKey = process.env.COURT_API_KEY || functions.config().court?.api_key;
+        if (!courtApiKey) {
+            console.log('Court API key not configured, skipping court case crawl');
+            console.log('Register at https://open.law.go.kr to get an API key');
+            return null;
+        }
+
+        const searchUrl = `https://www.law.go.kr/DRF/lawSearch.do?OC=${courtApiKey}&target=prec&type=JSON&query=${encodeURIComponent(judgeName)}&display=20&sort=date`;
+
+        const response = await fetch(searchUrl, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('Court API response error:', response.status);
+            return null;
+        }
+
+        const data = await response.json();
+
+        if (!data.PrecSearch || !data.PrecSearch.prec) {
+            console.log(`No court cases found for ${judgeName}`);
+            return null;
+        }
+
+        const cases = Array.isArray(data.PrecSearch.prec) ? data.PrecSearch.prec : [data.PrecSearch.prec];
+
+        const parsedCases = cases.map(c => ({
+            caseNumber: c['사건번호'] || c.사건번호 || '',
+            caseName: c['사건명'] || c.사건명 || '',
+            courtName: c['법원명'] || c.법원명 || '',
+            verdictDate: c['선고일자'] || c.선고일자 || '',
+            verdictType: c['판결유형'] || c.판결유형 || '',
+            caseType: c['사건종류명'] || c.사건종류명 || '',
+            link: c['판례상세링크'] || c.판례상세링크 || ''
+        }));
+
+        // Firestore에 저장
+        const docRef = db.collection('judgeCourtCases').doc(judgeName);
+        await docRef.set({
+            name: judgeName,
+            cases: parsedCases,
+            totalCount: parsedCases.length,
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        console.log(`Saved ${parsedCases.length} court cases for judge ${judgeName}`);
+        return parsedCases;
+    } catch (error) {
+        console.error('Court API error:', error);
+        return null;
+    }
+};
+
+// ============================================
+// 판사 데이터 통합 크롤링
+// ============================================
+
+// 스케줄 크롤링 (매일 새벽 3시)
+exports.crawlAllJudgeData = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 540, memory: '1GB' })
+    .pubsub.schedule('0 3 * * *')
+    .timeZone('Asia/Seoul')
+    .onRun(async (context) => {
+        console.log('Starting scheduled judge data crawl...');
+
+        for (const judge of JUDGES_TO_CRAWL) {
+            try {
+                // 1. 뉴스 크롤링
+                console.log(`[1/3] Crawling news for ${judge.name}...`);
+                await crawlJudgeNews(judge);
+
+                // 2. YouTube 크롤링
+                console.log(`[2/3] Crawling YouTube for ${judge.name}...`);
+                await crawlYouTubeForJudge(judge.name);
+
+                // 3. 법원 판결문 크롤링
+                console.log(`[3/3] Crawling court cases for ${judge.name}...`);
+                await crawlCourtCases(judge.name);
+
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            } catch (error) {
+                console.error(`Error crawling judge ${judge.name}:`, error);
+            }
+        }
+
+        console.log('Judge data crawl completed');
+        return null;
+    });
+
+// 수동 트리거 (HTTP)
+exports.triggerJudgeCrawl = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 540, memory: '1GB' })
+    .https.onRequest(async (req, res) => {
+        res.set('Access-Control-Allow-Origin', '*');
+        if (req.method === 'OPTIONS') {
+            res.set('Access-Control-Allow-Methods', 'GET, POST');
+            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.status(204).send('');
+            return;
+        }
+
+        const judgeName = req.query.judge || '우인성';
+        const source = req.query.source; // 'news', 'youtube', 'court', or all
+
+        try {
+            const results = {};
+            const judge = JUDGES_TO_CRAWL.find(j => j.name === judgeName) || { name: judgeName, position: '' };
+
+            if (!source || source === 'news') {
+                console.log('Crawling news...');
+                results.news = await crawlJudgeNews(judge);
+            }
+
+            if (!source || source === 'youtube') {
+                console.log('Crawling YouTube...');
+                results.youtube = await crawlYouTubeForJudge(judgeName);
+            }
+
+            if (!source || source === 'court') {
+                console.log('Crawling court cases...');
+                results.court = await crawlCourtCases(judgeName);
+            }
+
+            res.json({ success: true, judge: judgeName, results });
+        } catch (error) {
+            console.error('Judge crawl error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+// 판사 데이터 조회 API
+exports.getJudgeData = functions
+    .region('asia-northeast3')
+    .https.onRequest(async (req, res) => {
+        res.set('Access-Control-Allow-Origin', '*');
+        if (req.method === 'OPTIONS') {
+            res.set('Access-Control-Allow-Methods', 'GET');
+            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.status(204).send('');
+            return;
+        }
+
+        const judgeName = req.query.judge || '우인성';
+
+        try {
+            const [newsDoc, youtubeDoc, courtDoc] = await Promise.all([
+                db.collection('judgeData').doc(judgeName).get(),
+                db.collection('judgeYouTubeData').doc(judgeName).get(),
+                db.collection('judgeCourtCases').doc(judgeName).get()
+            ]);
+
+            res.json({
+                success: true,
+                judge: judgeName,
+                data: {
+                    news: newsDoc.exists ? newsDoc.data() : null,
+                    youtube: youtubeDoc.exists ? youtubeDoc.data() : null,
+                    court: courtDoc.exists ? courtDoc.data() : null
+                }
+            });
+        } catch (error) {
+            console.error('Get judge data error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });

@@ -126,7 +126,9 @@ export default function Blog() {
         }
     };
 
-    const filteredPosts = posts.filter(post => post.category !== '사법뉴스');
+    const filteredPosts = posts.filter(post =>
+        post.category !== '사법뉴스' && !post.title?.includes('[사법뉴스]')
+    );
 
     // ⚠️ 수정금지: SNS 공유 URL - 영문 도메인 사용 (한글 도메인 인코딩 문제 방지)
     // URL 복사 함수 (오픈채팅방 공유용)

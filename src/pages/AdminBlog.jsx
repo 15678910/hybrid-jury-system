@@ -192,11 +192,13 @@ export default function AdminBlog() {
                 const q = query(postsRef, orderBy('createdAt', 'desc'), limit(POSTS_PER_PAGE));
                 const querySnapshot = await getDocs(q);
 
-                const postsData = querySnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
-                }));
+                const postsData = querySnapshot.docs
+                    .filter(doc => doc.data().category !== '사법뉴스')
+                    .map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
+                    }));
 
                 // 캐시 저장
                 adminPostsCache.data = postsData;
@@ -225,11 +227,13 @@ export default function AdminBlog() {
             const q = query(postsRef, orderBy('createdAt', 'desc'), startAfter(lastDoc), limit(POSTS_PER_PAGE));
             const querySnapshot = await getDocs(q);
 
-            const morePosts = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
-            }));
+            const morePosts = querySnapshot.docs
+                .filter(doc => doc.data().category !== '사법뉴스')
+                .map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
+                }));
 
             const newPosts = [...posts, ...morePosts];
             setPosts(newPosts);

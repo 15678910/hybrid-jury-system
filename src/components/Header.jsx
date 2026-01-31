@@ -122,6 +122,12 @@ export default function Header() {
                                     >
                                         동영상
                                     </Link>
+                                    <Link
+                                        to="/sentencing-analysis"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                    >
+                                        재판분석
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -147,8 +153,8 @@ export default function Header() {
                 </nav>
 
                 {/* 모바일 메뉴 */}
-                {mobileMenuOpen && (
-                    <div className="lg:hidden pb-4 border-t pt-4">
+                <div className={`lg:hidden absolute top-full left-0 w-full bg-white shadow-lg max-h-[80vh] overflow-y-auto z-40 transition-[opacity,visibility] duration-200 ease-out ${mobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+                    <div className="pb-4 border-t pt-4">
                         <div className="flex flex-col space-y-3">
                             <a href="/intro.html" className="hover:text-blue-600 transition font-medium">소개</a>
                             <div className="pl-4 border-l-2 border-gray-200">
@@ -169,14 +175,15 @@ export default function Header() {
                                 <p className="text-gray-500 text-sm mb-2">미디어</p>
                                 <Link to="/news" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>사법뉴스</Link>
                                 <Link to="/blog" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>블로그</Link>
-                                <Link to="/videos" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
+                                <Link to="/videos" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
+                                <Link to="/sentencing-analysis" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>재판분석</Link>
                             </div>
                             <button onClick={() => { scrollToSection('signature'); setMobileMenuOpen(false); }} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg text-center">
                                 참여하기
                             </button>
                         </div>
                     </div>
-                )}
+                </div>
             </div>
         </header>
     );

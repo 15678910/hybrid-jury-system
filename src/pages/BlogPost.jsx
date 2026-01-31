@@ -250,14 +250,10 @@ export default function BlogPost() {
     };
 
     const shareToTwitter = () => {
-        // 중복 트윗 방지를 위해 날짜 추가
-        const today = new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
-        const tweetText = `${postText} (${today})\n\n#시민법정 #참심제 #사법개혁`;
-        window.open(
-            `https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(tweetText)}`,
-            '_blank',
-            'width=600,height=400'
-        );
+        const tweetText = `${postText}\n\n${postUrl}\n\n#시민법정 #참심제 #사법개혁`;
+        navigator.clipboard.writeText(tweetText);
+        alert('텍스트가 복사되었습니다!\nX에서 붙여넣기 해주세요.');
+        window.open('https://x.com/', '_blank');
     };
 
     const shareToTelegram = () => {

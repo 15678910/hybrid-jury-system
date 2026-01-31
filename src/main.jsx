@@ -13,6 +13,7 @@ const FAQTest = lazy(() => import('./pages/FAQTest'))
 const Blog = lazy(() => import('./pages/Blog'))
 const BlogPost = lazy(() => import('./pages/BlogPost'))
 const AdminBlog = lazy(() => import('./pages/AdminBlog'))
+const AdminNews = lazy(() => import('./pages/AdminNews'))
 const Videos = lazy(() => import('./pages/Videos'))
 const AdminVideos = lazy(() => import('./pages/AdminVideos'))
 // 카드뉴스 임시 비활성화
@@ -25,6 +26,7 @@ const GovernanceAdmin = lazy(() => import('./pages/GovernanceAdmin'))
 const Donate = lazy(() => import('./pages/Donate'))
 const EuropeJurySystem = lazy(() => import('./pages/EuropeJurySystem'))
 const JudiciaryNews = lazy(() => import('./pages/JudiciaryNews'))
+const SentencingAnalysis = lazy(() => import('./pages/SentencingAnalysis'))
 const FloatingChat = lazy(() => import('./CozeFloatingChat'))
 
 // 로딩 컴포넌트
@@ -60,6 +62,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/governance/admin" element={<GovernanceAdmin />} />
           <Route path="/donate" element={<Donate />} />
           <Route path="/news" element={<JudiciaryNews />} />
+          <Route path="/news/admin" element={<AdminNews />} />
+          <Route path="/sentencing-analysis" element={<SentencingAnalysis />} />
           <Route path="/europe-jury" element={<EuropeJurySystem />} />
         </Routes>
         {/* 모든 페이지에서 보이는 플로팅 챗봇 */}

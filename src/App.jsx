@@ -788,9 +788,10 @@ export default function App() {
     };
 
     const shareToTwitter = () => {
-        const url = 'https://시민법정.kr';
-        const text = '주권자에 의한 시민법관 참심제! 함께해주세요.';
-        window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text), '_blank', 'width=600,height=400');
+        const text = '주권자에 의한 시민법관 참심제! 함께해주세요.\n\nhttps://시민법정.kr\n\n#시민법정 #참심제 #사법개혁';
+        navigator.clipboard.writeText(text);
+        alert('텍스트가 복사되었습니다!\nX에서 붙여넣기 해주세요.');
+        window.open('https://x.com/', '_blank');
     };
 
     const shareToInstagram = () => {
@@ -909,6 +910,12 @@ export default function App() {
                                         >
                                             동영상
                                         </Link>
+                                        <Link
+                                            to="/sentencing-analysis"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                        >
+                                            재판분석
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
@@ -938,8 +945,7 @@ export default function App() {
                     </nav>
 
                     {/* 모바일 메뉴 드롭다운 */}
-                    {mobileMenuOpen && (
-                        <div className="lg:hidden bg-white border-t border-gray-200 py-4 space-y-2">
+                    <div className={`lg:hidden absolute top-full left-0 w-full bg-white border-t border-gray-200 shadow-lg py-4 space-y-2 max-h-[80vh] overflow-y-auto z-40 transition-[opacity,visibility] duration-200 ease-out ${mobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
                             {/* 소개 */}
                             <a
                                 href="/intro.html"
@@ -1021,6 +1027,13 @@ export default function App() {
                                 >
                                     동영상
                                 </Link>
+                                <Link
+                                    to="/sentencing-analysis"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    재판분석
+                                </Link>
                             </div>
 
                             <button
@@ -1029,8 +1042,7 @@ export default function App() {
                             >
                                 참여하기
                             </button>
-                        </div>
-                    )}
+                    </div>
                 </div>
             </header>
 
@@ -1147,7 +1159,7 @@ export default function App() {
                 </div>
 
                 {/* 모바일용 세계 뉴스 - lg 미만에서만 표시 */}
-                <div className="lg:hidden container mx-auto px-4 pb-8">
+                <div className="lg:hidden container mx-auto px-4 pt-6 pb-8">
                     <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                         <h3 className="text-sm font-bold mb-3 text-yellow-300">📰 세계 시민법관 뉴스</h3>
                         {worldNews.length > 0 ? (

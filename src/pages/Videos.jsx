@@ -169,14 +169,10 @@ export default function Videos() {
 
     const shareToTwitter = (video, videoId) => {
         const videoUrl = `https://youtu.be/${videoId}`;
-        // 중복 트윗 방지를 위해 날짜 추가
-        const today = new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
-        const tweetText = `${video.title} (${today})\n\n#시민법정 #참심제 #사법개혁`;
-        window.open(
-            `https://twitter.com/intent/tweet?url=${encodeURIComponent(videoUrl)}&text=${encodeURIComponent(tweetText)}`,
-            '_blank',
-            'width=600,height=400'
-        );
+        const tweetText = `${video.title}\n\n${videoUrl}\n\n#시민법정 #참심제 #사법개혁`;
+        navigator.clipboard.writeText(tweetText);
+        alert('텍스트가 복사되었습니다!\nX에서 붙여넣기 해주세요.');
+        window.open('https://x.com/', '_blank');
     };
 
     const copyLink = (video, videoId) => {
