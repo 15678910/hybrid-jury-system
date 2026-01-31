@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
+import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon } from '../components/icons';
 
 // 내란 관련 인물 데이터 (가나다순)
 const personsData = {
@@ -708,6 +709,35 @@ export default function SentencingAnalysis() {
     const [judgeYouTubeData, setJudgeYouTubeData] = useState({});
     const [judgeCourtData, setJudgeCourtData] = useState({});
     const [loading, setLoading] = useState(true);
+    const [kakaoReady, setKakaoReady] = useState(false);
+
+    // Kakao SDK 초기화
+    useEffect(() => {
+        const initKakao = () => {
+            if (window.Kakao && !window.Kakao.isInitialized()) {
+                try {
+                    window.Kakao.init('83e843186c1251b9b5a8013fd5f29798');
+                    setKakaoReady(true);
+                } catch (e) {
+                    console.error('Kakao init error:', e);
+                }
+            } else if (window.Kakao?.isInitialized()) {
+                setKakaoReady(true);
+            }
+        };
+
+        if (window.Kakao) {
+            initKakao();
+        } else {
+            const checkKakao = setInterval(() => {
+                if (window.Kakao) {
+                    clearInterval(checkKakao);
+                    initKakao();
+                }
+            }, 100);
+            setTimeout(() => clearInterval(checkKakao), 5000);
+        }
+    }, []);
 
     // Firestore에서 최신 데이터 가져오기
     useEffect(() => {
@@ -743,6 +773,85 @@ export default function SentencingAnalysis() {
         };
         fetchAllData();
     }, []);
+
+    // SNS 공유 함수들
+    const getShareUrl = (personName) => {
+        return `https://xn--lg3b0kt4n41f.kr/sentencing-analysis${personName ? `?person=${encodeURIComponent(personName)}` : ''}`;
+    };
+
+    const getShareText = (personName) => {
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일`;
+        return personName
+            ? `[재판분석] ${personName} - ${dateStr} 소식`
+            : `[재판분석] 내란 사건 재판 현황 - ${dateStr} 소식`;
+    };
+
+    const shareToKakao = () => {
+        const url = getShareUrl(selectedPerson);
+        const text = getShareText(selectedPerson);
+
+        if (kakaoReady && window.Kakao?.isInitialized()) {
+            try {
+                window.Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: selectedPerson ? `[재판분석] ${selectedPerson}` : '재판분석',
+                        description: text,
+                        imageUrl: 'https://xn--lg3b0kt4n41f.kr/og-sentencing.png',
+                        link: { mobileWebUrl: url, webUrl: url },
+                    },
+                    buttons: [{ title: '자세히 보기', link: { mobileWebUrl: url, webUrl: url } }],
+                });
+            } catch (e) {
+                console.error('Kakao share error:', e);
+                fallbackShare();
+            }
+        } else {
+            fallbackShare();
+        }
+    };
+
+    const fallbackShare = () => {
+        const url = getShareUrl(selectedPerson);
+        const text = getShareText(selectedPerson);
+        navigator.clipboard.writeText(`${text}\n${url}`);
+        alert('링크가 복사되었습니다!\n카카오톡에 붙여넣기 해주세요.');
+    };
+
+    const shareToFacebook = () => {
+        const url = getShareUrl(selectedPerson);
+        const text = getShareText(selectedPerson);
+        navigator.clipboard.writeText(`${text}\n${url}`);
+        alert('링크가 복사되었습니다!\n페이스북에 붙여넣기 해주세요.');
+        window.open('https://www.facebook.com/', '_blank');
+    };
+
+    const shareToTwitter = () => {
+        const url = getShareUrl(selectedPerson);
+        const text = getShareText(selectedPerson);
+        navigator.clipboard.writeText(`${text}\n\n${url}\n\n#시민법정 #참심제 #사법개혁 #내란`);
+        alert('텍스트가 복사되었습니다!\nX에서 붙여넣기 해주세요.');
+        window.open('https://x.com/', '_blank');
+    };
+
+    const shareToTelegram = () => {
+        const url = getShareUrl(selectedPerson);
+        const text = getShareText(selectedPerson);
+        const urlWithCache = `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
+        window.open(
+            `https://t.me/share/url?url=${encodeURIComponent(urlWithCache)}&text=${encodeURIComponent(text)}`,
+            '_blank',
+            'width=600,height=400'
+        );
+    };
+
+    const shareToInstagram = () => {
+        const url = getShareUrl(selectedPerson);
+        const text = getShareText(selectedPerson);
+        navigator.clipboard.writeText(`${text} ${url}`);
+        alert('텍스트가 복사되었습니다! 인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
+    };
 
     // 정적 데이터와 Firestore 데이터 병합
     const getMergedPersonData = (name) => {
@@ -881,6 +990,28 @@ export default function SentencingAnalysis() {
                                         </button>
                                     );
                                 })}
+                            </div>
+                        </div>
+
+                        {/* SNS 공유 */}
+                        <div className="mt-8 bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6">
+                            <p className="text-white text-center mb-4 font-medium">이 페이지를 공유해주세요</p>
+                            <div className="flex justify-center gap-4">
+                                <button onClick={shareToKakao} className="w-12 h-12 flex items-center justify-center bg-[#FEE500] rounded-full hover:scale-110 transition-transform" title="카카오톡">
+                                    <KakaoIcon className="w-6 h-6 text-[#391B1B]" />
+                                </button>
+                                <button onClick={shareToFacebook} className="w-12 h-12 flex items-center justify-center bg-[#1877F2] rounded-full hover:scale-110 transition-transform" title="페이스북">
+                                    <FacebookIcon className="w-6 h-6 text-white" />
+                                </button>
+                                <button onClick={shareToTwitter} className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform" title="X">
+                                    <XIcon className="w-5 h-5 text-white" />
+                                </button>
+                                <button onClick={shareToInstagram} className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#515BD4] rounded-full hover:scale-110 transition-transform" title="인스타그램">
+                                    <InstagramIcon className="w-6 h-6 text-white" />
+                                </button>
+                                <button onClick={shareToTelegram} className="w-12 h-12 flex items-center justify-center bg-[#0088cc] rounded-full hover:scale-110 transition-transform" title="텔레그램">
+                                    <TelegramIcon className="w-6 h-6 text-white" />
+                                </button>
                             </div>
                         </div>
 
@@ -1393,6 +1524,28 @@ export default function SentencingAnalysis() {
                             ))}
                         </div>
                     )}
+
+                    {/* SNS 공유 */}
+                    <div className="mt-8 bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6">
+                        <p className="text-white text-center mb-4 font-medium">이 페이지를 공유해주세요</p>
+                        <div className="flex justify-center gap-4">
+                            <button onClick={shareToKakao} className="w-12 h-12 flex items-center justify-center bg-[#FEE500] rounded-full hover:scale-110 transition-transform" title="카카오톡">
+                                <KakaoIcon className="w-6 h-6 text-[#391B1B]" />
+                            </button>
+                            <button onClick={shareToFacebook} className="w-12 h-12 flex items-center justify-center bg-[#1877F2] rounded-full hover:scale-110 transition-transform" title="페이스북">
+                                <FacebookIcon className="w-6 h-6 text-white" />
+                            </button>
+                            <button onClick={shareToTwitter} className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform" title="X">
+                                <XIcon className="w-5 h-5 text-white" />
+                            </button>
+                            <button onClick={shareToInstagram} className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#515BD4] rounded-full hover:scale-110 transition-transform" title="인스타그램">
+                                <InstagramIcon className="w-6 h-6 text-white" />
+                            </button>
+                            <button onClick={shareToTelegram} className="w-12 h-12 flex items-center justify-center bg-[#0088cc] rounded-full hover:scale-110 transition-transform" title="텔레그램">
+                                <TelegramIcon className="w-6 h-6 text-white" />
+                            </button>
+                        </div>
+                    </div>
 
                     {/* 하단 안내 */}
                     <div className="mt-8 p-4 bg-gray-100 rounded-xl text-center">

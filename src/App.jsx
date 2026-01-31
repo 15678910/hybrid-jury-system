@@ -916,6 +916,12 @@ export default function App() {
                                         >
                                             재판분석
                                         </Link>
+                                        <Link
+                                            to="/reform-analysis"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                        >
+                                            개혁안 비교
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
@@ -1033,6 +1039,13 @@ export default function App() {
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
                                 >
                                     재판분석
+                                </Link>
+                                <Link
+                                    to="/reform-analysis"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    개혁안 비교
                                 </Link>
                             </div>
 
