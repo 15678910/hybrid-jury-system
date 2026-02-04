@@ -23,7 +23,7 @@ const PERSON_PHOTOS = {
     '윤석열': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/South_Korea_President_Yoon_Suk_Yeol_portrait.jpg/200px-South_Korea_President_Yoon_Suk_Yeol_portrait.jpg',
     '윤승영': '/윤승영.png',
     '이상민': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/%EC%9D%B4%EC%83%81%EB%AF%BC_20220128.jpg/200px-%EC%9D%B4%EC%83%81%EB%AF%BC_20220128.jpg',
-    '이완규': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Lee_Wan-kyu%27s_Portrait_%282021.7%29.jpg/200px-Lee_Wan-kyu%27s_Portrait_%282021.7%29.jpg',
+    '이완규': '/이완규.png',
     '이진우': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Lieutenant_General_Lee_Jin-woo.png/200px-Lieutenant_General_Lee_Jin-woo.png',
     '조지호': '/조지호.png',
     '조태용': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Cho_Taeyong_in_2022_%28cropped%29.jpg/200px-Cho_Taeyong_in_2022_%28cropped%29.jpg',
