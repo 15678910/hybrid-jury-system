@@ -61,6 +61,32 @@ const sendTelegramMessage = async (chatId, text, options = {}) => {
     }
 };
 
+// 텔레그램 사진 전송 함수
+const sendTelegramPhoto = async (chatId, photoUrl, caption = '', options = {}) => {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                photo: photoUrl,
+                caption: caption,
+                parse_mode: 'HTML',
+                ...options
+            })
+        });
+
+        const result = await response.json();
+        console.log('Telegram photo response:', result);
+        return result;
+    } catch (error) {
+        console.error('Error sending Telegram photo:', error);
+        throw error;
+    }
+};
+
 // 텔레그램 투표 생성 함수
 const sendTelegramPoll = async (chatId, question, options, openPeriod = DEFAULT_POLL_DURATION_HOURS * 3600, allowsMultipleAnswers = false) => {
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPoll`;
@@ -781,6 +807,23 @@ exports.telegramWebhook = functions.https.onRequest(async (req, res) => {
         if (update.message && update.message.text) {
             let handled = false;
 
+            // /참여하기 명령어 처리
+            if (!handled && update.message.text.trim() === '/참여하기') {
+                const chatId = update.message.chat.id;
+                const posterUrl = 'https://siminbupjung-blog.web.app/%EC%B0%B8%EC%8B%AC%EC%A0%9C%ED%8F%AC%EC%8A%A4%ED%84%B01.png';
+                const caption = '⚖️ <b>시민법관 참심제 - 온라인 준비위원 참여</b>\n\n직업법관 소수가 아닌, 주권자인 국민이 직접 판결을 결정하는 참심제!\n지금, 사법개혁추진준비위원으로 연대해주십시오!\n\n👇 아래 버튼을 눌러 참여하세요';
+
+                await sendTelegramPhoto(chatId, posterUrl, caption, {
+                    reply_markup: {
+                        inline_keyboard: [[
+                            { text: '✊ 참여하기', url: 'https://xn--lg3b0kt4n41f.kr/#signature' }
+                        ]]
+                    }
+                });
+                handled = true;
+                console.log('참여하기 poster sent');
+            }
+
             // #제안 처리
             if (!handled) {
                 handled = await handleProposal(update.message);
@@ -850,6 +893,27 @@ exports.deleteWebhook = functions.https.onRequest(async (req, res) => {
         const result = await response.json();
         res.json(result);
     } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 참여하기 포스터 수동 전송 (HTTP 트리거)
+exports.sendPosterToGroup = functions.https.onRequest(async (req, res) => {
+    try {
+        const posterUrl = 'https://siminbupjung-blog.web.app/%EC%B0%B8%EC%8B%AC%EC%A0%9C%ED%8F%AC%EC%8A%A4%ED%84%B01.png';
+        const caption = '⚖️ <b>시민법관 참심제 - 온라인 준비위원 참여</b>\n\n직업법관 소수가 아닌, 주권자인 국민이 직접 판결을 결정하는 참심제!\n지금, 사법개혁추진준비위원으로 연대해주십시오!\n\n👇 아래 버튼을 눌러 참여하세요';
+
+        const result = await sendTelegramPhoto(GROUP_CHAT_ID, posterUrl, caption, {
+            reply_markup: {
+                inline_keyboard: [[
+                    { text: '✊ 참여하기', url: 'https://xn--lg3b0kt4n41f.kr/#signature' }
+                ]]
+            }
+        });
+
+        res.json({ success: true, result });
+    } catch (error) {
+        console.error('Error sending poster:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1844,14 +1908,26 @@ exports.videos = functions.https.onRequest(async (req, res) => {
 const SENTENCING_PERSONS = [
     { name: '곽종근', position: '전 육군특수전사령관' },
     { name: '김건희', position: '대통령 배우자' },
+    { name: '김봉식', position: '전 서울경찰청장' },
     { name: '김용현', position: '전 국방부 장관' },
+    { name: '김주현', position: '전 대통령실 민정수석' },
+    { name: '김태효', position: '전 국가안보실 제1차장' },
+    { name: '노상원', position: '전 국군정보사령관' },
+    { name: '목현태', position: '전 국회경비대장' },
+    { name: '문상호', position: '전 국군정보사령관 (육군 소장)' },
+    { name: '박안수', position: '전 육군참모총장 (계엄사령관)' },
     { name: '박성재', position: '법무부 장관' },
     { name: '박종준', position: '대통령경호처장' },
+    { name: '심우정', position: '전 검찰총장' },
     { name: '여인형', position: '전 국군방첩사령관' },
     { name: '윤석열', position: '대통령 (직무정지)' },
+    { name: '윤승영', position: '전 국수본 수사기획조정관' },
     { name: '이상민', position: '전 행정안전부 장관' },
+    { name: '이완규', position: '전 법제처장' },
     { name: '이진우', position: '전 수도방위사령관' },
+    { name: '조지호', position: '전 경찰청장' },
     { name: '조태용', position: '전 국정원장' },
+    { name: '추경호', position: '국민의힘 의원 (전 원내대표)' },
     { name: '최상목', position: '기획재정부 장관' },
     { name: '한덕수', position: '전 국무총리' }
 ];
@@ -2224,8 +2300,116 @@ exports.crawlAllSentencingData = functions
         }
 
         console.log('Sentencing data crawl completed:', results);
+
+        // 텔레그램 알림
+        try {
+            const successCount = results.filter(r => r.success).length;
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
+            const telegramMsg = `📊 <b>[재판분석] ${dateStr} 소식</b>\n\n✅ ${successCount}/${SENTENCING_PERSONS.length}명 인물 데이터 수집 완료\n\n👉 https://siminbupjung-blog.web.app/sentencing-analysis`;
+            await sendTelegramMessage(GROUP_CHAT_ID, telegramMsg);
+        } catch (e) {
+            console.error('Telegram notification failed:', e);
+        }
+
         return null;
     });
+
+// 재판분석 페이지 SSR (OG 태그 - 텔레그램/카카오/페이스북 미리보기)
+exports.sentencingAnalysisPage = functions.https.onRequest(async (req, res) => {
+    const userAgent = req.get('User-Agent') || '';
+    const isCrawler = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
+
+    if (!isCrawler) {
+        return res.send(`<!DOCTYPE html>
+<html>
+<head><meta http-equiv="refresh" content="0;url=/?r=/sentencing-analysis"><script>window.location.replace("/?r=/sentencing-analysis")</script></head>
+<body>Loading...</body>
+</html>`);
+    }
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
+    const title = `[재판분석] ${dateStr} 소식`;
+    const description = '내란 관련 인물 재판 현황 및 판결 분석 - 시민법정';
+    const imageUrl = 'https://siminbupjung-blog.web.app/%EB%82%B4%EB%9E%80%EC%9E%AC%ED%8C%90%EB%B6%84%EC%84%9D.png?v=3';
+    const pageUrl = 'https://siminbupjung-blog.web.app/sentencing-analysis';
+
+    const html = `<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${title} - 시민법정</title>
+    <meta name="description" content="${description}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:url" content="${pageUrl}" />
+    <meta property="og:site_name" content="시민법정" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${imageUrl}" />
+  </head>
+  <body>
+    <h1>${title}</h1>
+    <p>${description}</p>
+  </body>
+</html>`;
+
+    res.send(html);
+});
+
+// 개혁안 비교 페이지 SSR (OG 태그 - 텔레그램/카카오/페이스북 미리보기)
+exports.reformAnalysisPage = functions.https.onRequest(async (req, res) => {
+    const userAgent = req.get('User-Agent') || '';
+    const isCrawler = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
+
+    if (!isCrawler) {
+        return res.send(`<!DOCTYPE html>
+<html>
+<head><meta http-equiv="refresh" content="0;url=/?r=/reform-analysis"><script>window.location.replace("/?r=/reform-analysis")</script></head>
+<body>Loading...</body>
+</html>`);
+    }
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
+    const title = `[개혁안 비교] ${dateStr} 주요 소식`;
+    const description = '사법개혁 7대 영역별 정당·시민사회 입장 비교 및 관련 뉴스 - 시민법정';
+    const imageUrl = 'https://siminbupjung-blog.web.app/%EA%B0%9C%ED%98%81%EC%95%88%EB%B9%84%EA%B5%90.png?v=3';
+    const pageUrl = 'https://siminbupjung-blog.web.app/reform-analysis';
+
+    const html = `<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${title} - 시민법정</title>
+    <meta name="description" content="${description}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:url" content="${pageUrl}" />
+    <meta property="og:site_name" content="시민법정" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${imageUrl}" />
+  </head>
+  <body>
+    <h1>${title}</h1>
+    <p>${description}</p>
+  </body>
+</html>`;
+
+    res.send(html);
+});
 
 // 수동 트리거 (HTTP)
 exports.triggerSentencingCrawl = functions
@@ -2307,6 +2491,187 @@ exports.getSentencingData = functions
             }
         } catch (error) {
             console.error('Get sentencing data error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+// ============================================
+// 개혁안 관련 뉴스 자동 수집
+// ============================================
+
+const REFORM_AREA_KEYWORDS = {
+    'prosecution': {
+        title: '검찰 조직 개편',
+        keywords: ['중수청', '공소청', '검찰개혁', '수사사법관', '수사기소분리']
+    },
+    'supreme-court': {
+        title: '대법원 구성',
+        keywords: ['대법관 증원', '대법원 구성', '상고법원']
+    },
+    'law-distortion': {
+        title: '법왜곡죄',
+        keywords: ['법왜곡죄', '법관 책임']
+    },
+    'trial-appeal': {
+        title: '재판소원제',
+        keywords: ['재판소원', '재판소원제', '헌법소원']
+    },
+    'court-admin': {
+        title: '법원행정처 개혁',
+        keywords: ['법원행정처 개혁', '사법행정권']
+    },
+    'judge-personnel': {
+        title: '법관 인사제도',
+        keywords: ['법관 인사', '법조일원화', '법관 독립']
+    },
+    'citizen-trial': {
+        title: '국민참여재판 확대',
+        keywords: ['국민참여재판 확대', '참심제', '배심원']
+    }
+};
+
+const collectReformAreaNews = async (areaId, areaConfig) => {
+    console.log(`Collecting reform news for: ${areaConfig.title}`);
+
+    let allNews = [];
+
+    for (const keyword of areaConfig.keywords) {
+        try {
+            const news = await searchNews(keyword, 5);
+            allNews = allNews.concat(news.map(item => ({
+                ...item,
+                keyword
+            })));
+        } catch (error) {
+            console.error(`Search error for keyword "${keyword}":`, error.message);
+        }
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 제목 기준 중복 제거
+    const seen = new Set();
+    allNews = allNews.filter(item => {
+        const key = item.title.replace(/<[^>]*>/g, '').trim();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+
+    if (allNews.length === 0) {
+        console.log(`No news found for ${areaConfig.title}`);
+        return null;
+    }
+
+    // 상위 5건 추출
+    const topNews = allNews.slice(0, 5).map(item => ({
+        title: item.title.replace(/<[^>]*>/g, '').trim(),
+        link: extractRealUrl(item.link),
+        pubDate: item.pubDate || '',
+        description: (item.description || '').replace(/<[^>]*>/g, '').trim().slice(0, 200)
+    }));
+
+    // Gemini AI 요약
+    let aiSummary = `${areaConfig.title} 관련 최신 뉴스 ${topNews.length}건`;
+    if (genAI && topNews.length > 0) {
+        try {
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+            const newsText = topNews.map(n => `- ${n.title}`).join('\n');
+            const prompt = `다음은 "${areaConfig.title}" 관련 최신 뉴스 제목들입니다. 이 사법개혁 영역의 최근 동향을 1-2문장으로 간결하게 요약해주세요. 한국어로 작성하세요.\n\n${newsText}`;
+
+            const result = await model.generateContent(prompt);
+            aiSummary = result.response.text().trim();
+        } catch (error) {
+            console.error(`AI summary error for ${areaId}:`, error.message);
+        }
+    }
+
+    // Firestore 저장
+    const docRef = db.collection('reformNews').doc(areaId);
+    const data = {
+        areaId,
+        areaTitle: areaConfig.title,
+        news: topNews,
+        aiSummary,
+        lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+        newsCount: allNews.length,
+        keywords: areaConfig.keywords
+    };
+
+    await docRef.set(data, { merge: true });
+    console.log(`Saved ${topNews.length} news for ${areaConfig.title} (total found: ${allNews.length})`);
+
+    return data;
+};
+
+// 매일 오전 9:10 (한국시간) 자동 실행
+exports.collectReformNews = functions
+    .runWith({ timeoutSeconds: 120, memory: '256MB' })
+    .pubsub.schedule('10 6,18 * * *')
+    .timeZone('Asia/Seoul')
+    .onRun(async (context) => {
+        console.log('Starting reform news collection...');
+
+        const results = [];
+        for (const [areaId, config] of Object.entries(REFORM_AREA_KEYWORDS)) {
+            try {
+                const result = await collectReformAreaNews(areaId, config);
+                results.push({ areaId, success: !!result });
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            } catch (error) {
+                console.error(`Error collecting reform news for ${areaId}:`, error);
+                results.push({ areaId, success: false, error: error.message });
+            }
+        }
+
+        console.log('Reform news collection completed:', results);
+
+        try {
+            const successCount = results.filter(r => r.success).length;
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
+            const telegramMsg = `📰 <b>[개혁안 비교] ${dateStr} 주요 소식</b>\n\n✅ ${successCount}/${results.length}개 영역 수집 완료\n\n👉 https://siminbupjung-blog.web.app/reform-analysis`;
+            await sendTelegramMessage(GROUP_CHAT_ID, telegramMsg);
+        } catch (e) {
+            console.error('Telegram notification failed:', e);
+        }
+
+        return null;
+    });
+
+// 수동 개혁안 뉴스 수집 (관리자용)
+exports.collectReformNewsManual = functions
+    .runWith({ timeoutSeconds: 120, memory: '256MB' })
+    .https.onRequest(async (req, res) => {
+        res.set('Access-Control-Allow-Origin', '*');
+        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+        if (req.method === 'OPTIONS') {
+            res.status(204).send('');
+            return;
+        }
+
+        const areaId = req.query.area;
+
+        try {
+            if (areaId && REFORM_AREA_KEYWORDS[areaId]) {
+                const result = await collectReformAreaNews(areaId, REFORM_AREA_KEYWORDS[areaId]);
+                res.json({ success: true, area: areaId, newsCount: result?.news?.length || 0 });
+            } else {
+                const results = [];
+                for (const [id, config] of Object.entries(REFORM_AREA_KEYWORDS)) {
+                    try {
+                        const result = await collectReformAreaNews(id, config);
+                        results.push({ areaId: id, success: !!result, newsCount: result?.news?.length || 0 });
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    } catch (error) {
+                        results.push({ areaId: id, success: false, error: error.message });
+                    }
+                }
+                res.json({ success: true, results });
+            }
+        } catch (error) {
+            console.error('Manual reform news collection error:', error);
             res.status(500).json({ error: error.message });
         }
     });
@@ -2860,3 +3225,55 @@ exports.getJudgeData = functions
             res.status(500).json({ error: error.message });
         }
     });
+
+// ============================================
+// 국가법령정보 OPEN API 프록시
+// ============================================
+
+exports.lawApi = functions.https.onRequest(async (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+    }
+
+    const OC = functions.config().lawapi?.oc || functions.config().court?.api_key || 'test';
+    const { target, query, type, display, page, search, MST, ID, sort } = req.query;
+
+    if (!target) {
+        res.status(400).json({ error: 'target parameter is required' });
+        return;
+    }
+
+    try {
+        const params = new URLSearchParams({ OC, target, type: type || 'JSON' });
+        if (query) params.set('query', query);
+        if (display) params.set('display', display);
+        if (page) params.set('page', page);
+        if (search) params.set('search', search);
+        if (MST) params.set('MST', MST);
+        if (ID) params.set('ID', ID);
+        if (sort) params.set('sort', sort);
+
+        const apiUrl = `https://www.law.go.kr/DRF/lawSearch.do?${params.toString()}`;
+        const response = await fetch(apiUrl, {
+            headers: { 'Accept': 'application/json' }
+        });
+
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('json')) {
+            const data = await response.json();
+            res.json(data);
+        } else {
+            const text = await response.text();
+            res.set('Content-Type', contentType);
+            res.send(text);
+        }
+    } catch (error) {
+        console.error('Law API proxy error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});

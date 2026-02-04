@@ -266,9 +266,14 @@ export default function BlogPost() {
         );
     };
 
-    const shareToInstagram = () => {
-        navigator.clipboard.writeText(`${postText} ${postUrl}`);
-        alert('텍스트가 복사되었습니다! 인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
+    const shareToInstagram = async () => {
+        try {
+            await navigator.clipboard.writeText(`${postText} ${postUrl}`);
+            alert('텍스트가 복사되었습니다!\n인스타그램에서 스토리나 게시물에 붙여넣기 해주세요.');
+            window.open('https://www.instagram.com/', '_blank');
+        } catch (err) {
+            alert('복사에 실패했습니다. 직접 링크를 복사해주세요.');
+        }
     };
 
     // 이전/다음 글

@@ -72,21 +72,22 @@ export default function Blog() {
             // 캐시가 있으면 이미 표시 중이므로 백그라운드에서 최신 데이터 가져오기
             try {
                 const postsRef = collection(db, 'posts');
-                const q = query(postsRef, orderBy('createdAt', 'desc'), limit(POSTS_PER_PAGE));
+                const q = query(postsRef, orderBy('createdAt', 'desc'));
                 const querySnapshot = await getDocs(q);
 
-                const firestorePosts = querySnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
-                }));
+                const firestorePosts = querySnapshot.docs
+                    .map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
+                    }))
+                    .filter(post => post.category !== '사법뉴스' && !post.title?.includes('[사법뉴스]'));
 
                 // 로컬 스토리지 캐시 저장
                 setLocalCache(firestorePosts);
 
                 setPosts(firestorePosts);
-                setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
-                setHasMore(querySnapshot.docs.length >= POSTS_PER_PAGE);
+                setHasMore(false);
             } catch (error) {
                 console.error('Error fetching posts:', error);
                 if (!cachedData) setPosts([]);
@@ -105,7 +106,7 @@ export default function Blog() {
         setLoadingMore(true);
         try {
             const postsRef = collection(db, 'posts');
-            const q = query(postsRef, orderBy('createdAt', 'desc'), startAfter(lastDoc), limit(POSTS_PER_PAGE));
+            const q = query(postsRef, where('category', '!=', '사법뉴스'), orderBy('createdAt', 'desc'), startAfter(lastDoc), limit(POSTS_PER_PAGE));
             const querySnapshot = await getDocs(q);
 
             const morePosts = querySnapshot.docs.map(doc => ({
@@ -207,7 +208,7 @@ export default function Blog() {
                     {/* 페이지 타이틀 */}
                     <div className="text-center mb-12">
                         <h1 className="text-4xl font-bold text-gray-900 mb-4">블로그</h1>
-                        <p className="text-gray-600">참심제와 사법개혁에 관한 소식을 전합니다</p>
+
                     </div>
 
                     {/* 로딩 상태 */}

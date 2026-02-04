@@ -28,6 +28,7 @@ const EuropeJurySystem = lazy(() => import('./pages/EuropeJurySystem'))
 const JudiciaryNews = lazy(() => import('./pages/JudiciaryNews'))
 const SentencingAnalysis = lazy(() => import('./pages/SentencingAnalysis'))
 const ReformAnalysis = lazy(() => import('./pages/ReformAnalysis'))
+const LawDatabase = lazy(() => import('./pages/LawDatabase'))
 const FloatingChat = lazy(() => import('./CozeFloatingChat'))
 
 // 로딩 컴포넌트
@@ -67,6 +68,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/sentencing-analysis" element={<SentencingAnalysis />} />
           <Route path="/europe-jury" element={<EuropeJurySystem />} />
           <Route path="/reform-analysis" element={<ReformAnalysis />} />
+          <Route path="/law-database" element={<LawDatabase />} />
         </Routes>
         {/* 모든 페이지에서 보이는 플로팅 챗봇 */}
         <FloatingChat />

@@ -4,6 +4,34 @@ import { db } from '../lib/firebase';
 import Header from '../components/Header';
 import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon } from '../components/icons';
 
+// 위키백과 공개 이미지 URL (Wikimedia Commons) + 정부 정책브리핑(korea.kr) 공식 사진
+const PERSON_PHOTOS = {
+    '곽종근': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Kwak_Jong-geun_in_November_2025.png/200px-Kwak_Jong-geun_in_November_2025.png',
+    '김건희': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Kim_Keon-hee_2024.jpg/200px-Kim_Keon-hee_2024.jpg',
+    '김봉식': '/김봉식.png',
+    '김용현': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Kim_Yong-hyun_%28_%EA%B9%80%EC%9A%A9%ED%98%84_%29_%282024%29_%28cropped%29.jpg/200px-Kim_Yong-hyun_%28_%EA%B9%80%EC%9A%A9%ED%98%84_%29_%282024%29_%28cropped%29.jpg',
+    '김주현': '/김주현.png',
+    '김태효': '/김태효.png',
+    '노상원': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/PD%EC%88%98%EC%B2%A9_%EB%85%B8%EC%83%81%EC%9B%90_%EC%82%AC%EC%A7%84.jpg/200px-PD%EC%88%98%EC%B2%A9_%EB%85%B8%EC%83%81%EC%9B%90_%EC%82%AC%EC%A7%84.jpg',
+    '목현태': '/목현태.png',
+    '문상호': '/문상호.png',
+    '박성재': '/박성재.png',
+    '박안수': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/General_Park_An-su_%28_%EB%B0%95%EC%95%88%EC%88%98_%29%2C_Republic_of_Korea_chief_of_staff_of_the_army_during_the_Land_Forces_Pacific_Symposium_and_Exhibition_%28LANPAC%29_in_Honolulu%2C_Hawaii_on_May_15%2C_2024.jpg/200px-General_Park_An-su_%28_%EB%B0%95%EC%95%88%EC%88%98_%29%2C_Republic_of_Korea_chief_of_staff_of_the_army_during_the_Land_Forces_Pacific_Symposium_and_Exhibition_%28LANPAC%29_in_Honolulu%2C_Hawaii_on_May_15%2C_2024.jpg',
+    '박종준': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/%EB%B0%95%EC%A2%85%EC%A4%80.jpg/200px-%EB%B0%95%EC%A2%85%EC%A4%80.jpg',
+    '심우정': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Prosecutor_General_Shim_Woo-jung_20240926.jpg/200px-Prosecutor_General_Shim_Woo-jung_20240926.jpg',
+    '여인형': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Lieutenant_General_Yeo_In-hyung.png/200px-Lieutenant_General_Yeo_In-hyung.png',
+    '윤석열': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/South_Korea_President_Yoon_Suk_Yeol_portrait.jpg/200px-South_Korea_President_Yoon_Suk_Yeol_portrait.jpg',
+    '윤승영': '/윤승영.png',
+    '이상민': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/%EC%9D%B4%EC%83%81%EB%AF%BC_20220128.jpg/200px-%EC%9D%B4%EC%83%81%EB%AF%BC_20220128.jpg',
+    '이완규': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Lee_Wan-kyu%27s_Portrait_%282021.7%29.jpg/200px-Lee_Wan-kyu%27s_Portrait_%282021.7%29.jpg',
+    '이진우': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Lieutenant_General_Lee_Jin-woo.png/200px-Lieutenant_General_Lee_Jin-woo.png',
+    '조지호': '/조지호.png',
+    '조태용': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Cho_Taeyong_in_2022_%28cropped%29.jpg/200px-Cho_Taeyong_in_2022_%28cropped%29.jpg',
+    '최상목': '/최상목.png',
+    '추경호': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/%EC%B6%94%EA%B2%BD%ED%98%B8_%EB%B6%80%EC%B4%9D%EB%A6%AC_%EC%98%88%EB%B0%A9_%EB%B0%9B%EC%95%84_001_%28cropped%29.jpg/200px-%EC%B6%94%EA%B2%BD%ED%98%B8_%EB%B6%80%EC%B4%9D%EB%A6%AC_%EC%98%88%EB%B0%A9_%EB%B0%9B%EC%95%84_001_%28cropped%29.jpg',
+    '한덕수': '/한덕수.png'
+};
+
 // 내란 관련 인물 데이터 (가나다순)
 const personsData = {
     '곽종근': {
@@ -32,9 +60,10 @@ const personsData = {
         keyFacts: [
             '12.3 비상계엄 당시 국회 진입 병력 지휘',
             '"한동훈 잡아오라" 발언으로 논란',
-            '국방부 해임 징계 처분'
+            '국방부 해임 징계 처분 (2025.12.29)',
+            '재판 군사법원→서울중앙지법 이송 (2026.1)'
         ],
-        trialStatus: '1심 재판 진행 중'
+        trialStatus: '1심 재판 진행 중 (서울중앙지법 이송)'
     },
     '김건희': {
         id: 'kimkunhee',
@@ -75,17 +104,29 @@ const personsData = {
                 prosecutionRequest: '징역 11년 (일부)',
                 verdict: '유죄 - 징역 1년 8개월',
                 reason: '영부인 지위로 영리 추구'
+            },
+            {
+                id: 4,
+                name: '공직선거법 위반 (윤석열 공범)',
+                law: '공직선거법 위반 (허위사실 공표), 정치자금법 위반',
+                period: '2021.6 ~ 2022.3',
+                amount: '명태균 무상 여론조사 58회, 2억 7,000만원 + 허위사실 공표',
+                prosecutionRequest: '특검, 윤석열 불구속 기소 (공직선거법·정치자금법 위반)',
+                verdict: '정치자금법 위반: 김건희 무죄 (1심) / 윤석열: 재판 진행 중',
+                reason: '유죄 확정 시 당선무효(벌금 100만원 이상) → 국민의힘 선거보조금 약 400억원 반환'
             }
         ],
         summary: {
-            prosecutionTotal: '징역 15년, 벌금 20억원, 추징금 9억 4,800만원',
-            verdictTotal: '징역 1년 8개월, 추징금 1,281만 5,000원',
-            ratio: '구형의 약 1/9 수준'
+            prosecutionTotal: '징역 15년, 벌금 20억원, 추징금 9억 4,800만원 + 윤석열 공직선거법·정치자금법 위반 별도 기소',
+            verdictTotal: '징역 1년 8개월, 추징금 1,281만 5,000원 (정치자금법·선거법 관련 무죄)',
+            ratio: '구형의 약 1/9 수준, 정치자금법 무죄로 윤석열 연루 차단 논란'
         },
         keyFacts: [
             '대한민국 역사상 최초로 영부인 실형 선고',
             '구형 대비 1/9 수준의 낮은 형량 논란',
-            '주가조작 수익 8억원 취득에도 무죄 판결'
+            '주가조작 수익 8억원 취득에도 무죄 판결',
+            '정치자금법 무죄로 윤석열 당선무효 가능성 차단 의혹',
+            '보수 언론조차 판결에 당혹감 표시'
         ],
         trialStatus: '1심 선고 완료, 항소 예정',
         sentencingGuidelines: [
@@ -112,6 +153,14 @@ const personsData = {
                 mitigating: ['초범'],
                 verdict: '유죄 - 징역 1년 8개월',
                 analysis: '영부인 지위를 이용한 영리 추구로 실형 선고'
+            },
+            {
+                crime: '공직선거법 위반·정치자금법 위반 (윤석열 관련)',
+                standardRange: '벌금 100만원 이상 시 당선무효',
+                aggravating: ['대선 과정 허위사실 공표', '2억 7천만원 상당 불법 여론조사 수수'],
+                mitigating: ['김건희 1심 정치자금법 무죄 판결'],
+                verdict: '윤석열 재판 진행 중',
+                analysis: '김건희 정치자금법 무죄 판결이 윤석열 재판에 미칠 영향 주목. 유죄 시 당선무효·선거보조금 반환'
             }
         ],
         judgeHistory: {
@@ -211,6 +260,42 @@ const personsData = {
                     defense: '사교적 선물, 알선 의도 없음',
                     court: '영부인 지위로 영리 추구, 사회적 해악 인정'
                 }
+            },
+            {
+                title: '알선수재 vs 뇌물죄 적용 논란',
+                description: '특검이 김건희에게 형량이 무거운 뇌물죄 대신 알선수재를 적용한 것에 대한 의구심. 뇌물죄는 공무원 신분범으로 김건희가 민간인이라 직접 적용 불가하고, 윤석열과의 공모를 입증해야 했으나 실패. 알선수재는 뇌물죄보다 형량이 가벼워 사실상 봐주기 기소라는 비판.',
+                opinion: {
+                    prosecution: '대통령 배우자는 법적 민간인 신분이라 뇌물죄 직접 적용 불가. 윤석열이 금품 수수 사전 인지를 부인하여 공모 입증 실패',
+                    defense: '알선수재 혐의 자체도 과도한 적용이며, 사교적 선물에 불과',
+                    court: '알선수재 일부만 유죄 인정. 영부인 지위를 이용한 금품 수수는 사회적 해악 인정'
+                }
+            },
+            {
+                title: '정치자금법·선거법 미적용과 윤석열 당선무효 연관',
+                description: '명태균으로부터 2억 7천만원 상당 무상 여론조사를 수수한 정치자금법 위반에 대해 1심 무죄 판결. 이 혐의가 유죄 확정되면 공범인 윤석열도 정치자금법 위반으로 유죄 가능성이 높아지며, 공직선거법 위반(벌금 100만원 이상)이 확정되면 당선무효 → 국민의힘 선거보조금 약 400억원 반환 의무 발생.',
+                opinion: {
+                    prosecution: '2억 7천만원 상당 58회 여론조사 무상 제공은 정치자금법상 기부행위. 윤석열과 공모하여 불법 수수',
+                    defense: '명태균의 자발적 제공이며, 공식 계약관계 없어 정치자금으로 볼 수 없음',
+                    court: '명태균 진술의 신빙성 부족으로 무죄. 그러나 이 판단이 윤석열 재판에 미칠 영향 주목'
+                }
+            },
+            {
+                title: '우인성 판사의 대법원 판례 정면 부정 논란',
+                description: '재판부가 도이치모터스 주가조작 사건에서 대법원이 확립한 포괄일죄 판례를 정면 부정. 대법원은 1단계·2단계 행위를 단일 범의에 의한 포괄일죄로 인정했으나, 우인성 재판부는 이를 임의로 분리하여 공소시효 만료를 적용. 가세연 허위사실·장영하 이재명 조폭 연루설 사건에서도 1심 무죄 후 항소심에서 유죄로 뒤집힌 전력.',
+                opinion: {
+                    prosecution: '대법원 확정판결을 무시한 쪼개기 논리로 면죄부 제공. 사실오인 및 법리오해의 위법',
+                    defense: '증거 부족에 따른 정당한 법리 판단이며, 무죄추정 원칙 적용',
+                    court: '공동정범의 기능적 행위지배 요건 미충족. 권력자든 아니든 법 적용에 차별 없어야'
+                }
+            },
+            {
+                title: '특검·재판부 편파성 종합 의혹',
+                description: '특검은 뇌물죄 입증 실패로 가벼운 알선수재로 기소하고, 재판부는 구형 15년 대비 1/9인 1년 8개월 선고. 보수 언론(조선일보)조차 판결에 당혹감 표시. 참여연대·정치권은 물론 판사 출신 의원(박은정)도 "유죄 선고 후 피고인에게 인사하는 재판장 처음 봤다"며 비판. 일부 변호사들이 우인성 판사를 직무유기·직권남용으로 고발.',
+                opinion: {
+                    prosecution: '특검 항소 예고. 왜곡된 법리를 항소심에서 전면 다툴 것. 뇌물죄는 경찰 국수본으로 이첩',
+                    defense: '법과 원칙에 따른 판결이며, 정치적 압력에 굴하지 않은 용기 있는 재판',
+                    court: '입법적 보완 필요 - 영부인에 대해 공무원에 준하는 형사처벌 규정 검토 필요 (특검보 발언)'
+                }
             }
         ]
     },
@@ -227,8 +312,8 @@ const personsData = {
                 name: '내란중요임무종사',
                 law: '형법 제87조',
                 description: '비상계엄 선포 및 군 병력 동원 총괄',
-                prosecutionRequest: '조사 중',
-                verdict: '재판 진행 중',
+                prosecutionRequest: '무기징역 (특검 구형, 2026.1.13)',
+                verdict: '재판 진행 중 (2026.2.19 선고 예정)',
                 reason: '-'
             },
             {
@@ -251,16 +336,105 @@ const personsData = {
             }
         ],
         summary: {
+            prosecutionTotal: '무기징역 (특검 구형)',
+            verdictTotal: '재판 진행 중 (2026.2.19 선고 예정)',
+            ratio: '-'
+        },
+        keyFacts: [
+            '비상계엄 선포 핵심 관여자, 군 병력 국회 투입 지휘',
+            '내란특검 무기징역 구형 (2026.1.13)',
+            '윤석열 사건과 병합심리, 2026.2.19 선고 예정'
+        ],
+        trialStatus: '1심 선고 예정 (2026.2.19, 윤석열 사건 병합심리)'
+    },
+    '문상호': {
+        id: 'moonsangho',
+        name: '문상호',
+        position: '전 국군정보사령관 (육군 소장)',
+        status: '구속',
+        statusColor: 'red',
+        court: '서울중앙지방법원',
+        charges: [
+            {
+                id: 1,
+                name: '내란중요임무종사',
+                law: '형법 제87조',
+                description: '선관위 병력 투입 지휘, 계엄 사전 모의 참여',
+                prosecutionRequest: '조사 중',
+                verdict: '재판 진행 중',
+                reason: '-'
+            },
+            {
+                id: 2,
+                name: '직권남용권리행사방해',
+                law: '형법 제123조',
+                description: '정보사 병력 선관위 파견 및 서버실 침입 지시',
+                prosecutionRequest: '조사 중',
+                verdict: '재판 진행 중',
+                reason: '-'
+            },
+            {
+                id: 3,
+                name: '군사기밀 누설',
+                law: '군사기밀보호법',
+                description: '2025.12.31 추가 구속',
+                prosecutionRequest: '조사 중',
+                verdict: '재판 진행 중',
+                reason: '-'
+            }
+        ],
+        summary: {
             prosecutionTotal: '재판 진행 중',
             verdictTotal: '재판 진행 중',
             ratio: '-'
         },
         keyFacts: [
-            '비상계엄 선포 핵심 관여자',
-            '군 병력 국회 투입 지휘',
-            '구속 수감 중'
+            '선관위에 정보사 병력 10명 투입 지휘, 서버실 침입',
+            '계엄 2일 전 "롯데리아 회동"에서 사전 모의',
+            '2024.12.20 구속, 2025.12.31 군사기밀 누설 추가 구속',
+            '2026.1.2 국방부 파면 처분',
+            '재판 서울중앙지법 이송 예정'
         ],
-        trialStatus: '1심 재판 진행 중'
+        trialStatus: '1심 재판 진행 중 (서울중앙지법 이송 예정)'
+    },
+    '박안수': {
+        id: 'parkansu',
+        name: '박안수',
+        position: '전 육군참모총장 (계엄사령관)',
+        status: '불구속',
+        statusColor: 'green',
+        court: '대전지방법원 논산지원',
+        charges: [
+            {
+                id: 1,
+                name: '내란중요임무종사',
+                law: '형법 제87조',
+                description: '2025.1.3 기소. 계엄사령관으로서 위헌 포고령 발령 및 국회 병력 투입 지휘',
+                prosecutionRequest: '조사 중',
+                verdict: '재판 진행 중',
+                reason: '-'
+            },
+            {
+                id: 2,
+                name: '직권남용권리행사방해',
+                law: '형법 제123조',
+                description: '계엄 포고령 제1호 서명·발령',
+                prosecutionRequest: '조사 중',
+                verdict: '재판 진행 중',
+                reason: '-'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '재판 진행 중',
+            verdictTotal: '재판 진행 중',
+            ratio: '-'
+        },
+        keyFacts: [
+            '12.3 비상계엄 계엄사령관 임명, 포고령 제1호 서명',
+            '2024.12.17 구속 → 2025.6.25 보석 허가',
+            '전역 후 대전지방법원 논산지원에서 단독 재판 진행'
+        ],
+        trialStatus: '1심 재판 진행 중 (논산지원)'
     },
     '박성재': {
         id: 'parksongjae',
@@ -373,9 +547,10 @@ const personsData = {
         keyFacts: [
             '방첩사 계엄 문건 작성 주도 의혹',
             '국회·중앙선관위 병력 투입 지휘',
-            '국방부 파면 징계'
+            '국방부 파면 징계 (2025.12.29)',
+            '재판 군사법원→서울중앙지법 이송 (2026.1)'
         ],
-        trialStatus: '1심 재판 진행 중'
+        trialStatus: '1심 재판 진행 중 (서울중앙지법 이송)'
     },
     '윤석열': {
         id: 'yoon',
@@ -390,17 +565,17 @@ const personsData = {
                 name: '내란수괴',
                 law: '형법 제87조',
                 description: '12.3 비상계엄 선포 및 내란 주도',
-                prosecutionRequest: '사형 또는 무기징역 (내란수괴 법정형)',
-                verdict: '재판 진행 중',
+                prosecutionRequest: '사형 (특검 구형, 2026.1.13)',
+                verdict: '재판 진행 중 (2026.2.19 선고 예정)',
                 reason: '-'
             },
             {
                 id: 2,
-                name: '특수공무집행방해',
-                law: '형법 제144조',
-                description: '2025.7.19 기소',
-                prosecutionRequest: '조사 중',
-                verdict: '재판 진행 중',
+                name: '특수공무집행방해 등',
+                law: '형법 제144조 등',
+                description: '공수처 체포영장 집행 방해, 국무회의 심의권 침해, 허위공문서 작성 등',
+                prosecutionRequest: '징역 10년 (특검 구형)',
+                verdict: '유죄 - 징역 5년 (2026.1.16 선고)',
                 reason: '-'
             },
             {
@@ -423,16 +598,18 @@ const personsData = {
             }
         ],
         summary: {
-            prosecutionTotal: '내란수괴: 사형/무기징역 (법정형)',
-            verdictTotal: '재판 진행 중',
-            ratio: '-'
+            prosecutionTotal: '내란수괴: 사형 구형 + 특수공무집행방해 등: 징역 10년 구형',
+            verdictTotal: '특수공무집행방해 등: 징역 5년 (1심), 내란수괴: 2026.2.19 선고 예정',
+            ratio: '체포방해 구형의 1/2'
         },
         keyFacts: [
             '대한민국 헌정사상 최초 현직 대통령 구속',
             '2024.12.3 비상계엄 선포',
-            '2025.1.15 공수처 체포, 헌재 탄핵심판 진행 중'
+            '2025.1.15 공수처 체포, 2025.4.4 헌재 탄핵 인용 (파면)',
+            '체포방해 등 1심 징역 5년 선고 (2026.1.16)',
+            '내란수괴 사형 구형 (2026.1.13), 2026.2.19 선고 예정'
         ],
-        trialStatus: '1심 재판 진행 중 (병합심리)'
+        trialStatus: '체포방해 등: 1심 징역 5년 선고 (항소) / 내란수괴: 2026.2.19 선고 예정'
     },
     '이상민': {
         id: 'leesangmin',
@@ -446,22 +623,24 @@ const personsData = {
                 id: 1,
                 name: '내란중요임무종사',
                 law: '형법 제87조',
-                description: '2025.8.19 기소',
-                prosecutionRequest: '조사 중',
-                verdict: '재판 진행 중',
+                description: '계엄 시 언론사 단전·단수 지시, 불법 계엄 방조',
+                prosecutionRequest: '징역 15년 (특검 구형, 2026.1.12)',
+                verdict: '재판 진행 중 (2026.2.12 선고 예정)',
                 reason: '-'
             }
         ],
         summary: {
-            prosecutionTotal: '재판 진행 중',
-            verdictTotal: '재판 진행 중',
+            prosecutionTotal: '징역 15년 (특검 구형)',
+            verdictTotal: '재판 진행 중 (2026.2.12 선고 예정)',
             ratio: '-'
         },
         keyFacts: [
             '비상계엄 당시 행정안전부 장관',
-            '내란중요임무종사 혐의 구속 기소'
+            '언론사 단전·단수 지시 혐의',
+            '내란특검 징역 15년 구형 (2026.1.12)',
+            '2026.2.12 선고 예정'
         ],
-        trialStatus: '1심 재판 진행 중'
+        trialStatus: '1심 선고 예정 (2026.2.12)'
     },
     '이진우': {
         id: 'leejinwoo',
@@ -488,9 +667,10 @@ const personsData = {
         },
         keyFacts: [
             '비상계엄 당시 수방사 병력 국회 투입',
-            '국방부 파면 징계'
+            '국방부 파면 징계 (2025.12.29)',
+            '재판 군사법원→서울중앙지법 이송 (2026.1)'
         ],
-        trialStatus: '1심 재판 진행 중'
+        trialStatus: '1심 재판 진행 중 (서울중앙지법 이송)'
     },
     '조태용': {
         id: 'jotaeyong',
@@ -695,6 +875,379 @@ const personsData = {
                 }
             }
         ]
+    },
+    '김주현': {
+        id: 'kimjuhyun',
+        name: '김주현',
+        position: '전 대통령실 민정수석',
+        status: '불구속',
+        statusColor: 'green',
+        court: '서울중앙지방법원',
+        charges: [
+            {
+                id: 1,
+                name: '직권남용',
+                law: '형법 제123조',
+                description: '2025.12.11 기소. 헌법재판관 지명 관련',
+                prosecutionRequest: '조사 중',
+                verdict: '재판 진행 중',
+                reason: '-'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '재판 진행 중',
+            verdictTotal: '재판 진행 중',
+            ratio: '-'
+        },
+        keyFacts: [
+            '검사 출신 윤석열 핵심 법률 참모',
+            '12.4 안가회동(삼청동 안전가옥) 참석',
+            '직권남용 혐의 불구속 기소'
+        ],
+        trialStatus: '1심 재판 진행 중'
+    },
+    '김태효': {
+        id: 'kimtaehyo',
+        name: '김태효',
+        position: '전 국가안보실 제1차장',
+        status: '불구속',
+        statusColor: 'green',
+        court: '수사 진행 중',
+        charges: [
+            {
+                id: 1,
+                name: '내란 공모 의혹',
+                law: '형법 제87조',
+                description: '내란특검 수사 중',
+                prosecutionRequest: '수사 중',
+                verdict: '수사 중',
+                reason: '-'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '수사 중',
+            verdictTotal: '수사 중',
+            ratio: '-'
+        },
+        keyFacts: [
+            '계엄 직후 휴대전화 3회 교체, 증거인멸 의혹',
+            '출국금지 조치 상태',
+            '2022년 군사기밀 유출 유죄 후 대통령 사면'
+        ],
+        trialStatus: '수사 진행 중'
+    },
+    '심우정': {
+        id: 'simwoojung',
+        name: '심우정',
+        position: '전 검찰총장',
+        status: '불구속',
+        statusColor: 'green',
+        court: '서울중앙지방법원',
+        charges: [
+            {
+                id: 1,
+                name: '범인도피',
+                law: '형법 제151조',
+                description: '2025.11.27 채상병 특검에 의해 기소',
+                prosecutionRequest: '조사 중',
+                verdict: '재판 진행 중',
+                reason: '-'
+            },
+            {
+                id: 2,
+                name: '직권남용권리행사방해',
+                law: '형법 제123조',
+                description: '윤석열 구속취소 결정 후 즉시항고 포기',
+                prosecutionRequest: '조사 중',
+                verdict: '재판 진행 중',
+                reason: '-'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '재판 진행 중',
+            verdictTotal: '재판 진행 중',
+            ratio: '-'
+        },
+        keyFacts: [
+            '윤석열 구속취소 결정 후 즉시항고 포기 논란',
+            '계엄 당일~4일간 특별활동비 3억 4,200만원 사용',
+            '범인도피·직권남용 혐의 불구속 기소'
+        ],
+        trialStatus: '1심 재판 진행 중'
+    },
+    '이완규': {
+        id: 'leewankyu',
+        name: '이완규',
+        position: '전 법제처장',
+        status: '불구속',
+        statusColor: 'green',
+        court: '서울중앙지방법원',
+        charges: [
+            {
+                id: 1,
+                name: '위증',
+                law: '국회증언감정법',
+                description: '2025.12.11 기소. 국회 법사위 출석 시 허위 진술',
+                prosecutionRequest: '조사 중',
+                verdict: '재판 진행 중',
+                reason: '-'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '재판 진행 중',
+            verdictTotal: '재판 진행 중',
+            ratio: '-'
+        },
+        keyFacts: [
+            '윤석열 대통령 사법연수원 동기',
+            '12.4 안가회동(삼청동 안전가옥) 참석',
+            '위증 혐의 불구속 기소, 내란 방조 수사 중'
+        ],
+        trialStatus: '1심 재판 진행 중'
+    },
+    '추경호': {
+        id: 'chukyungho',
+        name: '추경호',
+        position: '국민의힘 의원 (전 원내대표)',
+        status: '불구속',
+        statusColor: 'green',
+        court: '서울중앙지방법원',
+        charges: [
+            {
+                id: 1,
+                name: '내란중요임무종사',
+                law: '형법 제87조',
+                description: '2025.12.8 기소. 국회 계엄해제 표결 방해',
+                prosecutionRequest: '조사 중',
+                verdict: '재판 진행 중',
+                reason: '-'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '재판 진행 중',
+            verdictTotal: '재판 진행 중',
+            ratio: '-'
+        },
+        keyFacts: [
+            '12.3 계엄의 밤 국회 계엄해제 표결 방해 혐의',
+            '구속영장 기각 후 불구속 기소',
+            '내란중요임무종사 혐의'
+        ],
+        trialStatus: '1심 재판 진행 중'
+    },
+    '김봉식': {
+        id: 'kimbongsik',
+        name: '김봉식',
+        position: '전 서울경찰청장',
+        status: '보석',
+        statusColor: 'yellow',
+        court: '서울중앙지방법원 형사합의25부',
+        judge: '지귀연 부장판사',
+        charges: [
+            {
+                id: 1,
+                name: '내란중요임무종사',
+                law: '형법 제87조',
+                description: '비상계엄 당시 서울경찰청장으로 국회 봉쇄 가담',
+                prosecutionRequest: '징역 15년',
+                verdict: '재판 진행 중',
+                reason: '-'
+            },
+            {
+                id: 2,
+                name: '직권남용권리행사방해',
+                law: '형법 제123조',
+                description: '국회 봉쇄 및 주요 인사 체포조 운영',
+                prosecutionRequest: '포함 구형',
+                verdict: '재판 진행 중',
+                reason: '-'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '징역 15년 (특검 구형)',
+            verdictTotal: '재판 진행 중 (2026.2.19 선고 예정)',
+            ratio: '-'
+        },
+        keyFacts: [
+            '12.3 비상계엄 당시 서울경찰청장으로 국회 봉쇄 가담',
+            '김용현 당시 국방장관으로부터 안가회동 문건 수령',
+            '비화폰 원격삭제 의혹 (2024.12.6)',
+            '2025.1.8 구속기소 → 2025.6.26 보석 허가'
+        ],
+        trialStatus: '1심 선고 예정 (2026.2.19, 윤석열 사건 병합심리)'
+    },
+    '노상원': {
+        id: 'nosangwon',
+        name: '노상원',
+        position: '전 국군정보사령관 (예비역, 민간인)',
+        status: '구속',
+        statusColor: 'red',
+        court: '서울중앙지방법원 형사합의25부',
+        judge: '지귀연 부장판사',
+        charges: [
+            {
+                id: 1,
+                name: '내란중요임무종사',
+                law: '형법 제87조',
+                description: '계엄 사전 모의, 포고령 초안 작성, 선관위 침입 지휘',
+                prosecutionRequest: '징역 30년',
+                verdict: '재판 진행 중',
+                reason: '-'
+            },
+            {
+                id: 2,
+                name: '내란목적살인예비',
+                law: '형법 제88조',
+                description: '수첩에 체포·살해 명단 기록',
+                prosecutionRequest: '포함 구형',
+                verdict: '재판 진행 중',
+                reason: '-'
+            },
+            {
+                id: 3,
+                name: '개인정보보호법 위반·알선수재',
+                law: '개인정보보호법, 특정범죄가중처벌법',
+                description: '제2수사단 구성 위한 군사정보 취득, 진급 청탁 금품 수수',
+                prosecutionRequest: '징역 3년 (별건)',
+                verdict: '유죄 - 징역 2년, 추징금 2,490만원 (1심)',
+                reason: '계엄 선포까지 이를 수 있게 하는 동력 중 하나'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '징역 30년 (내란 본건) + 징역 3년 (별건)',
+            verdictTotal: '별건: 징역 2년 선고 (2025.12.15), 내란 본건: 재판 진행 중 (2026.2.19 선고 예정)',
+            ratio: '-'
+        },
+        keyFacts: [
+            '김용현 전 장관 최측근, 예비역 민간인으로 계엄 핵심 기획',
+            '계엄 포고령 초안 작성자로 추정',
+            '롯데리아 회동에서 계엄 사전 모의 ("버거보살" 별명)',
+            '수첩에 500여명 체포·살해 구상, NLL 북한 공격 유도 등 기록',
+            '별건(개인정보보호법 위반) 1심 징역 2년 선고, 쌍방 항소'
+        ],
+        trialStatus: '1심 선고 예정 (2026.2.19, 윤석열 사건 병합심리)'
+    },
+    '목현태': {
+        id: 'mokhyuntae',
+        name: '목현태',
+        position: '전 서울경찰청 국회경비대장',
+        status: '불구속',
+        statusColor: 'green',
+        court: '서울중앙지방법원 형사합의25부',
+        judge: '지귀연 부장판사',
+        charges: [
+            {
+                id: 1,
+                name: '내란중요임무종사',
+                law: '형법 제87조',
+                description: '국회경비대장으로서 국회의원 출입 차단 지시',
+                prosecutionRequest: '징역 12년',
+                verdict: '재판 진행 중',
+                reason: '-'
+            },
+            {
+                id: 2,
+                name: '직권남용권리행사방해',
+                law: '형법 제123조',
+                description: '국회의원 포함 민간인 국회 출입 차단',
+                prosecutionRequest: '포함 구형',
+                verdict: '재판 진행 중',
+                reason: '-'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '징역 12년 (특검 구형)',
+            verdictTotal: '재판 진행 중 (2026.2.19 선고 예정)',
+            ratio: '-'
+        },
+        keyFacts: [
+            '국회경비대장으로서 국회 출입구 차단 지시',
+            '국회의원 출입 차단으로 계엄해제 의결 방해',
+            '국회의장 찾을 것을 4번 지시한 사실 확인',
+            '"국헌 문란의 목적이 없었다"며 내란 혐의 부인'
+        ],
+        trialStatus: '1심 선고 예정 (2026.2.19, 윤석열 사건 병합심리)'
+    },
+    '윤승영': {
+        id: 'yoonseungyoung',
+        name: '윤승영',
+        position: '전 경찰청 국가수사본부 수사기획조정관',
+        status: '불구속',
+        statusColor: 'green',
+        court: '서울중앙지방법원 형사합의25부',
+        judge: '지귀연 부장판사',
+        charges: [
+            {
+                id: 1,
+                name: '내란중요임무종사',
+                law: '형법 제87조',
+                description: '방첩사 체포조 지원 요청 수령 및 보고',
+                prosecutionRequest: '징역 10년',
+                verdict: '재판 진행 중',
+                reason: '-'
+            },
+            {
+                id: 2,
+                name: '직권남용권리행사방해',
+                law: '형법 제123조',
+                description: '체포조 운용 관련',
+                prosecutionRequest: '포함 구형',
+                verdict: '재판 진행 중',
+                reason: '-'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '징역 10년 (특검 구형)',
+            verdictTotal: '재판 진행 중 (2026.2.19 선고 예정)',
+            ratio: '-'
+        },
+        keyFacts: [
+            '비상계엄 당일 국군방첩사로부터 체포조 지원 요청 수령',
+            '2025.2.28 불구속 기소',
+            '"국헌 문란의 목적이 없었다"며 내란 혐의 부인'
+        ],
+        trialStatus: '1심 선고 예정 (2026.2.19, 윤석열 사건 병합심리)'
+    },
+    '조지호': {
+        id: 'jojiho',
+        name: '조지호',
+        position: '전 경찰청장',
+        status: '보석',
+        statusColor: 'yellow',
+        court: '서울중앙지방법원 형사합의25부',
+        judge: '지귀연 부장판사',
+        charges: [
+            {
+                id: 1,
+                name: '내란중요임무종사',
+                law: '형법 제87조',
+                description: '비상계엄 당시 경찰 동원, 국회 봉쇄 지휘',
+                prosecutionRequest: '징역 20년',
+                verdict: '재판 진행 중',
+                reason: '-'
+            },
+            {
+                id: 2,
+                name: '직권남용권리행사방해',
+                law: '형법 제123조',
+                description: '국회 봉쇄 및 주요 인사 체포조 운영',
+                prosecutionRequest: '포함 구형',
+                verdict: '재판 진행 중',
+                reason: '-'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '징역 20년 (특검 구형)',
+            verdictTotal: '재판 진행 중 (2026.2.19 선고 예정)',
+            ratio: '-'
+        },
+        keyFacts: [
+            '12.3 비상계엄 당시 경찰청장으로서 국회 봉쇄 지휘',
+            '이재명 대표 등 주요 인사 체포조 운영 가담 혐의',
+            '혈액암 2기, 2025.1.23 보석 석방 (보증금 1억원)',
+            '헌재 탄핵 파면 결정 (2025.12.18, 재판관 전원일치)'
+        ],
+        trialStatus: '1심 선고 예정 (2026.2.19, 윤석열 사건 병합심리)'
     }
 };
 
@@ -889,7 +1442,8 @@ export default function SentencingAnalysis() {
             keyIssues: staticData.keyIssues,
             // 동적 데이터 메타정보
             _lastUpdated: dynamicData.lastUpdated,
-            _hasLiveData: !!dynamicData
+            _hasLiveData: !!dynamicData,
+            _recentNews: dynamicData.recentNews || []
         };
     };
 
@@ -967,8 +1521,16 @@ export default function SentencingAnalysis() {
                                             className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
                                         >
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                                                    <span className="text-lg font-bold text-gray-600">{name[0]}</span>
+                                                <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden bg-gray-200 shrink-0">
+                                                    {PERSON_PHOTOS[name] ? (
+                                                        <img
+                                                            src={PERSON_PHOTOS[name]}
+                                                            alt={name}
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                                        />
+                                                    ) : null}
+                                                    <span className={`text-lg font-bold text-gray-600 ${PERSON_PHOTOS[name] ? 'hidden' : 'flex'} items-center justify-center w-full h-full`}>{name[0]}</span>
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-900">{name}</p>
@@ -1546,6 +2108,44 @@ export default function SentencingAnalysis() {
                             </button>
                         </div>
                     </div>
+
+                    {/* 자동 수집 최신 뉴스 */}
+                    {person._recentNews && person._recentNews.length > 0 && (
+                        <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                    <span className="text-green-500">●</span>
+                                    자동 수집 최신 뉴스
+                                </h3>
+                                {person._lastUpdated && (
+                                    <span className="text-xs text-gray-400">
+                                        마지막 수집: {new Date(person._lastUpdated?.seconds * 1000).toLocaleDateString('ko-KR')}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="space-y-3">
+                                {person._recentNews.map((news, idx) => (
+                                    <a
+                                        key={idx}
+                                        href={news.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="block p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
+                                    >
+                                        <p className="text-sm font-medium text-gray-900 line-clamp-2">{news.title?.replace(/<[^>]*>/g, '')}</p>
+                                        {news.pubDate && (
+                                            <p className="text-xs text-gray-400 mt-1">
+                                                {new Date(news.pubDate).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                            </p>
+                                        )}
+                                    </a>
+                                ))}
+                            </div>
+                            <p className="text-xs text-gray-400 mt-4 text-center">
+                                Bing News RSS + Gemini AI로 자동 수집된 뉴스입니다 (하루 2회 업데이트)
+                            </p>
+                        </div>
+                    )}
 
                     {/* 하단 안내 */}
                     <div className="mt-8 p-4 bg-gray-100 rounded-xl text-center">

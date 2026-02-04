@@ -876,11 +876,23 @@ export default function Governance() {
                                 </button>
                                 <div className={`absolute top-full left-0 mt-0 pt-2 ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
                                     <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px] z-50">
+                                        <Link to="/news" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
+                                            사법뉴스
+                                        </Link>
                                         <Link to="/blog" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
                                             블로그
                                         </Link>
                                         <Link to="/videos" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
                                             동영상
+                                        </Link>
+                                        <Link to="/sentencing-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
+                                            재판분석
+                                        </Link>
+                                        <Link to="/reform-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
+                                            개혁안 비교
+                                        </Link>
+                                        <Link to="/law-database" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
+                                            법령DB
                                         </Link>
                                     </div>
                                 </div>
@@ -924,8 +936,16 @@ export default function Governance() {
                                 </div>
                                 <a href="/#constitution" className="hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>헌법적 근거</a>
                                 <a href="/#bill" className="hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>법안 제안</a>
-                                <Link to="/blog" className="hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>블로그</Link>
-                                <Link to="/videos" className="hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
+                                {/* 모바일 미디어 서브메뉴 */}
+                                <div className="pl-4 border-l-2 border-gray-200">
+                                    <p className="text-gray-500 text-sm mb-2">미디어</p>
+                                    <Link to="/news" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>사법뉴스</Link>
+                                    <Link to="/blog" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>블로그</Link>
+                                    <Link to="/videos" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
+                                    <Link to="/sentencing-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>재판분석</Link>
+                                    <Link to="/reform-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>개혁안 비교</Link>
+                                    <Link to="/law-database" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>법령DB</Link>
+                                </div>
                                 <a href="/#signature" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg text-center">
                                     참여하기
                                 </a>

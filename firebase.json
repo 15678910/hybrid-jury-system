@@ -23,6 +23,14 @@
         "function": "videos"
       },
       {
+        "source": "/sentencing-analysis",
+        "function": "sentencingAnalysisPage"
+      },
+      {
+        "source": "/reform-analysis",
+        "function": "reformAnalysisPage"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

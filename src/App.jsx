@@ -190,6 +190,12 @@ export default function App() {
         const initAuth = async () => {
             console.log('[App] initAuth 시작');
 
+            // 해시 링크로 진입한 경우 (예: /#necessity) 포스터 표시 안 함
+            if (window.location.hash) {
+                console.log('[App] 해시 링크 진입 - 포스터 표시 안 함');
+                return;
+            }
+
             // 블로그/동영상 페이지에서는 로그인 모달 표시 안 함 (로그인 없이 열람 가능)
             // 로그인 기능 비활성화 - 로그인 없이 모든 기능 사용 가능
             console.log('[App] 로그인 기능 비활성화됨 - 로그인 모달 표시 안 함');
@@ -922,6 +928,12 @@ export default function App() {
                                         >
                                             개혁안 비교
                                         </Link>
+                                        <Link
+                                            to="/law-database"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                        >
+                                            법령DB
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
@@ -1046,6 +1058,13 @@ export default function App() {
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
                                 >
                                     개혁안 비교
+                                </Link>
+                                <Link
+                                    to="/law-database"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    법령DB
                                 </Link>
                             </div>
 
