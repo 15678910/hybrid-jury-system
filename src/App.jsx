@@ -128,12 +128,19 @@ export default function App() {
                 setTodayRegistrations(todayCount);
                 setIsDailyLimitReached(todayCount >= DAILY_LIMIT);
 
-                // 블로그 데이터 처리
-                const posts = postsSnap.docs.slice(0, 3).map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
-                }));
+                // 블로그 데이터 처리 (뉴스봇 글 제외)
+                const posts = postsSnap.docs
+                    .filter(doc => {
+                        const data = doc.data();
+                        // 뉴스봇 글 또는 [사법뉴스] 제목 제외
+                        return !data.author?.includes('뉴스봇') && !data.title?.includes('[사법뉴스]');
+                    })
+                    .slice(0, 3)
+                    .map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
+                    }));
                 setLatestPosts(posts);
 
                 // 뉴스 데이터 처리
@@ -808,21 +815,21 @@ export default function App() {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* 헤더 */}
-            <header className="bg-white shadow-md fixed top-0 w-full z-50">
-                <div className="container mx-auto px-4">
-                    <nav className="flex items-center justify-between py-4">
+            <header className="bg-white shadow-md fixed top-0 w-full z-[9999] overflow-visible">
+                <div className="container mx-auto px-4 overflow-visible">
+                    <nav className="flex items-center justify-between py-4 overflow-visible">
                         <div className="text-2xl font-bold text-blue-600 cursor-pointer" onClick={() => scrollToSection('necessity')}>
                             ⚖️ 사법개혁
                         </div>
 
                         {/* 데스크톱 메뉴 */}
-                        <div className="hidden lg:flex space-x-6 text-sm items-center">
+                        <div className="hidden lg:flex space-x-6 text-sm items-center overflow-visible">
                             {/* 소개 */}
                             <a href="/intro.html" className="hover:text-blue-600 transition font-medium">소개</a>
 
                             {/* 소통방 드롭다운 */}
                             <div
-                                className="relative"
+                                className="relative overflow-visible"
                                 onMouseEnter={() => setIntroDropdownOpen(true)}
                                 onMouseLeave={() => setIntroDropdownOpen(false)}
                             >
@@ -834,8 +841,8 @@ export default function App() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
-                                <div className={`absolute top-full left-0 mt-0 pt-2 ${introDropdownOpen ? 'block' : 'hidden'}`}>
-                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[140px] z-50">
+                                <div className={`absolute top-full left-0 mt-0 pt-2 z-[9999] ${introDropdownOpen ? 'block' : 'hidden'}`}>
+                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[140px]">
                                         <Link
                                             to="/governance"
                                             className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
@@ -849,7 +856,7 @@ export default function App() {
 
                             {/* 해외사례 드롭다운 */}
                             <div
-                                className="relative"
+                                className="relative overflow-visible"
                                 onMouseEnter={() => setCasesDropdownOpen(true)}
                                 onMouseLeave={() => setCasesDropdownOpen(false)}
                             >
@@ -861,8 +868,8 @@ export default function App() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
-                                <div className={`absolute top-full left-0 mt-0 pt-2 ${casesDropdownOpen ? 'block' : 'hidden'}`}>
-                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[160px] z-50">
+                                <div className={`absolute top-full left-0 mt-0 pt-2 z-[9999] ${casesDropdownOpen ? 'block' : 'hidden'}`}>
+                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[160px]">
                                         <button
                                             onClick={() => scrollToSection('cases')}
                                             className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
@@ -884,7 +891,7 @@ export default function App() {
 
                             {/* 미디어 드롭다운 */}
                             <div
-                                className="relative"
+                                className="relative overflow-visible"
                                 onMouseEnter={() => setMediaDropdownOpen(true)}
                                 onMouseLeave={() => setMediaDropdownOpen(false)}
                             >
@@ -896,8 +903,8 @@ export default function App() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
-                                <div className={`absolute top-full left-0 mt-0 pt-2 ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
-                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px] z-50">
+                                <div className={`absolute top-full left-0 mt-0 pt-2 z-[9999] ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
+                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px]">
                                         <Link
                                             to="/news"
                                             className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
@@ -920,13 +927,19 @@ export default function App() {
                                             to="/sentencing-analysis"
                                             className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                         >
-                                            재판분석
+                                            내란재판분석
                                         </Link>
                                         <Link
                                             to="/reform-analysis"
                                             className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                         >
                                             개혁안 비교
+                                        </Link>
+                                        <Link
+                                            to="/judge-evaluation"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                        >
+                                            판사평가
                                         </Link>
                                         <Link
                                             to="/law-database"
@@ -1050,7 +1063,7 @@ export default function App() {
                                     onClick={() => setMobileMenuOpen(false)}
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
                                 >
-                                    재판분석
+                                    내란재판분석
                                 </Link>
                                 <Link
                                     to="/reform-analysis"
@@ -2040,7 +2053,7 @@ export default function App() {
                         <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl p-8 text-white shadow-xl">
                             <div className="text-center mb-6">
                                 <h3 className="text-2xl md:text-3xl font-bold mb-2">🎯 1만 명 서명 캠페인</h3>
-                                <p className="text-white/80">온라인 준비위원 1만 명이 참여하면 광장에서 주권자 세상이 시작됩니다!</p>
+                                <p className="text-white/80">온라인 준비위원 1만 명이 참여하면 광장에서 주권자 세상 시작합니다!</p>
                             </div>
 
                             {/* 진행률 바 */}
@@ -2131,12 +2144,11 @@ export default function App() {
                 </div>
             </section>
 
-            {/* 최신 소식 섹션 */}
+            {/* 블로그 섹션 */}
             <section className="py-16 px-4 bg-gradient-to-r from-slate-800 to-slate-900">
                 <div className="container mx-auto max-w-4xl">
                     <div className="text-center mb-10">
-                        <h3 className="text-2xl font-bold text-white mb-2">최신 소식</h3>
-                        <p className="text-gray-400">참심제와 사법개혁에 관한 소식을 전합니다</p>
+                        <h3 className="text-2xl font-bold text-white">블로그</h3>
                     </div>
 
                     {latestPosts.length > 0 ? (

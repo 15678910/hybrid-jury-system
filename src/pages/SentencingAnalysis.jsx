@@ -171,55 +171,71 @@ const personsData = {
                     year: '2026',
                     caseName: '김건희 주가조작·알선수재 사건',
                     role: '재판장',
-                    verdict: '유죄 - 징역 1년 8개월 (주가조작 무죄, 알선수재 유죄)'
+                    verdict: '유죄 - 징역 1년 8개월 (주가조작 무죄, 알선수재 유죄)',
+                    source: { name: '머니투데이', url: 'https://www.mt.co.kr/society/2026/01/28/2026012814040115676' }
+                },
+                {
+                    year: '2025',
+                    caseName: '서병호 간첩조작사건 재심',
+                    role: '재판장',
+                    verdict: '재심 기각 (진화위 재심 권고에도 불구)',
+                    source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202507181841001' }
                 },
                 {
                     year: '2024',
                     caseName: '이재명 대표 허위사실공표 사건',
                     role: '재판장',
-                    verdict: '유죄 - 징역 1년, 집유 2년, 당선무효형'
+                    verdict: '유죄 - 징역 1년, 집유 2년, 당선무효형',
+                    source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202411151447001' }
                 },
                 {
                     year: '2024',
                     caseName: '강남역 의대생 여자친구 살해 사건',
                     role: '재판장',
-                    verdict: '징역 26년 (항소심 30년으로 증형)'
+                    verdict: '징역 26년 (항소심 30년으로 증형)',
+                    source: { name: '한겨레', url: 'https://www.hani.co.kr/arti/society/society_general/1140576.html' }
                 },
                 {
                     year: '2020',
                     caseName: '이천 물류창고 화재 사고 (38명 사망)',
                     role: '재판장',
-                    verdict: '시공사 관계자 징역 3년 6개월 실형'
+                    verdict: '시공사 관계자 징역 3년 6개월 실형',
+                    source: { name: '연합뉴스', url: 'https://www.yna.co.kr/view/AKR20201218100251061' }
                 },
                 {
                     year: '2023',
                     caseName: '성전환자 성별정정 허가 사건',
                     role: '재판장 (항소심)',
-                    verdict: '외부 성기 시술 없이 성별정정 허가'
+                    verdict: '외부 성기 시술 없이 성별정정 허가',
+                    source: { name: '한겨레', url: 'https://www.hani.co.kr/arti/society/society_general/1080893.html' }
                 },
                 {
                     year: '2014',
                     caseName: '쌍용차 해고자 공무집행방해 사건',
                     role: '재판장',
-                    verdict: '무죄 - 공권력 과도 행사 인정'
+                    verdict: '무죄 - 공권력 과도 행사 인정',
+                    source: { name: '한겨레', url: 'https://www.hani.co.kr/arti/society/labor/626802.html' }
                 },
                 {
                     year: '2023',
                     caseName: '유시민 한동훈 명예훼손 항소심',
                     role: '재판장 (항소심)',
-                    verdict: '원심 유지 - 벌금 500만원'
+                    verdict: '원심 유지 - 벌금 500만원',
+                    source: { name: '뉴시스', url: 'https://www.newsis.com/view/?id=NISX20231026_0002494844' }
                 },
                 {
                     year: '2023',
                     caseName: '가세연(강용석·김세의) 이재명 허위사실 유포 사건',
                     role: '재판장',
-                    verdict: '소년원 발언 무죄 (항소심에서 유죄로 변경)'
+                    verdict: '소년원 발언 무죄 (항소심에서 유죄로 변경)',
+                    source: { name: '서울경제', url: 'https://www.sedaily.com/article/20002586' }
                 },
                 {
                     year: '2023',
                     caseName: '장영하 변호사 이재명 조폭 연루설 사건',
                     role: '재판장',
-                    verdict: '무죄 (항소심에서 유죄로 변경)'
+                    verdict: '무죄 (항소심에서 유죄로 변경)',
+                    source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202501241620001' }
                 }
             ],
             profile: '제39회 사법시험 합격, 사법연수원 29기(2000년 수료). 서울대 법대 졸업. 2003년 창원지법 판사로 시작, 대법원 재판연구관(2012-2014), 청주지법·수원지법·서울서부지법 부장판사 역임. 2024년 서울중앙지법 형사합의27부 재판장. 2019년 서울지방변호사회 우수법관 선정. 한국형사판례연구회 부회장.'
@@ -1351,7 +1367,7 @@ export default function SentencingAnalysis() {
                     content: {
                         title: selectedPerson ? `[재판분석] ${selectedPerson}` : '재판분석',
                         description: text,
-                        imageUrl: 'https://xn--lg3b0kt4n41f.kr/og-sentencing.png',
+                        imageUrl: 'https://xn--lg3b0kt4n41f.kr/%EB%82%B4%EB%9E%80%EC%9E%AC%ED%8C%90%EB%B6%84%EC%84%9D.png',
                         link: { mobileWebUrl: url, webUrl: url },
                     },
                     buttons: [{ title: '자세히 보기', link: { mobileWebUrl: url, webUrl: url } }],
@@ -1911,6 +1927,16 @@ export default function SentencingAnalysis() {
                                             </div>
                                             <p className="font-medium text-gray-900 mb-1">{caseItem.caseName}</p>
                                             <p className="text-sm text-gray-600">판결: {caseItem.verdict}</p>
+                                            {caseItem.source && (
+                                                <a
+                                                    href={caseItem.source.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs text-blue-500 hover:text-blue-700 hover:underline mt-1 inline-block"
+                                                >
+                                                    출처: {caseItem.source.name} →
+                                                </a>
+                                            )}
                                         </div>
                                     ))}
                                 </div>

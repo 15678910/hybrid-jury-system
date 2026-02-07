@@ -1742,7 +1742,7 @@ const collectAndPostNews = async () => {
 
     // 텔레그램 알림
     try {
-        const telegramMsg = `📰 <b>[사법뉴스] ${dateStr} 주요 소식</b>\n\n${allNews.length}건의 사법 관련 뉴스가 자동 수집되었습니다.\n\n👉 https://siminbupjung-blog.web.app/blog/${postRef.id}`;
+        const telegramMsg = `📰 <b>[사법뉴스] ${dateStr} 주요 소식</b>\n\n👉 https://siminbupjung-blog.web.app/blog/${postRef.id}`;
         await sendTelegramMessage(GROUP_CHAT_ID, telegramMsg);
     } catch (e) {
         console.error('Telegram notification failed:', e);
@@ -2306,7 +2306,7 @@ exports.crawlAllSentencingData = functions
             const successCount = results.filter(r => r.success).length;
             const now = new Date();
             const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
-            const telegramMsg = `📊 <b>[재판분석] ${dateStr} 소식</b>\n\n✅ ${successCount}/${SENTENCING_PERSONS.length}명 인물 데이터 수집 완료\n\n👉 https://siminbupjung-blog.web.app/sentencing-analysis`;
+            const telegramMsg = `📊 <b>[내란재판분석] ${dateStr} 소식</b>\n\n👉 https://siminbupjung-blog.web.app/sentencing-analysis`;
             await sendTelegramMessage(GROUP_CHAT_ID, telegramMsg);
         } catch (e) {
             console.error('Telegram notification failed:', e);
@@ -2330,7 +2330,7 @@ exports.sentencingAnalysisPage = functions.https.onRequest(async (req, res) => {
 
     const now = new Date();
     const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
-    const title = `[재판분석] ${dateStr} 소식`;
+    const title = `[내란재판분석] ${dateStr} 소식`;
     const description = '내란 관련 인물 재판 현황 및 판결 분석 - 시민법정';
     const imageUrl = 'https://siminbupjung-blog.web.app/%EB%82%B4%EB%9E%80%EC%9E%AC%ED%8C%90%EB%B6%84%EC%84%9D.png?v=3';
     const pageUrl = 'https://siminbupjung-blog.web.app/sentencing-analysis';
@@ -2389,6 +2389,101 @@ exports.reformAnalysisPage = functions.https.onRequest(async (req, res) => {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${title} - 시민법정</title>
+    <meta name="description" content="${description}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:url" content="${pageUrl}" />
+    <meta property="og:site_name" content="시민법정" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${imageUrl}" />
+  </head>
+  <body>
+    <h1>${title}</h1>
+    <p>${description}</p>
+  </body>
+</html>`;
+
+    res.send(html);
+});
+
+// 판사평가 페이지 SSR (OG 태그 - 텔레그램/카카오/페이스북 미리보기)
+exports.judgeEvaluationPage = functions.https.onRequest(async (req, res) => {
+    const userAgent = req.get('User-Agent') || '';
+    const isCrawler = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
+
+    if (!isCrawler) {
+        return res.send(`<!DOCTYPE html>
+<html>
+<head><meta http-equiv="refresh" content="0;url=/?r=/judge-evaluation"><script>window.location.replace("/?r=/judge-evaluation")</script></head>
+<body>Loading...</body>
+</html>`);
+    }
+
+    const title = '판사 평가 - 시민법정';
+    const description = '내란 재판 담당 판사들의 판결 성향 및 시민 평가 - 시민법정';
+    const imageUrl = 'https://siminbupjung-blog.web.app/og-image.png';
+    const pageUrl = 'https://siminbupjung-blog.web.app/judge-evaluation';
+
+    const html = `<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${title}</title>
+    <meta name="description" content="${description}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:url" content="${pageUrl}" />
+    <meta property="og:site_name" content="시민법정" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${imageUrl}" />
+  </head>
+  <body>
+    <h1>${title}</h1>
+    <p>${description}</p>
+  </body>
+</html>`;
+
+    res.send(html);
+});
+
+// 개별 판사 페이지 SSR (OG 태그)
+exports.judgeDetailPage = functions.https.onRequest(async (req, res) => {
+    const userAgent = req.get('User-Agent') || '';
+    const isCrawler = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
+
+    // URL에서 판사 이름 추출 (/judge/홍길동 -> 홍길동)
+    const judgeName = decodeURIComponent(req.path.split('/').pop() || '');
+
+    if (!isCrawler) {
+        return res.send(`<!DOCTYPE html>
+<html>
+<head><meta http-equiv="refresh" content="0;url=/?r=/judge/${encodeURIComponent(judgeName)}"><script>window.location.replace("/?r=/judge/${encodeURIComponent(judgeName)}")</script></head>
+<body>Loading...</body>
+</html>`);
+    }
+
+    const title = `${judgeName} 판사 평가 - 시민법정`;
+    const description = `${judgeName} 판사의 판결 성향 및 시민 평가 - 시민법정`;
+    const imageUrl = 'https://siminbupjung-blog.web.app/og-image.png';
+    const pageUrl = `https://siminbupjung-blog.web.app/judge/${encodeURIComponent(judgeName)}`;
+
+    const html = `<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${title}</title>
     <meta name="description" content="${description}" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="${title}" />
@@ -2629,7 +2724,7 @@ exports.collectReformNews = functions
             const successCount = results.filter(r => r.success).length;
             const now = new Date();
             const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
-            const telegramMsg = `📰 <b>[개혁안 비교] ${dateStr} 주요 소식</b>\n\n✅ ${successCount}/${results.length}개 영역 수집 완료\n\n👉 https://siminbupjung-blog.web.app/reform-analysis`;
+            const telegramMsg = `📰 <b>[개혁안 비교] ${dateStr} 주요 소식</b>\n\n👉 https://siminbupjung-blog.web.app/reform-analysis`;
             await sendTelegramMessage(GROUP_CHAT_ID, telegramMsg);
         } catch (e) {
             console.error('Telegram notification failed:', e);
@@ -3275,5 +3370,50 @@ exports.lawApi = functions.https.onRequest(async (req, res) => {
     } catch (error) {
         console.error('Law API proxy error:', error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// 네이버 뉴스 검색 API
+// ============================================
+
+exports.searchNaverNews = functions.https.onRequest(async (req, res) => {
+    // CORS 설정
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        return res.status(204).send('');
+    }
+
+    const query = req.query.query;
+    if (!query) {
+        return res.status(400).json({ error: 'query parameter is required' });
+    }
+
+    try {
+        const clientId = functions.config().naver.client_id;
+        const clientSecret = functions.config().naver.client_secret;
+
+        const response = await fetch(
+            `https://openapi.naver.com/v1/search/news.json?query=${encodeURIComponent(query)}&display=5&sort=sim`,
+            {
+                headers: {
+                    'X-Naver-Client-Id': clientId,
+                    'X-Naver-Client-Secret': clientSecret
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Naver API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return res.json(data);
+    } catch (error) {
+        console.error('Naver News API error:', error);
+        return res.status(500).json({ error: 'Failed to fetch news' });
     }
 });

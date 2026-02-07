@@ -874,8 +874,8 @@ export default function Governance() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
-                                <div className={`absolute top-full left-0 mt-0 pt-2 ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
-                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px] z-50">
+                                <div className={`absolute top-full left-0 mt-0 pt-2 z-[9999] ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
+                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px]">
                                         <Link to="/news" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
                                             사법뉴스
                                         </Link>
@@ -886,10 +886,13 @@ export default function Governance() {
                                             동영상
                                         </Link>
                                         <Link to="/sentencing-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
-                                            재판분석
+                                            내란재판분석
                                         </Link>
                                         <Link to="/reform-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
                                             개혁안 비교
+                                        </Link>
+                                        <Link to="/judge-evaluation" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
+                                            판사평가
                                         </Link>
                                         <Link to="/law-database" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
                                             법령DB
@@ -942,8 +945,9 @@ export default function Governance() {
                                     <Link to="/news" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>사법뉴스</Link>
                                     <Link to="/blog" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>블로그</Link>
                                     <Link to="/videos" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
-                                    <Link to="/sentencing-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>재판분석</Link>
+                                    <Link to="/sentencing-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>내란재판분석</Link>
                                     <Link to="/reform-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>개혁안 비교</Link>
+                                    <Link to="/judge-evaluation" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>판사평가</Link>
                                     <Link to="/law-database" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>법령DB</Link>
                                 </div>
                                 <a href="/#signature" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg text-center">

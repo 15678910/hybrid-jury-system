@@ -14,21 +14,21 @@ export default function Header() {
     };
 
     return (
-        <header className="bg-white shadow-md fixed top-0 w-full z-50">
-            <div className="container mx-auto px-4">
-                <nav className="flex items-center justify-between py-4">
+        <header className="bg-white shadow-md fixed top-0 w-full z-[9999] overflow-visible">
+            <div className="container mx-auto px-4 overflow-visible">
+                <nav className="flex items-center justify-between py-4 overflow-visible">
                     <Link to="/" className="text-2xl font-bold text-blue-600">
                         ⚖️ 사법개혁
                     </Link>
 
                     {/* 데스크톱 메뉴 */}
-                    <div className="hidden lg:flex space-x-6 text-sm items-center">
+                    <div className="hidden lg:flex space-x-6 text-sm items-center overflow-visible">
                         {/* 소개 */}
                         <a href="/intro.html" className="hover:text-blue-600 transition font-medium">소개</a>
 
                         {/* 소통방 드롭다운 */}
                         <div
-                            className="relative"
+                            className="relative overflow-visible"
                             onMouseEnter={() => setIntroDropdownOpen(true)}
                             onMouseLeave={() => setIntroDropdownOpen(false)}
                         >
@@ -40,8 +40,8 @@ export default function Header() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
-                            <div className={`absolute top-full left-0 mt-0 pt-2 ${introDropdownOpen ? 'block' : 'hidden'}`}>
-                                <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[140px] z-50">
+                            <div className={`absolute top-full left-0 mt-0 pt-2 z-[9999] ${introDropdownOpen ? 'block' : 'hidden'}`}>
+                                <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[140px]">
                                     <Link
                                         to="/governance"
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
@@ -55,7 +55,7 @@ export default function Header() {
 
                         {/* 해외사례 드롭다운 */}
                         <div
-                            className="relative"
+                            className="relative overflow-visible"
                             onMouseEnter={() => setCasesDropdownOpen(true)}
                             onMouseLeave={() => setCasesDropdownOpen(false)}
                         >
@@ -67,8 +67,8 @@ export default function Header() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
-                            <div className={`absolute top-full left-0 mt-0 pt-2 ${casesDropdownOpen ? 'block' : 'hidden'}`}>
-                                <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[160px] z-50">
+                            <div className={`absolute top-full left-0 mt-0 pt-2 z-[9999] ${casesDropdownOpen ? 'block' : 'hidden'}`}>
+                                <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[160px]">
                                     <button
                                         onClick={() => scrollToSection('cases')}
                                         className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
@@ -90,7 +90,7 @@ export default function Header() {
 
                         {/* 미디어 드롭다운 */}
                         <div
-                            className="relative"
+                            className="relative overflow-visible"
                             onMouseEnter={() => setMediaDropdownOpen(true)}
                             onMouseLeave={() => setMediaDropdownOpen(false)}
                         >
@@ -102,8 +102,8 @@ export default function Header() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
-                            <div className={`absolute top-full left-0 mt-0 pt-2 ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
-                                <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px] z-50">
+                            <div className={`absolute top-full left-0 mt-0 pt-2 z-[9999] ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
+                                <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px]">
                                     <Link
                                         to="/news"
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
@@ -126,13 +126,19 @@ export default function Header() {
                                         to="/sentencing-analysis"
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                     >
-                                        재판분석
+                                        내란재판분석
                                     </Link>
                                     <Link
                                         to="/reform-analysis"
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                     >
                                         개혁안 비교
+                                    </Link>
+                                    <Link
+                                        to="/judge-evaluation"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                    >
+                                        판사평가
                                     </Link>
                                     <Link
                                         to="/law-database"
@@ -188,8 +194,9 @@ export default function Header() {
                                 <Link to="/news" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>사법뉴스</Link>
                                 <Link to="/blog" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>블로그</Link>
                                 <Link to="/videos" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
-                                <Link to="/sentencing-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>재판분석</Link>
+                                <Link to="/sentencing-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>내란재판분석</Link>
                                 <Link to="/reform-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>개혁안 비교</Link>
+                                <Link to="/judge-evaluation" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>판사평가</Link>
                                 <Link to="/law-database" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>법령DB</Link>
                             </div>
                             <button onClick={() => { scrollToSection('signature'); setMobileMenuOpen(false); }} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg text-center">

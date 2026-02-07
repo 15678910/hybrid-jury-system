@@ -730,6 +730,12 @@ export const getCurrentUser = () => {
         return auth.currentUser;
     }
 
+    // 구글 사용자 확인 (sessionStorage - 리다이렉트 로그인 후)
+    const googleUser = sessionStorage.getItem('googleUser');
+    if (googleUser) {
+        return JSON.parse(googleUser);
+    }
+
     // 카카오 사용자 확인 (sessionStorage만 - 브라우저 닫으면 로그아웃)
     const kakaoUser = sessionStorage.getItem('kakaoUser');
     if (kakaoUser) {

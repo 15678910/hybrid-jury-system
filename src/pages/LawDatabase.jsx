@@ -120,79 +120,92 @@ const LAW_HISTORY_TIMELINE = [
         year: '1953',
         title: '형법 제정',
         description: '대한민국 형법 제정과 함께 내란죄(제87조~제91조) 신설. 일본 형법의 내란죄를 참고하되 독자적 체계로 구성.',
-        type: 'creation'
+        type: 'creation',
+        source: { name: '형법 원문', url: 'https://www.law.go.kr/법령/형법' }
     },
     {
         year: '1961',
         title: '5.16 군사정변',
         description: '박정희 등 군부세력의 군사정변. 이후 "혁명"으로 정당화되어 내란죄 적용이 이루어지지 않음.',
-        type: 'event'
+        type: 'event',
+        source: { name: '위키백과', url: 'https://ko.wikipedia.org/wiki/5·16_군사_정변' }
     },
     {
         year: '1979',
         title: '12.12 군사반란',
         description: '전두환 등 신군부의 군사반란. 당시에는 처벌되지 않았으나 이후 재판으로 이어짐.',
-        type: 'event'
+        type: 'event',
+        source: { name: '위키백과', url: 'https://ko.wikipedia.org/wiki/12·12_군사_반란' }
     },
     {
         year: '1980',
         title: '5.18 광주민주화운동',
         description: '신군부의 비상계엄 확대와 무력 진압. 내란목적살인 등 혐의의 역사적 사례.',
-        type: 'event'
+        type: 'event',
+        source: { name: '5.18기념재단', url: 'https://518.org/' }
     },
     {
         year: '1995',
         title: '5.18 특별법 제정',
         description: '"헌정질서 파괴범죄의 공소시효 등에 관한 특례법" 제정. 내란죄의 공소시효 배제 근거 마련.',
-        type: 'amendment'
+        type: 'amendment',
+        source: { name: '특별법 원문', url: 'https://www.law.go.kr/법령/헌정질서파괴범죄의공소시효등에관한특례법' }
     },
     {
         year: '1996',
         title: '12.12/5.18 재판',
         description: '전두환·노태우 등에 대한 내란 재판. 전두환 사형(후 무기징역→특사), 노태우 징역 22년 6월(후 17년→특사). 대한민국 최초의 내란죄 유죄 판결.',
-        type: 'verdict'
+        type: 'verdict',
+        source: { name: '대법원 판결문', url: 'https://www.law.go.kr/precInfoP.do?precSeq=188579' }
     },
     {
         year: '2004',
         title: '노무현 대통령 탄핵 사건',
         description: '헌법재판소 2004헌나1 결정. 탄핵 기각. 대통령의 헌법 수호 의무에 대한 헌법적 판단.',
-        type: 'constitutional'
+        type: 'constitutional',
+        source: { name: '헌재 결정문', url: 'https://www.law.go.kr/detcInfoP.do?mode=0&query=2004%ED%97%8C%EB%82%981' }
     },
     {
         year: '2014',
         title: '통합진보당 해산 결정',
         description: '헌재 2013헌다1 결정. 내란 관련 목적을 가진 정당의 해산 결정. 내란 관련 법리의 현대적 해석.',
-        type: 'constitutional'
+        type: 'constitutional',
+        source: { name: '헌재 결정문', url: 'https://www.law.go.kr/detcInfoP.do?mode=0&query=2013%ED%97%8C%EB%8B%A41' }
     },
     {
         year: '2016',
         title: '박근혜 대통령 탄핵 사건',
         description: '헌법재판소 2016헌나1 결정. 탄핵 인용. 대통령의 헌법 수호 의무 위반 확인.',
-        type: 'constitutional'
+        type: 'constitutional',
+        source: { name: '헌재 결정문', url: 'https://www.law.go.kr/detcInfoP.do?mode=0&query=2016%ED%97%8C%EB%82%981' }
     },
     {
         year: '2024.12.3',
         title: '비상계엄 선포',
         description: '윤석열 대통령의 비상계엄 선포. 군 병력의 국회 진입 시도. 약 6시간 만에 해제. 헌정사상 초유의 대통령 주도 내란 의혹.',
-        type: 'event'
+        type: 'event',
+        source: { name: '연합뉴스', url: 'https://www.yna.co.kr/view/AKR20241203173400001' }
     },
     {
         year: '2025.1',
         title: '윤석열 대통령 체포·구속',
         description: '공수처에 의한 현직 대통령 체포 및 구속. 내란수괴 혐의 적용. 헌정사상 최초.',
-        type: 'event'
+        type: 'event',
+        source: { name: '연합뉴스', url: 'https://www.yna.co.kr/view/AKR20250119034300004' }
     },
     {
         year: '2026.1.21',
         title: '한덕수 1심 판결',
         description: '12.3 내란 관련 첫 판결. 내란중요임무종사 유죄, 징역 23년 선고. 법원이 12.3 비상계엄을 "국헌문란 목적의 내란"으로 최초 인정.',
-        type: 'verdict'
+        type: 'verdict',
+        source: { name: '연합뉴스', url: 'https://www.yna.co.kr/view/AKR20260121089300004' }
     },
     {
         year: '2026.1.28',
         title: '김건희 1심 판결',
         description: '도이치모터스 주가조작 무죄, 알선수재 유죄. 징역 1년 8개월 선고.',
-        type: 'verdict'
+        type: 'verdict',
+        source: { name: '연합뉴스', url: 'https://www.yna.co.kr/view/AKR20260128100700004' }
     }
 ];
 
@@ -203,7 +216,8 @@ const CONSTITUTIONAL_DECISIONS = [
         date: '2004.5.14',
         result: '기각 (탄핵 기각)',
         summary: '국회의 탄핵소추를 기각. 대통령의 선거중립의무 위반은 인정하였으나, 파면을 정당화할 정도의 중대한 법 위반은 아니라고 판단.',
-        significance: '대통령 탄핵의 요건으로 "법 위반의 중대성"이 필요함을 확립'
+        significance: '대통령 탄핵의 요건으로 "법 위반의 중대성"이 필요함을 확립',
+        source: { name: '헌법재판소', url: 'https://www.law.go.kr/detcInfoP.do?mode=0&query=2004%ED%97%8C%EB%82%981' }
     },
     {
         caseNumber: '2013헌다1',
@@ -211,7 +225,8 @@ const CONSTITUTIONAL_DECISIONS = [
         date: '2014.12.19',
         result: '인용 (정당 해산)',
         summary: '통합진보당의 목적과 활동이 민주적 기본질서에 위배된다고 판단. 내란 관련 목적을 가진 정당의 해산을 결정.',
-        significance: '내란 관련 법리의 현대적 해석, 민주적 기본질서의 의미 확립'
+        significance: '내란 관련 법리의 현대적 해석, 민주적 기본질서의 의미 확립',
+        source: { name: '헌법재판소', url: 'https://www.law.go.kr/detcInfoP.do?mode=0&query=2013%ED%97%8C%EB%8B%A41' }
     },
     {
         caseNumber: '2016헌나1',
@@ -219,7 +234,8 @@ const CONSTITUTIONAL_DECISIONS = [
         date: '2017.3.10',
         result: '인용 (탄핵 인용, 파면)',
         summary: '대통령의 헌법 수호 의무 위반, 국민주권주의와 법치주의 위반을 인정. 재판관 전원일치로 파면 결정.',
-        significance: '대통령의 헌법 수호 의무의 구체적 내용과 위반 시 파면 사유 확립'
+        significance: '대통령의 헌법 수호 의무의 구체적 내용과 위반 시 파면 사유 확립',
+        source: { name: '헌법재판소', url: 'https://www.law.go.kr/detcInfoP.do?mode=0&query=2016%ED%97%8C%EB%82%981' }
     },
     {
         caseNumber: '2024헌나1',
@@ -227,7 +243,8 @@ const CONSTITUTIONAL_DECISIONS = [
         date: '2025.4.4',
         result: '인용 (탄핵 인용, 파면)',
         summary: '12.3 비상계엄 선포가 헌법 위반이며, 대통령의 헌법 수호 의무를 중대하게 위반했다고 판단. 재판관 전원일치로 파면 결정.',
-        significance: '비상계엄의 헌법적 한계, 대통령의 내란 행위에 대한 헌법재판소의 판단'
+        significance: '비상계엄의 헌법적 한계, 대통령의 내란 행위에 대한 헌법재판소의 판단',
+        source: { name: '헌법재판소', url: 'https://www.law.go.kr/detcInfoP.do?mode=0&query=2024%ED%97%8C%EB%82%981' }
     }
 ];
 
@@ -586,6 +603,16 @@ export default function LawDatabase() {
                                                 </div>
                                                 <h3 className="font-bold text-gray-900 mb-1">{event.title}</h3>
                                                 <p className="text-sm text-gray-600">{event.description}</p>
+                                                {event.source && (
+                                                    <a
+                                                        href={event.source.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-block mt-2 text-xs text-blue-600 hover:text-blue-800 hover:underline"
+                                                    >
+                                                        출처: {event.source.name} →
+                                                    </a>
+                                                )}
                                             </div>
                                         </div>
                                     );
@@ -638,6 +665,19 @@ export default function LawDatabase() {
                                                 <p className="text-sm font-medium text-indigo-700 mb-1">법적 의의</p>
                                                 <p className="text-sm text-gray-800">{decision.significance}</p>
                                             </div>
+                                            {decision.source && (
+                                                <a
+                                                    href={decision.source.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                    결정문 전문 보기 →
+                                                </a>
+                                            )}
                                         </div>
                                     )}
                                 </div>
