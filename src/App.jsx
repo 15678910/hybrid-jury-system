@@ -118,12 +118,20 @@ export default function App() {
                 }));
                 setSignatures(firestoreSignatures);
 
-                // 오늘 등록자 수 계산
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
+                // 오늘 등록자 수 계산 (한국시간 기준)
+                const now = new Date();
+                const koreaOffset = 9 * 60 * 60 * 1000; // UTC+9
+                const koreaTime = new Date(now.getTime() + koreaOffset);
+                const todayStartKorea = new Date(Date.UTC(
+                    koreaTime.getUTCFullYear(),
+                    koreaTime.getUTCMonth(),
+                    koreaTime.getUTCDate(),
+                    0, 0, 0, 0
+                ) - koreaOffset);
+
                 const todayCount = firestoreSignatures.filter(sig => {
                     const sigDate = new Date(sig.timestamp);
-                    return sigDate >= today;
+                    return sigDate >= todayStartKorea;
                 }).length;
                 setTodayRegistrations(todayCount);
                 setIsDailyLimitReached(todayCount >= DAILY_LIMIT);
@@ -704,13 +712,25 @@ export default function App() {
         try {
             // addressVerified는 저장하지 않음 (검증용 플래그)
             const { addressVerified, ...dataToSave } = formData;
+
+            // 전화번호 정규화 (하이픈, 공백 제거)
+            const phoneClean = dataToSave.phone.replace(/[\s-]/g, '');
+
             const newSignature = {
                 ...dataToSave,
+                phone: phoneClean, // 정규화된 전화번호 저장
                 timestamp: new Date().toISOString(),
                 // 로그인 정보 추가
                 userId: user?.uid || null,
                 loginMethod: user?.providerData?.[0]?.providerId || 'none',
-                userEmail: user?.email || null
+                userEmail: user?.email || null,
+                // 동의 기록 저장 (개인정보 감사 추적용)
+                consents: {
+                    age14: consents.age14,
+                    privacy: consents.privacy,
+                    terms: consents.terms,
+                    consentedAt: new Date().toISOString()
+                }
             };
 
             // Firestore에 저장

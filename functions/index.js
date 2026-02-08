@@ -2,6 +2,7 @@ const functions = require('firebase-functions');
 const fetch = require('node-fetch');
 const admin = require('firebase-admin');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const iconv = require('iconv-lite');
 
 // Firebase Admin 초기화
 admin.initializeApp();
@@ -1191,10 +1192,10 @@ exports.registerSignature = functions.https.onRequest(async (req, res) => {
         const todayStart = new Date(koreaTime.getFullYear(), koreaTime.getMonth(), koreaTime.getDate());
         todayStart.setTime(todayStart.getTime() - koreaOffset);
 
-        // 일일 제한 확인
+        // 일일 제한 확인 (ISO 문자열 형식으로 비교)
         const signaturesRef = db.collection('signatures');
         const todaySignatures = await signaturesRef
-            .where('timestamp', '>=', todayStart)
+            .where('timestamp', '>=', todayStart.toISOString())
             .get();
 
         if (todaySignatures.size >= DAILY_LIMIT) {
@@ -1223,7 +1224,7 @@ exports.registerSignature = functions.https.onRequest(async (req, res) => {
             type,
             address: address || '',
             talent: talent || '',
-            timestamp: new Date()
+            timestamp: new Date().toISOString() // 프론트엔드와 형식 통일 (ISO 문자열)
         };
 
         const docRef = await signaturesRef.add(signatureData);
@@ -1539,6 +1540,157 @@ const NEWS_KEYWORDS = [
 
 const RSS2JSON_API = 'https://api.rss2json.com/v1/api.json';
 
+// ============================================
+// 대법원 보도자료 크롤링
+// ============================================
+
+// 대법원 보도자료 페이지 크롤링
+const crawlSupremeCourtPressReleases = async (maxItems = 10) => {
+    console.log('Crawling Supreme Court press releases...');
+
+    try {
+        const url = 'https://www.scourt.go.kr/supreme/news/NewsListAction.work?gubun=702';
+
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept-Language': 'ko-KR,ko;q=0.9',
+                'Accept': 'text/html,application/xhtml+xml'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('Supreme Court fetch failed:', response.status);
+            return [];
+        }
+
+        // EUC-KR 인코딩 처리 (대법원 페이지는 EUC-KR 사용)
+        const buffer = await response.buffer();
+        const html = iconv.decode(buffer, 'euc-kr');
+        const pressReleases = [];
+        const seenSeqnums = new Set();
+
+        // 대법원 페이지 구조 (확인됨):
+        // <td class="tit"><a href='/news/NewsViewAction2.work?...seqnum=1721...'>
+        //     제목 (공백/줄바꿈 포함)
+        // </a></td>
+        // <td>2026-01-29</td>
+
+        // 방법 1: 테이블 행에서 제목과 날짜 함께 추출
+        const rowRegex = /<td\s+class="tit"[^>]*>\s*<a\s+href=['"]([^'"]*seqnum=(\d+)[^'"]*)['"]\s*>([\s\S]*?)<\/a>\s*<\/td>\s*<td[^>]*>(\d{4}-\d{2}-\d{2})<\/td>/gi;
+
+        let match;
+        while ((match = rowRegex.exec(html)) !== null && pressReleases.length < maxItems) {
+            const [, href, seqnum, rawTitle, dateStr] = match;
+
+            if (seenSeqnums.has(seqnum)) continue;
+            seenSeqnums.add(seqnum);
+
+            // 제목 정리
+            const cleanTitle = rawTitle.replace(/\s+/g, ' ').trim();
+            if (cleanTitle.length < 5) continue;
+
+            // 날짜 파싱
+            const dateParts = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+            let pubDate = new Date();
+            if (dateParts) {
+                pubDate = new Date(parseInt(dateParts[1]), parseInt(dateParts[2]) - 1, parseInt(dateParts[3]));
+            }
+
+            const detailUrl = `https://www.scourt.go.kr/supreme/news/NewsViewAction2.work?seqnum=${seqnum}&gubun=702`;
+
+            pressReleases.push({
+                title: cleanTitle,
+                link: detailUrl,
+                pubDate: pubDate.toISOString(),
+                source: '대법원',
+                keyword: '대법원 보도자료',
+                isOfficial: true
+            });
+        }
+
+        // 방법 2: 폴백 - 싱글쿼트/더블쿼트 모두 처리
+        if (pressReleases.length === 0) {
+            console.log('Trying fallback regex for Supreme Court...');
+            const linkRegex = /href=['"]([^'"]*\/news\/NewsViewAction2\.work[^'"]*seqnum=(\d+)[^'"]*)['"]\s*>([\s\S]*?)<\/a>/gi;
+
+            while ((match = linkRegex.exec(html)) !== null && pressReleases.length < maxItems) {
+                const [, href, seqnum, rawTitle] = match;
+
+                if (seenSeqnums.has(seqnum)) continue;
+                seenSeqnums.add(seqnum);
+
+                const cleanTitle = rawTitle.replace(/\s+/g, ' ').trim();
+                if (cleanTitle.length < 5 || /^\d+$/.test(cleanTitle)) continue;
+
+                const detailUrl = `https://www.scourt.go.kr/supreme/news/NewsViewAction2.work?seqnum=${seqnum}&gubun=702`;
+
+                pressReleases.push({
+                    title: cleanTitle,
+                    link: detailUrl,
+                    pubDate: new Date().toISOString(),
+                    source: '대법원',
+                    keyword: '대법원 보도자료',
+                    isOfficial: true
+                });
+            }
+        }
+
+        console.log(`Found ${pressReleases.length} Supreme Court press releases`);
+        return pressReleases;
+    } catch (error) {
+        console.error('Supreme Court crawl error:', error);
+        return [];
+    }
+};
+
+// 대법원 인사발령 크롤링 (사법정보공개포털)
+const crawlJudgePersonnelChanges = async () => {
+    console.log('Crawling judge personnel changes...');
+
+    try {
+        // 사법정보공개포털 인사정보 페이지
+        const url = 'https://portal.scourt.go.kr/pgrgpdshms/pgrgpdshmsR.work';
+
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept-Language': 'ko-KR,ko;q=0.9'
+            }
+        });
+
+        if (!response.ok) {
+            console.log('Personnel portal fetch failed:', response.status);
+            return [];
+        }
+
+        // EUC-KR 인코딩 처리
+        const buffer = await response.buffer();
+        const html = iconv.decode(buffer, 'euc-kr');
+        const personnelNews = [];
+
+        // 인사발령 정보 파싱 시도
+        const personnelRegex = /<td[^>]*>([^<]*발령[^<]*)<\/td>/gi;
+        let match;
+        while ((match = personnelRegex.exec(html)) !== null && personnelNews.length < 5) {
+            personnelNews.push({
+                title: match[1].trim(),
+                link: url,
+                pubDate: new Date().toISOString(),
+                source: '사법정보공개포털',
+                keyword: '법관 인사',
+                isOfficial: true
+            });
+        }
+
+        console.log(`Found ${personnelNews.length} personnel items`);
+        return personnelNews;
+    } catch (error) {
+        console.error('Personnel crawl error:', error);
+        return [];
+    }
+};
+
 // 뉴스 제목에서 출처 추출 (Google News: "제목 - 출처" 형식)
 const extractNewsSource = (title) => {
     const parts = title.split(' - ');
@@ -1649,7 +1801,7 @@ const filterRecentNews = (newsItems) => {
 };
 
 // 뉴스 수집 및 블로그 포스트 생성 (공통 로직)
-const collectAndPostNews = async () => {
+const collectAndPostNews = async (force = false) => {
     console.log('Starting news collection...');
 
     // 오늘 이미 수집했는지 확인 (최근 포스트 중 자동뉴스 확인)
@@ -1670,7 +1822,7 @@ const collectAndPostNews = async () => {
         return data.isAutoNews === true && createdAt && createdAt >= todayStart;
     });
 
-    if (alreadyCollected) {
+    if (alreadyCollected && !force) {
         console.log('News already collected today, skipping');
         return { skipped: true, message: '오늘 이미 뉴스가 수집되었습니다.' };
     }
@@ -1683,6 +1835,17 @@ const collectAndPostNews = async () => {
         allNews = allNews.concat(news);
         // API 과부하 방지
         await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 대법원 보도자료 수집 추가
+    try {
+        const supremeCourtNews = await crawlSupremeCourtPressReleases(5);
+        if (supremeCourtNews.length > 0) {
+            console.log(`Adding ${supremeCourtNews.length} Supreme Court press releases`);
+            allNews = allNews.concat(supremeCourtNews);
+        }
+    } catch (error) {
+        console.error('Supreme Court news fetch error:', error);
     }
 
     // 중복 제거
@@ -1768,7 +1931,7 @@ exports.autoCollectNews = functions
 // 수동 뉴스 수집 (관리자용 테스트)
 exports.collectNewsManual = functions.https.onRequest(async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') {
@@ -1777,10 +1940,82 @@ exports.collectNewsManual = functions.https.onRequest(async (req, res) => {
     }
 
     try {
-        const result = await collectAndPostNews();
+        const force = req.query.force === 'true';
+        const result = await collectAndPostNews(force);
         res.json(result);
     } catch (error) {
         console.error('Manual news collection error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 대법원 보도자료 수동 수집 (테스트용)
+exports.collectSupremeCourtNews = functions.https.onRequest(async (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+    }
+
+    try {
+        console.log('Manual Supreme Court news collection started');
+
+        // 대법원 보도자료 크롤링
+        const pressReleases = await crawlSupremeCourtPressReleases(10);
+
+        if (pressReleases.length === 0) {
+            return res.json({
+                success: false,
+                message: '대법원 보도자료를 가져오지 못했습니다. 페이지 구조가 변경되었을 수 있습니다.',
+                data: []
+            });
+        }
+
+        // Firestore에 저장 (선택적)
+        const saveToFirestore = req.query.save === 'true';
+        if (saveToFirestore) {
+            const now = new Date();
+            const koreaOffset = 9 * 60 * 60 * 1000;
+            const koreaTime = new Date(now.getTime() + koreaOffset);
+            const dateStr = `${koreaTime.getFullYear()}년 ${koreaTime.getMonth() + 1}월 ${koreaTime.getDate()}일`;
+
+            // HTML 콘텐츠 생성
+            let content = '<h3>⚖️ 대법원 보도자료</h3>\n<ul>\n';
+            pressReleases.forEach(item => {
+                content += `<li><a href="${item.link}" target="_blank" rel="noopener noreferrer"><strong>${item.title}</strong></a></li>\n`;
+            });
+            content += '</ul>\n';
+            content += '<hr/>\n<p style="color: #888; font-size: 0.9em;">※ 대법원 공식 보도자료입니다. 원문 링크를 통해 전체 내용을 확인해 주세요.</p>';
+
+            const postRef = await db.collection('posts').add({
+                title: `[대법원 보도자료] ${dateStr}`,
+                content: content,
+                summary: `대법원 공식 보도자료 ${pressReleases.length}건`,
+                category: '사법뉴스',
+                author: '시민법정',
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                isAutoNews: true,
+                isOfficialSource: true
+            });
+
+            return res.json({
+                success: true,
+                message: `대법원 보도자료 ${pressReleases.length}건을 수집하고 저장했습니다.`,
+                postId: postRef.id,
+                data: pressReleases
+            });
+        }
+
+        res.json({
+            success: true,
+            message: `대법원 보도자료 ${pressReleases.length}건을 수집했습니다. 저장하려면 ?save=true 파라미터를 추가하세요.`,
+            data: pressReleases
+        });
+    } catch (error) {
+        console.error('Supreme Court news collection error:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2306,7 +2541,8 @@ exports.crawlAllSentencingData = functions
             const successCount = results.filter(r => r.success).length;
             const now = new Date();
             const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
-            const telegramMsg = `📊 <b>[내란재판분석] ${dateStr} 소식</b>\n\n👉 https://siminbupjung-blog.web.app/sentencing-analysis`;
+            const timestamp = Math.floor(now.getTime() / 1000);
+            const telegramMsg = `📊 <b>[내란재판분석] ${dateStr} 소식</b>\n\n👉 https://siminbupjung-blog.web.app/sentencing-analysis?t=${timestamp}`;
             await sendTelegramMessage(GROUP_CHAT_ID, telegramMsg);
         } catch (e) {
             console.error('Telegram notification failed:', e);
@@ -2724,7 +2960,8 @@ exports.collectReformNews = functions
             const successCount = results.filter(r => r.success).length;
             const now = new Date();
             const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
-            const telegramMsg = `📰 <b>[개혁안 비교] ${dateStr} 주요 소식</b>\n\n👉 https://siminbupjung-blog.web.app/reform-analysis`;
+            const timestamp = Math.floor(now.getTime() / 1000);
+            const telegramMsg = `📰 <b>[개혁안 비교] ${dateStr} 주요 소식</b>\n\n👉 https://siminbupjung-blog.web.app/reform-analysis?t=${timestamp}`;
             await sendTelegramMessage(GROUP_CHAT_ID, telegramMsg);
         } catch (e) {
             console.error('Telegram notification failed:', e);

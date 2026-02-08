@@ -39,7 +39,7 @@ export default function AdminBlog() {
     const [posts, setPosts] = useState([]);
     const [loadingPosts, setLoadingPosts] = useState(true);
     const [editingPost, setEditingPost] = useState(null);
-    const [editForm, setEditForm] = useState({ title: '', content: '', author: '' });
+    const [editForm, setEditForm] = useState({ title: '', content: '', author: '', summary: '' });
 
     // 페이지네이션
     const [lastDoc, setLastDoc] = useState(null);
@@ -282,23 +282,37 @@ export default function AdminBlog() {
         }
     };
 
-    // 글 수정 시작
+    // 글 수정 시작 (토글 기능 포함)
     const handleEditPost = (post) => {
+        // 같은 글을 다시 클릭하면 수정 취소
+        if (editingPost === post.id) {
+            handleCancelEdit();
+            return;
+        }
         setEditingPost(post.id);
+        // placeholder 텍스트는 빈 값으로 처리
+        const placeholderTexts = ['내용을 입력해주세요.', '요약을 입력해주세요.'];
+        const summaryValue = placeholderTexts.includes(post.summary) ? '' : (post.summary || '');
+
         setEditForm({
             title: post.title,
             content: post.content,
             author: post.author,
+            summary: summaryValue,
             imageUrl: post.imageUrl || ''
         });
         setEditImagePreview(post.imageUrl || null);
         setEditImageFile(null);
+        // 수정 폼으로 스크롤
+        setTimeout(() => {
+            window.scrollTo({ top: 200, behavior: 'smooth' });
+        }, 100);
     };
 
     // 글 수정 취소
     const handleCancelEdit = () => {
         setEditingPost(null);
-        setEditForm({ title: '', content: '', author: '', imageUrl: '' });
+        setEditForm({ title: '', content: '', author: '', summary: '', imageUrl: '' });
         setEditImageFile(null);
         setEditImagePreview(null);
     };
@@ -374,6 +388,7 @@ export default function AdminBlog() {
                 title: editForm.title,
                 content: editForm.content,
                 author: editForm.author,
+                summary: editForm.summary,
                 imageUrl: imageUrl,
                 updatedAt: serverTimestamp()
             });
@@ -381,7 +396,7 @@ export default function AdminBlog() {
                 p.id === postId ? { ...p, ...editForm, imageUrl } : p
             ));
             setEditingPost(null);
-            setEditForm({ title: '', content: '', author: '', imageUrl: '' });
+            setEditForm({ title: '', content: '', author: '', summary: '', imageUrl: '' });
             setEditImageFile(null);
             setEditImagePreview(null);
             alert('글이 수정되었습니다.');
@@ -588,6 +603,13 @@ export default function AdminBlog() {
                                                 onChange={(e) => setEditForm({ ...editForm, author: e.target.value })}
                                                 placeholder="작성자"
                                                 className="w-1/3 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                            <input
+                                                type="text"
+                                                value={editForm.summary}
+                                                onChange={(e) => setEditForm({ ...editForm, summary: e.target.value })}
+                                                placeholder="요약 글 올려주세요."
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                             <div className="quill-wrapper">
                                                 <ReactQuill
