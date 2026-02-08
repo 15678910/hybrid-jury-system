@@ -49,4 +49,5 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add backups/
           git diff --staged --quiet || git commit -m "backup: Daily Firestore backup $(date +'%Y-%m-%d')"
+          git pull --rebase origin main
           git push
