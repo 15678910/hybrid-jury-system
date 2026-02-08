@@ -1,0 +1,49 @@
+name: Daily Firestore Backup
+
+on:
+  schedule:
+    # 매일 오전 6시 (한국시간) = UTC 21:00
+    - cron: '0 21 * * *'
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          cd functions
+          npm install
+
+      - name: Create service account key file
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > serviceAccountKey.json
+
+      - name: Run Firestore backup
+        run: |
+          cd functions
+          node backup_firestore_ci.js
+
+      - name: Upload backup as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firestore-backup-${{ github.run_id }}
+          path: backups/
+          retention-days: 30
+
+      - name: Commit backup to repository
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add backups/
+          git diff --staged --quiet || git commit -m "backup: Daily Firestore backup $(date +'%Y-%m-%d')"
+          git push
