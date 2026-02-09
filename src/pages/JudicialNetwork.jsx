@@ -1,0 +1,1496 @@
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import Header from '../components/Header';
+
+// =============================================================================
+// WEF 스타일 방사형 네트워크 데이터
+// =============================================================================
+
+const NETWORK_DATA = {
+    // 중앙 노드
+    center: {
+        id: 'center',
+        title: '법무부',
+        subtitle: '정성호',
+    },
+
+    // 카테고리 (내부 링 2) - 5개 카테고리를 72도 간격으로 배치
+    categories: [
+        { id: 'cat_jrti', name: '기수맥', desc: '법원연수원', color: '#3B82F6', angle: 36 },
+        { id: 'cat_univ', name: '학맥', desc: '대학교', color: '#10B981', angle: 108 },
+        { id: 'cat_region', name: '지맥', desc: '출신 지역', color: '#F59E0B', angle: 180 },
+        { id: 'cat_firm', name: '전관예우', desc: '대형로펌', color: '#EF4444', angle: 252 },
+        { id: 'cat_hs', name: '고교맥', desc: '고등학교', color: '#8B5CF6', angle: 324 },
+    ],
+
+    // 헌재/대법원 (중앙 근처 별도 배치)
+    courtLabel: { id: 'cat_court', name: '헌재/대법원', desc: '최고 사법기관' },
+
+    // 중앙 노드 연결 정보 (정성호 법무부장관)
+    centerConnections: { jrti: 18, university: '서울대', highSchool: '대신고', hometown: '양구' },
+
+    // 인물 노드 (내부 링 1)
+    persons: [
+        // 헌법재판관 9명 (모두 서울대 출신)
+        { id: 'cc_kim_sanghwan', name: '김상환', position: '헌법재판소장', jrti: 20, university: '서울대', group: 'constitutional' },
+        { id: 'cc_kim_hyungdu', name: '김형두', position: '헌법재판관', jrti: 19, university: '서울대', group: 'constitutional' },
+        { id: 'cc_jung_jungmi', name: '정정미', position: '헌법재판관', jrti: 25, university: '서울대', group: 'constitutional' },
+        { id: 'cc_jung_hyungsik', name: '정형식', position: '헌법재판관', jrti: 17, university: '서울대', group: 'constitutional' },
+        { id: 'cc_kim_bokhyung', name: '김복형', position: '헌법재판관', jrti: 24, university: '서울대', group: 'constitutional' },
+        { id: 'cc_cho_hanchang', name: '조한창', position: '헌법재판관', jrti: 18, university: '서울대', group: 'constitutional' },
+        { id: 'cc_jung_gyesun', name: '정계선', position: '헌법재판관', jrti: 27, university: '서울대', group: 'constitutional' },
+        { id: 'cc_ma_eunhyuk', name: '마은혁', position: '헌법재판관', jrti: 29, university: '서울대', group: 'constitutional' },
+        { id: 'cc_oh_youngjun', name: '오영준', position: '헌법재판관', jrti: 23, university: '서울대', group: 'constitutional' },
+
+        // 대법원장 + 대법관
+        { id: 'judge_cho', name: '조희대', position: '대법원장', jrti: 13, university: '서울대', highSchool: '경북고', hometown: '경주', group: 'supreme' },
+        { id: 'judge_noh_ta', name: '노태악', position: '대법관', jrti: 26, university: '한양대', highSchool: '계성고', hometown: '창녕', group: 'supreme' },
+        { id: 'judge_chun', name: '천대엽', position: '대법관', jrti: 30, university: '서울대', hometown: '부산', group: 'supreme' },
+        { id: 'judge_oh', name: '오경미', position: '대법관', jrti: 35, university: '서울대', highSchool: '이리여고', hometown: '익산', group: 'supreme' },
+        { id: 'judge_kwon', name: '권영준', position: '대법관', jrti: 35, university: '서울대', highSchool: '대건고', hometown: '대구', group: 'supreme' },
+        { id: 'judge_noh_kyung', name: '노경필', position: '대법관', jrti: 33, university: '서울대', highSchool: '광주고', hometown: '해남', group: 'supreme' },
+        { id: 'judge_min', name: '민유숙', position: '대법관', jrti: 28, university: '서울대', highSchool: '배화여고', hometown: '서울', group: 'supreme' },
+        { id: 'judge_kim_sang', name: '김상환', position: '대법관', jrti: 26, university: '서울대', highSchool: '보문고', hometown: '대전', group: 'supreme' },
+        { id: 'judge_lee_heung', name: '이흥구', position: '대법관', jrti: 28, university: '서울대', highSchool: '통영고', hometown: '통영', group: 'supreme' },
+        { id: 'judge_shin', name: '신숙희', position: '대법관', jrti: 30, university: '이화여대', highSchool: '창문여고', hometown: '서울', group: 'supreme' },
+
+        // 법원장급
+        { id: 'judge_choi', name: '최수환', position: '부산고등법원장', jrti: 20, university: '서울대', hometown: '부산', group: 'chief' },
+        { id: 'judge_yoon', name: '윤종구', position: '대구고등법원장', jrti: 21, university: '서울대', highSchool: '계성고', hometown: '영천', group: 'chief' },
+        { id: 'judge_jung', name: '정선재', position: '서울행정법원장', jrti: 20, university: '서울대', highSchool: '영동고', hometown: '서울', group: 'chief' },
+        { id: 'judge_lim', name: '임상기', position: '수원지방법원장', jrti: 20, university: '고려대', highSchool: '영신고', hometown: '대구', group: 'chief' },
+        { id: 'judge_cho_yong', name: '조용현', position: '서울고등법원장', jrti: 21, university: '서울대', group: 'chief' },
+        { id: 'judge_kim_kwang', name: '김광년', position: '서울중앙지법원장', jrti: 20, university: '서울대', group: 'chief' },
+
+        // 내란 재판 재판부
+        { id: 'judge_ji', name: '지귀연', position: '내란재판 재판장', jrti: 31, university: '서울대', highSchool: '개포고', hometown: '서울', group: 'trial' },
+        { id: 'judge_kim_ui', name: '김의담', position: '내란재판 배석', jrti: 46, university: '-', group: 'trial' },
+        { id: 'judge_lee_wan', name: '이완규', position: '내란재판 배석', jrti: 36, university: '연세대', hometown: '인천', group: 'trial' },
+
+        // 전관 변호사들
+        { id: 'lawyer_kim_yongdae', name: '김용대', position: '前 서울가정법원장', jrti: 17, university: '서울대', firm: '김앤장', group: 'lawyer' },
+        { id: 'lawyer_shin', name: '신광렬', position: '前 서울고법 부장', jrti: 20, university: '서울대', highSchool: '보성고', firm: '김앤장', group: 'lawyer' },
+        { id: 'lawyer_kang', name: '강일원', position: '前 헌법재판관', jrti: 15, university: '서울대', highSchool: '용산고', firm: '김앤장', group: 'lawyer' },
+        { id: 'lawyer_kang_youngsu', name: '강영수', position: '前 인천지방법원장', jrti: 20, university: '서울대', firm: '광장', group: 'lawyer' },
+    ],
+
+    // 외부 링 노드들
+    outerNodes: {
+        // 연수원 기수
+        jrti: [
+            { id: 'jrti_13', name: '13기', desc: '사법시험 25회 (1983)' },
+            { id: 'jrti_15', name: '15기', desc: '사법시험 27회 (1985)' },
+            { id: 'jrti_17', name: '17기', desc: '사법시험 29회 (1987)' },
+            { id: 'jrti_18', name: '18기', desc: '사법시험 30회 (1988)' },
+            { id: 'jrti_19', name: '19기', desc: '사법시험 31회 (1989)' },
+            { id: 'jrti_20', name: '20기', desc: '사법시험 32회 (1990)' },
+            { id: 'jrti_21', name: '21기', desc: '사법시험 33회 (1991)' },
+            { id: 'jrti_23', name: '23기', desc: '사법시험 35회 (1993)' },
+            { id: 'jrti_24', name: '24기', desc: '사법시험 36회 (1994)' },
+            { id: 'jrti_25', name: '25기', desc: '사법시험 37회 (1995)' },
+            { id: 'jrti_26', name: '26기', desc: '사법시험 38회 (1996)' },
+            { id: 'jrti_27', name: '27기', desc: '사법시험 39회 (1997)' },
+            { id: 'jrti_28', name: '28기', desc: '사법시험 40회 (1998)' },
+            { id: 'jrti_29', name: '29기', desc: '사법시험 41회 (1999)' },
+            { id: 'jrti_30', name: '30기', desc: '사법시험 42회 (2000)' },
+            { id: 'jrti_31', name: '31기', desc: '사법시험 43회 (2001)' },
+            { id: 'jrti_33', name: '33기', desc: '사법시험 45회 (2003)' },
+            { id: 'jrti_35', name: '35기', desc: '사법시험 47회 (2005)' },
+            { id: 'jrti_36', name: '36기', desc: '사법시험 48회 (2006)' },
+            { id: 'jrti_46', name: '46기', desc: '법학전문대학원 출신' },
+        ],
+        // 대학교
+        university: [
+            { id: 'univ_snu', name: '서울대', desc: '대법관 60% 이상' },
+            { id: 'univ_yonsei', name: '연세대', desc: '신규 법관 12.8%' },
+            { id: 'univ_korea', name: '고려대', desc: '신규 법관 9.1%' },
+            { id: 'univ_skku', name: '성균관대', desc: '신규 법관 9.8%' },
+            { id: 'univ_hanyang', name: '한양대', desc: '대법관 배출' },
+            { id: 'univ_ewha', name: '이화여대', desc: '여성 법조인 배출' },
+        ],
+        // 지역
+        region: [
+            { id: 'region_seoul', name: '서울', desc: '수도권' },
+            { id: 'region_busan', name: '부산', desc: '부산광역시' },
+            { id: 'region_daegu', name: '대구', desc: '대구광역시' },
+            { id: 'region_gwangju', name: '광주', desc: '광주광역시' },
+            { id: 'region_gyeongju', name: '경주', desc: '경상북도' },
+            { id: 'region_changnyeong', name: '창녕', desc: '경상남도' },
+            { id: 'region_jeonju', name: '전주', desc: '전라북도' },
+            { id: 'region_iksan', name: '익산', desc: '전라북도' },
+            { id: 'region_haenam', name: '해남', desc: '전라남도' },
+            { id: 'region_daejeon', name: '대전', desc: '대전광역시' },
+            { id: 'region_tongyeong', name: '통영', desc: '경상남도' },
+            { id: 'region_youngcheon', name: '영천', desc: '경상북도' },
+            { id: 'region_incheon', name: '인천', desc: '인천광역시' },
+            { id: 'region_yanggu', name: '양구', desc: '강원도' },
+        ],
+        // 로펌
+        firm: [
+            { id: 'firm_kim', name: '김앤장', desc: '퇴직판사 79명 (최다)' },
+            { id: 'firm_kwang', name: '광장', desc: '퇴직판사 27명' },
+            { id: 'firm_tae', name: '태평양', desc: '퇴직판사 약 20명' },
+            { id: 'firm_sejong', name: '세종', desc: '퇴직판사 약 15명' },
+            { id: 'firm_yul', name: '율촌', desc: '퇴직판사 약 15명' },
+            { id: 'firm_hwawoo', name: '화우', desc: '퇴직법조인 12명' },
+        ],
+        // 고등학교
+        highschool: [
+            { id: 'hs_kyungbuk', name: '경북고', desc: '대구' },
+            { id: 'hs_kyesung', name: '계성고', desc: '대구' },
+            { id: 'hs_gaepo', name: '개포고', desc: '서울' },
+            { id: 'hs_kyunggi', name: '경기고', desc: '서울' },
+            { id: 'hs_seoul', name: '서울고', desc: '서울' },
+            { id: 'hs_bosung', name: '보성고', desc: '서울' },
+            { id: 'hs_yongsan', name: '용산고', desc: '서울' },
+            { id: 'hs_daesin', name: '대신고', desc: '서울' },
+            { id: 'hs_iri', name: '이리여고', desc: '전북 익산' },
+            { id: 'hs_daegun', name: '대건고', desc: '대구' },
+            { id: 'hs_gwangju', name: '광주고', desc: '광주' },
+            { id: 'hs_baehwa', name: '배화여고', desc: '서울' },
+            { id: 'hs_bomun', name: '보문고', desc: '대전' },
+            { id: 'hs_tongyeong', name: '통영고', desc: '경남 통영' },
+            { id: 'hs_changmun', name: '창문여고', desc: '서울' },
+            { id: 'hs_youngdong', name: '영동고', desc: '서울' },
+            { id: 'hs_youngshin', name: '영신고', desc: '대구' },
+        ],
+    },
+};
+
+// 연결 유형별 색상 (모두 회색)
+const LINK_COLORS = {
+    jrti: '#9CA3AF',      // 기수맥 - 회색
+    university: '#9CA3AF', // 학맥 - 회색
+    region: '#9CA3AF',    // 지맥 - 회색
+    firm: '#9CA3AF',      // 전관예우 - 회색
+    highschool: '#9CA3AF', // 고교맥 - 회색
+};
+
+// =============================================================================
+// 유틸리티 함수
+// =============================================================================
+
+function polarToCartesian(cx, cy, radius, angleDegrees) {
+    const angleRadians = (angleDegrees - 90) * Math.PI / 180;
+    return {
+        x: cx + radius * Math.cos(angleRadians),
+        y: cy + radius * Math.sin(angleRadians)
+    };
+}
+
+// =============================================================================
+// 메인 컴포넌트
+// =============================================================================
+
+function JudicialNetwork() {
+    const [isVerified, setIsVerified] = useState(false);
+    const [writerCode, setWriterCode] = useState('');
+    const [error, setError] = useState('');
+    const [selectedNode, setSelectedNode] = useState(null);
+    const [highlightedLinks, setHighlightedLinks] = useState(new Set());
+    const [highlightedNodes, setHighlightedNodes] = useState(new Set());
+    const [hoveredNode, setHoveredNode] = useState(null);
+    const [dimensions, setDimensions] = useState({ width: 1200, height: 900 });
+    const [zoom, setZoom] = useState(1);
+    const [pan, setPan] = useState({ x: 0, y: 0 });
+    const [isPanning, setIsPanning] = useState(false);
+    const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+    const [filterTypes, setFilterTypes] = useState({
+        jrti: true,
+        university: true,
+        region: true,
+        firm: true,
+        highschool: true,
+        constitutional: true,
+        supreme: true,
+        chief: true,
+        trial: true,
+        lawyer: true,
+    });
+
+    const containerRef = useRef(null);
+    const svgRef = useRef(null);
+
+    // 화면 크기 감지
+    useEffect(() => {
+        const updateDimensions = () => {
+            if (containerRef.current) {
+                const width = containerRef.current.offsetWidth;
+                const height = Math.max(700, Math.min(900, window.innerHeight - 250));
+                setDimensions({ width, height });
+            }
+        };
+
+        updateDimensions();
+        window.addEventListener('resize', updateDimensions);
+        return () => window.removeEventListener('resize', updateDimensions);
+    }, [isVerified]);
+
+    // 관리자 코드 확인 (세션 스토리지)
+    useEffect(() => {
+        const savedCode = sessionStorage.getItem('judicialNetworkVerified');
+        if (savedCode === 'true') {
+            setIsVerified(true);
+        }
+    }, []);
+
+    // 관리자 코드 검증
+    const verifyWriterCode = async () => {
+        setError('');
+
+        const adminCode = import.meta.env.VITE_ADMIN_CODE;
+        const writerCodeEnv = import.meta.env.VITE_WRITER_CODE;
+
+        if (writerCode === adminCode || writerCode === writerCodeEnv) {
+            setIsVerified(true);
+            sessionStorage.setItem('judicialNetworkVerified', 'true');
+            return;
+        }
+
+        try {
+            const codesRef = collection(db, 'writerCodes');
+            const q = query(codesRef, where('code', '==', writerCode), where('active', '==', true));
+            const snapshot = await getDocs(q);
+
+            if (!snapshot.empty) {
+                setIsVerified(true);
+                sessionStorage.setItem('judicialNetworkVerified', 'true');
+            } else {
+                setError('유효하지 않은 접근 코드입니다.');
+            }
+        } catch (err) {
+            console.error('코드 확인 실패:', err);
+            setError('코드 확인 중 오류가 발생했습니다.');
+        }
+    };
+
+    // 레이아웃 계산
+    const layout = useMemo(() => {
+        const cx = dimensions.width / 2;
+        const cy = dimensions.height / 2;
+        const minDim = Math.min(dimensions.width, dimensions.height);
+
+        // 링 반지름 - 노드 겹침 방지를 위해 간격 확대
+        const centerRadius = minDim * 0.06;
+        const courtRingRadius = minDim * 0.14;  // 헌재/대법원 링 (중앙 근처)
+        const personRingRadius = minDim * 0.26; // 일반 인물 링
+        const categoryRingRadius = minDim * 0.36; // 카테고리 레이블
+        const outerRingRadius = minDim * 0.44;  // 외부 노드
+
+        // 카테고리 위치 계산
+        const categoryPositions = NETWORK_DATA.categories.map(cat => ({
+            ...cat,
+            ...polarToCartesian(cx, cy, categoryRingRadius, cat.angle)
+        }));
+
+        // 인물 위치 계산 - 그룹별로 배치
+        const personGroups = {
+            constitutional: NETWORK_DATA.persons.filter(p => p.group === 'constitutional'),
+            supreme: NETWORK_DATA.persons.filter(p => p.group === 'supreme'),
+            chief: NETWORK_DATA.persons.filter(p => p.group === 'chief'),
+            trial: NETWORK_DATA.persons.filter(p => p.group === 'trial'),
+            lawyer: NETWORK_DATA.persons.filter(p => p.group === 'lawyer'),
+        };
+
+        const personPositions = [];
+
+        // 헌법재판관 (중앙 근처 왼쪽 반원, 180-360도)
+        personGroups.constitutional.forEach((p, i) => {
+            const angle = 200 + (i / personGroups.constitutional.length) * 140;
+            const pos = polarToCartesian(cx, cy, courtRingRadius, angle);
+            personPositions.push({ ...p, ...pos });
+        });
+
+        // 대법관 (중앙 근처 오른쪽 반원, 0-180도)
+        personGroups.supreme.forEach((p, i) => {
+            const angle = 20 + (i / personGroups.supreme.length) * 140;
+            const pos = polarToCartesian(cx, cy, courtRingRadius, angle);
+            personPositions.push({ ...p, ...pos });
+        });
+
+        // 법원장 (외부 링, 70-130도 영역)
+        personGroups.chief.forEach((p, i) => {
+            const angle = 70 + (i / personGroups.chief.length) * 60;
+            const pos = polarToCartesian(cx, cy, personRingRadius, angle);
+            personPositions.push({ ...p, ...pos });
+        });
+
+        // 내란재판부 (외부 링, 140-170도 영역)
+        personGroups.trial.forEach((p, i) => {
+            const angle = 140 + (i / personGroups.trial.length) * 30;
+            const pos = polarToCartesian(cx, cy, personRingRadius, angle);
+            personPositions.push({ ...p, ...pos });
+        });
+
+        // 전관변호사 (외부 링, 200-290도 영역)
+        personGroups.lawyer.forEach((p, i) => {
+            const angle = 200 + (i / personGroups.lawyer.length) * 90;
+            const pos = polarToCartesian(cx, cy, personRingRadius, angle);
+            personPositions.push({ ...p, ...pos });
+        });
+
+        // 외부 노드 위치 계산 (5개 카테고리, 각 72도 영역)
+        const outerPositions = {};
+
+        // 기수 (0-72도, 중심 36도)
+        outerPositions.jrti = NETWORK_DATA.outerNodes.jrti.map((node, i) => {
+            const angle = 5 + (i / NETWORK_DATA.outerNodes.jrti.length) * 62;
+            return { ...node, ...polarToCartesian(cx, cy, outerRingRadius, angle), type: 'jrti' };
+        });
+
+        // 대학교 (72-144도, 중심 108도)
+        outerPositions.university = NETWORK_DATA.outerNodes.university.map((node, i) => {
+            const angle = 77 + (i / NETWORK_DATA.outerNodes.university.length) * 62;
+            return { ...node, ...polarToCartesian(cx, cy, outerRingRadius, angle), type: 'university' };
+        });
+
+        // 지역 (144-216도, 중심 180도)
+        outerPositions.region = NETWORK_DATA.outerNodes.region.map((node, i) => {
+            const angle = 149 + (i / NETWORK_DATA.outerNodes.region.length) * 62;
+            return { ...node, ...polarToCartesian(cx, cy, outerRingRadius, angle), type: 'region' };
+        });
+
+        // 로펌 (216-288도, 중심 252도)
+        outerPositions.firm = NETWORK_DATA.outerNodes.firm.map((node, i) => {
+            const angle = 221 + (i / NETWORK_DATA.outerNodes.firm.length) * 62;
+            return { ...node, ...polarToCartesian(cx, cy, outerRingRadius, angle), type: 'firm' };
+        });
+
+        // 고등학교 (288-360도, 중심 324도)
+        outerPositions.highschool = NETWORK_DATA.outerNodes.highschool.map((node, i) => {
+            const angle = 293 + (i / NETWORK_DATA.outerNodes.highschool.length) * 62;
+            return { ...node, ...polarToCartesian(cx, cy, outerRingRadius, angle), type: 'highschool' };
+        });
+
+        return {
+            cx,
+            cy,
+            centerRadius,
+            courtRingRadius,
+            personRingRadius,
+            categoryRingRadius,
+            outerRingRadius,
+            categoryPositions,
+            personPositions,
+            outerPositions,
+        };
+    }, [dimensions]);
+
+    // 연결선 생성
+    const links = useMemo(() => {
+        const result = [];
+        const allOuterNodes = {
+            ...Object.fromEntries(layout.outerPositions.jrti.map(n => [n.id, n])),
+            ...Object.fromEntries(layout.outerPositions.university.map(n => [n.id, n])),
+            ...Object.fromEntries(layout.outerPositions.region.map(n => [n.id, n])),
+            ...Object.fromEntries(layout.outerPositions.firm.map(n => [n.id, n])),
+            ...Object.fromEntries(layout.outerPositions.highschool.map(n => [n.id, n])),
+        };
+
+        layout.personPositions.forEach(person => {
+            // 기수 연결
+            if (person.jrti) {
+                const jrtiNode = allOuterNodes[`jrti_${person.jrti}`];
+                if (jrtiNode && filterTypes.jrti) {
+                    result.push({
+                        id: `${person.id}-jrti_${person.jrti}`,
+                        source: person,
+                        target: jrtiNode,
+                        type: 'jrti',
+                    });
+                }
+            }
+
+            // 대학교 연결
+            if (person.university && person.university !== '-') {
+                const univMap = {
+                    '서울대': 'univ_snu',
+                    '연세대': 'univ_yonsei',
+                    '고려대': 'univ_korea',
+                    '성균관대': 'univ_skku',
+                    '한양대': 'univ_hanyang',
+                    '이화여대': 'univ_ewha',
+                };
+                const univId = univMap[person.university];
+                const univNode = allOuterNodes[univId];
+                if (univNode && filterTypes.university) {
+                    result.push({
+                        id: `${person.id}-${univId}`,
+                        source: person,
+                        target: univNode,
+                        type: 'university',
+                    });
+                }
+            }
+
+            // 지역 연결
+            if (person.hometown) {
+                const regionMap = {
+                    '서울': 'region_seoul',
+                    '부산': 'region_busan',
+                    '대구': 'region_daegu',
+                    '광주': 'region_gwangju',
+                    '경주': 'region_gyeongju',
+                    '창녕': 'region_changnyeong',
+                    '전주': 'region_jeonju',
+                    '익산': 'region_iksan',
+                    '해남': 'region_haenam',
+                    '대전': 'region_daejeon',
+                    '통영': 'region_tongyeong',
+                    '영천': 'region_youngcheon',
+                    '인천': 'region_incheon',
+                    '양구': 'region_yanggu',
+                };
+                const regionId = regionMap[person.hometown];
+                const regionNode = allOuterNodes[regionId];
+                if (regionNode && filterTypes.region) {
+                    result.push({
+                        id: `${person.id}-${regionId}`,
+                        source: person,
+                        target: regionNode,
+                        type: 'region',
+                    });
+                }
+            }
+
+            // 로펌 연결
+            if (person.firm) {
+                const firmMap = {
+                    '김앤장': 'firm_kim',
+                    '광장': 'firm_kwang',
+                    '태평양': 'firm_tae',
+                    '세종': 'firm_sejong',
+                    '율촌': 'firm_yul',
+                    '화우': 'firm_hwawoo',
+                };
+                const firmId = firmMap[person.firm];
+                const firmNode = allOuterNodes[firmId];
+                if (firmNode && filterTypes.firm) {
+                    result.push({
+                        id: `${person.id}-${firmId}`,
+                        source: person,
+                        target: firmNode,
+                        type: 'firm',
+                    });
+                }
+            }
+
+            // 고등학교 연결
+            if (person.highSchool) {
+                const hsMap = {
+                    '경북고': 'hs_kyungbuk',
+                    '계성고': 'hs_kyesung',
+                    '개포고': 'hs_gaepo',
+                    '경기고': 'hs_kyunggi',
+                    '서울고': 'hs_seoul',
+                    '보성고': 'hs_bosung',
+                    '용산고': 'hs_yongsan',
+                    '대신고': 'hs_daesin',
+                    '이리여고': 'hs_iri',
+                    '대건고': 'hs_daegun',
+                    '광주고': 'hs_gwangju',
+                    '배화여고': 'hs_baehwa',
+                    '보문고': 'hs_bomun',
+                    '통영고': 'hs_tongyeong',
+                    '창문여고': 'hs_changmun',
+                    '영동고': 'hs_youngdong',
+                    '영신고': 'hs_youngshin',
+                };
+                const hsId = hsMap[person.highSchool];
+                const hsNode = allOuterNodes[hsId];
+                if (hsNode && filterTypes.highschool) {
+                    result.push({
+                        id: `${person.id}-${hsId}`,
+                        source: person,
+                        target: hsNode,
+                        type: 'highschool',
+                    });
+                }
+            }
+        });
+
+        // 중앙 노드(정성호) 연결
+        const centerNode = { id: 'center', x: layout.cx, y: layout.cy };
+        const cc = NETWORK_DATA.centerConnections;
+
+        // 기수 연결
+        if (cc.jrti && filterTypes.jrti) {
+            const jrtiNode = allOuterNodes[`jrti_${cc.jrti}`];
+            if (jrtiNode) {
+                result.push({ id: `center-jrti_${cc.jrti}`, source: centerNode, target: jrtiNode, type: 'jrti' });
+            }
+        }
+        // 대학교 연결
+        if (cc.university && filterTypes.university) {
+            const univMap = { '서울대': 'univ_snu', '연세대': 'univ_yonsei', '고려대': 'univ_korea' };
+            const univNode = allOuterNodes[univMap[cc.university]];
+            if (univNode) {
+                result.push({ id: `center-${univMap[cc.university]}`, source: centerNode, target: univNode, type: 'university' });
+            }
+        }
+        // 지역 연결
+        if (cc.hometown && filterTypes.region) {
+            const regionMap = { '양구': 'region_yanggu', '서울': 'region_seoul' };
+            const regionNode = allOuterNodes[regionMap[cc.hometown]];
+            if (regionNode) {
+                result.push({ id: `center-${regionMap[cc.hometown]}`, source: centerNode, target: regionNode, type: 'region' });
+            }
+        }
+        // 고등학교 연결
+        if (cc.highSchool && filterTypes.highschool) {
+            const hsMap = { '대신고': 'hs_daesin' };
+            const hsNode = allOuterNodes[hsMap[cc.highSchool]];
+            if (hsNode) {
+                result.push({ id: `center-${hsMap[cc.highSchool]}`, source: centerNode, target: hsNode, type: 'highschool' });
+            }
+        }
+
+        return result;
+    }, [layout, filterTypes]);
+
+    // 노드 클릭 핸들러
+    const handleNodeClick = useCallback((node, nodeType) => {
+        setSelectedNode({ ...node, nodeType });
+
+        // 연결된 링크와 노드 하이라이트
+        const connectedLinks = new Set();
+        const connectedNodes = new Set([node.id]);
+
+        links.forEach(link => {
+            if (link.source.id === node.id || link.target.id === node.id) {
+                connectedLinks.add(link.id);
+                connectedNodes.add(link.source.id);
+                connectedNodes.add(link.target.id);
+            }
+        });
+
+        setHighlightedLinks(connectedLinks);
+        setHighlightedNodes(connectedNodes);
+    }, [links]);
+
+    // 배경 클릭 핸들러
+    const handleBackgroundClick = useCallback(() => {
+        setSelectedNode(null);
+        setHighlightedLinks(new Set());
+        setHighlightedNodes(new Set());
+    }, []);
+
+    // 필터 토글
+    const toggleFilter = (type) => {
+        setFilterTypes(prev => ({
+            ...prev,
+            [type]: !prev[type]
+        }));
+    };
+
+    // 줌 핸들러
+    const handleWheel = useCallback((e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        setZoom(prev => Math.min(3, Math.max(0.5, prev + delta)));
+    }, []);
+
+    // 팬 시작
+    const handleMouseDown = useCallback((e) => {
+        if (e.button === 0) {
+            setIsPanning(true);
+            setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+        }
+    }, [pan]);
+
+    // 팬 이동
+    const handleMouseMove = useCallback((e) => {
+        if (isPanning) {
+            setPan({ x: e.clientX - panStart.x, y: e.clientY - panStart.y });
+        }
+    }, [isPanning, panStart]);
+
+    // 팬 종료
+    const handleMouseUp = useCallback(() => {
+        setIsPanning(false);
+    }, []);
+
+    // 줌 리셋
+    const resetZoom = useCallback(() => {
+        setZoom(1);
+        setPan({ x: 0, y: 0 });
+    }, []);
+
+    // 인증 화면
+    if (!isVerified) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <Header />
+                <div className="flex items-center justify-center py-20">
+                    <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border border-gray-100">
+                        <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </div>
+                        <h2 className="text-2xl font-bold text-center mb-2 text-gray-900">
+                            사법부 네트워크 분석
+                        </h2>
+                        <p className="text-gray-500 text-center mb-8">
+                            관리자 전용 페이지입니다
+                        </p>
+
+                        <input
+                            type="password"
+                            value={writerCode}
+                            onChange={(e) => setWriterCode(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && verifyWriterCode()}
+                            placeholder="접근 코드 입력"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 transition"
+                        />
+
+                        {error && (
+                            <p className="text-red-500 text-sm mt-3 text-center">{error}</p>
+                        )}
+
+                        <button
+                            onClick={verifyWriterCode}
+                            className="w-full mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition font-medium shadow-lg shadow-blue-500/25"
+                        >
+                            확인
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // 필터링된 인물
+    const filteredPersons = layout.personPositions.filter(p => filterTypes[p.group] !== false);
+
+    return (
+        <div className="min-h-screen bg-gray-50">
+            <Header />
+            <div className="container mx-auto px-4 py-6">
+                {/* 헤더 */}
+                <div className="mb-6">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                        사법부 카르텔 네트워크
+                    </h1>
+                    <p className="text-gray-600">
+                        학맥, 지맥, 기수맥, 전관예우, 고교맥 - 대한민국 사법부의 인적 네트워크를 시각화합니다
+                    </p>
+                </div>
+
+                {/* 필터 컨트롤 */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                        <h3 className="font-semibold text-gray-800">필터 및 범례</h3>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2">
+                        {/* 연결 유형 필터 */}
+                        <button
+                            onClick={() => toggleFilter('jrti')}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-medium transition ${
+                                filterTypes.jrti ? 'bg-white border-gray-900 text-gray-900' : 'bg-gray-50 border-gray-300 text-gray-400'
+                            }`}
+                        >
+                            <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.jrti ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
+                            기수맥
+                        </button>
+
+                        <button
+                            onClick={() => toggleFilter('university')}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-medium transition ${
+                                filterTypes.university ? 'bg-white border-gray-900 text-gray-900' : 'bg-gray-50 border-gray-300 text-gray-400'
+                            }`}
+                        >
+                            <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.university ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
+                            학맥
+                        </button>
+
+                        <button
+                            onClick={() => toggleFilter('region')}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-medium transition ${
+                                filterTypes.region ? 'bg-white border-gray-900 text-gray-900' : 'bg-gray-50 border-gray-300 text-gray-400'
+                            }`}
+                        >
+                            <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.region ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
+                            지맥
+                        </button>
+
+                        <button
+                            onClick={() => toggleFilter('firm')}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-medium transition ${
+                                filterTypes.firm ? 'bg-white border-gray-900 text-gray-900' : 'bg-gray-50 border-gray-300 text-gray-400'
+                            }`}
+                        >
+                            <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.firm ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
+                            전관예우
+                        </button>
+
+                        <button
+                            onClick={() => toggleFilter('highschool')}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-medium transition ${
+                                filterTypes.highschool ? 'bg-white border-gray-900 text-gray-900' : 'bg-gray-50 border-gray-300 text-gray-400'
+                            }`}
+                        >
+                            <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.highschool ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
+                            고교맥
+                        </button>
+
+                        {/* 인물 그룹 필터 */}
+                        <button
+                            onClick={() => toggleFilter('constitutional')}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-medium transition ${
+                                filterTypes.constitutional ? 'bg-white border-gray-900 text-gray-900' : 'bg-gray-50 border-gray-300 text-gray-400'
+                            }`}
+                        >
+                            <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.constitutional ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
+                            헌재
+                        </button>
+
+                        <button
+                            onClick={() => toggleFilter('supreme')}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-medium transition ${
+                                filterTypes.supreme ? 'bg-white border-gray-900 text-gray-900' : 'bg-gray-50 border-gray-300 text-gray-400'
+                            }`}
+                        >
+                            <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.supreme ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
+                            대법원
+                        </button>
+
+                        <button
+                            onClick={() => toggleFilter('chief')}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-medium transition ${
+                                filterTypes.chief ? 'bg-white border-gray-900 text-gray-900' : 'bg-gray-50 border-gray-300 text-gray-400'
+                            }`}
+                        >
+                            <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.chief ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
+                            법원장
+                        </button>
+
+                        <button
+                            onClick={() => toggleFilter('trial')}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-medium transition ${
+                                filterTypes.trial ? 'bg-white border-gray-900 text-gray-900' : 'bg-gray-50 border-gray-300 text-gray-400'
+                            }`}
+                        >
+                            <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.trial ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
+                            내란재판부
+                        </button>
+
+                        <button
+                            onClick={() => toggleFilter('lawyer')}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-medium transition ${
+                                filterTypes.lawyer ? 'bg-white border-gray-900 text-gray-900' : 'bg-gray-50 border-gray-300 text-gray-400'
+                            }`}
+                        >
+                            <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.lawyer ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
+                            전관변호사
+                        </button>
+                    </div>
+                </div>
+
+                {/* 네트워크 시각화 */}
+                {/* 줌 컨트롤 */}
+                <div className="flex items-center gap-2 mb-4">
+                    <button
+                        onClick={() => setZoom(prev => Math.min(3, prev + 0.2))}
+                        className="px-3 py-2 bg-white border-2 border-gray-900 rounded-lg text-gray-900 font-bold hover:bg-gray-100"
+                    >
+                        +
+                    </button>
+                    <button
+                        onClick={() => setZoom(prev => Math.max(0.5, prev - 0.2))}
+                        className="px-3 py-2 bg-white border-2 border-gray-900 rounded-lg text-gray-900 font-bold hover:bg-gray-100"
+                    >
+                        −
+                    </button>
+                    <button
+                        onClick={resetZoom}
+                        className="px-3 py-2 bg-white border-2 border-gray-900 rounded-lg text-gray-900 text-sm font-medium hover:bg-gray-100"
+                    >
+                        초기화
+                    </button>
+                    <span className="text-sm text-gray-500 ml-2">{Math.round(zoom * 100)}%</span>
+                </div>
+
+                <div
+                    ref={containerRef}
+                    className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+                    style={{ minHeight: dimensions.height }}
+                >
+                    <svg
+                        ref={svgRef}
+                        width={dimensions.width}
+                        height={dimensions.height}
+                        className={isPanning ? 'cursor-grabbing' : 'cursor-grab'}
+                        onWheel={handleWheel}
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
+                        onMouseLeave={handleMouseUp}
+                        style={{ fontFamily: "'Pretendard', 'Noto Sans KR', sans-serif" }}
+                    >
+                        <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`} style={{ transformOrigin: `${layout.cx}px ${layout.cy}px` }}>
+                        {/* 배경 원형 가이드 */}
+                        <g className="guide-circles" opacity="0.1">
+                            <circle
+                                cx={layout.cx}
+                                cy={layout.cy}
+                                r={layout.courtRingRadius}
+                                fill="none"
+                                stroke="#9CA3AF"
+                                strokeWidth="1"
+                                strokeDasharray="4 4"
+                            />
+                            <circle
+                                cx={layout.cx}
+                                cy={layout.cy}
+                                r={layout.personRingRadius}
+                                fill="none"
+                                stroke="#9CA3AF"
+                                strokeWidth="1"
+                                strokeDasharray="4 4"
+                            />
+                            <circle
+                                cx={layout.cx}
+                                cy={layout.cy}
+                                r={layout.categoryRingRadius}
+                                fill="none"
+                                stroke="#9CA3AF"
+                                strokeWidth="1"
+                                strokeDasharray="4 4"
+                            />
+                            <circle
+                                cx={layout.cx}
+                                cy={layout.cy}
+                                r={layout.outerRingRadius}
+                                fill="none"
+                                stroke="#9CA3AF"
+                                strokeWidth="1"
+                                strokeDasharray="4 4"
+                            />
+                        </g>
+
+                        {/* 연결선 */}
+                        <g className="links">
+                            {links.map(link => {
+                                const isHighlighted = highlightedLinks.size === 0 || highlightedLinks.has(link.id);
+                                const opacity = isHighlighted ? 0.6 : 0.08;
+                                const strokeWidth = highlightedLinks.has(link.id) ? 2 : 1;
+
+                                return (
+                                    <line
+                                        key={link.id}
+                                        x1={link.source.x}
+                                        y1={link.source.y}
+                                        x2={link.target.x}
+                                        y2={link.target.y}
+                                        stroke={LINK_COLORS[link.type]}
+                                        strokeWidth={strokeWidth}
+                                        opacity={opacity}
+                                        className="transition-all duration-200"
+                                    />
+                                );
+                            })}
+                        </g>
+
+                        {/* 외부 링 노드들 */}
+                        <g className="outer-nodes">
+                            {/* 기수 노드 */}
+                            {filterTypes.jrti && layout.outerPositions.jrti.map(node => {
+                                const isHighlighted = highlightedNodes.size === 0 || highlightedNodes.has(node.id);
+                                const isHovered = hoveredNode?.id === node.id;
+                                return (
+                                    <g
+                                        key={node.id}
+                                        className="cursor-pointer transition-all duration-200"
+                                        onClick={(e) => { e.stopPropagation(); handleNodeClick(node, 'jrti'); }}
+                                        onMouseEnter={() => setHoveredNode(node)}
+                                        onMouseLeave={() => setHoveredNode(null)}
+                                        opacity={isHighlighted ? 1 : 0.2}
+                                    >
+                                        <circle
+                                            cx={node.x}
+                                            cy={node.y}
+                                            r={isHovered ? 14 : 10}
+                                            fill="white"
+                                            stroke="#374151"
+                                            strokeWidth="1.5"
+                                            className="transition-all duration-200"
+                                        />
+                                        <text
+                                            x={node.x}
+                                            y={node.y}
+                                            textAnchor="middle"
+                                            dominantBaseline="central"
+                                            fill="#374151"
+                                            fontSize="8"
+                                            fontWeight="600"
+                                        >
+                                            {node.name.replace('기', '')}
+                                        </text>
+                                    </g>
+                                );
+                            })}
+
+                            {/* 대학교 노드 */}
+                            {filterTypes.university && layout.outerPositions.university.map(node => {
+                                const isHighlighted = highlightedNodes.size === 0 || highlightedNodes.has(node.id);
+                                const isHovered = hoveredNode?.id === node.id;
+                                return (
+                                    <g
+                                        key={node.id}
+                                        className="cursor-pointer transition-all duration-200"
+                                        onClick={(e) => { e.stopPropagation(); handleNodeClick(node, 'university'); }}
+                                        onMouseEnter={() => setHoveredNode(node)}
+                                        onMouseLeave={() => setHoveredNode(null)}
+                                        opacity={isHighlighted ? 1 : 0.2}
+                                    >
+                                        <circle
+                                            cx={node.x}
+                                            cy={node.y}
+                                            r={isHovered ? 16 : 12}
+                                            fill="white"
+                                            stroke="#374151"
+                                            strokeWidth="1.5"
+                                            className="transition-all duration-200"
+                                        />
+                                        <text
+                                            x={node.x}
+                                            y={node.y}
+                                            textAnchor="middle"
+                                            dominantBaseline="central"
+                                            fill="#374151"
+                                            fontSize="8"
+                                            fontWeight="600"
+                                        >
+                                            {node.name}
+                                        </text>
+                                    </g>
+                                );
+                            })}
+
+                            {/* 지역 노드 */}
+                            {filterTypes.region && layout.outerPositions.region.map(node => {
+                                const isHighlighted = highlightedNodes.size === 0 || highlightedNodes.has(node.id);
+                                const isHovered = hoveredNode?.id === node.id;
+                                return (
+                                    <g
+                                        key={node.id}
+                                        className="cursor-pointer transition-all duration-200"
+                                        onClick={(e) => { e.stopPropagation(); handleNodeClick(node, 'region'); }}
+                                        onMouseEnter={() => setHoveredNode(node)}
+                                        onMouseLeave={() => setHoveredNode(null)}
+                                        opacity={isHighlighted ? 1 : 0.2}
+                                    >
+                                        <circle
+                                            cx={node.x}
+                                            cy={node.y}
+                                            r={isHovered ? 14 : 10}
+                                            fill="white"
+                                            stroke="#374151"
+                                            strokeWidth="1.5"
+                                            className="transition-all duration-200"
+                                        />
+                                        <text
+                                            x={node.x}
+                                            y={node.y}
+                                            textAnchor="middle"
+                                            dominantBaseline="central"
+                                            fill="#374151"
+                                            fontSize="7"
+                                            fontWeight="600"
+                                        >
+                                            {node.name}
+                                        </text>
+                                    </g>
+                                );
+                            })}
+
+                            {/* 로펌 노드 */}
+                            {filterTypes.firm && layout.outerPositions.firm.map(node => {
+                                const isHighlighted = highlightedNodes.size === 0 || highlightedNodes.has(node.id);
+                                const isHovered = hoveredNode?.id === node.id;
+                                return (
+                                    <g
+                                        key={node.id}
+                                        className="cursor-pointer transition-all duration-200"
+                                        onClick={(e) => { e.stopPropagation(); handleNodeClick(node, 'firm'); }}
+                                        onMouseEnter={() => setHoveredNode(node)}
+                                        onMouseLeave={() => setHoveredNode(null)}
+                                        opacity={isHighlighted ? 1 : 0.2}
+                                    >
+                                        <circle
+                                            cx={node.x}
+                                            cy={node.y}
+                                            r={isHovered ? 16 : 12}
+                                            fill="white"
+                                            stroke="#374151"
+                                            strokeWidth="1.5"
+                                            className="transition-all duration-200"
+                                        />
+                                        <text
+                                            x={node.x}
+                                            y={node.y}
+                                            textAnchor="middle"
+                                            dominantBaseline="central"
+                                            fill="#374151"
+                                            fontSize="7"
+                                            fontWeight="600"
+                                        >
+                                            {node.name}
+                                        </text>
+                                    </g>
+                                );
+                            })}
+
+                            {/* 고등학교 노드 */}
+                            {filterTypes.highschool && layout.outerPositions.highschool.map(node => {
+                                const isHighlighted = highlightedNodes.size === 0 || highlightedNodes.has(node.id);
+                                const isHovered = hoveredNode?.id === node.id;
+                                return (
+                                    <g
+                                        key={node.id}
+                                        className="cursor-pointer transition-all duration-200"
+                                        onClick={(e) => { e.stopPropagation(); handleNodeClick(node, 'highschool'); }}
+                                        onMouseEnter={() => setHoveredNode(node)}
+                                        onMouseLeave={() => setHoveredNode(null)}
+                                        opacity={isHighlighted ? 1 : 0.2}
+                                    >
+                                        <circle
+                                            cx={node.x}
+                                            cy={node.y}
+                                            r={isHovered ? 14 : 10}
+                                            fill="white"
+                                            stroke="#374151"
+                                            strokeWidth="1.5"
+                                            className="transition-all duration-200"
+                                        />
+                                        <text
+                                            x={node.x}
+                                            y={node.y}
+                                            textAnchor="middle"
+                                            dominantBaseline="central"
+                                            fill="#374151"
+                                            fontSize="6"
+                                            fontWeight="600"
+                                        >
+                                            {node.name}
+                                        </text>
+                                    </g>
+                                );
+                            })}
+                        </g>
+
+                        {/* 카테고리 레이블 */}
+                        <g className="category-labels">
+                            {layout.categoryPositions.map(cat => (
+                                <g key={cat.id}>
+                                    <text
+                                        x={cat.x}
+                                        y={cat.y}
+                                        textAnchor="middle"
+                                        dominantBaseline="central"
+                                        fill="#1F2937"
+                                        fontSize="14"
+                                        fontWeight="700"
+                                        opacity="0.9"
+                                    >
+                                        {cat.name}
+                                    </text>
+                                    <text
+                                        x={cat.x}
+                                        y={cat.y + 16}
+                                        textAnchor="middle"
+                                        dominantBaseline="central"
+                                        fill="#4B5563"
+                                        fontSize="10"
+                                        opacity="0.8"
+                                    >
+                                        {cat.desc}
+                                    </text>
+                                </g>
+                            ))}
+                        </g>
+
+                        {/* 인물 노드들 */}
+                        <g className="person-nodes">
+                            {filteredPersons.map(person => {
+                                const isHighlighted = highlightedNodes.size === 0 || highlightedNodes.has(person.id);
+                                const isHovered = hoveredNode?.id === person.id;
+                                const isSelected = selectedNode?.id === person.id;
+                                const radius = person.group === 'minister' ? 24 : (isHovered || isSelected ? 18 : 14);
+
+                                return (
+                                    <g
+                                        key={person.id}
+                                        className="cursor-pointer"
+                                        onClick={(e) => { e.stopPropagation(); handleNodeClick(person, 'person'); }}
+                                        onMouseEnter={() => setHoveredNode(person)}
+                                        onMouseLeave={() => setHoveredNode(null)}
+                                        opacity={isHighlighted ? 1 : 0.25}
+                                    >
+                                        {/* 선택 하이라이트 */}
+                                        {isSelected && (
+                                            <circle
+                                                cx={person.x}
+                                                cy={person.y}
+                                                r={radius + 4}
+                                                fill="none"
+                                                stroke="#FCD34D"
+                                                strokeWidth="3"
+                                            />
+                                        )}
+                                        {/* 메인 원 */}
+                                        <circle
+                                            cx={person.x}
+                                            cy={person.y}
+                                            r={radius}
+                                            fill="white"
+                                            stroke="#374151"
+                                            strokeWidth="2"
+                                            className="transition-all duration-200"
+                                        />
+                                        {/* 이름 */}
+                                        <text
+                                            x={person.x}
+                                            y={person.y}
+                                            textAnchor="middle"
+                                            dominantBaseline="central"
+                                            fill="#1F2937"
+                                            fontSize={person.group === 'minister' ? 10 : 8}
+                                            fontWeight="600"
+                                        >
+                                            {person.name}
+                                        </text>
+                                        {/* 기수 (작게) */}
+                                        {person.jrti && (
+                                            <text
+                                                x={person.x}
+                                                y={person.y + radius + 10}
+                                                textAnchor="middle"
+                                                dominantBaseline="central"
+                                                fill="#6B7280"
+                                                fontSize="8"
+                                            >
+                                                {person.jrti}기
+                                            </text>
+                                        )}
+                                    </g>
+                                );
+                            })}
+                        </g>
+
+                        {/* 중앙 노드 */}
+                        <g
+                            className="center-node cursor-pointer"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                const centerNodeData = {
+                                    id: 'center',
+                                    name: `${NETWORK_DATA.center.title} ${NETWORK_DATA.center.subtitle}`,
+                                    position: '법무부장관',
+                                    ...NETWORK_DATA.centerConnections,
+                                    x: layout.cx,
+                                    y: layout.cy
+                                };
+                                handleNodeClick(centerNodeData, 'center');
+                            }}
+                        >
+                            {selectedNode?.id === 'center' && (
+                                <circle
+                                    cx={layout.cx}
+                                    cy={layout.cy}
+                                    r={layout.centerRadius + 4}
+                                    fill="none"
+                                    stroke="#FCD34D"
+                                    strokeWidth="3"
+                                />
+                            )}
+                            <circle
+                                cx={layout.cx}
+                                cy={layout.cy}
+                                r={layout.centerRadius}
+                                fill="white"
+                                stroke="#1F2937"
+                                strokeWidth="3"
+                            />
+                            <text
+                                x={layout.cx}
+                                y={layout.cy - 6}
+                                textAnchor="middle"
+                                dominantBaseline="central"
+                                fill="#1F2937"
+                                fontSize="12"
+                                fontWeight="700"
+                            >
+                                {NETWORK_DATA.center.title}
+                            </text>
+                            <text
+                                x={layout.cx}
+                                y={layout.cy + 8}
+                                textAnchor="middle"
+                                dominantBaseline="central"
+                                fill="#4B5563"
+                                fontSize="9"
+                            >
+                                {NETWORK_DATA.center.subtitle}
+                            </text>
+                        </g>
+
+                        {/* 헌재/대법원 레이블 (중앙 아래) */}
+                        <g className="court-label">
+                            <text
+                                x={layout.cx}
+                                y={layout.cy + layout.courtRingRadius + 20}
+                                textAnchor="middle"
+                                dominantBaseline="central"
+                                fill="#1F2937"
+                                fontSize="13"
+                                fontWeight="700"
+                                opacity="0.9"
+                            >
+                                {NETWORK_DATA.courtLabel.name}
+                            </text>
+                            <text
+                                x={layout.cx}
+                                y={layout.cy + layout.courtRingRadius + 36}
+                                textAnchor="middle"
+                                dominantBaseline="central"
+                                fill="#4B5563"
+                                fontSize="9"
+                                opacity="0.8"
+                            >
+                                {NETWORK_DATA.courtLabel.desc}
+                            </text>
+                        </g>
+
+                        {/* 호버 툴팁 */}
+                        {hoveredNode && !selectedNode && (
+                            <g className="tooltip" style={{ pointerEvents: 'none' }}>
+                                <rect
+                                    x={hoveredNode.x + 20}
+                                    y={hoveredNode.y - 30}
+                                    width={Math.max(100, (hoveredNode.name?.length || 0) * 12 + 40)}
+                                    height="50"
+                                    rx="8"
+                                    fill="white"
+                                    stroke="#E5E7EB"
+                                    strokeWidth="1"
+                                    filter="drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))"
+                                />
+                                <text
+                                    x={hoveredNode.x + 30}
+                                    y={hoveredNode.y - 12}
+                                    fill="#1F2937"
+                                    fontSize="12"
+                                    fontWeight="600"
+                                >
+                                    {hoveredNode.name}
+                                </text>
+                                <text
+                                    x={hoveredNode.x + 30}
+                                    y={hoveredNode.y + 6}
+                                    fill="#6B7280"
+                                    fontSize="10"
+                                >
+                                    {hoveredNode.position || hoveredNode.desc || ''}
+                                </text>
+                            </g>
+                        )}
+                        </g>
+                    </svg>
+                </div>
+
+                {/* 선택된 노드 정보 */}
+                {selectedNode && (
+                    <div className="mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <h3 className="text-xl font-bold text-gray-900">
+                                    {selectedNode.name}
+                                </h3>
+                                {selectedNode.position && (
+                                    <p className="text-gray-500 mt-1">{selectedNode.position}</p>
+                                )}
+                            </div>
+                            <button
+                                onClick={handleBackgroundClick}
+                                className="text-gray-400 hover:text-gray-600 p-2"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {selectedNode.jrti && (
+                                <div className="bg-blue-50 rounded-xl p-3">
+                                    <p className="text-blue-600 text-xs font-medium">연수원 기수</p>
+                                    <p className="text-blue-900 font-bold">{selectedNode.jrti}기</p>
+                                </div>
+                            )}
+                            {selectedNode.university && selectedNode.university !== '-' && (
+                                <div className="bg-emerald-50 rounded-xl p-3">
+                                    <p className="text-emerald-600 text-xs font-medium">출신 대학</p>
+                                    <p className="text-emerald-900 font-bold">{selectedNode.university}</p>
+                                </div>
+                            )}
+                            {selectedNode.hometown && (
+                                <div className="bg-amber-50 rounded-xl p-3">
+                                    <p className="text-amber-600 text-xs font-medium">출신 지역</p>
+                                    <p className="text-amber-900 font-bold">{selectedNode.hometown}</p>
+                                </div>
+                            )}
+                            {selectedNode.highSchool && (
+                                <div className="bg-violet-50 rounded-xl p-3">
+                                    <p className="text-violet-600 text-xs font-medium">출신 고교</p>
+                                    <p className="text-violet-900 font-bold">{selectedNode.highSchool}</p>
+                                </div>
+                            )}
+                            {selectedNode.firm && (
+                                <div className="bg-red-50 rounded-xl p-3">
+                                    <p className="text-red-600 text-xs font-medium">소속 로펌</p>
+                                    <p className="text-red-900 font-bold">{selectedNode.firm}</p>
+                                </div>
+                            )}
+                            {selectedNode.desc && (
+                                <div className="bg-gray-50 rounded-xl p-3 col-span-2">
+                                    <p className="text-gray-600 text-xs font-medium">설명</p>
+                                    <p className="text-gray-900">{selectedNode.desc}</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 연결된 관계 */}
+                        {highlightedNodes.size > 1 && (
+                            <div className="mt-4 pt-4 border-t border-gray-100">
+                                <p className="text-sm text-gray-500 mb-2">
+                                    연결된 관계 ({highlightedNodes.size - 1}개)
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {Array.from(highlightedNodes)
+                                        .filter(id => id !== selectedNode.id)
+                                        .map(nodeId => {
+                                            // 모든 노드에서 찾기
+                                            const allNodes = [
+                                                ...layout.personPositions,
+                                                ...layout.outerPositions.jrti,
+                                                ...layout.outerPositions.university,
+                                                ...layout.outerPositions.region,
+                                                ...layout.outerPositions.firm,
+                                                ...layout.outerPositions.highschool,
+                                            ];
+                                            const node = allNodes.find(n => n.id === nodeId);
+                                            if (!node) return null;
+
+                                            const typeColors = {
+                                                jrti: 'bg-blue-100 text-blue-700',
+                                                university: 'bg-emerald-100 text-emerald-700',
+                                                region: 'bg-amber-100 text-amber-700',
+                                                firm: 'bg-red-100 text-red-700',
+                                                highschool: 'bg-violet-100 text-violet-700',
+                                            };
+                                            const colorClass = typeColors[node.type] || 'bg-gray-100 text-gray-700';
+
+                                            return (
+                                                <span
+                                                    key={nodeId}
+                                                    className={`px-2 py-1 rounded-full text-xs font-medium ${colorClass}`}
+                                                >
+                                                    {node.name}
+                                                </span>
+                                            );
+                                        })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* 사용 안내 */}
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5">
+                        <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            사용 방법
+                        </h4>
+                        <ul className="text-sm text-blue-800 space-y-1.5">
+                            <li>- 노드 클릭: 상세 정보 및 연결 관계 확인</li>
+                            <li>- 필터 버튼: 특정 유형 표시/숨기기</li>
+                            <li>- 빈 공간 클릭: 선택 해제</li>
+                        </ul>
+                    </div>
+
+                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5">
+                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            데이터 출처
+                        </h4>
+                        <ul className="text-sm text-gray-600 space-y-1.5">
+                            <li>- 대법원 공식 홈페이지, 헌법재판소</li>
+                            <li>- 법률신문, 한국NGO신문 (2017-2025)</li>
+                            <li>- 리걸타임즈, 나무위키</li>
+                        </ul>
+                    </div>
+                </div>
+
+                {/* 통계 요약 */}
+                <div className="mt-6 bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 rounded-2xl p-6">
+                    <h4 className="font-bold text-red-900 mb-4">전관예우 통계 요약 (2017-2025)</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-white/60 rounded-xl p-4 text-center">
+                            <p className="text-3xl font-bold text-red-600">229</p>
+                            <p className="text-sm text-gray-600 mt-1">10대 로펌 영입 판사</p>
+                        </div>
+                        <div className="bg-white/60 rounded-xl p-4 text-center">
+                            <p className="text-3xl font-bold text-red-600">79</p>
+                            <p className="text-sm text-gray-600 mt-1">김앤장 영입 (34.5%)</p>
+                        </div>
+                        <div className="bg-white/60 rounded-xl p-4 text-center">
+                            <p className="text-3xl font-bold text-emerald-600">33%</p>
+                            <p className="text-sm text-gray-600 mt-1">서울대 출신 법관</p>
+                        </div>
+                        <div className="bg-white/60 rounded-xl p-4 text-center">
+                            <p className="text-3xl font-bold text-purple-600">9/9</p>
+                            <p className="text-sm text-gray-600 mt-1">헌재 서울대 출신</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 대법원 통계 */}
+                <div className="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-6">
+                    <h4 className="font-bold text-blue-900 mb-4">대법원 현황 (2025)</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-white/60 rounded-xl p-4 text-center">
+                            <p className="text-3xl font-bold text-blue-600">14</p>
+                            <p className="text-sm text-gray-600 mt-1">대법관 정원</p>
+                        </div>
+                        <div className="bg-white/60 rounded-xl p-4 text-center">
+                            <p className="text-3xl font-bold text-blue-600">71%</p>
+                            <p className="text-sm text-gray-600 mt-1">서울대 출신 (10/14)</p>
+                        </div>
+                        <div className="bg-white/60 rounded-xl p-4 text-center">
+                            <p className="text-3xl font-bold text-indigo-600">6년</p>
+                            <p className="text-sm text-gray-600 mt-1">임기 (연임 가능)</p>
+                        </div>
+                        <div className="bg-white/60 rounded-xl p-4 text-center">
+                            <p className="text-3xl font-bold text-indigo-600">65세</p>
+                            <p className="text-sm text-gray-600 mt-1">정년 (대법원장 70세)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default JudicialNetwork;
