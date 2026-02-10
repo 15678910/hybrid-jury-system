@@ -1535,7 +1535,8 @@ const NEWS_KEYWORDS = [
     '국민참여재판', '배심원제', '사법민주화', '법관인사',
     '검찰수사권', '공수처', '국가수사본부', '전담재판부',
     '중수청', '공소청', '대법관', '헌법재판소',
-    '내란', '영장전담판사'
+    '내란', '영장전담판사', '국정원', '방첩사',
+    '김건희', '뇌물', '유전무죄', '솜방망이처벌', '무죄선고', '특검'
 ];
 
 const RSS2JSON_API = 'https://api.rss2json.com/v1/api.json';
@@ -1914,10 +1915,10 @@ const collectAndPostNews = async (force = false) => {
     return { success: true, postId: postRef.id, newsCount: allNews.length };
 };
 
-// 매일 오전 9시(한국시간) 자동 실행
+// 매일 오전 6시, 오후 6시(한국시간) 자동 실행
 exports.autoCollectNews = functions
-    .runWith({ timeoutSeconds: 120, memory: '256MB' })
-    .pubsub.schedule('0 9 * * *')
+    .runWith({ timeoutSeconds: 540, memory: '512MB' })
+    .pubsub.schedule('0 6,18 * * *')
     .timeZone('Asia/Seoul')
     .onRun(async (context) => {
         try {
@@ -1929,7 +1930,9 @@ exports.autoCollectNews = functions
     });
 
 // 수동 뉴스 수집 (관리자용 테스트)
-exports.collectNewsManual = functions.https.onRequest(async (req, res) => {
+exports.collectNewsManual = functions
+    .runWith({ timeoutSeconds: 540, memory: '512MB' })
+    .https.onRequest(async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
@@ -2616,7 +2619,7 @@ exports.reformAnalysisPage = functions.https.onRequest(async (req, res) => {
     const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
     const title = `[개혁안 비교] ${dateStr} 주요 소식`;
     const description = '사법개혁 7대 영역별 정당·시민사회 입장 비교 및 관련 뉴스 - 시민법정';
-    const imageUrl = 'https://siminbupjung-blog.web.app/%EA%B0%9C%ED%98%81%EC%95%88%EB%B9%84%EA%B5%90.png?v=3';
+    const imageUrl = 'https://siminbupjung-blog.web.app/%EA%B0%9C%ED%98%81%EC%95%88%EB%B9%84%EA%B5%90.png?v=4';
     const pageUrl = 'https://siminbupjung-blog.web.app/reform-analysis';
 
     const html = `<!doctype html>

@@ -17,11 +17,11 @@ const NETWORK_DATA = {
 
     // 카테고리 (내부 링 2) - 5개 카테고리를 72도 간격으로 배치
     categories: [
-        { id: 'cat_jrti', name: '기수맥', desc: '법원연수원', color: '#3B82F6', angle: 36 },
-        { id: 'cat_univ', name: '학맥', desc: '대학교', color: '#10B981', angle: 108 },
-        { id: 'cat_region', name: '지맥', desc: '출신 지역', color: '#F59E0B', angle: 180 },
+        { id: 'cat_jrti', name: '기수', desc: '법원연수원', color: '#3B82F6', angle: 36 },
+        { id: 'cat_univ', name: '출신학교', desc: '대학교', color: '#10B981', angle: 108 },
+        { id: 'cat_region', name: '지역', desc: '출신 지역', color: '#F59E0B', angle: 180 },
         { id: 'cat_firm', name: '전관예우', desc: '대형로펌', color: '#EF4444', angle: 252 },
-        { id: 'cat_hs', name: '고교맥', desc: '고등학교', color: '#8B5CF6', angle: 324 },
+        { id: 'cat_hs', name: '고교', desc: '고등학교', color: '#8B5CF6', angle: 324 },
     ],
 
     // 헌재/대법원 (중앙 근처 별도 배치)
@@ -160,11 +160,11 @@ const NETWORK_DATA = {
 
 // 연결 유형별 색상 (모두 회색)
 const LINK_COLORS = {
-    jrti: '#9CA3AF',      // 기수맥 - 회색
-    university: '#9CA3AF', // 학맥 - 회색
-    region: '#9CA3AF',    // 지맥 - 회색
+    jrti: '#9CA3AF',      // 기수 - 회색
+    university: '#9CA3AF', // 출신학교 - 회색
+    region: '#9CA3AF',    // 지역 - 회색
     firm: '#9CA3AF',      // 전관예우 - 회색
-    highschool: '#9CA3AF', // 고교맥 - 회색
+    highschool: '#9CA3AF', // 고교 - 회색
 };
 
 // =============================================================================
@@ -615,6 +615,9 @@ function JudicialNetwork() {
     const resetZoom = useCallback(() => {
         setZoom(1);
         setPan({ x: 0, y: 0 });
+        setSelectedNode(null);
+        setHighlightedLinks(new Set());
+        setHighlightedNodes(new Set());
     }, []);
 
     // 인증 화면
@@ -674,7 +677,7 @@ function JudicialNetwork() {
                         사법부 카르텔 네트워크
                     </h1>
                     <p className="text-gray-600">
-                        학맥, 지맥, 기수맥, 전관예우, 고교맥 - 대한민국 사법부의 인적 네트워크를 시각화합니다
+                        출신학교, 지역, 기수, 전관예우, 고교 - 대한민국 사법부의 인적 네트워크를 시각화합니다
                     </p>
                 </div>
 
@@ -696,7 +699,7 @@ function JudicialNetwork() {
                             }`}
                         >
                             <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.jrti ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
-                            기수맥
+                            기수
                         </button>
 
                         <button
@@ -706,7 +709,7 @@ function JudicialNetwork() {
                             }`}
                         >
                             <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.university ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
-                            학맥
+                            출신학교
                         </button>
 
                         <button
@@ -716,7 +719,7 @@ function JudicialNetwork() {
                             }`}
                         >
                             <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.region ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
-                            지맥
+                            지역
                         </button>
 
                         <button
@@ -736,7 +739,7 @@ function JudicialNetwork() {
                             }`}
                         >
                             <span className={`w-2.5 h-2.5 rounded-full ${filterTypes.highschool ? 'bg-gray-900' : 'bg-gray-300'}`}></span>
-                            고교맥
+                            고교
                         </button>
 
                         {/* 인물 그룹 필터 */}
@@ -831,6 +834,11 @@ function JudicialNetwork() {
                         onMouseMove={handleMouseMove}
                         onMouseUp={handleMouseUp}
                         onMouseLeave={handleMouseUp}
+                        onClick={() => {
+                            setSelectedNode(null);
+                            setHighlightedLinks(new Set());
+                            setHighlightedNodes(new Set());
+                        }}
                         style={{ fontFamily: "'Pretendard', 'Noto Sans KR', sans-serif" }}
                     >
                         <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`} style={{ transformOrigin: `${layout.cx}px ${layout.cy}px` }}>
@@ -1412,37 +1420,6 @@ function JudicialNetwork() {
                     </div>
                 )}
 
-                {/* 사용 안내 */}
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5">
-                        <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            사용 방법
-                        </h4>
-                        <ul className="text-sm text-blue-800 space-y-1.5">
-                            <li>- 노드 클릭: 상세 정보 및 연결 관계 확인</li>
-                            <li>- 필터 버튼: 특정 유형 표시/숨기기</li>
-                            <li>- 빈 공간 클릭: 선택 해제</li>
-                        </ul>
-                    </div>
-
-                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5">
-                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            데이터 출처
-                        </h4>
-                        <ul className="text-sm text-gray-600 space-y-1.5">
-                            <li>- 대법원 공식 홈페이지, 헌법재판소</li>
-                            <li>- 법률신문, 한국NGO신문 (2017-2025)</li>
-                            <li>- 리걸타임즈, 나무위키</li>
-                        </ul>
-                    </div>
-                </div>
-
                 {/* 통계 요약 */}
                 <div className="mt-6 bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 rounded-2xl p-6">
                     <h4 className="font-bold text-red-900 mb-4">전관예우 통계 요약 (2017-2025)</h4>
@@ -1486,6 +1463,234 @@ function JudicialNetwork() {
                             <p className="text-3xl font-bold text-indigo-600">65세</p>
                             <p className="text-sm text-gray-600 mt-1">정년 (대법원장 70세)</p>
                         </div>
+                    </div>
+                </div>
+
+                {/* 대형로펌 현황 통계 */}
+                <div className="mt-4 bg-gradient-to-r from-gray-50 to-slate-100 border border-gray-200 rounded-2xl p-6">
+                    <h4 className="font-bold text-gray-900 mb-2">6대 로펌 현황 (2024-2025)</h4>
+                    <p className="text-xs text-gray-500 mb-4">* 전문인력 = 한국변호사 + 외국변호사 + 변리사 + 공인회계사 | 변호사 수: '24.11월 기준 | 매출: '24년 국세청 신고 기준</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {/* 김앤장 */}
+                        <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                            <div className="flex justify-between items-start mb-3">
+                                <div>
+                                    <p className="text-lg font-bold text-gray-900">김앤장</p>
+                                    <p className="text-xs text-gray-500">Kim & Chang</p>
+                                </div>
+                                <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded">1위</span>
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">전문인력 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-bold text-gray-900">2,000명+</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">한국변호사 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-medium text-gray-700">1,100명+</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">매출액 <span className="text-xs text-gray-400">('23)</span></span>
+                                    <span className="text-sm font-bold text-blue-600">~1.3조원</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">SKY 비율 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-medium text-purple-600">80.0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        {/* 광장 */}
+                        <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                            <div className="flex justify-between items-start mb-3">
+                                <div>
+                                    <p className="text-lg font-bold text-gray-900">광장</p>
+                                    <p className="text-xs text-gray-500">Lee & Ko</p>
+                                </div>
+                                <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2 py-1 rounded">2위</span>
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">변호사 수 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-bold text-gray-900">608명</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">매출액 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-bold text-blue-600">4,309억</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">1인당 매출 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-medium text-green-600">7.13억</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">SKY 비율 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-medium text-purple-600">84.4%</span>
+                                </div>
+                            </div>
+                        </div>
+                        {/* 세종 */}
+                        <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                            <div className="flex justify-between items-start mb-3">
+                                <div>
+                                    <p className="text-lg font-bold text-gray-900">세종</p>
+                                    <p className="text-xs text-gray-500">Shin & Kim</p>
+                                </div>
+                                <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2 py-1 rounded">3위</span>
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">변호사 수 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-bold text-gray-900">603명</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">매출액 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-bold text-blue-600">4,363억</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">1인당 매출 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-medium text-green-600">7.24억</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">SKY 비율 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-medium text-purple-600">82.9%</span>
+                                </div>
+                            </div>
+                        </div>
+                        {/* 태평양 */}
+                        <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                            <div className="flex justify-between items-start mb-3">
+                                <div>
+                                    <p className="text-lg font-bold text-gray-900">태평양</p>
+                                    <p className="text-xs text-gray-500">Bae, Kim & Lee</p>
+                                </div>
+                                <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2 py-1 rounded">4위</span>
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">변호사 수 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-bold text-gray-900">560명</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">매출액 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-bold text-blue-600">~4,000억</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">1인당 매출 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-medium text-green-600">7.38억</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">SKY 비율 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-medium text-purple-600">77.1%</span>
+                                </div>
+                            </div>
+                        </div>
+                        {/* 율촌 */}
+                        <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                            <div className="flex justify-between items-start mb-3">
+                                <div>
+                                    <p className="text-lg font-bold text-gray-900">율촌</p>
+                                    <p className="text-xs text-gray-500">Yulchon</p>
+                                </div>
+                                <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2 py-1 rounded">5위</span>
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">변호사 수 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-bold text-gray-900">540명</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">매출액 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-bold text-blue-600">4,080억</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">1인당 매출 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-medium text-green-600">7.60억</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">SKY 비율 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-medium text-purple-600">74.4%</span>
+                                </div>
+                            </div>
+                        </div>
+                        {/* 화우 */}
+                        <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                            <div className="flex justify-between items-start mb-3">
+                                <div>
+                                    <p className="text-lg font-bold text-gray-900">화우</p>
+                                    <p className="text-xs text-gray-500">Yoon & Yang</p>
+                                </div>
+                                <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2 py-1 rounded">6위</span>
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">변호사 수 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-bold text-gray-900">~370명</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">매출액 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-bold text-blue-600">2,812억</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">1인당 매출 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-medium text-green-600">7.62억</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">SKY 비율 <span className="text-xs text-gray-400">('24)</span></span>
+                                    <span className="text-sm font-medium text-purple-600">60.0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                            <div className="bg-white/60 rounded-lg p-3">
+                                <p className="text-xl font-bold text-gray-900">~3,780명</p>
+                                <p className="text-xs text-gray-500">6대 로펌 총 변호사 ('24)</p>
+                            </div>
+                            <div className="bg-white/60 rounded-lg p-3">
+                                <p className="text-xl font-bold text-blue-600">~2.1조</p>
+                                <p className="text-xs text-gray-500">6대 로펌 총 매출 ('24)</p>
+                            </div>
+                            <div className="bg-white/60 rounded-lg p-3">
+                                <p className="text-xl font-bold text-green-600">7.3억</p>
+                                <p className="text-xs text-gray-500">평균 1인당 매출 ('24)</p>
+                            </div>
+                            <div className="bg-white/60 rounded-lg p-3">
+                                <p className="text-xl font-bold text-purple-600">76.5%</p>
+                                <p className="text-xs text-gray-500">평균 SKY 비율 ('24)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-4 text-right">출처: 법률신문, Asia Business Law Journal, 한국경제 (2024-2025)</p>
+                </div>
+
+                {/* 사용 안내 */}
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5">
+                        <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            사용 방법
+                        </h4>
+                        <ul className="text-sm text-blue-800 space-y-1.5">
+                            <li>- 노드 클릭: 상세 정보 및 연결 관계 확인</li>
+                            <li>- 필터 버튼: 특정 유형 표시/숨기기</li>
+                            <li>- 빈 공간 클릭: 선택 해제</li>
+                        </ul>
+                    </div>
+
+                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5">
+                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            데이터 출처
+                        </h4>
+                        <ul className="text-sm text-gray-600 space-y-1.5">
+                            <li>- 대법원 공식 홈페이지, 헌법재판소</li>
+                            <li>- 법률신문, 한국NGO신문 (2017-2025)</li>
+                            <li>- 리걸타임즈, 나무위키</li>
+                        </ul>
                     </div>
                 </div>
             </div>

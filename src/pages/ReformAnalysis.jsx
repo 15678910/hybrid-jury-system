@@ -1098,7 +1098,7 @@ export default function ReformAnalysis() {
                     content: {
                         title: '법원·검찰 개혁안 비교',
                         description: text,
-                        imageUrl: 'https://xn--lg3b0kt4n41f.kr/og-image.jpg',
+                        imageUrl: 'https://xn--lg3b0kt4n41f.kr/%EA%B0%9C%ED%98%81%EC%95%88%EB%B9%84%EA%B5%90.png',
                         link: { mobileWebUrl: url, webUrl: url },
                     },
                     buttons: [{ title: '자세히 보기', link: { mobileWebUrl: url, webUrl: url } }],
