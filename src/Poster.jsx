@@ -57,11 +57,11 @@ function Poster({ onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-2 bg-black/50 z-50 overflow-y-auto">
+    <div className="fixed inset-0 flex items-center justify-center p-2 pt-10 bg-black/50 z-[10000] overflow-y-auto">
       <div className="bg-black rounded-xl shadow-2xl w-full max-w-[500px] p-1.5 relative my-2">
         <button
           onClick={handleClose}
-          className="absolute top-1 right-2 text-white hover:text-gray-300 text-2xl font-bold transition z-10"
+          className="absolute top-3 right-3 text-white hover:text-gray-300 text-2xl font-bold transition z-10 bg-black/70 rounded-full w-8 h-8 flex items-center justify-center"
         >
           ✕
         </button>

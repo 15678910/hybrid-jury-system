@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
-import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon } from '../components/icons';
+import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, LinkedInIcon } from '../components/icons';
 
 // 위키백과 공개 이미지 URL (Wikimedia Commons) + 정부 정책브리핑(korea.kr) 공식 사진
 const PERSON_PHOTOS = {
@@ -633,30 +633,80 @@ const personsData = {
         position: '전 행정안전부 장관',
         status: '구속',
         statusColor: 'red',
-        court: '서울중앙지방법원',
+        court: '서울중앙지방법원 형사합의32부',
+        judge: '류경진 부장판사',
+        verdictDate: '2026년 2월 12일',
         charges: [
             {
                 id: 1,
                 name: '내란중요임무종사',
                 law: '형법 제87조',
-                description: '계엄 시 언론사 단전·단수 지시, 불법 계엄 방조',
-                prosecutionRequest: '징역 15년 (특검 구형, 2026.1.12)',
-                verdict: '재판 진행 중 (2026.2.12 선고 예정)',
-                reason: '-'
+                period: '2024.12.3',
+                amount: '언론사 단전·단수 지시 전달',
+                prosecutionRequest: '징역 15년 (특검 구형)',
+                verdict: '유죄 - 징역 7년',
+                reason: '국가의 존립을 위태롭게 한 내란 행위에 대해서는 그 목적의 달성 여부와 무관하게 엄중한 처벌이 필요'
+            },
+            {
+                id: 2,
+                name: '위증',
+                law: '형법 제152조',
+                period: '2025.2 (헌재 탄핵심판)',
+                amount: '단전·단수 지시 관련 허위 증언',
+                prosecutionRequest: '-',
+                verdict: '유죄 (징역 7년에 포함)',
+                reason: '헌재 탄핵심판에서 지시한 적 없다고 허위 증언한 사실 인정'
+            },
+            {
+                id: 3,
+                name: '직권남용권리행사방해',
+                law: '형법 제123조',
+                period: '2024.12.3',
+                amount: '소방청장에게 단전·단수 지시 전달',
+                prosecutionRequest: '-',
+                verdict: '무죄',
+                reason: '행정안전부 장관에게는 소방청을 지휘할 수 있는 일반적 직무권한이 있고, 일선 소방서에서 언론사 단전·단수 대응 태세를 갖췄다고 보기는 어렵다'
             }
         ],
         summary: {
-            prosecutionTotal: '징역 15년 (특검 구형)',
-            verdictTotal: '재판 진행 중 (2026.2.12 선고 예정)',
-            ratio: '-'
+            prosecutionTotal: '징역 15년 (내란특검 구형)',
+            verdictTotal: '징역 7년 (직권남용 무죄)',
+            ratio: '구형의 47%'
         },
         keyFacts: [
-            '비상계엄 당시 행정안전부 장관',
-            '언론사 단전·단수 지시 혐의',
-            '내란특검 징역 15년 구형 (2026.1.12)',
-            '2026.2.12 선고 예정'
+            '12.3 내란 가담 장관급 첫 1심 선고',
+            '내란중요임무종사·위증 유죄, 직권남용 무죄',
+            '구형 15년 대비 47% 수준 형량',
+            '재판부 "윤석열 등의 내란을 만류했다고 볼 자료 없다"',
+            '헌재 탄핵심판 위증 사실 인정'
         ],
-        trialStatus: '1심 선고 예정 (2026.2.12)'
+        trialStatus: '1심 선고 완료, 항소 예정',
+        sentencingGuidelines: [
+            {
+                crime: '내란중요임무종사 (형법 제87조)',
+                standardRange: '5년~무기징역',
+                aggravating: ['국가 존립 위태롭게 함', '장관급 고위직 가담'],
+                mitigating: ['직접 실행행위 아닌 지시 전달'],
+                verdict: '유죄 - 징역 7년',
+                analysis: '재판부는 내란 행위 가담에 엄중한 처벌이 필요하다고 판단'
+            },
+            {
+                crime: '위증 (형법 제152조)',
+                standardRange: '5년 이하 징역',
+                aggravating: ['헌재 탄핵심판에서 허위 증언', '사법절차 방해'],
+                mitigating: ['-'],
+                verdict: '유죄 (병합)',
+                analysis: '단전·단수 지시를 한 적 없다는 허위 증언 인정'
+            },
+            {
+                crime: '직권남용권리행사방해 (형법 제123조)',
+                standardRange: '5년 이하 징역',
+                aggravating: ['공무원 지위 남용'],
+                mitigating: ['장관의 소방청 지휘권한 인정'],
+                verdict: '무죄',
+                analysis: '장관에게 소방청 지휘 권한이 있어 직권남용에 해당하지 않음'
+            }
+        ]
     },
     '이진우': {
         id: 'leejinwoo',
@@ -1422,6 +1472,25 @@ export default function SentencingAnalysis() {
         alert('텍스트가 복사되었습니다! 인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
     };
 
+    const shareToThreads = async () => {
+        const shareText = `${document.title}\n\n${window.location.href}\n\n#시민법정 #참심제 #사법개혁`;
+        try {
+            await navigator.clipboard.writeText(shareText);
+            alert('텍스트가 복사되었습니다!\nThreads에서 붙여넣기 해주세요.');
+            window.open('https://www.threads.net/', '_blank');
+        } catch (err) {
+            alert('복사에 실패했습니다.');
+        }
+    };
+
+    const shareToLinkedIn = () => {
+        window.open(
+            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`,
+            '_blank',
+            'width=600,height=400'
+        );
+    };
+
     // 정적 데이터와 Firestore 데이터 병합
     const getMergedPersonData = (name) => {
         const staticData = personsData[name];
@@ -1589,6 +1658,20 @@ export default function SentencingAnalysis() {
                                 </button>
                                 <button onClick={shareToTelegram} className="w-12 h-12 flex items-center justify-center bg-[#0088cc] rounded-full hover:scale-110 transition-transform" title="텔레그램">
                                     <TelegramIcon className="w-6 h-6 text-white" />
+                                </button>
+                                <button
+                                    onClick={shareToThreads}
+                                    className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform"
+                                    title="Threads"
+                                >
+                                    <ThreadsIcon className="w-6 h-6 text-white" />
+                                </button>
+                                <button
+                                    onClick={shareToLinkedIn}
+                                    className="w-12 h-12 flex items-center justify-center bg-[#0A66C2] rounded-full hover:scale-110 transition-transform"
+                                    title="LinkedIn"
+                                >
+                                    <LinkedInIcon className="w-6 h-6 text-white" />
                                 </button>
                             </div>
                         </div>
@@ -2131,6 +2214,20 @@ export default function SentencingAnalysis() {
                             </button>
                             <button onClick={shareToTelegram} className="w-12 h-12 flex items-center justify-center bg-[#0088cc] rounded-full hover:scale-110 transition-transform" title="텔레그램">
                                 <TelegramIcon className="w-6 h-6 text-white" />
+                            </button>
+                            <button
+                                onClick={shareToThreads}
+                                className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform"
+                                title="Threads"
+                            >
+                                <ThreadsIcon className="w-6 h-6 text-white" />
+                            </button>
+                            <button
+                                onClick={shareToLinkedIn}
+                                className="w-12 h-12 flex items-center justify-center bg-[#0A66C2] rounded-full hover:scale-110 transition-transform"
+                                title="LinkedIn"
+                            >
+                                <LinkedInIcon className="w-6 h-6 text-white" />
                             </button>
                         </div>
                     </div>

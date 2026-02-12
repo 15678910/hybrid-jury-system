@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { doc, getDoc, collection, query, orderBy, getDocs, updateDoc, increment, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
-import { KakaoIcon, FacebookIcon, XIcon, TelegramIcon, InstagramIcon } from '../components/icons';
+import { KakaoIcon, FacebookIcon, XIcon, TelegramIcon, InstagramIcon, ThreadsIcon, LinkedInIcon } from '../components/icons';
 
 export default function BlogPost() {
     const { id } = useParams();
@@ -276,6 +276,24 @@ export default function BlogPost() {
         }
     };
 
+    const shareToThreads = async () => {
+        try {
+            await navigator.clipboard.writeText(`${postText}\n\n${postUrl}\n\n#시민법정 #참심제 #사법개혁`);
+            alert('텍스트가 복사되었습니다!\nThreads에서 붙여넣기 해주세요.');
+            window.open('https://www.threads.net/', '_blank');
+        } catch (err) {
+            alert('복사에 실패했습니다. 직접 링크를 복사해주세요.');
+        }
+    };
+
+    const shareToLinkedIn = () => {
+        window.open(
+            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`,
+            '_blank',
+            'width=600,height=400'
+        );
+    };
+
     // 이전/다음 글
     const currentIndex = allPosts.findIndex(p => p.id === post.id);
     const prevPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
@@ -419,6 +437,20 @@ export default function BlogPost() {
                                 title="텔레그램"
                             >
                                 <TelegramIcon className="w-6 h-6 text-white" />
+                            </button>
+                            <button
+                                onClick={shareToThreads}
+                                className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform"
+                                title="Threads"
+                            >
+                                <ThreadsIcon className="w-6 h-6 text-white" />
+                            </button>
+                            <button
+                                onClick={shareToLinkedIn}
+                                className="w-12 h-12 flex items-center justify-center bg-[#0A66C2] rounded-full hover:scale-110 transition-transform"
+                                title="LinkedIn"
+                            >
+                                <LinkedInIcon className="w-6 h-6 text-white" />
                             </button>
                         </div>
                     </div>

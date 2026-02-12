@@ -7,7 +7,7 @@ import ConsentCheckbox from './components/ConsentCheckbox';
 import LoginModal from './components/LoginModal';
 import { onAuthChange, signOut as authSignOut, getUserInfo, checkUserSignature, checkGoogleRedirectResult, checkKakaoRedirectResult } from './lib/auth';
 import { fetchAllNews, cleanTitle, formatDate } from './lib/news';
-import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon } from './components/icons';
+import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, LinkedInIcon } from './components/icons';
 
 // 이름 표시 함수 (전체 이름 공개)
 const maskName = (name) => {
@@ -2046,6 +2046,26 @@ export default function App() {
                                     title="페이스북"
                                 >
                                     <FacebookIcon className="w-6 h-6 text-white" />
+                                </a>
+                                {/* Threads */}
+                                <a
+                                    href="https://www.threads.net/@siminbupjung"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-12 h-12 flex items-center justify-center bg-black rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                                    title="Threads"
+                                >
+                                    <ThreadsIcon className="w-6 h-6 text-white" />
+                                </a>
+                                {/* LinkedIn */}
+                                <a
+                                    href="https://www.linkedin.com/company/siminbupjung"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-12 h-12 flex items-center justify-center bg-[#0A66C2] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+                                    title="LinkedIn"
+                                >
+                                    <LinkedInIcon className="w-6 h-6 text-white" />
                                 </a>
                             </div>
                         </div>

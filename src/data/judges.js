@@ -564,6 +564,34 @@ export const JUDGES_DATA = [
             { text: '대장동·백현동·위례신도시 개발 비리 재판', source: { name: '법률신문', url: 'https://www.lawtimes.co.kr/news/192041' } }
         ]
     },
+    {
+        id: 'ryu-kyungjin',
+        name: '류경진',
+        category: '내란전담재판부',
+        court: '서울중앙지방법원',
+        position: '형사합의32부 부장판사',
+        appointedBy: '',
+        photo: '/류경진.png',
+        rating: 0,
+        reviewCount: 0,
+        career: [
+            '서울중앙지방법원 형사합의32부 부장판사 (현재)',
+            '인천지방법원 부장판사',
+            '서울고등법원 판사',
+            '의정부지방법원 판사',
+            '광주고등법원 판사',
+            '전주지방법원 판사',
+            '법무법인 태평양 변호사',
+            '사법연수원 제31기 수료'
+        ],
+        cases: [
+            { text: '이상민 내란중요임무종사 징역 7년 선고 (2026.02.12) - "국가 존립을 위태롭게 한 내란 행위에 엄중한 처벌 필요"', source: { name: '뉴시스', url: 'https://www.newsis.com/view/NISX20260212_0003513827' } },
+            { text: '인천 편의점 강도살인 사건 무기징역 + 전자발찌 20년 (인천지법)', source: null },
+            { text: '잠진도 아내 살인사건 징역 23년 (인천지법)', source: null },
+            { text: '38년간 딸 간병 후 살해 60대 어머니 집행유예 - "중증 장애인 가족을 지원하지 않는 국가 시스템의 문제"', source: null },
+            { text: '부장판사 뇌물수수 혐의 무죄 판결 (2023, 증거 부족) - 법관 간 편파 논란', source: null }
+        ]
+    },
     // 영장전담판사 7명
     {
         id: 'ma-sungyoung',

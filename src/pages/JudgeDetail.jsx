@@ -269,11 +269,13 @@ export default function JudgeDetail() {
                             {/* 판사 사진 */}
                             <div className="flex-shrink-0">
                                 {judge.photo ? (
-                                    <img
-                                        src={judge.photo}
-                                        alt={judge.name}
-                                        className="w-40 h-40 rounded-full object-cover border-4 border-gray-200"
-                                    />
+                                    <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-gray-200">
+                                        <img
+                                            src={judge.photo}
+                                            alt={judge.name}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
                                 ) : (
                                     <div className="w-40 h-40 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-5xl font-bold">
                                         {judge.name?.charAt(0)}

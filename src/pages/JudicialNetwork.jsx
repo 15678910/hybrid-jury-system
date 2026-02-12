@@ -67,6 +67,7 @@ const NETWORK_DATA = {
         { id: 'judge_ji', name: '지귀연', position: '내란재판 재판장', jrti: 31, university: '서울대', highSchool: '개포고', hometown: '서울', group: 'trial' },
         { id: 'judge_kim_ui', name: '김의담', position: '내란재판 배석', jrti: 46, university: '-', group: 'trial' },
         { id: 'judge_lee_wan', name: '이완규', position: '내란재판 배석', jrti: 36, university: '연세대', hometown: '인천', group: 'trial' },
+        { id: 'judge_ryu', name: '류경진', position: '이상민 재판장', jrti: 31, university: '고려대', group: 'trial' },
 
         // 전관 변호사들
         { id: 'lawyer_kim_yongdae', name: '김용대', position: '前 서울가정법원장', jrti: 17, university: '서울대', firm: '김앤장', group: 'lawyer' },

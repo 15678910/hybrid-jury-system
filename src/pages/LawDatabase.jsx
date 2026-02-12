@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Header from '../components/Header';
-import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon } from '../components/icons';
+import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, LinkedInIcon } from '../components/icons';
 import { searchLaws, searchPrecedents, searchConstitutionalDecisions, searchLegalTerms } from '../lib/lawApi';
 
 // ============================================
@@ -354,6 +354,25 @@ export default function LawDatabase() {
     const shareToInstagram = () => {
         navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
         alert('텍스트가 복사되었습니다! 인스타그램에 붙여넣기 해주세요.');
+    };
+
+    const shareToThreads = async () => {
+        const shareText = `${document.title}\n\n${window.location.href}\n\n#시민법정 #참심제 #사법개혁`;
+        try {
+            await navigator.clipboard.writeText(shareText);
+            alert('텍스트가 복사되었습니다!\nThreads에서 붙여넣기 해주세요.');
+            window.open('https://www.threads.net/', '_blank');
+        } catch (err) {
+            alert('복사에 실패했습니다.');
+        }
+    };
+
+    const shareToLinkedIn = () => {
+        window.open(
+            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`,
+            '_blank',
+            'width=600,height=400'
+        );
     };
 
     // 판례 데이터 파싱
@@ -839,6 +858,20 @@ export default function LawDatabase() {
                             </button>
                             <button onClick={shareToTelegram} className="w-12 h-12 flex items-center justify-center bg-[#0088cc] rounded-full hover:scale-110 transition-transform" title="텔레그램">
                                 <TelegramIcon className="w-6 h-6 text-white" />
+                            </button>
+                            <button
+                                onClick={shareToThreads}
+                                className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform"
+                                title="Threads"
+                            >
+                                <ThreadsIcon className="w-6 h-6 text-white" />
+                            </button>
+                            <button
+                                onClick={shareToLinkedIn}
+                                className="w-12 h-12 flex items-center justify-center bg-[#0A66C2] rounded-full hover:scale-110 transition-transform"
+                                title="LinkedIn"
+                            >
+                                <LinkedInIcon className="w-6 h-6 text-white" />
                             </button>
                         </div>
                     </div>
