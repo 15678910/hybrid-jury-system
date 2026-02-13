@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc, orderBy, query } from 'firebase/firestore';
 import { db } from './lib/firebase';
 
 export default function Admin() {
@@ -258,16 +258,31 @@ export default function Admin() {
         }
     };
 
-    // 서명 데이터 로드
-    const loadSignatures = () => {
-        const savedSignatures = JSON.parse(localStorage.getItem('signatures') || '[]');
-        setSignatures(savedSignatures);
-        
-        const total = savedSignatures.length;
-        const individual = savedSignatures.filter(s => s.type === 'individual').length;
-        const organization = savedSignatures.filter(s => s.type === 'organization').length;
-        
-        setStats({ total, individual, organization });
+    // 서명 데이터 로드 (Firestore에서)
+    const loadSignatures = async () => {
+        try {
+            const signaturesRef = collection(db, 'signatures');
+            const snapshot = await getDocs(signaturesRef);
+            const signaturesData = snapshot.docs.map(docSnap => ({
+                id: docSnap.id,
+                ...docSnap.data()
+            }));
+            // 클라이언트에서 정렬
+            signaturesData.sort((a, b) => {
+                const timeA = a.timestamp?.toMillis ? a.timestamp.toMillis() : 0;
+                const timeB = b.timestamp?.toMillis ? b.timestamp.toMillis() : 0;
+                return timeB - timeA;
+            });
+            setSignatures(signaturesData);
+
+            const total = signaturesData.length;
+            const individual = signaturesData.filter(s => s.type === 'individual').length;
+            const organization = signaturesData.filter(s => s.type === 'organization').length;
+
+            setStats({ total, individual, organization });
+        } catch (error) {
+            console.error('Error loading signatures:', error);
+        }
     };
 
     // 로그인 처리
@@ -294,14 +309,16 @@ export default function Admin() {
         setSignatures([]);
     };
 
-    // 서명 삭제
-    const deleteSignature = (id) => {
-        if (confirm('정말 삭제하시겠습니까?')) {
-            const updated = signatures.filter(s => s.id !== id);
-            setSignatures(updated);
-            localStorage.setItem('signatures', JSON.stringify(updated));
+    // 서명 삭제 (Firestore에서)
+    const deleteSignature = async (id) => {
+        if (!confirm('정말 삭제하시겠습니까?')) return;
+        try {
+            await deleteDoc(doc(db, 'signatures', id));
             loadSignatures();
             alert('삭제되었습니다.');
+        } catch (error) {
+            console.error('Error deleting signature:', error);
+            alert('삭제에 실패했습니다.');
         }
     };
 
@@ -309,7 +326,8 @@ export default function Admin() {
     const downloadExcel = () => {
         let csv = '이름,유형,재능나눔,연락처,SNS,참여시간\n';
         signatures.forEach(sig => {
-            csv += `${sig.name},${sig.type === 'individual' ? '개인' : '단체'},${sig.talent || '-'},${sig.phone},${sig.sns.join('/')},${new Date(sig.timestamp).toLocaleString('ko-KR')}\n`;
+            const timestamp = sig.timestamp?.toDate ? sig.timestamp.toDate().toLocaleString('ko-KR') : (sig.timestamp ? new Date(sig.timestamp).toLocaleString('ko-KR') : '-');
+            csv += `${sig.name},${sig.type === 'individual' ? '개인' : '단체'},${sig.talent || '-'},${sig.phone},${sig.sns?.join('/') || '-'},${timestamp}\n`;
         });
 
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -321,10 +339,10 @@ export default function Admin() {
 
     // 검색 필터링된 사용자
     const filteredUsers = users.filter(user => {
-        const query = userSearchQuery.toLowerCase();
+        const searchQuery = userSearchQuery.toLowerCase();
         return (
-            (user.displayName || '').toLowerCase().includes(query) ||
-            (user.email || '').toLowerCase().includes(query)
+            (user.displayName || '').toLowerCase().includes(searchQuery) ||
+            (user.email || '').toLowerCase().includes(searchQuery)
         );
     });
 
@@ -341,7 +359,7 @@ export default function Admin() {
                     
                     <form onSubmit={handleLogin}>
                         <input
-                            type="password"
+                            type="text"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="비밀번호를 입력하세요"
@@ -892,14 +910,14 @@ export default function Admin() {
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-900">{sig.phone}</td>
                                             <td className="px-6 py-4 text-sm text-gray-900">
-                                                {sig.sns.map(s => (
+                                                {sig.sns && sig.sns.length > 0 ? sig.sns.map(s => (
                                                     <span key={s} className="inline-block mr-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
                                                         {s === 'kakao' ? '카톡' : '텔레'}
                                                     </span>
-                                                ))}
+                                                )) : '-'}
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-900">
-                                                {new Date(sig.timestamp).toLocaleString('ko-KR')}
+                                                {sig.timestamp?.toDate ? sig.timestamp.toDate().toLocaleString('ko-KR') : (sig.timestamp ? new Date(sig.timestamp).toLocaleString('ko-KR') : '-')}
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 <button
