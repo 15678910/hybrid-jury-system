@@ -15,6 +15,7 @@ import {
 import { getCurrentUser, checkUserSignature } from '../lib/auth';
 import Header from '../components/Header';
 import { JUDGES_DATA } from '../data/judges';
+import { searchPrecedents } from '../lib/lawApi';
 
 // 인라인 SVG 아이콘 (heroicons 대체)
 const ShareIcon = ({ className }) => (
@@ -43,12 +44,33 @@ export default function JudgeDetail() {
     const [error, setError] = useState('');
     const [relatedNews, setRelatedNews] = useState([]);
     const [newsLoading, setNewsLoading] = useState(false);
+    const [apiPrecedents, setApiPrecedents] = useState([]);
+    const [precLoading, setPrecLoading] = useState(false);
 
     // 판사 정보 및 평가 목록 로드
     useEffect(() => {
         loadJudgeData();
         checkAuth();
     }, [name]);
+
+    // 판사명으로 법제처 API 판례 검색
+    useEffect(() => {
+        const fetchPrecedents = async () => {
+            if (!judge) return;
+            setPrecLoading(true);
+            try {
+                const data = await searchPrecedents(judge.name, { display: 10 });
+                if (data?.PrecService?.[1]?.prec) {
+                    setApiPrecedents(data.PrecService[1].prec);
+                }
+            } catch (err) {
+                console.error('판례 검색 오류:', err);
+            } finally {
+                setPrecLoading(false);
+            }
+        };
+        fetchPrecedents();
+    }, [judge]);
 
     const checkAuth = async () => {
         const currentUser = getCurrentUser();
@@ -410,6 +432,48 @@ export default function JudgeDetail() {
                         ) : (
                             <p className="text-gray-500 text-center py-4">관련 뉴스가 없습니다.</p>
                         )}
+                    </div>
+
+                    {/* 관련 판례 (API 검색) */}
+                    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <span className="w-1 h-5 bg-purple-600 rounded-full"></span>
+                            법제처 판례 검색 결과
+                            <span className="text-sm font-normal text-gray-500">("{judge.name}" 검색)</span>
+                        </h3>
+                        {precLoading ? (
+                            <div className="text-center py-8">
+                                <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+                                <p className="text-gray-500 mt-2 text-sm">판례 검색 중...</p>
+                            </div>
+                        ) : apiPrecedents.length > 0 ? (
+                            <div className="space-y-3">
+                                {apiPrecedents.map(prec => (
+                                    <Link
+                                        key={prec.판례일련번호}
+                                        to={`/precedent/${prec.판례일련번호}`}
+                                        className="block p-4 bg-gray-50 rounded-lg hover:bg-purple-50 transition"
+                                    >
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">
+                                                {prec.법원명}
+                                            </span>
+                                            <span className="text-xs text-gray-500">{prec.선고일자}</span>
+                                        </div>
+                                        <p className="font-medium text-gray-900">{prec.사건번호}</p>
+                                        <p className="text-sm text-gray-600 mt-1 line-clamp-1">{prec.사건명}</p>
+                                    </Link>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-gray-500 text-center py-4">검색된 판례가 없습니다.</p>
+                        )}
+                        <Link
+                            to={`/case-search?q=${encodeURIComponent(judge.name)}`}
+                            className="mt-4 inline-flex items-center text-sm text-purple-600 hover:text-purple-800"
+                        >
+                            더 많은 판례 검색 →
+                        </Link>
                     </div>
 
                     {/* 하단: 평가 작성 폼 */}

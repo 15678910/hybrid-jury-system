@@ -706,6 +706,106 @@ const personsData = {
                 verdict: '무죄',
                 analysis: '장관에게 소방청 지휘 권한이 있어 직권남용에 해당하지 않음'
             }
+        ],
+        judgeHistory: {
+            judgeName: '류경진',
+            position: '서울중앙지방법원 형사합의32부 부장판사',
+            recentCases: [
+                {
+                    year: '2026',
+                    caseName: '이상민 내란중요임무종사 사건',
+                    role: '재판장',
+                    verdict: '유죄 - 징역 7년'
+                },
+                {
+                    year: '2023',
+                    caseName: '인천 편의점 강도살인 사건',
+                    role: '재판장 (인천지법)',
+                    verdict: '무기징역 + 전자발찌 20년'
+                },
+                {
+                    year: '2022',
+                    caseName: '잠진도 아내 살인 사건',
+                    role: '재판장 (인천지법)',
+                    verdict: '징역 23년'
+                },
+                {
+                    year: '2021',
+                    caseName: '38년간 딸 간병 후 살해 사건',
+                    role: '재판장 (인천지법)',
+                    verdict: '집행유예 - "국가 지원 부재" 언급'
+                },
+                {
+                    year: '2023',
+                    caseName: '부장판사 뇌물수수 사건',
+                    role: '재판장',
+                    verdict: '무죄 (증거 부족)'
+                }
+            ],
+            profile: '사법연수원 31기, 법무법인 태평양 변호사 출신. 인천지법 부장판사 거쳐 서울중앙지법 형사합의32부 재판장. 중형 선고와 함께 사회구조적 문제를 판결문에 언급하는 성향.'
+        },
+        keyIssues: [
+            {
+                title: '내란중요임무종사 인정 여부',
+                description: '소방청장에게 언론사 단전·단수 지시를 전달한 행위가 내란 가담에 해당하는지',
+                opinion: {
+                    prosecution: '윤석열 대통령의 내란 실행을 위한 핵심 지시 전달자',
+                    defense: '단순 업무 지시 전달이며 내란 의도 없었음',
+                    court: '내란을 만류했다고 볼 자료가 없고, 내란 가담 행위로 인정'
+                }
+            },
+            {
+                title: '헌재 탄핵심판 위증',
+                description: '단전·단수 지시를 한 적 없다는 헌재 탄핵심판 증언의 허위 여부',
+                opinion: {
+                    prosecution: '명백한 허위 증언으로 사법절차 방해',
+                    defense: '기억에 의존한 진술이며 고의적 위증 아님',
+                    court: '지시 사실이 객관적으로 입증되어 위증 인정'
+                }
+            },
+            {
+                title: '직권남용 무죄 판단',
+                description: '행정안전부 장관의 소방청 지휘권한 존재 여부',
+                opinion: {
+                    prosecution: '불법적 명령으로 공무원 직권남용',
+                    defense: '장관으로서 정당한 지휘권한 행사',
+                    court: '장관에게 소방청 지휘 일반 권한 있어 직권남용 불인정'
+                }
+            },
+            {
+                title: '구형 대비 낮은 형량 (47%)',
+                description: '특검 구형 15년 대비 7년 선고의 적정성',
+                opinion: {
+                    prosecution: '장관급 고위직 가담에 엄벌 필요',
+                    defense: '직접 실행행위 없이 지시 전달에 불과',
+                    court: '직접 실행행위가 아닌 점 등 감경 요소 고려'
+                }
+            },
+            {
+                title: '윤석열·한덕수 재판에 미치는 영향',
+                description: '장관급 첫 선고로서 후속 재판에 미치는 선례적 영향',
+                opinion: {
+                    prosecution: '내란 가담 인정은 후속 재판 유죄 근거 강화',
+                    defense: '개별 사건별 독립적 판단 필요',
+                    court: '12·3 비상계엄의 내란 성격을 재확인하는 판결'
+                }
+            },
+            {
+                title: '한덕수 vs 이상민 판결 비교',
+                description: '동일 혐의(내란중요임무종사), 동일 구형(15년)에 대한 상이한 판결',
+                comparison: {
+                    items: [
+                        { category: '직위', handeoksu: '국무총리 (내각 수반)', leesangmin: '행정안전부 장관' },
+                        { category: '주요 혐의', handeoksu: '내란중요임무종사, 위증', leesangmin: '내란중요임무종사, 위증, 직권남용' },
+                        { category: '가담 행위', handeoksu: '국무회의 불소집, 내란 만류 안함', leesangmin: '언론사 단전·단수 지시 전달' },
+                        { category: '특검 구형', handeoksu: '징역 15년', leesangmin: '징역 15년' },
+                        { category: '1심 선고', handeoksu: '징역 23년 (구형의 153%)', leesangmin: '징역 7년 (구형의 47%)' },
+                        { category: '직권남용', handeoksu: '-', leesangmin: '무죄 (지휘권한 인정)' },
+                        { category: '재판부 판단', handeoksu: '"위로부터의 내란"에 합류', leesangmin: '직접 실행 아닌 지시 전달' },
+                        { category: '법정구속', handeoksu: 'O (즉시 구속)', leesangmin: 'O (기존 구속 유지)' }
+                    ]
+                }
+            }
         ]
     },
     '이진우': {
@@ -2176,20 +2276,58 @@ export default function SentencingAnalysis() {
                                     </div>
                                     <div className="p-4 space-y-4">
                                         <p className="text-gray-700">{issue.description}</p>
-                                        <div className="grid md:grid-cols-3 gap-3">
-                                            <div className="bg-blue-50 rounded-lg p-3">
-                                                <p className="text-xs text-blue-600 font-medium mb-1">검찰 측 주장</p>
-                                                <p className="text-sm text-gray-800">{issue.opinion.prosecution}</p>
+
+                                        {/* 일반 의견 비교 (opinion이 있는 경우) */}
+                                        {issue.opinion && (
+                                            <div className="grid md:grid-cols-3 gap-3">
+                                                <div className="bg-blue-50 rounded-lg p-3">
+                                                    <p className="text-xs text-blue-600 font-medium mb-1">검찰 측 주장</p>
+                                                    <p className="text-sm text-gray-800">{issue.opinion.prosecution}</p>
+                                                </div>
+                                                <div className="bg-gray-50 rounded-lg p-3">
+                                                    <p className="text-xs text-gray-600 font-medium mb-1">변호인 측 주장</p>
+                                                    <p className="text-sm text-gray-800">{issue.opinion.defense}</p>
+                                                </div>
+                                                <div className="bg-purple-50 rounded-lg p-3">
+                                                    <p className="text-xs text-purple-600 font-medium mb-1">재판부 판단</p>
+                                                    <p className="text-sm text-gray-800">{issue.opinion.court}</p>
+                                                </div>
                                             </div>
-                                            <div className="bg-gray-50 rounded-lg p-3">
-                                                <p className="text-xs text-gray-600 font-medium mb-1">변호인 측 주장</p>
-                                                <p className="text-sm text-gray-800">{issue.opinion.defense}</p>
+                                        )}
+
+                                        {/* 비교 테이블 (comparison이 있는 경우) */}
+                                        {issue.comparison && (
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-sm">
+                                                    <thead>
+                                                        <tr className="bg-gradient-to-r from-indigo-100 to-purple-100">
+                                                            <th className="px-4 py-3 text-left font-semibold text-gray-700 border-b">항목</th>
+                                                            <th className="px-4 py-3 text-center font-semibold text-indigo-700 border-b">한덕수 (국무총리)</th>
+                                                            <th className="px-4 py-3 text-center font-semibold text-purple-700 border-b">이상민 (행안부 장관)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {issue.comparison.items.map((item, i) => (
+                                                            <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                                                                <td className="px-4 py-3 font-medium text-gray-700 border-b">{item.category}</td>
+                                                                <td className={`px-4 py-3 text-center border-b ${item.category === '1심 선고' ? 'text-red-600 font-bold' : 'text-gray-600'}`}>
+                                                                    {item.handeoksu}
+                                                                </td>
+                                                                <td className={`px-4 py-3 text-center border-b ${item.category === '1심 선고' ? 'text-orange-600 font-bold' : 'text-gray-600'}`}>
+                                                                    {item.leesangmin}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                                <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                                    <p className="text-xs text-yellow-800">
+                                                        <strong>※ 양형 차이 분석:</strong> 동일 혐의·동일 구형에도 한덕수는 구형의 153%, 이상민은 구형의 47% 선고.
+                                                        재판부는 한덕수의 경우 "위로부터의 내란에 합류"로, 이상민은 "직접 실행행위가 아닌 지시 전달"로 판단 차이를 보임.
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="bg-purple-50 rounded-lg p-3">
-                                                <p className="text-xs text-purple-600 font-medium mb-1">재판부 판단</p>
-                                                <p className="text-sm text-gray-800">{issue.opinion.court}</p>
-                                            </div>
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}

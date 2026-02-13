@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './index.css'
 
 // 홈페이지는 즉시 로드 (사용자가 가장 먼저 보는 페이지)
@@ -32,7 +32,8 @@ const LawDatabase = lazy(() => import('./pages/LawDatabase'))
 const JudgeEvaluation = lazy(() => import('./pages/JudgeEvaluation'))
 const JudgeDetail = lazy(() => import('./pages/JudgeDetail'))
 const JudicialNetwork = lazy(() => import('./pages/JudicialNetwork'))
-const LegalSearch = lazy(() => import('./pages/LegalSearch'))
+const CaseSearch = lazy(() => import('./pages/CaseSearch'))
+const PrecedentDetail = lazy(() => import('./pages/PrecedentDetail'))
 const FloatingChat = lazy(() => import('./CozeFloatingChat'))
 
 // 로딩 컴포넌트
@@ -76,7 +77,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/judge-evaluation" element={<JudgeEvaluation />} />
           <Route path="/judge/:name" element={<JudgeDetail />} />
           <Route path="/judicial-network" element={<JudicialNetwork />} />
-          <Route path="/legal-search" element={<LegalSearch />} />
+          <Route path="/case-search" element={<CaseSearch />} />
+          <Route path="/precedent/:id" element={<PrecedentDetail />} />
+          <Route path="/legal-search" element={<Navigate to="/case-search" replace />} />
         </Routes>
         {/* 모든 페이지에서 보이는 플로팅 챗봇 */}
         <FloatingChat />
