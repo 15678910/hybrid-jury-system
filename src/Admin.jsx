@@ -22,6 +22,12 @@ export default function Admin() {
     const [loadingPosts, setLoadingPosts] = useState(false);
     const [loadingVideos, setLoadingVideos] = useState(false);
 
+    // 사용자 관리
+    const [users, setUsers] = useState([]);
+    const [userStats, setUserStats] = useState({ total: 0, google: 0, kakao: 0 });
+    const [loadingUsers, setLoadingUsers] = useState(false);
+    const [userSearchQuery, setUserSearchQuery] = useState('');
+
     // 샘플 데이터 정의
     const initialSamplePosts = [
         { id: 'sample-1', title: '참심제란 무엇인가?', author: '시민법정', category: '참심제 소개' },
@@ -42,6 +48,7 @@ export default function Admin() {
             loadWriterCodes();
             loadPosts();
             loadVideos();
+            loadUsers();
             loadSampleData();
         }
     }, []);
@@ -117,6 +124,43 @@ export default function Admin() {
             console.error('Error loading videos:', error);
         } finally {
             setLoadingVideos(false);
+        }
+    };
+
+    // 사용자 불러오기
+    const loadUsers = async () => {
+        setLoadingUsers(true);
+        try {
+            const usersRef = collection(db, 'users');
+            const snapshot = await getDocs(usersRef);
+            const usersData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setUsers(usersData);
+
+            // 통계 계산
+            const total = usersData.length;
+            const google = usersData.filter(u => u.provider === 'google').length;
+            const kakao = usersData.filter(u => u.provider === 'kakao').length;
+            setUserStats({ total, google, kakao });
+        } catch (error) {
+            console.error('Error loading users:', error);
+        } finally {
+            setLoadingUsers(false);
+        }
+    };
+
+    // 사용자 삭제
+    const deleteUser = async (id) => {
+        if (!confirm('정말 이 사용자를 삭제하시겠습니까?')) return;
+        try {
+            await deleteDoc(doc(db, 'users', id));
+            loadUsers();
+            alert('사용자가 삭제되었습니다.');
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            alert('삭제에 실패했습니다.');
         }
     };
 
@@ -267,13 +311,22 @@ export default function Admin() {
         signatures.forEach(sig => {
             csv += `${sig.name},${sig.type === 'individual' ? '개인' : '단체'},${sig.talent || '-'},${sig.phone},${sig.sns.join('/')},${new Date(sig.timestamp).toLocaleString('ko-KR')}\n`;
         });
-        
+
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = `서명목록_${new Date().toLocaleDateString('ko-KR')}.csv`;
         link.click();
     };
+
+    // 검색 필터링된 사용자
+    const filteredUsers = users.filter(user => {
+        const query = userSearchQuery.toLowerCase();
+        return (
+            (user.displayName || '').toLowerCase().includes(query) ||
+            (user.email || '').toLowerCase().includes(query)
+        );
+    });
 
     // 로그인 화면
     if (!isLoggedIn) {
@@ -358,6 +411,22 @@ export default function Admin() {
                     <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
                         <div className="text-5xl font-bold mb-2">{stats.organization}</div>
                         <div className="text-xl">단체</div>
+                    </div>
+                </div>
+
+                {/* 사용자 통계 카드 */}
+                <div className="grid md:grid-cols-3 gap-6 mb-8">
+                    <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-6 rounded-xl shadow-lg">
+                        <div className="text-5xl font-bold mb-2">{userStats.total}</div>
+                        <div className="text-xl">총 사용자</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-red-500 to-red-600 text-white p-6 rounded-xl shadow-lg">
+                        <div className="text-5xl font-bold mb-2">{userStats.google}</div>
+                        <div className="text-xl">Google</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white p-6 rounded-xl shadow-lg">
+                        <div className="text-5xl font-bold mb-2">{userStats.kakao}</div>
+                        <div className="text-xl">Kakao</div>
                     </div>
                 </div>
 
@@ -455,6 +524,102 @@ export default function Admin() {
                                                 </button>
                                                 <button
                                                     onClick={() => deleteWriterCode(code.id)}
+                                                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
+                                                >
+                                                    삭제
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+
+                {/* 사용자 관리 */}
+                <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4">👥 사용자 관리</h2>
+                    <p className="text-sm text-gray-600 mb-4">
+                        Firestore에 저장된 사용자를 관리합니다.
+                    </p>
+
+                    {/* 검색 및 새로고침 */}
+                    <div className="flex gap-3 mb-6">
+                        <input
+                            type="text"
+                            value={userSearchQuery}
+                            onChange={(e) => setUserSearchQuery(e.target.value)}
+                            placeholder="이름 또는 이메일 검색..."
+                            className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        />
+                        <button
+                            onClick={loadUsers}
+                            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
+                        >
+                            🔄 새로고침
+                        </button>
+                    </div>
+
+                    {/* 사용자 목록 */}
+                    {loadingUsers ? (
+                        <div className="text-center py-4">
+                            <div className="inline-block w-6 h-6 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    ) : filteredUsers.length === 0 ? (
+                        <div className="text-center py-6 text-gray-500">
+                            {userSearchQuery ? '검색 결과가 없습니다.' : '등록된 사용자가 없습니다.'}
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-100">
+                                    <tr>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">프로필</th>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">이름</th>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">이메일</th>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">제공자</th>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">가입일</th>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">마지막 로그인</th>
+                                        <th className="px-4 py-3 text-center text-sm font-bold text-gray-700">관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredUsers.map(user => (
+                                        <tr key={user.id} className="border-t border-gray-200">
+                                            <td className="px-4 py-3">
+                                                {user.photoURL ? (
+                                                    <img
+                                                        src={user.photoURL}
+                                                        alt={user.displayName || '사용자'}
+                                                        className="w-10 h-10 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600">
+                                                        👤
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm font-medium">{user.displayName || '-'}</td>
+                                            <td className="px-4 py-3 text-sm text-gray-600">{user.email || '-'}</td>
+                                            <td className="px-4 py-3">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                    user.provider === 'google'
+                                                        ? 'bg-red-100 text-red-700'
+                                                        : 'bg-yellow-100 text-yellow-700'
+                                                }`}>
+                                                    {user.provider === 'google' ? 'Google' : 'Kakao'}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-gray-600">
+                                                {user.createdAt?.toDate ? user.createdAt.toDate().toLocaleDateString('ko-KR') : '-'}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-gray-600">
+                                                {user.lastLoginAt?.toDate ? user.lastLoginAt.toDate().toLocaleDateString('ko-KR') : '-'}
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <button
+                                                    onClick={() => deleteUser(user.id)}
                                                     className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
                                                 >
                                                     삭제
