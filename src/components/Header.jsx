@@ -103,7 +103,7 @@ export default function Header() {
                                 </svg>
                             </button>
                             <div className={`absolute top-full left-0 mt-0 pt-2 z-[9999] ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
-                                <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px]">
+                                <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[140px] max-h-[70vh] overflow-y-auto">
                                     <Link
                                         to="/news"
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
