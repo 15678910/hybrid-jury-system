@@ -646,7 +646,7 @@ function CaseSearch() {
                                                 {filteredResults.persons.map(person => (
                                                     <Link
                                                         key={person.name}
-                                                        to={`/sentencing?person=${encodeURIComponent(person.name)}`}
+                                                        to={`/sentencing-analysis?person=${encodeURIComponent(person.name)}`}
                                                         className="block bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition border border-gray-100"
                                                     >
                                                         <div className="flex items-start gap-4">
