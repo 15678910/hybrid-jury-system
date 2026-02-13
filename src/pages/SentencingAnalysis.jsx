@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
@@ -1421,6 +1422,7 @@ const personsData = {
 const sortedPersons = Object.keys(personsData).sort((a, b) => a.localeCompare(b, 'ko'));
 
 export default function SentencingAnalysis() {
+    const [searchParams] = useSearchParams();
     const [selectedPerson, setSelectedPerson] = useState(null);
     const [activeTab, setActiveTab] = useState('overview');
     const [firestoreData, setFirestoreData] = useState({});
@@ -1429,6 +1431,15 @@ export default function SentencingAnalysis() {
     const [judgeCourtData, setJudgeCourtData] = useState({});
     const [loading, setLoading] = useState(true);
     const [kakaoReady, setKakaoReady] = useState(false);
+
+    // URL 파라미터에서 person 읽어서 선택
+    useEffect(() => {
+        const personParam = searchParams.get('person');
+        if (personParam && personsData[personParam]) {
+            setSelectedPerson(personParam);
+            window.scrollTo(0, 0);
+        }
+    }, [searchParams]);
 
     // Kakao SDK 초기화
     useEffect(() => {
