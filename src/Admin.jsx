@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from './lib/firebase';
 
 export default function Admin() {
@@ -39,17 +39,31 @@ export default function Admin() {
         { id: 'sample-video-1', title: 'Why Finland And Denmark Are Happier Than The U.S.', category: '해외 사례' }
     ];
 
-    // 로그인 확인
+    // 로그인 확인 (24시간 세션 유효성 검증)
     useEffect(() => {
         const adminSession = sessionStorage.getItem('adminLoggedIn');
-        if (adminSession === 'true') {
-            setIsLoggedIn(true);
-            loadSignatures();
-            loadWriterCodes();
-            loadPosts();
-            loadVideos();
-            loadUsers();
-            loadSampleData();
+        const loginTimestamp = sessionStorage.getItem('adminLoginTimestamp');
+
+        if (adminSession === 'true' && loginTimestamp) {
+            const now = Date.now();
+            const loginTime = parseInt(loginTimestamp, 10);
+            const hoursSinceLogin = (now - loginTime) / (1000 * 60 * 60);
+
+            // 24시간 이내 로그인만 유효
+            if (hoursSinceLogin < 24) {
+                setIsLoggedIn(true);
+                loadSignatures();
+                loadWriterCodes();
+                loadPosts();
+                loadVideos();
+                loadUsers();
+                loadSampleData();
+            } else {
+                // 세션 만료 - 로그아웃 처리
+                sessionStorage.removeItem('adminLoggedIn');
+                sessionStorage.removeItem('adminLoginTimestamp');
+                setIsLoggedIn(false);
+            }
         }
     }, []);
 
@@ -101,7 +115,28 @@ export default function Admin() {
                 id: doc.id,
                 ...doc.data()
             }));
-            setPosts(postsData);
+
+            // timestamp를 밀리초로 변환하는 헬퍼 함수
+            const getTimestamp = (ts) => {
+                if (!ts) return 0;
+                if (ts.toMillis) return ts.toMillis();
+                if (ts.getTime) return ts.getTime();
+                if (typeof ts === 'string') return new Date(ts).getTime();
+                if (typeof ts === 'number') return ts;
+                return 0;
+            };
+
+            // 사법뉴스 제외
+            const filteredPosts = postsData.filter(post => post.category !== '사법뉴스');
+
+            // 정렬 (오래된 것 먼저 = 오름차순)
+            filteredPosts.sort((a, b) => {
+                const timeA = getTimestamp(a.createdAt);
+                const timeB = getTimestamp(b.createdAt);
+                return timeA - timeB;
+            });
+
+            setPosts(filteredPosts);
         } catch (error) {
             console.error('Error loading posts:', error);
         } finally {
@@ -119,6 +154,24 @@ export default function Admin() {
                 id: doc.id,
                 ...doc.data()
             }));
+
+            // timestamp를 밀리초로 변환하는 헬퍼 함수
+            const getTimestamp = (ts) => {
+                if (!ts) return 0;
+                if (ts.toMillis) return ts.toMillis();
+                if (ts.getTime) return ts.getTime();
+                if (typeof ts === 'string') return new Date(ts).getTime();
+                if (typeof ts === 'number') return ts;
+                return 0;
+            };
+
+            // 정렬 (오래된 것 먼저 = 오름차순)
+            videosData.sort((a, b) => {
+                const timeA = getTimestamp(a.createdAt);
+                const timeB = getTimestamp(b.createdAt);
+                return timeA - timeB;
+            });
+
             setVideos(videosData);
         } catch (error) {
             console.error('Error loading videos:', error);
@@ -267,11 +320,22 @@ export default function Admin() {
                 id: docSnap.id,
                 ...docSnap.data()
             }));
-            // 클라이언트에서 정렬
+
+            // timestamp를 밀리초로 변환하는 헬퍼 함수
+            const getTimestamp = (ts) => {
+                if (!ts) return 0;
+                if (ts.toMillis) return ts.toMillis(); // Firestore Timestamp
+                if (ts.getTime) return ts.getTime(); // Date 객체
+                if (typeof ts === 'string') return new Date(ts).getTime(); // ISO 문자열
+                if (typeof ts === 'number') return ts; // 이미 밀리초
+                return 0;
+            };
+
+            // 클라이언트에서 정렬 (오래된 것 먼저 = 오름차순)
             signaturesData.sort((a, b) => {
-                const timeA = a.timestamp?.toMillis ? a.timestamp.toMillis() : 0;
-                const timeB = b.timestamp?.toMillis ? b.timestamp.toMillis() : 0;
-                return timeB - timeA;
+                const timeA = getTimestamp(a.timestamp);
+                const timeB = getTimestamp(b.timestamp);
+                return timeA - timeB;
             });
             setSignatures(signaturesData);
 
@@ -290,9 +354,11 @@ export default function Admin() {
         e.preventDefault();
         // 환경변수에서 비밀번호 가져오기
         const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin2024';
-        
+
         if (password === adminPassword) {
+            const loginTime = Date.now().toString();
             sessionStorage.setItem('adminLoggedIn', 'true');
+            sessionStorage.setItem('adminLoginTimestamp', loginTime);
             setIsLoggedIn(true);
             loadSignatures();
             alert('로그인 성공!');
@@ -305,6 +371,7 @@ export default function Admin() {
     // 로그아웃
     const handleLogout = () => {
         sessionStorage.removeItem('adminLoggedIn');
+        sessionStorage.removeItem('adminLoginTimestamp');
         setIsLoggedIn(false);
         setSignatures([]);
     };
@@ -671,21 +738,27 @@ export default function Admin() {
                             <table className="w-full">
                                 <thead className="bg-gray-100">
                                     <tr>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">번호</th>
                                         <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">제목</th>
                                         <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">작성자</th>
                                         <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">카테고리</th>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">등록일</th>
                                         <th className="px-4 py-3 text-center text-sm font-bold text-gray-700">관리</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {posts.map(post => (
+                                    {[...posts].reverse().map((post, index) => (
                                         <tr key={post.id} className="border-t border-gray-200">
+                                            <td className="px-4 py-3 text-sm text-gray-900">{posts.length - index}</td>
                                             <td className="px-4 py-3 text-sm">{post.title}</td>
                                             <td className="px-4 py-3 text-sm">{post.author}</td>
                                             <td className="px-4 py-3 text-sm">
                                                 <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
                                                     {post.category}
                                                 </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-gray-600">
+                                                {post.createdAt?.toDate ? post.createdAt.toDate().toLocaleString('ko-KR') : (post.createdAt ? new Date(post.createdAt).toLocaleString('ko-KR') : '-')}
                                             </td>
                                             <td className="px-4 py-3 text-center">
                                                 <button
@@ -723,21 +796,27 @@ export default function Admin() {
                             <table className="w-full">
                                 <thead className="bg-gray-100">
                                     <tr>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">번호</th>
                                         <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">제목</th>
                                         <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">작성자</th>
                                         <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">카테고리</th>
+                                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">등록일</th>
                                         <th className="px-4 py-3 text-center text-sm font-bold text-gray-700">관리</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {videos.map(video => (
+                                    {[...videos].reverse().map((video, index) => (
                                         <tr key={video.id} className="border-t border-gray-200">
+                                            <td className="px-4 py-3 text-sm text-gray-900">{videos.length - index}</td>
                                             <td className="px-4 py-3 text-sm">{video.title}</td>
                                             <td className="px-4 py-3 text-sm">{video.author || '-'}</td>
                                             <td className="px-4 py-3 text-sm">
                                                 <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">
                                                     {video.category || '-'}
                                                 </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-gray-600">
+                                                {video.createdAt?.toDate ? video.createdAt.toDate().toLocaleString('ko-KR') : (video.createdAt ? new Date(video.createdAt).toLocaleString('ko-KR') : '-')}
                                             </td>
                                             <td className="px-4 py-3 text-center">
                                                 <button
@@ -888,9 +967,9 @@ export default function Admin() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    signatures.map((sig, index) => (
+                                    [...signatures].reverse().map((sig, index) => (
                                         <tr key={sig.id} className="border-t border-gray-200 hover:bg-gray-50">
-                                            <td className="px-6 py-4 text-sm text-gray-900">{index + 1}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-900">{signatures.length - index}</td>
                                             <td className="px-6 py-4 text-sm font-medium text-gray-900">{sig.name}</td>
                                             <td className="px-6 py-4 text-sm text-gray-900">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${

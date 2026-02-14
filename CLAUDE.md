@@ -66,6 +66,45 @@ npm run build && firebase deploy --only hosting  # 프론트엔드
 firebase deploy --only functions                  # 백엔드 함수
 ```
 
+## 코딩 스타일 규칙
+
+### JavaScript/JSX 필수 규칙
+1. **console.log 금지**: 프로덕션 코드에서 `console.log` 사용 금지 (훅으로 경고 표시됨)
+2. **불변성 유지**: 객체/배열 수정 시 스프레드 연산자 사용
+   ```jsx
+   // 나쁜 예
+   state.items.push(newItem);
+
+   // 좋은 예
+   setItems([...items, newItem]);
+   ```
+3. **에러 처리**: async/await는 반드시 try-catch로 감싸기
+   ```jsx
+   try {
+     const data = await fetchData();
+   } catch (error) {
+     console.error('데이터 로드 실패:', error);
+     // 사용자에게 에러 표시
+   }
+   ```
+
+### 보안 규칙
+1. **시크릿 하드코딩 금지**: API 키, 토큰 등은 절대 코드에 직접 작성 금지
+2. **환경 변수 사용**: 민감 정보는 `.env` 파일 또는 Firebase 환경 설정 사용
+   ```jsx
+   // 나쁜 예
+   const API_KEY = "sk-1234567890";
+
+   // 좋은 예
+   const API_KEY = import.meta.env.VITE_API_KEY;
+   ```
+3. **Firebase 규칙**: Firestore/Storage 보안 규칙으로 데이터 접근 제어
+
+### React 패턴
+1. **Custom Hooks**: 재사용 로직은 `use` 접두사로 커스텀 훅 분리
+2. **컴포넌트 분리**: 300줄 이상 컴포넌트는 분리 검토
+3. **Props 검증**: 중요 props는 기본값 설정 또는 타입 체크
+
 ## SNS 공유 설정
 - **카카오톡**: SDK 키 `83e843186c1251b9b5a8013fd5f29798`
 - **페이스북**: 클립보드 복사 방식 사용 (sharer API 불안정)
