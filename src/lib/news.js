@@ -4,25 +4,25 @@ const RSS2JSON_API = 'https://api.rss2json.com/v1/api.json';
 
 // 검색 키워드별 Google News RSS URL
 const NEWS_FEEDS = {
-    nordic: {
-        label: '북유럽',
-        query: 'Nordic lay judge OR Sweden lay assessor OR Norway lay judge',
-        flag: '🇸🇪'
-    },
     europe: {
         label: '유럽',
-        query: 'European lay judges OR jury system Europe OR Germany lay judge',
+        query: 'cour d\'assises OR German Schöffe OR European lay judge OR France court verdict',
         flag: '🇪🇺'
     },
     japan: {
         label: '일본',
-        query: '裁判員制度 OR Japan lay judge system',
+        query: 'Saiban-in OR Japanese lay judge OR Japan court ruling',
         flag: '🇯🇵'
     },
     usa: {
         label: '미국',
-        query: 'jury trial USA OR American jury system',
+        query: '"jury verdict" OR "jury trial" -Johnson -talc -pharmaceutical',
         flag: '🇺🇸'
+    },
+    global: {
+        label: '세계',
+        query: 'lay judge system OR citizen judge OR international court ruling',
+        flag: '🌍'
     }
 };
 
@@ -112,27 +112,27 @@ export const formatDate = (dateString) => {
 // 모든 지역의 뉴스 가져오기
 export const fetchAllNews = async () => {
     try {
-        const [nordicNews, europeNews, japanNews, usaNews] = await Promise.all([
-            fetchRssFeed('nordic'),
+        const [europeNews, japanNews, usaNews, globalNews] = await Promise.all([
             fetchRssFeed('europe'),
             fetchRssFeed('japan'),
-            fetchRssFeed('usa')
+            fetchRssFeed('usa'),
+            fetchRssFeed('global')
         ]);
 
         // 모든 뉴스를 합치고 날짜순 정렬
-        const allNews = [...nordicNews, ...europeNews, ...japanNews, ...usaNews];
+        const allNews = [...europeNews, ...japanNews, ...usaNews, ...globalNews];
         allNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
         return {
             all: allNews.slice(0, 6), // 최신 6개
-            nordic: nordicNews,
             europe: europeNews,
             japan: japanNews,
-            usa: usaNews
+            usa: usaNews,
+            global: globalNews
         };
     } catch (error) {
         console.error('[News] 전체 뉴스 가져오기 실패:', error);
-        return { all: [], nordic: [], europe: [], japan: [], usa: [] };
+        return { all: [], europe: [], japan: [], usa: [], global: [] };
     }
 };
 
