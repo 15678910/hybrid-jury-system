@@ -32,6 +32,7 @@ const LawDatabase = lazy(() => import('./pages/LawDatabase'))
 const JudgeEvaluation = lazy(() => import('./pages/JudgeEvaluation'))
 const JudgeDetail = lazy(() => import('./pages/JudgeDetail'))
 const JudicialNetwork = lazy(() => import('./pages/JudicialNetwork'))
+const InsurrectionTrialAnalysis = lazy(() => import('./pages/InsurrectionTrialAnalysis'))
 const CaseSearch = lazy(() => import('./pages/CaseSearch'))
 const PrecedentDetail = lazy(() => import('./pages/PrecedentDetail'))
 const FloatingChat = lazy(() => import('./CozeFloatingChat'))
@@ -77,6 +78,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/judge-evaluation" element={<JudgeEvaluation />} />
           <Route path="/judge/:name" element={<JudgeDetail />} />
           <Route path="/judicial-network" element={<JudicialNetwork />} />
+          <Route path="/trial-analysis" element={<InsurrectionTrialAnalysis />} />
           <Route path="/case-search" element={<CaseSearch />} />
           <Route path="/precedent/:id" element={<PrecedentDetail />} />
           <Route path="/legal-search" element={<Navigate to="/case-search" replace />} />

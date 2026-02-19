@@ -1616,7 +1616,7 @@ export default function SentencingAnalysis() {
         return {
             ...staticData,
             status: mergedStatus,
-            statusColor: mergedStatus === '구속' ? 'red' : (mergedStatus === '불구속' ? 'green' : staticData.statusColor),
+            statusColor: mergedStatus === '구속' ? 'red' : mergedStatus === '보석' ? 'orange' : (mergedStatus === '불구속' ? 'green' : staticData.statusColor),
             verdictDate: dynamicData.verdictDate || staticData.verdictDate,
             trialStatus: dynamicData.trialStatus || staticData.trialStatus,
             charges: dynamicData.charges?.length > 0 ? dynamicData.charges.map((c, idx) => ({
@@ -1674,7 +1674,7 @@ export default function SentencingAnalysis() {
                         </div>
 
                         {/* 통계 요약 */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-gray-900">{sortedPersons.length}</p>
                                 <p className="text-sm text-gray-500">총 인원</p>
@@ -1690,6 +1690,12 @@ export default function SentencingAnalysis() {
                                     {sortedPersons.filter(name => personsData[name].status === '불구속').length}
                                 </p>
                                 <p className="text-sm text-gray-500">불구속</p>
+                            </div>
+                            <div className="bg-white rounded-xl p-4 shadow-sm text-center">
+                                <p className="text-2xl font-bold text-orange-600">
+                                    {sortedPersons.filter(name => personsData[name].status === '보석').length}
+                                </p>
+                                <p className="text-sm text-gray-500">보석</p>
                             </div>
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-blue-600">
@@ -1737,7 +1743,9 @@ export default function SentencingAnalysis() {
                                                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                                                     p.status === '구속'
                                                         ? 'bg-red-100 text-red-700'
-                                                        : 'bg-green-100 text-green-700'
+                                                        : p.status === '보석'
+                                                            ? 'bg-orange-100 text-orange-700'
+                                                            : 'bg-green-100 text-green-700'
                                                 }`}>
                                                     {p.status}
                                                 </span>
@@ -1830,7 +1838,9 @@ export default function SentencingAnalysis() {
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                                 person.status === '구속'
                                     ? 'bg-red-100 text-red-700'
-                                    : 'bg-green-100 text-green-700'
+                                    : person.status === '보석'
+                                        ? 'bg-orange-100 text-orange-700'
+                                        : 'bg-green-100 text-green-700'
                             }`}>
                                 {person.status}
                             </span>

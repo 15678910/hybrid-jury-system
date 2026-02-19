@@ -24,7 +24,9 @@ export default function JudgeEvaluation() {
     const categoryFromUrl = searchParams.get('category');
     const [judges] = useState(JUDGES_DATA);
     const [kakaoReady, setKakaoReady] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(categoryFromUrl || '헌법재판소');
+    const [selectedCategory, setSelectedCategory] = useState(
+        categoryFromUrl?.startsWith('내란전담재판부') ? '내란전담재판부' : (categoryFromUrl || '헌법재판소')
+    );
 
     // Kakao SDK 초기화
     useEffect(() => {
@@ -94,7 +96,9 @@ export default function JudgeEvaluation() {
 
     // 필터링된 판사 목록
     const filteredJudges = selectedCategory
-        ? judges.filter(j => j.category === selectedCategory)
+        ? judges.filter(j => selectedCategory === '내란전담재판부'
+            ? j.category.startsWith('내란전담재판부')
+            : j.category === selectedCategory)
         : judges;
 
     return (
@@ -139,7 +143,9 @@ export default function JudgeEvaluation() {
                         {/* 카테고리 필터 탭 */}
                         <div className="flex flex-wrap justify-center gap-2 mb-8">
                             {CATEGORIES.map(cat => {
-                                const count = judges.filter(j => j.category === cat.name).length;
+                                const count = judges.filter(j => cat.name === '내란전담재판부'
+                                    ? j.category.startsWith('내란전담재판부')
+                                    : j.category === cat.name).length;
                                 return (
                                     <button
                                         key={cat.id}
@@ -168,15 +174,134 @@ export default function JudgeEvaluation() {
                     </div>
 
                     {/* 선택된 카테고리 헤더 */}
-                    {selectedCategory && (
+                    {selectedCategory && selectedCategory !== '내란전담재판부' && (
                         <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
                             {CATEGORIES.find(c => c.name === selectedCategory)?.icon}
                             {selectedCategory}
                         </h2>
                     )}
 
-                    {/* 판사 카드 그리드 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* 내란전담재판부: 1심/항소심 구분 */}
+                    {selectedCategory === '내란전담재판부' && (
+                        <>
+                            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                                🔒 내란전담재판부 (1심)
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                                {filteredJudges.filter(j => j.category === '내란전담재판부').map((judge) => (
+                                    <Link key={judge.id} to={`/judge/${judge.id}`} className="block">
+                                        <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+                                            <div className="flex items-center gap-4 mb-4">
+                                                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-blue-200 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                                                    {judge.photo ? (
+                                                        <img src={judge.photo} alt={judge.name} className="w-full h-full object-cover"
+                                                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                                                    ) : null}
+                                                    <span className={`text-3xl font-bold text-white ${judge.photo ? 'hidden' : 'flex'} items-center justify-center w-full h-full`}>
+                                                        {judge.name[0]}
+                                                    </span>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h3 className="font-bold text-xl text-gray-900">{judge.name}</h3>
+                                                    <p className="text-gray-500 text-sm">{judge.court}</p>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <p className="text-sm text-gray-600"><span className="font-medium">직책:</span> {judge.position}</p>
+                                                {judge.cases && judge.cases.length > 0 && (
+                                                    <div className="text-sm text-gray-600">
+                                                        <span className="font-medium">담당:</span>
+                                                        {judge.cases.length === 1 ? (
+                                                            <span> {judge.cases[0].text || judge.cases[0]}</span>
+                                                        ) : (
+                                                            <ul className="ml-4 mt-1 space-y-1">
+                                                                {judge.cases.map((caseItem, idx) => (
+                                                                    <li key={idx}>• {caseItem.text || caseItem}</li>
+                                                                ))}
+                                                            </ul>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+                                                    <div className="flex items-center gap-1 text-yellow-500">
+                                                        <span className="text-lg">⭐</span>
+                                                        <span className="font-medium text-gray-700">{judge.rating > 0 ? judge.rating.toFixed(1) : '평가없음'}</span>
+                                                    </div>
+                                                    <span className="text-gray-400 text-sm">({judge.reviewCount}개 평가)</span>
+                                                </div>
+                                            </div>
+                                            <div className="mt-4 text-blue-600 text-sm font-medium flex items-center gap-1">
+                                                상세보기
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+
+                            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                                🔒 내란전담재판부 (항소심)
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                                {filteredJudges.filter(j => j.category === '내란전담재판부(항소심)').map((judge) => (
+                                    <Link key={judge.id} to={`/judge/${judge.id}`} className="block">
+                                        <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+                                            <div className="flex items-center gap-4 mb-4">
+                                                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-blue-200 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                                                    {judge.photo ? (
+                                                        <img src={judge.photo} alt={judge.name} className="w-full h-full object-cover"
+                                                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                                                    ) : null}
+                                                    <span className={`text-3xl font-bold text-white ${judge.photo ? 'hidden' : 'flex'} items-center justify-center w-full h-full`}>
+                                                        {judge.name[0]}
+                                                    </span>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h3 className="font-bold text-xl text-gray-900">{judge.name}</h3>
+                                                    <p className="text-gray-500 text-sm">{judge.court}</p>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <p className="text-sm text-gray-600"><span className="font-medium">직책:</span> {judge.position}</p>
+                                                {judge.cases && judge.cases.length > 0 && (
+                                                    <div className="text-sm text-gray-600">
+                                                        <span className="font-medium">담당:</span>
+                                                        {judge.cases.length === 1 ? (
+                                                            <span> {judge.cases[0].text || judge.cases[0]}</span>
+                                                        ) : (
+                                                            <ul className="ml-4 mt-1 space-y-1">
+                                                                {judge.cases.map((caseItem, idx) => (
+                                                                    <li key={idx}>• {caseItem.text || caseItem}</li>
+                                                                ))}
+                                                            </ul>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+                                                    <div className="flex items-center gap-1 text-yellow-500">
+                                                        <span className="text-lg">⭐</span>
+                                                        <span className="font-medium text-gray-700">{judge.rating > 0 ? judge.rating.toFixed(1) : '평가없음'}</span>
+                                                    </div>
+                                                    <span className="text-gray-400 text-sm">({judge.reviewCount}개 평가)</span>
+                                                </div>
+                                            </div>
+                                            <div className="mt-4 text-blue-600 text-sm font-medium flex items-center gap-1">
+                                                상세보기
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </>
+                    )}
+
+                    {/* 판사 카드 그리드 (내란전담재판부 외) */}
+                    {selectedCategory !== '내란전담재판부' && <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredJudges.map((judge) => (
                             <Link
                                 key={judge.id}
@@ -247,7 +372,7 @@ export default function JudgeEvaluation() {
                                 </div>
                             </Link>
                         ))}
-                    </div>
+                    </div>}
 
                     {/* 하단 안내 */}
                     <div className="mt-12 text-center">

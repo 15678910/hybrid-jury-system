@@ -517,7 +517,9 @@ export const JUDGES_DATA = [
             { text: '윤석열 대통령 내란 수괴 재판 재판장 (2025~)', source: { name: '머니투데이', url: 'https://www.mt.co.kr/society/2025/01/31/2025013116342094711' } },
             { text: '삼성 이재용 부당합병 전부 무죄 (2024.02)', source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202511261859001' } },
             { text: '유아인 마약 징역 1년 (2024.09)', source: { name: '법률신문', url: 'https://www.lawtimes.co.kr/news/201109' } },
-            { text: '룸살롱 접대 의혹 (2025, 공수처 수사 중)', source: { name: '머니투데이', url: 'https://www.mt.co.kr/society/2025/01/31/2025013116342094711' } }
+            { text: '룸살롱 접대 의혹 (2025, 공수처 수사 중)', source: { name: '머니투데이', url: 'https://www.mt.co.kr/society/2025/01/31/2025013116342094711' } },
+            { text: '윤석열 구속취소 결정 시간기준 논란 (2025.03) - 71년 관례인 날짜 기준 대신 시간 기준 적용', source: { name: '법률신문', url: 'https://www.lawtimes.co.kr/news/206153' } },
+            { text: '내란 재판 비공개 진행 논란 (2025.04) - 전직 대통령 재판 최초 비공개, 시민단체 공수처 고발', source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202504131649001' } }
         ]
     },
     {
@@ -540,7 +542,8 @@ export const JUDGES_DATA = [
             { text: '서병호 간첩조작사건 재심 기각 (2025.07, 진화위 재심 권고에도 불구)', source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202507181841001' } },
             { text: '장영하 1심 무죄→항소심 유죄 (2024)', source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202501241620001' } },
             { text: '가세연 1심 무죄→항소심 유죄', source: { name: '서울경제', url: 'https://www.sedaily.com/article/20002586' } },
-            { text: '민주당 돈봉투 1심 유죄→항소심 무죄', source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202512181105001' } }
+            { text: '민주당 돈봉투 1심 유죄→항소심 무죄', source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202512181105001' } },
+            { text: '강남 의대생 여친 살인 징역 26년 (2024.12, 검찰 사형 구형) - "수능 만점자 사회 기여 가능성" 발언 논란', source: { name: '서울신문', url: 'https://www.seoul.co.kr/news/society/2026/01/29/20260129500294' } }
         ]
     },
     {
@@ -561,7 +564,8 @@ export const JUDGES_DATA = [
         cases: [
             { text: '한덕수 내란 징역 23년 선고 (2026.01, 구형보다 8년 높음)', source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202601211634001' } },
             { text: '이재명 대장동·성남FC 재판 무기한 연기 (불소추특권)', source: { name: '법률신문', url: 'https://www.lawtimes.co.kr/news/207843' } },
-            { text: '대장동·백현동·위례신도시 개발 비리 재판', source: { name: '법률신문', url: 'https://www.lawtimes.co.kr/news/192041' } }
+            { text: '대장동·백현동·위례신도시 개발 비리 재판', source: { name: '법률신문', url: 'https://www.lawtimes.co.kr/news/192041' } },
+            { text: '이하상 변호사 15일 감치 집행 (2026.02) - 김용현 변호인 법정 소란, 대법원 특별항고 기각', source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202602031634001' } }
         ]
     },
     {
@@ -590,6 +594,128 @@ export const JUDGES_DATA = [
             { text: '잠진도 아내 살인사건 징역 23년 (인천지법)', source: null },
             { text: '38년간 딸 간병 후 살해 60대 어머니 집행유예 - "중증 장애인 가족을 지원하지 않는 국가 시스템의 문제"', source: null },
             { text: '부장판사 뇌물수수 혐의 무죄 판결 (2023, 증거 부족) - 법관 간 편파 논란', source: null }
+        ]
+    },
+    // 내란전담재판부 - 서울고등법원 항소심 (2026.02.05 지정)
+    // 형사1부
+    {
+        id: 'yoon-sungsik',
+        name: '윤성식',
+        category: '내란전담재판부(항소심)',
+        court: '서울고등법원',
+        position: '형사1부 재판장 (내란 항소심 전담)',
+        appointedBy: '',
+        photo: '',
+        rating: 0,
+        reviewCount: 0,
+        career: [
+            '서울고등법원 형사1부 부장판사 (현재)',
+            '대법관 후보 거론',
+            '사법연수원 제24기 수료'
+        ],
+        cases: [
+            { text: '송영길 돈봉투 사건 2심 전부 무죄 (2026.02.13) - 이정근 녹음파일 증거능력 불인정, 먹사연 압수물 위법수집 증거 판단', source: { name: '법률신문', url: 'https://www.lawtimes.co.kr/news/articleView.html?idxno=216287' } },
+            { text: '내란 사건 항소심 전담 재판장 (2026.02.05 지정)', source: { name: '파이낸셜뉴스', url: 'https://www.fnnews.com/news/202602051604190466' } },
+            { text: '민청학련 유인태 재심 무죄 선고 (서울고법) - 긴급조치 위반 사건 재심', source: null }
+        ]
+    },
+    {
+        id: 'min-sungchul',
+        name: '민성철',
+        category: '내란전담재판부(항소심)',
+        court: '서울고등법원',
+        position: '형사1부 배석판사',
+        appointedBy: '',
+        photo: '',
+        rating: 0,
+        reviewCount: 0,
+        career: [
+            '서울고등법원 형사1부 판사 (현재)',
+            '대법원 재판연구관',
+            '서울중앙지방법원 부장판사',
+            '서울북부지방법원 판사',
+            '사법연수원 제29기 수료'
+        ],
+        cases: [
+            { text: '위안부 피해자 대일 손해배상 소송 각하 (2021.04) - 국가면제 적용, 항소심에서 파기', source: { name: '한국경제', url: 'https://www.hankyung.com/article/202104219808Y' } },
+            { text: '내란 사건 항소심 배석 (2026.02.05~)', source: null }
+        ]
+    },
+    {
+        id: 'lee-donghyun',
+        name: '이동현',
+        category: '내란전담재판부(항소심)',
+        court: '서울고등법원',
+        position: '형사1부 배석판사',
+        appointedBy: '',
+        photo: '',
+        rating: 0,
+        reviewCount: 0,
+        career: [
+            '서울고등법원 형사1부 판사 (현재)',
+            '사법연수원 교수',
+            '부산고등법원 판사',
+            '인천지방법원 판사',
+            '서울중앙지방법원 판사',
+            '사법연수원 제36기 수료'
+        ],
+        cases: [
+            { text: '내란 사건 항소심 배석 (2026.02.05~)', source: null }
+        ]
+    },
+    // 형사12부 (대등재판부 - 부장판사 없이 구성)
+    {
+        id: 'lee-seungchul',
+        name: '이승철',
+        category: '내란전담재판부(항소심)',
+        court: '서울고등법원',
+        position: '형사12부 판사 (대등재판부)',
+        appointedBy: '',
+        photo: '',
+        rating: 0,
+        reviewCount: 0,
+        career: [
+            '서울고등법원 형사12부 판사 (현재)',
+            '사법연수원 제26기 수료'
+        ],
+        cases: [
+            { text: '내란 사건 항소심 대등재판부 (2026.02.05 지정)', source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202602052041005' } }
+        ]
+    },
+    {
+        id: 'cho-jingu',
+        name: '조진구',
+        category: '내란전담재판부(항소심)',
+        court: '서울고등법원',
+        position: '형사12부 판사 (대등재판부)',
+        appointedBy: '',
+        photo: '',
+        rating: 0,
+        reviewCount: 0,
+        career: [
+            '서울고등법원 형사12부 판사 (현재)',
+            '사법연수원 제29기 수료'
+        ],
+        cases: [
+            { text: '내란 사건 항소심 대등재판부 (2026.02.05 지정)', source: null }
+        ]
+    },
+    {
+        id: 'kim-mina',
+        name: '김민아',
+        category: '내란전담재판부(항소심)',
+        court: '서울고등법원',
+        position: '형사12부 판사 (대등재판부)',
+        appointedBy: '',
+        photo: '',
+        rating: 0,
+        reviewCount: 0,
+        career: [
+            '서울고등법원 형사12부 판사 (현재)',
+            '사법연수원 제34기 수료'
+        ],
+        cases: [
+            { text: '내란 사건 항소심 대등재판부 (2026.02.05 지정)', source: null }
         ]
     },
     // 영장전담판사 7명
