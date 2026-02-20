@@ -605,7 +605,7 @@ export const JUDGES_DATA = [
         court: '서울고등법원',
         position: '형사1부 재판장 (내란 항소심 전담)',
         appointedBy: '',
-        photo: '',
+        photo: '/윤성식.png',
         rating: 0,
         reviewCount: 0,
         career: [
@@ -626,7 +626,7 @@ export const JUDGES_DATA = [
         court: '서울고등법원',
         position: '형사1부 배석판사',
         appointedBy: '',
-        photo: '',
+        photo: '/민성철.png',
         rating: 0,
         reviewCount: 0,
         career: [
@@ -648,7 +648,7 @@ export const JUDGES_DATA = [
         court: '서울고등법원',
         position: '형사1부 배석판사',
         appointedBy: '',
-        photo: '',
+        photo: '/이동현.png',
         rating: 0,
         reviewCount: 0,
         career: [
@@ -671,7 +671,7 @@ export const JUDGES_DATA = [
         court: '서울고등법원',
         position: '형사12부 판사 (대등재판부)',
         appointedBy: '',
-        photo: '',
+        photo: '/이승철.png',
         rating: 0,
         reviewCount: 0,
         career: [
@@ -689,7 +689,7 @@ export const JUDGES_DATA = [
         court: '서울고등법원',
         position: '형사12부 판사 (대등재판부)',
         appointedBy: '',
-        photo: '',
+        photo: '/조진구.png',
         rating: 0,
         reviewCount: 0,
         career: [
@@ -707,7 +707,7 @@ export const JUDGES_DATA = [
         court: '서울고등법원',
         position: '형사12부 판사 (대등재판부)',
         appointedBy: '',
-        photo: '',
+        photo: '/김민아.png',
         rating: 0,
         reviewCount: 0,
         career: [

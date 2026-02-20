@@ -4,6 +4,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, LinkedInIcon } from '../components/icons';
+import { JUDGES_DATA } from '../data/judges';
 
 // 위키백과 공개 이미지 URL (Wikimedia Commons) + 정부 정책브리핑(korea.kr) 공식 사진
 const PERSON_PHOTOS = {
@@ -39,8 +40,8 @@ const personsData = {
         id: 'kwak',
         name: '곽종근',
         position: '전 육군특수전사령관',
-        status: '구속',
-        statusColor: 'red',
+        status: '보석',
+        statusColor: 'orange',
         court: '서울중앙지방법원',
         charges: [
             {
@@ -59,6 +60,9 @@ const personsData = {
             ratio: '-'
         },
         keyFacts: [
+            '특수전사령부 병력 국회 출동 지휘',
+            '2025.1.3 구속기소 → 2025.4.4 건강 악화로 보석 허가',
+            '2025.12.24 군사법원에서 서울중앙지법으로 이관',
             '12.3 비상계엄 당시 국회 진입 병력 지휘',
             '"한동훈 잡아오라" 발언으로 논란',
             '국방부 해임 징계 처분 (2025.12.29)',
@@ -330,8 +334,8 @@ const personsData = {
                 law: '형법 제87조',
                 description: '비상계엄 선포 및 군 병력 동원 총괄',
                 prosecutionRequest: '무기징역 (특검 구형, 2026.1.13)',
-                verdict: '재판 진행 중 (2026.2.19 선고 예정)',
-                reason: '-'
+                verdict: '유죄 - 징역 30년 (2026.2.19 선고)',
+                reason: '비상계엄을 주도적으로 준비, 부정선거 수사 등 독단적 계획 수립하여 대통령의 비이성적 결심을 조장'
             },
             {
                 id: 2,
@@ -354,15 +358,50 @@ const personsData = {
         ],
         summary: {
             prosecutionTotal: '무기징역 (특검 구형)',
-            verdictTotal: '재판 진행 중 (2026.2.19 선고 예정)',
-            ratio: '-'
+            verdictTotal: '징역 30년 (2026.2.19 선고)',
+            ratio: '무기징역→30년 (감경)'
         },
         keyFacts: [
             '비상계엄 선포 핵심 관여자, 군 병력 국회 투입 지휘',
             '내란특검 무기징역 구형 (2026.1.13)',
-            '윤석열 사건과 병합심리, 2026.2.19 선고 예정'
+            '2026.2.19 1심 선고: 징역 30년 (내란중요임무종사 유죄)'
         ],
-        trialStatus: '1심 선고 예정 (2026.2.19, 윤석열 사건 병합심리)'
+        verdictDate: '2026년 2월 19일',
+        trialStatus: '1심 선고: 징역 30년 (2026.2.19)',
+        sentencingGuidelines: [
+            {
+                crime: '내란중요임무종사 (형법 제87조)',
+                standardRange: '5년~무기징역',
+                aggravating: ['비상계엄을 주도적으로 준비', '부정선거 수사 등 독단적 계획 수립', '대통령의 비이성적 결심 조장'],
+                mitigating: ['내란수괴가 아닌 종사자 지위'],
+                verdict: '징역 30년',
+                analysis: '비상계엄을 주도적으로 준비하고 부정선거 수사 등 독단적 계획 수립. 대통령의 비이성적 결심을 조장한 측면이 크다고 판단'
+            }
+        ],
+        judgeHistory: {
+            judgeName: '지귀연',
+            position: '서울중앙지방법원 형사합의25부 부장판사',
+            recentCases: [
+                {
+                    caseName: '윤석열 외 7인 내란 사건',
+                    year: '2026',
+                    verdict: '김용현 징역 30년 (내란중요임무종사 유죄)',
+                    detail: '8인 공동재판, 무기징역→30년 감경'
+                }
+            ],
+            profile: '사법연수원 25기. 서울중앙지법 형사합의25부 부장판사. 내란 사건 1심 전담 재판장.'
+        },
+        keyIssues: [
+            {
+                title: '대통령 결심 조장의 책임',
+                description: '부정선거 수사 등 독단적 계획을 수립하여 대통령의 비이성적 결심을 조장한 책임이 크다고 법원 판단',
+                opinion: {
+                    prosecution: '내란의 핵심 기획자로서 무기징역이 상당',
+                    defense: '대통령의 지시에 따른 것이며 주도적 기획자가 아님',
+                    court: '비상계엄을 주도적으로 준비, 대통령의 비이성적 결심을 조장'
+                }
+            }
+        ]
     },
     '문상호': {
         id: 'moonsangho',
@@ -583,8 +622,8 @@ const personsData = {
                 law: '형법 제87조',
                 description: '12.3 비상계엄 선포 및 내란 주도',
                 prosecutionRequest: '사형 (특검 구형, 2026.1.13)',
-                verdict: '재판 진행 중 (2026.2.19 선고 예정)',
-                reason: '-'
+                verdict: '유죄 - 무기징역 (2026.2.19 선고)',
+                reason: '범행을 주도적으로 계획하고 다수를 관여시킴. 막대한 사회적 비용 초래에도 사과나 반성 기미 부족. 재판 출석 거부'
             },
             {
                 id: 2,
@@ -616,17 +655,106 @@ const personsData = {
         ],
         summary: {
             prosecutionTotal: '내란수괴: 사형 구형 + 특수공무집행방해 등: 징역 10년 구형',
-            verdictTotal: '특수공무집행방해 등: 징역 5년 (1심), 내란수괴: 2026.2.19 선고 예정',
-            ratio: '체포방해 구형의 1/2'
+            verdictTotal: '내란수괴: 무기징역 (2026.2.19) + 체포방해 등: 징역 5년 (2026.1.16)',
+            ratio: '사형→무기징역 (감경)'
         },
         keyFacts: [
             '대한민국 헌정사상 최초 현직 대통령 구속',
             '2024.12.3 비상계엄 선포',
             '2025.1.15 공수처 체포, 2025.4.4 헌재 탄핵 인용 (파면)',
             '체포방해 등 1심 징역 5년 선고 (2026.1.16)',
-            '내란수괴 사형 구형 (2026.1.13), 2026.2.19 선고 예정'
+            '내란수괴 사형 구형 (2026.1.13)',
+            '2026.2.19 1심 선고: 무기징역 — "성경을 읽는다는 이유로 촛불을 훔칠 수는 없다"'
         ],
-        trialStatus: '체포방해 등: 1심 징역 5년 선고 (항소) / 내란수괴: 2026.2.19 선고 예정'
+        verdictDate: '2026년 2월 19일',
+        trialStatus: '1심 선고: 내란수괴 무기징역 (2026.2.19) + 체포방해 징역 5년 (2026.1.16)',
+        sentencingGuidelines: [
+            {
+                crime: '내란수괴 (형법 제87조)',
+                standardRange: '사형, 무기징역, 무기금고',
+                aggravating: ['범행을 주도적으로 계획·지시', '국회 기능 마비 시도', '대통령으로서 헌법 수호 의무 중대 위반', '재판 출석 거부 및 반성 부재', '막대한 사회적 비용 초래'],
+                mitigating: ['계엄이 수시간 만에 해제', '실질적 인명 피해 없음'],
+                verdict: '무기징역',
+                analysis: '법정형 중 사형을 구형했으나, 계엄이 수시간 만에 해제되고 실질적 인명 피해가 없었다는 점을 감경 사유로 인정'
+            },
+            {
+                crime: '특수공무집행방해 (형법 제144조)',
+                standardRange: '5년 이상의 유기징역',
+                aggravating: ['공수처 체포영장 집행 조직적 방해', '경호처 동원하여 법 집행 차단'],
+                mitigating: ['최종적으로 체포에 응함'],
+                verdict: '유죄 - 징역 5년 (2026.1.16)',
+                analysis: '공수처 체포영장 집행 방해, 국무회의 심의권 침해'
+            }
+        ],
+        judgeHistory: {
+            judgeName: '지귀연',
+            position: '서울중앙지방법원 형사합의25부 부장판사',
+            recentCases: [
+                {
+                    caseName: '윤석열 외 7인 내란 사건',
+                    year: '2026',
+                    verdict: '윤석열 무기징역, 김용현 30년, 노상원 18년, 조지호 12년, 김봉식 10년, 목현태 3년, 김용군·윤승영 무죄',
+                    detail: '8인 공동재판. "성경을 읽는다는 이유로 촛불을 훔칠 수는 없다"'
+                }
+            ],
+            profile: '사법연수원 25기. 서울중앙지법 형사합의25부 부장판사. 내란 사건 1심 전담 재판장.'
+        },
+        keyIssues: [
+            {
+                title: '현직 대통령의 내란죄 수사 가능 여부',
+                description: '헌법 제84조 불소추 특권이 수사 자체를 금지하는 것은 아님. 대통령 직무의 원활한 수행 보장 취지일 뿐, 증거 확보를 위한 수사는 허용',
+                opinion: {
+                    prosecution: '내란죄는 불소추 특권의 예외이며, 수사와 기소 모두 가능',
+                    defense: '현직 대통령에 대한 수사는 직무 수행을 방해하므로 위헌',
+                    court: '불소추 특권은 기소를 유예할 뿐, 수사 자체를 금지하지 않음'
+                }
+            },
+            {
+                title: '비상계엄 선포와 내란죄의 관계 (형법 제91조 제2호)',
+                description: '원칙적으로 대통령의 비상계엄 선포 자체는 사법 심사의 대상이 되기 어렵고 내란에 해당하지 않음. 그러나 비상계엄을 통해서도 할 수 없는 권한의 행사, 즉 헌법과 계엄법이 보장하는 국회의 권한이나 행정 및 사법의 본질적인 기능을 상당 기간 침해하고 마비시킬 목적으로 비상계엄을 선포했다면 형법 제91조 제2호에 따른 국헌문란 목적 내란죄가 성립',
+                opinion: {
+                    prosecution: '국회 기능 마비를 목적으로 한 계엄은 형법 제91조 제2호의 국헌문란에 해당하며 그 자체가 내란',
+                    defense: '대통령의 비상계엄권은 헌법이 부여한 고유 권한이며, 사법 심사 대상이 아니므로 내란이 될 수 없음',
+                    court: '헌법과 계엄법이 보장하는 국회 권한을 침해·마비시킬 목적의 계엄은 헌법적 권한의 범위를 벗어나 내란죄 성립'
+                }
+            },
+            {
+                title: '형법 제91조 제2호 — 국헌문란 목적의 법적 정의',
+                description: '형법 제91조 제2호는 국헌문란의 목적을 "헌법에 의하여 설치된 국가 기관을 강압에 의하여 전복 또는 그 권능 행사를 불가능하게 하는 것"으로 정의. 대법원 판례에 따르면, 해당 국가 기관을 제도적으로 영구히 폐지하는 경우뿐만 아니라, 사실상 상당 기간 그 기능을 제대로 할 수 없게 만드는 것까지 포함. 군을 국회로 보내 계엄해제 의결을 방해한 것이 핵심',
+                opinion: {
+                    prosecution: '군 투입으로 국회의 계엄해제 의결권을 상당 기간 방해한 것은 형법 제91조 제2호의 국헌문란에 해당',
+                    defense: '국회가 수시간 내 계엄해제를 의결하였으므로 "상당 기간" 기능 마비에 이르지 않음',
+                    court: '제도적 폐지뿐 아니라 사실상 상당 기간 기능을 제대로 할 수 없게 만드는 것도 국헌문란에 해당'
+                }
+            },
+            {
+                title: '재판 출석 거부와 양형',
+                description: '윤석열은 특별한 사유 없이 재판 출석을 거부하였으며, 사과나 반성의 기미가 부족. 이는 양형에서 불리한 정황으로 고려됨',
+                opinion: {
+                    prosecution: '재판 출석 거부는 사법부 경시이며 중형 사유',
+                    defense: '헌법상 묵비권과 방어권의 행사',
+                    court: '출석 거부와 반성 부재는 양형에서 불리하게 고려'
+                }
+            },
+            {
+                title: '대통령의 내란죄 주체 인정 (형법 제87조, 제91조)',
+                description: '형법 제91조 제2호가 적용되는 국헌문란 목적 내란죄는 대통령도 저지를 수 있음. 대통령이 군을 동원하여 국회를 강제로 점령하거나 국회의원을 체포함으로써 상당 기간 국회 활동을 저지하고 마비시키려는 목적을 가졌다면 국헌문란 목적을 가진 폭동으로 인정되어 내란죄에 해당',
+                opinion: {
+                    prosecution: '대통령이 군을 동원하여 국회를 점령하고 의원 체포를 시도한 것은 명백한 내란수괴 행위',
+                    defense: '대통령은 헌법상 국군통수권자이며, 계엄 선포는 헌법이 부여한 고유 권한으로 내란 주체가 될 수 없음',
+                    court: '대통령도 내란죄의 주체가 되며, 국헌문란 목적의 군 동원은 헌법적 권한 범위를 벗어난 폭동'
+                }
+            },
+            {
+                title: '내란죄 공범 성립 기준 (집합범의 특성)',
+                description: '내란죄는 다수가 결합하는 집합범의 성격을 가짐. 공범으로 인정되려면 단순히 비상계엄 선포 등의 폭동 행위에 관여한 사실만으로는 부족하며, 반드시 "국헌문란의 목적"을 미필적으로라도 인식하고 공유하면서 가담한 사실이 인정되어야 함. 이 기준에 따라 김용군·윤승영은 국헌문란 목적 인식 부족으로 무죄 선고',
+                opinion: {
+                    prosecution: '모든 피고인이 국헌문란 목적을 인식하고 가담하였음',
+                    defense: '상급자의 지시에 따랐을 뿐 국헌문란 목적을 인식하거나 공유하지 않았음',
+                    court: '국헌문란 목적의 미필적 인식·공유가 입증된 경우에만 내란죄 공범 성립. 김용군·윤승영은 목적 인식 증거 부족으로 무죄'
+                }
+            }
+        ]
     },
     '이상민': {
         id: 'leesangmin',
@@ -1202,12 +1330,44 @@ const personsData = {
         ],
         trialStatus: '1심 재판 진행 중'
     },
+    '김용군': {
+        id: 'kimyonggun',
+        name: '김용군',
+        position: '전 제3야전군사령부 헌병대장',
+        status: '불구속',
+        statusColor: 'green',
+        court: '서울중앙지방법원 형사합의25부',
+        judge: '지귀연 부장판사',
+        charges: [
+            {
+                id: 1,
+                name: '내란중요임무종사',
+                law: '형법 제87조',
+                description: '비상계엄 당시 헌병대 병력 동원 관련',
+                prosecutionRequest: '징역 10년',
+                verdict: '무죄 (2026.2.19 선고)',
+                reason: '범행 계획에 공모 또는 국헌문란의 목적을 명확히 인식/공유했다는 증거 부족'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '징역 10년 (특검 구형)',
+            verdictTotal: '무죄 (2026.2.19 선고)',
+            ratio: '무죄'
+        },
+        keyFacts: [
+            '전 제3야전군사령부 헌병대장',
+            '비상계엄 당시 헌병대 병력 동원 관련 혐의',
+            '2026.2.19 1심 선고: 무죄 (내란죄 불성립)'
+        ],
+        verdictDate: '2026년 2월 19일',
+        trialStatus: '1심 선고: 무죄 (2026.2.19, 내란죄 불성립)'
+    },
     '김봉식': {
         id: 'kimbongsik',
         name: '김봉식',
         position: '전 서울경찰청장',
-        status: '보석',
-        statusColor: 'yellow',
+        status: '구속',
+        statusColor: 'red',
         court: '서울중앙지방법원 형사합의25부',
         judge: '지귀연 부장판사',
         charges: [
@@ -1217,8 +1377,8 @@ const personsData = {
                 law: '형법 제87조',
                 description: '비상계엄 당시 서울경찰청장으로 국회 봉쇄 가담',
                 prosecutionRequest: '징역 15년',
-                verdict: '재판 진행 중',
-                reason: '-'
+                verdict: '유죄 - 징역 10년 (2026.2.19 선고)',
+                reason: '경찰 총책임자로서 포고령의 위법성 미검토, 군의 국회 진입을 돕고 의원 출입 차단'
             },
             {
                 id: 2,
@@ -1232,8 +1392,8 @@ const personsData = {
         ],
         summary: {
             prosecutionTotal: '징역 15년 (특검 구형)',
-            verdictTotal: '재판 진행 중 (2026.2.19 선고 예정)',
-            ratio: '-'
+            verdictTotal: '징역 10년 (2026.2.19 선고)',
+            ratio: '구형의 67%'
         },
         keyFacts: [
             '12.3 비상계엄 당시 서울경찰청장으로 국회 봉쇄 가담',
@@ -1241,7 +1401,42 @@ const personsData = {
             '비화폰 원격삭제 의혹 (2024.12.6)',
             '2025.1.8 구속기소 → 2025.6.26 보석 허가'
         ],
-        trialStatus: '1심 선고 예정 (2026.2.19, 윤석열 사건 병합심리)'
+        verdictDate: '2026년 2월 19일',
+        trialStatus: '1심 선고: 징역 10년 (2026.2.19)',
+        sentencingGuidelines: [
+            {
+                crime: '내란중요임무종사 (형법 제87조)',
+                standardRange: '5년~무기징역',
+                aggravating: ['서울경찰청장으로서 국회 봉쇄 가담', '안가회동 문건 수령', '포고령 위법성 미검토'],
+                mitigating: ['상급자 지시에 따른 측면', '직접 군사작전 지휘는 아님'],
+                verdict: '징역 10년',
+                analysis: '서울경찰청장으로서 국회 봉쇄에 가담. 포고령의 위법성을 검토하지 않고 군의 국회 진입을 도운 점'
+            }
+        ],
+        judgeHistory: {
+            judgeName: '지귀연',
+            position: '서울중앙지방법원 형사합의25부 부장판사',
+            recentCases: [
+                {
+                    caseName: '윤석열 외 7인 내란 사건',
+                    year: '2026',
+                    verdict: '김봉식 징역 10년 (내란중요임무종사 유죄)',
+                    detail: '구형 15년의 67% 선고'
+                }
+            ],
+            profile: '사법연수원 25기. 서울중앙지법 형사합의25부 부장판사. 내란 사건 1심 전담 재판장.'
+        },
+        keyIssues: [
+            {
+                title: '경찰 수뇌부의 국회 봉쇄 가담',
+                description: '서울경찰청장으로서 국회 봉쇄에 직접 가담하고, 안가회동 문건을 수령한 행위',
+                opinion: {
+                    prosecution: '현장 지휘관으로서 국회 봉쇄를 직접 집행한 책임',
+                    defense: '상급자 지시에 따른 것이며 내란 목적 인식 부족',
+                    court: '포고령 위법성 미검토, 군 국회 진입 조력으로 비난 가능성 높음'
+                }
+            }
+        ]
     },
     '노상원': {
         id: 'nosangwon',
@@ -1258,8 +1453,8 @@ const personsData = {
                 law: '형법 제87조',
                 description: '계엄 사전 모의, 포고령 초안 작성, 선관위 침입 지휘',
                 prosecutionRequest: '징역 30년',
-                verdict: '재판 진행 중',
-                reason: '-'
+                verdict: '유죄 - 징역 18년 (2026.2.19 선고)',
+                reason: '내란중요임무종사 유죄'
             },
             {
                 id: 2,
@@ -1282,8 +1477,8 @@ const personsData = {
         ],
         summary: {
             prosecutionTotal: '징역 30년 (내란 본건) + 징역 3년 (별건)',
-            verdictTotal: '별건: 징역 2년 선고 (2025.12.15), 내란 본건: 재판 진행 중 (2026.2.19 선고 예정)',
-            ratio: '-'
+            verdictTotal: '내란 본건: 징역 18년 (2026.2.19) + 별건: 징역 2년 (2025.12.15)',
+            ratio: '구형의 60%'
         },
         keyFacts: [
             '김용현 전 장관 최측근, 예비역 민간인으로 계엄 핵심 기획',
@@ -1292,7 +1487,42 @@ const personsData = {
             '수첩에 500여명 체포·살해 구상, NLL 북한 공격 유도 등 기록',
             '별건(개인정보보호법 위반) 1심 징역 2년 선고, 쌍방 항소'
         ],
-        trialStatus: '1심 선고 예정 (2026.2.19, 윤석열 사건 병합심리)'
+        verdictDate: '2026년 2월 19일',
+        trialStatus: '1심 선고: 징역 18년 (2026.2.19) + 별건 징역 2년 (2025.12.15)',
+        sentencingGuidelines: [
+            {
+                crime: '내란중요임무종사 (형법 제87조)',
+                standardRange: '5년~무기징역',
+                aggravating: ['계엄 사전 모의 핵심 참여', '포고령 초안 작성', '선관위 침입 지휘', '체포·살해 명단 수첩 기록'],
+                mitigating: ['예비역 민간인으로서 직접 지휘권 부재'],
+                verdict: '징역 18년',
+                analysis: '계엄 사전 모의, 포고령 초안 작성, 선관위 침입 지휘. 예비역 민간인으로서 계엄 핵심 기획에 참여한 점 중하게 평가'
+            }
+        ],
+        judgeHistory: {
+            judgeName: '지귀연',
+            position: '서울중앙지방법원 형사합의25부 부장판사',
+            recentCases: [
+                {
+                    caseName: '윤석열 외 7인 내란 사건',
+                    year: '2026',
+                    verdict: '노상원 징역 18년 (내란중요임무종사 유죄)',
+                    detail: '구형 30년의 60% 선고'
+                }
+            ],
+            profile: '사법연수원 25기. 서울중앙지법 형사합의25부 부장판사. 내란 사건 1심 전담 재판장.'
+        },
+        keyIssues: [
+            {
+                title: '예비역 민간인의 내란 가담',
+                description: '예비역 전환 후 민간인 신분으로 계엄 핵심 기획에 참여. 포고령 초안 작성, 체포·살해 명단 수첩 기록 등',
+                opinion: {
+                    prosecution: '현역이 아닌 민간인이 군사 작전을 기획한 점이 더욱 위험',
+                    defense: '예비역으로서 군 지휘권이 없었으므로 중요임무종사에 해당하지 않음',
+                    court: '내란중요임무종사 유죄 인정'
+                }
+            }
+        ]
     },
     '목현태': {
         id: 'mokhyuntae',
@@ -1309,8 +1539,8 @@ const personsData = {
                 law: '형법 제87조',
                 description: '국회경비대장으로서 국회의원 출입 차단 지시',
                 prosecutionRequest: '징역 12년',
-                verdict: '재판 진행 중',
-                reason: '-'
+                verdict: '유죄 - 징역 3년 (2026.2.19 선고)',
+                reason: '내란중요임무종사 유죄'
             },
             {
                 id: 2,
@@ -1324,8 +1554,8 @@ const personsData = {
         ],
         summary: {
             prosecutionTotal: '징역 12년 (특검 구형)',
-            verdictTotal: '재판 진행 중 (2026.2.19 선고 예정)',
-            ratio: '-'
+            verdictTotal: '징역 3년 (2026.2.19 선고)',
+            ratio: '구형의 25%'
         },
         keyFacts: [
             '국회경비대장으로서 국회 출입구 차단 지시',
@@ -1333,7 +1563,8 @@ const personsData = {
             '국회의장 찾을 것을 4번 지시한 사실 확인',
             '"국헌 문란의 목적이 없었다"며 내란 혐의 부인'
         ],
-        trialStatus: '1심 선고 예정 (2026.2.19, 윤석열 사건 병합심리)'
+        verdictDate: '2026년 2월 19일',
+        trialStatus: '1심 선고: 징역 3년 (2026.2.19)'
     },
     '윤승영': {
         id: 'yoonseungyoung',
@@ -1350,8 +1581,8 @@ const personsData = {
                 law: '형법 제87조',
                 description: '방첩사 체포조 지원 요청 수령 및 보고',
                 prosecutionRequest: '징역 10년',
-                verdict: '재판 진행 중',
-                reason: '-'
+                verdict: '무죄 (2026.2.19 선고)',
+                reason: '범행 계획에 공모 또는 국헌문란의 목적을 명확히 인식/공유했다는 증거 부족'
             },
             {
                 id: 2,
@@ -1365,22 +1596,23 @@ const personsData = {
         ],
         summary: {
             prosecutionTotal: '징역 10년 (특검 구형)',
-            verdictTotal: '재판 진행 중 (2026.2.19 선고 예정)',
-            ratio: '-'
+            verdictTotal: '무죄 (2026.2.19 선고)',
+            ratio: '무죄'
         },
         keyFacts: [
             '비상계엄 당일 국군방첩사로부터 체포조 지원 요청 수령',
             '2025.2.28 불구속 기소',
             '"국헌 문란의 목적이 없었다"며 내란 혐의 부인'
         ],
-        trialStatus: '1심 선고 예정 (2026.2.19, 윤석열 사건 병합심리)'
+        verdictDate: '2026년 2월 19일',
+        trialStatus: '1심 선고: 무죄 (2026.2.19, 내란죄 불성립)'
     },
     '조지호': {
         id: 'jojiho',
         name: '조지호',
         position: '전 경찰청장',
         status: '보석',
-        statusColor: 'yellow',
+        statusColor: 'orange',
         court: '서울중앙지방법원 형사합의25부',
         judge: '지귀연 부장판사',
         charges: [
@@ -1390,8 +1622,8 @@ const personsData = {
                 law: '형법 제87조',
                 description: '비상계엄 당시 경찰 동원, 국회 봉쇄 지휘',
                 prosecutionRequest: '징역 20년',
-                verdict: '재판 진행 중',
-                reason: '-'
+                verdict: '유죄 - 징역 12년 (2026.2.19 선고)',
+                reason: '경찰 총책임자로서 포고령의 위법성 미검토, 군의 국회 진입을 돕고 의원 출입 차단'
             },
             {
                 id: 2,
@@ -1405,8 +1637,8 @@ const personsData = {
         ],
         summary: {
             prosecutionTotal: '징역 20년 (특검 구형)',
-            verdictTotal: '재판 진행 중 (2026.2.19 선고 예정)',
-            ratio: '-'
+            verdictTotal: '징역 12년 (2026.2.19 선고)',
+            ratio: '구형의 60%'
         },
         keyFacts: [
             '12.3 비상계엄 당시 경찰청장으로서 국회 봉쇄 지휘',
@@ -1414,7 +1646,42 @@ const personsData = {
             '혈액암 2기, 2025.1.23 보석 석방 (보증금 1억원)',
             '헌재 탄핵 파면 결정 (2025.12.18, 재판관 전원일치)'
         ],
-        trialStatus: '1심 선고 예정 (2026.2.19, 윤석열 사건 병합심리)'
+        verdictDate: '2026년 2월 19일',
+        trialStatus: '1심 선고: 징역 12년 (2026.2.19)',
+        sentencingGuidelines: [
+            {
+                crime: '내란중요임무종사 (형법 제87조)',
+                standardRange: '5년~무기징역',
+                aggravating: ['경찰청장으로서 포고령 위법성 미검토', '군의 국회 진입 조력', '국회의원 출입 차단 지시'],
+                mitigating: ['상급자 지시에 따른 측면'],
+                verdict: '징역 12년',
+                analysis: '경찰 총책임자로서 포고령의 위법성을 검토하지 않고 군의 국회 진입을 돕고 의원 출입을 차단'
+            }
+        ],
+        judgeHistory: {
+            judgeName: '지귀연',
+            position: '서울중앙지방법원 형사합의25부 부장판사',
+            recentCases: [
+                {
+                    caseName: '윤석열 외 7인 내란 사건',
+                    year: '2026',
+                    verdict: '조지호 징역 12년 (내란중요임무종사 유죄)',
+                    detail: '구형 20년의 60% 선고'
+                }
+            ],
+            profile: '사법연수원 25기. 서울중앙지법 형사합의25부 부장판사. 내란 사건 1심 전담 재판장.'
+        },
+        keyIssues: [
+            {
+                title: '경찰 수뇌부의 내란 가담 책임',
+                description: '경찰청장으로서 포고령의 위법성을 검토하지 않고 군의 국회 진입을 돕고 의원들의 출입을 차단한 행위의 비난 가능성',
+                opinion: {
+                    prosecution: '경찰 총수로서 위법한 계엄에 적극 협조한 책임 중대',
+                    defense: '상급자(대통령)의 지시에 따른 것이며 독자적 판단 여지 없었음',
+                    court: '포고령 위법성 미검토, 군 국회 진입 조력, 의원 출입 차단으로 비난 가능성 높음'
+                }
+            }
+        ]
     }
 };
 
@@ -1632,10 +1899,16 @@ export default function SentencingAnalysis() {
                 verdictTotal: dynamicData.verdict || staticData.summary?.verdictTotal || '재판 진행 중'
             },
             keyFacts: dynamicData.keyFacts?.length > 0 ? dynamicData.keyFacts : staticData.keyFacts,
-            // 김건희만 상세 탭 데이터 유지
-            sentencingGuidelines: staticData.sentencingGuidelines,
-            judgeHistory: staticData.judgeHistory,
-            keyIssues: staticData.keyIssues,
+            // Firestore 데이터가 있으면 우선 사용, 없으면 static fallback
+            sentencingGuidelines: dynamicData.sentencingGuidelines?.length > 0
+                ? dynamicData.sentencingGuidelines
+                : staticData.sentencingGuidelines,
+            judgeHistory: dynamicData.judgeHistory?.judgeName
+                ? dynamicData.judgeHistory
+                : staticData.judgeHistory,
+            keyIssues: dynamicData.keyIssues?.length > 0
+                ? dynamicData.keyIssues
+                : staticData.keyIssues,
             // 동적 데이터 메타정보
             _lastUpdated: dynamicData.lastUpdated,
             _hasLiveData: !!dynamicData,
@@ -2096,7 +2369,9 @@ export default function SentencingAnalysis() {
                     )}
 
                     {/* 판사 판결 이력 탭 */}
-                    {activeTab === 'judge' && person.judgeHistory && (
+                    {activeTab === 'judge' && person.judgeHistory && (() => {
+                        const judgeFromDB = JUDGES_DATA.find(j => j.name === person.judgeHistory.judgeName);
+                        return (
                         <div className="space-y-6">
                             {/* 판사 프로필 */}
                             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -2105,44 +2380,86 @@ export default function SentencingAnalysis() {
                                 </div>
                                 <div className="p-4">
                                     <div className="flex items-center gap-4 mb-4">
-                                        <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
+                                        {judgeFromDB?.photo ? (
+                                            <img
+                                                src={judgeFromDB.photo}
+                                                alt={person.judgeHistory.judgeName}
+                                                className="w-16 h-16 rounded-full object-cover"
+                                                onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling.style.display = 'flex'; }}
+                                            />
+                                        ) : null}
+                                        <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center" style={judgeFromDB?.photo ? {display: 'none'} : {}}>
                                             <span className="text-2xl font-bold text-indigo-600">{person.judgeHistory.judgeName[0]}</span>
                                         </div>
                                         <div>
                                             <p className="text-xl font-bold text-gray-900">{person.judgeHistory.judgeName} 부장판사</p>
-                                            <p className="text-gray-500">{person.judgeHistory.position}</p>
+                                            <p className="text-gray-500">{judgeFromDB?.position || person.judgeHistory.position}</p>
+                                            {judgeFromDB?.court && <p className="text-sm text-gray-400">{judgeFromDB.court}</p>}
                                         </div>
                                     </div>
+                                    {/* 경력사항 */}
+                                    {judgeFromDB?.career?.length > 0 ? (
+                                        <div className="mb-3">
+                                            <p className="text-sm font-medium text-indigo-600 mb-2">경력사항</p>
+                                            <ul className="space-y-1">
+                                                {judgeFromDB.career.map((item, idx) => (
+                                                    <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
+                                                        <span className="text-indigo-400 mt-0.5">•</span>
+                                                        <span>{item}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    ) : null}
                                     <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">{person.judgeHistory.profile}</p>
                                 </div>
                             </div>
 
-                            {/* 최근 판결 이력 */}
+                            {/* 주요 판결 이력 - judges.js 데이터 우선 */}
                             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                                 <div className="p-4 bg-gray-50 border-b">
                                     <h3 className="font-bold text-gray-900">주요 판결 이력</h3>
+                                    {judgeFromDB && <span className="text-xs text-blue-500 ml-2">판사평가 연동</span>}
                                 </div>
                                 <div className="divide-y">
-                                    {person.judgeHistory.recentCases.map((caseItem, idx) => (
-                                        <div key={idx} className="p-4">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <span className="text-sm font-medium text-indigo-600">{caseItem.year}</span>
-                                                <span className="text-xs text-gray-500">{caseItem.role}</span>
+                                    {judgeFromDB?.cases?.length > 0 ? (
+                                        judgeFromDB.cases.map((caseItem, idx) => (
+                                            <div key={idx} className="p-4">
+                                                <p className="font-medium text-gray-900 mb-1">{caseItem.text}</p>
+                                                {caseItem.source && (
+                                                    <a
+                                                        href={caseItem.source.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-xs text-blue-500 hover:text-blue-700 hover:underline mt-1 inline-block"
+                                                    >
+                                                        출처: {caseItem.source.name} →
+                                                    </a>
+                                                )}
                                             </div>
-                                            <p className="font-medium text-gray-900 mb-1">{caseItem.caseName}</p>
-                                            <p className="text-sm text-gray-600">판결: {caseItem.verdict}</p>
-                                            {caseItem.source && (
-                                                <a
-                                                    href={caseItem.source.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-xs text-blue-500 hover:text-blue-700 hover:underline mt-1 inline-block"
-                                                >
-                                                    출처: {caseItem.source.name} →
-                                                </a>
-                                            )}
-                                        </div>
-                                    ))}
+                                        ))
+                                    ) : (
+                                        person.judgeHistory.recentCases.map((caseItem, idx) => (
+                                            <div key={idx} className="p-4">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-sm font-medium text-indigo-600">{caseItem.year}</span>
+                                                    <span className="text-xs text-gray-500">{caseItem.role}</span>
+                                                </div>
+                                                <p className="font-medium text-gray-900 mb-1">{caseItem.caseName}</p>
+                                                <p className="text-sm text-gray-600">판결: {caseItem.verdict}</p>
+                                                {caseItem.source && (
+                                                    <a
+                                                        href={caseItem.source.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-xs text-blue-500 hover:text-blue-700 hover:underline mt-1 inline-block"
+                                                    >
+                                                        출처: {caseItem.source.name} →
+                                                    </a>
+                                                )}
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
                             </div>
 
@@ -2285,7 +2602,8 @@ export default function SentencingAnalysis() {
                                 </div>
                             )}
                         </div>
-                    )}
+                        );
+                    })()}
 
                     {/* 핵심 쟁점 탭 */}
                     {activeTab === 'issues' && person.keyIssues && (

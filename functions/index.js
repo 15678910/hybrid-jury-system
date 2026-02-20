@@ -1,4 +1,4 @@
-const functions = require('firebase-functions');
+const functions = require('firebase-functions/v1');
 const fetch = require('node-fetch');
 const admin = require('firebase-admin');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -9,12 +9,12 @@ admin.initializeApp();
 const db = admin.firestore();
 
 // Google AI 설정
-const GOOGLE_API_KEY = functions.config().google?.api_key || process.env.GOOGLE_API_KEY;
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const genAI = GOOGLE_API_KEY ? new GoogleGenerativeAI(GOOGLE_API_KEY) : null;
 
 // 텔레그램 봇 설정 (환경변수에서 가져옴)
-const BOT_TOKEN = functions.config().telegram?.bot_token || process.env.TELEGRAM_BOT_TOKEN;
-const GROUP_CHAT_ID = functions.config().telegram?.group_chat_id || process.env.TELEGRAM_GROUP_CHAT_ID || '-1003615735371';
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const GROUP_CHAT_ID = process.env.TELEGRAM_GROUP_CHAT_ID || '-1003615735371';
 
 // 투표 설정
 const DEFAULT_POLL_DURATION_HOURS = 24; // 기본 투표 기간 (시간)
@@ -3390,7 +3390,7 @@ const crawlCourtCases = async (judgeName) => {
     try {
         // 국가법령정보 판례 검색 API
         // API 키가 없으면 스킵
-        const courtApiKey = process.env.COURT_API_KEY || functions.config().court?.api_key;
+        const courtApiKey = process.env.COURT_API_KEY;
         if (!courtApiKey) {
             console.log('Court API key not configured, skipping court case crawl');
             console.log('Register at https://open.law.go.kr to get an API key');
@@ -3575,7 +3575,7 @@ exports.lawApi = functions.https.onRequest(async (req, res) => {
         return;
     }
 
-    const OC = functions.config().lawapi?.oc || functions.config().court?.api_key || 'test';
+    const OC = process.env.LAWAPI_OC || 'test';
     const { target, query, type, display, page, search, MST, ID, sort } = req.query;
 
     if (!target) {
@@ -3633,8 +3633,8 @@ exports.searchNaverNews = functions.https.onRequest(async (req, res) => {
     }
 
     try {
-        const clientId = functions.config().naver.client_id;
-        const clientSecret = functions.config().naver.client_secret;
+        const clientId = process.env.NAVER_CLIENT_ID;
+        const clientSecret = process.env.NAVER_CLIENT_SECRET;
 
         const response = await fetch(
             `https://openapi.naver.com/v1/search/news.json?query=${encodeURIComponent(query)}&display=5&sort=sim`,
@@ -3657,3 +3657,452 @@ exports.searchNaverNews = functions.https.onRequest(async (req, res) => {
         return res.status(500).json({ error: 'Failed to fetch news' });
     }
 });
+
+// ========== 판결 자동 수집 시스템 ==========
+
+// 판결 뉴스 키워드
+const VERDICT_KEYWORDS = [
+    '내란 선고', '내란 판결', '내란 1심', '내란 항소심',
+    '내란수괴 판결', '내란중요임무종사 판결',
+    '윤석열 판결', '김용현 판결', '한덕수 판결',
+    '내란 징역', '내란 무죄', '내란 유죄', '내란 법정구속'
+];
+
+// AI로 판결 데이터 구조화
+const extractStructuredVerdict = async (newsItems) => {
+    if (!genAI || newsItems.length === 0) return [];
+
+    try {
+        const articlesToFetch = newsItems.slice(0, 8);
+        const articleContents = [];
+
+        for (const item of articlesToFetch) {
+            const content = await fetchArticleContent(item.link);
+            if (content) {
+                articleContents.push({
+                    title: item.title.replace(/<[^>]*>/g, ''),
+                    content: content,
+                    link: item.link,
+                    pubDate: item.pubDate
+                });
+            }
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        let newsText;
+        if (articleContents.length > 0) {
+            newsText = articleContents.map(item =>
+                `제목: ${item.title}\n출처: ${item.link}\n본문: ${item.content}`
+            ).join('\n\n---\n\n');
+        } else {
+            newsText = newsItems.map(item => {
+                const title = item.title.replace(/<[^>]*>/g, '');
+                const desc = item.description?.replace(/<[^>]*>/g, '') || '';
+                return `제목: ${title}\n내용: ${desc}`;
+            }).join('\n\n');
+        }
+
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const prompt = `다음은 내란 재판 관련 최신 뉴스 기사입니다. 기사에서 새로운 판결/선고 정보를 찾아서 구조화된 JSON 배열로 추출해주세요.
+
+뉴스 기사:
+${newsText}
+
+다음 JSON 형식으로만 응답해주세요 (다른 텍스트 없이):
+[
+    {
+        "date": "YYYY.MM.DD",
+        "defendant": "피고인 이름",
+        "court": "법원명 (예: 서울중앙지법 형사합의25부)",
+        "judge": "재판장 이름 부장판사",
+        "charge": "혐의명 (예: 내란수괴, 내란중요임무종사)",
+        "sentence": "선고 형량 (예: 무기징역, 징역 30년, 무죄)",
+        "prosecution": "구형 (예: 사형, 징역 30년)",
+        "status": "convicted 또는 acquitted 또는 partial 또는 pending",
+        "detail": "핵심 판결 내용 1-2문장",
+        "source": "뉴스 URL"
+    }
+]
+
+주의사항:
+- 기사에 명시적으로 언급된 판결/선고 정보만 추출
+- 이미 알려진 과거 판결이라도 기사에 언급되면 포함
+- 판결이 없는 기사는 빈 배열 [] 반환
+- 각 피고인별로 별도 항목으로 분리
+- status는 반드시 convicted/acquitted/partial/pending 중 하나`;
+
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
+        const jsonMatch = text.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
+        }
+        return [];
+    } catch (error) {
+        console.error('Verdict extraction error:', error);
+        return [];
+    }
+};
+
+// 1. 판결 자동 수집 (스케줄 + 수동 트리거)
+exports.crawlVerdictData = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 540, memory: '1GB' })
+    .pubsub.schedule('0 6,12,18 * * *')
+    .timeZone('Asia/Seoul')
+    .onRun(async (context) => {
+        console.log('Starting scheduled verdict data crawl...');
+
+        const allNewsItems = [];
+        for (const keyword of VERDICT_KEYWORDS) {
+            try {
+                const items = await searchNews(keyword, 10);
+                allNewsItems.push(...items);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            } catch (error) {
+                console.error(`Error searching "${keyword}":`, error);
+            }
+        }
+
+        // 중복 제거 (제목 기준)
+        const seen = new Set();
+        const uniqueNews = allNewsItems.filter(item => {
+            const title = item.title.replace(/<[^>]*>/g, '').trim();
+            if (seen.has(title)) return false;
+            seen.add(title);
+            return true;
+        });
+
+        console.log(`Found ${uniqueNews.length} unique news items`);
+
+        if (uniqueNews.length === 0) {
+            console.log('No verdict news found');
+            return null;
+        }
+
+        // AI로 구조화된 판결 데이터 추출
+        const verdicts = await extractStructuredVerdict(uniqueNews);
+        console.log(`Extracted ${verdicts.length} verdicts`);
+
+        let savedCount = 0;
+        for (const verdict of verdicts) {
+            if (!verdict.defendant || !verdict.date) continue;
+
+            // 중복 체크 (같은 피고인 + 같은 날짜)
+            const existingSnap = await db.collection('insurrectionVerdicts')
+                .where('defendant', '==', verdict.defendant)
+                .where('date', '==', verdict.date)
+                .get();
+
+            if (existingSnap.empty) {
+                await db.collection('insurrectionVerdicts').add({
+                    ...verdict,
+                    autoGenerated: true,
+                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                });
+                savedCount++;
+                console.log(`Saved new verdict: ${verdict.defendant} ${verdict.date}`);
+            } else {
+                console.log(`Skipped duplicate: ${verdict.defendant} ${verdict.date}`);
+            }
+        }
+
+        // 텔레그램 알림 (새 판결이 있을 때만)
+        if (savedCount > 0) {
+            try {
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
+                const timestamp = Math.floor(now.getTime() / 1000);
+                const telegramMsg = `⚖️ <b>[판결 자동 수집] ${dateStr}</b>\n\n새로운 판결 ${savedCount}건 감지\n\n👉 https://siminbupjung-blog.web.app/trial-analysis?t=${timestamp}`;
+                await sendTelegramMessage(GROUP_CHAT_ID, telegramMsg);
+            } catch (e) {
+                console.error('Telegram notification failed:', e);
+            }
+        }
+
+        console.log(`Verdict crawl completed. Saved ${savedCount} new verdicts.`);
+        return null;
+    });
+
+// 판결 수동 크롤링 트리거
+exports.triggerVerdictCrawl = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 540, memory: '1GB' })
+    .https.onRequest(async (req, res) => {
+        res.set('Access-Control-Allow-Origin', '*');
+        if (req.method === 'OPTIONS') {
+            res.set('Access-Control-Allow-Methods', 'GET, POST');
+            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.status(204).send('');
+            return;
+        }
+
+        try {
+            const allNewsItems = [];
+            for (const keyword of VERDICT_KEYWORDS) {
+                const items = await searchNews(keyword, 10);
+                allNewsItems.push(...items);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            const seen = new Set();
+            const uniqueNews = allNewsItems.filter(item => {
+                const title = item.title.replace(/<[^>]*>/g, '').trim();
+                if (seen.has(title)) return false;
+                seen.add(title);
+                return true;
+            });
+
+            const verdicts = await extractStructuredVerdict(uniqueNews);
+
+            let savedCount = 0;
+            for (const verdict of verdicts) {
+                if (!verdict.defendant || !verdict.date) continue;
+
+                const existingSnap = await db.collection('insurrectionVerdicts')
+                    .where('defendant', '==', verdict.defendant)
+                    .where('date', '==', verdict.date)
+                    .get();
+
+                if (existingSnap.empty) {
+                    await db.collection('insurrectionVerdicts').add({
+                        ...verdict,
+                        autoGenerated: true,
+                        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                    });
+                    savedCount++;
+                }
+            }
+
+            res.json({
+                success: true,
+                totalNews: uniqueNews.length,
+                extractedVerdicts: verdicts.length,
+                savedNew: savedCount,
+                verdicts
+            });
+        } catch (error) {
+            console.error('Trigger verdict crawl error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+// 2. AI 심층 분석 (관리자 트리거)
+exports.analyzeVerdictWithAI = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 300, memory: '1GB' })
+    .https.onRequest(async (req, res) => {
+        res.set('Access-Control-Allow-Origin', '*');
+        if (req.method === 'OPTIONS') {
+            res.set('Access-Control-Allow-Methods', 'POST');
+            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.status(204).send('');
+            return;
+        }
+
+        const { defendant } = req.query;
+        if (!defendant) {
+            res.status(400).json({ error: 'defendant parameter required' });
+            return;
+        }
+
+        try {
+            // 뉴스 수집
+            const newsItems = await searchNews(`${defendant} 내란 판결 선고 양형`, 15);
+            if (newsItems.length === 0) {
+                res.status(404).json({ error: 'No news found for ' + defendant });
+                return;
+            }
+
+            // 기사 본문 수집
+            const articleContents = [];
+            for (const item of newsItems.slice(0, 5)) {
+                const content = await fetchArticleContent(item.link);
+                if (content) {
+                    articleContents.push({ title: item.title.replace(/<[^>]*>/g, ''), content });
+                }
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            const newsText = articleContents.length > 0
+                ? articleContents.map(a => `제목: ${a.title}\n본문: ${a.content}`).join('\n\n---\n\n')
+                : newsItems.map(n => `제목: ${n.title.replace(/<[^>]*>/g, '')}\n내용: ${n.description?.replace(/<[^>]*>/g, '') || ''}`).join('\n\n');
+
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+            const prompt = `"${defendant}"의 내란 재판 관련 뉴스를 분석하여 심층 양형 분석 데이터를 JSON으로 생성해주세요.
+
+뉴스 기사:
+${newsText}
+
+다음 JSON 형식으로만 응답 (다른 텍스트 없이):
+{
+    "sentencingGuidelines": [
+        {
+            "crime": "혐의명 (법 조항 포함)",
+            "standardRange": "양형기준 권고형",
+            "aggravating": ["가중요소1", "가중요소2"],
+            "mitigating": ["감경요소1"],
+            "verdict": "실제 선고 결과",
+            "analysis": "재판부 판단 요약"
+        }
+    ],
+    "keyIssues": [
+        {
+            "title": "쟁점 제목",
+            "description": "쟁점 상세 설명",
+            "opinion": {
+                "prosecution": "검찰 입장",
+                "defense": "변호인 입장",
+                "court": "법원 판단"
+            }
+        }
+    ],
+    "judgeHistory": {
+        "judgeName": "재판장 이름",
+        "position": "소속 직위",
+        "recentCases": [
+            {
+                "caseName": "사건명",
+                "year": "연도",
+                "verdict": "판결",
+                "detail": "상세"
+            }
+        ],
+        "profile": "재판장 약력"
+    }
+}
+
+기사에서 확인된 정보만 포함하세요.`;
+
+            const result = await model.generateContent(prompt);
+            const text = result.response.text();
+            const jsonMatch = text.match(/\{[\s\S]*\}/);
+
+            if (!jsonMatch) {
+                res.status(500).json({ error: 'AI analysis failed to produce JSON' });
+                return;
+            }
+
+            const analysisData = JSON.parse(jsonMatch[0]);
+
+            // sentencingData 컬렉션에 저장
+            await db.collection('sentencingData').doc(defendant).set({
+                name: defendant,
+                sentencingGuidelines: analysisData.sentencingGuidelines || [],
+                keyIssues: analysisData.keyIssues || [],
+                judgeHistory: analysisData.judgeHistory || null,
+                aiAnalyzedAt: admin.firestore.FieldValue.serverTimestamp(),
+                lastUpdated: admin.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            res.json({ success: true, defendant, analysis: analysisData });
+        } catch (error) {
+            console.error('AI analysis error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+// 3. 재판부 구성 자동 수집 (관리자 트리거)
+exports.crawlCourtComposition = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 300, memory: '1GB' })
+    .https.onRequest(async (req, res) => {
+        res.set('Access-Control-Allow-Origin', '*');
+        if (req.method === 'OPTIONS') {
+            res.set('Access-Control-Allow-Methods', 'GET, POST');
+            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.status(204).send('');
+            return;
+        }
+
+        try {
+            const keywords = ['내란 전담재판부', '내란 항소심 재판부', '내란 재판부 배정'];
+            const allNewsItems = [];
+
+            for (const keyword of keywords) {
+                const items = await searchNews(keyword, 10);
+                allNewsItems.push(...items);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            const seen = new Set();
+            const uniqueNews = allNewsItems.filter(item => {
+                const title = item.title.replace(/<[^>]*>/g, '').trim();
+                if (seen.has(title)) return false;
+                seen.add(title);
+                return true;
+            });
+
+            if (uniqueNews.length === 0) {
+                res.json({ success: true, message: 'No court composition news found', courts: [] });
+                return;
+            }
+
+            const articleContents = [];
+            for (const item of uniqueNews.slice(0, 5)) {
+                const content = await fetchArticleContent(item.link);
+                if (content) {
+                    articleContents.push({ title: item.title.replace(/<[^>]*>/g, ''), content });
+                }
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            const newsText = articleContents.length > 0
+                ? articleContents.map(a => `제목: ${a.title}\n본문: ${a.content}`).join('\n\n---\n\n')
+                : uniqueNews.map(n => `제목: ${n.title.replace(/<[^>]*>/g, '')}`).join('\n');
+
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+            const prompt = `내란 재판부 구성 관련 뉴스를 분석하여 재판부 정보를 JSON 배열로 추출해주세요.
+
+뉴스:
+${newsText}
+
+JSON 형식:
+[
+    {
+        "type": "first 또는 appeal",
+        "division": "부서명 (예: 형사합의25부)",
+        "chief": "재판장 이름",
+        "chiefClass": 숫자 (사법연수원 기수),
+        "associates": [{"name": "이름", "classYear": 기수, "role": "배석"}],
+        "feature": "특징",
+        "mainCase": "주요 사건"
+    }
+]
+
+기사에서 확인된 정보만 포함. 정보가 없으면 빈 배열 반환.`;
+
+            const result = await model.generateContent(prompt);
+            const text = result.response.text();
+            const jsonMatch = text.match(/\[[\s\S]*\]/);
+            const courts = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
+
+            // Firestore에 저장
+            for (const court of courts) {
+                const existingSnap = await db.collection('insurrectionCourts')
+                    .where('division', '==', court.division)
+                    .where('type', '==', court.type)
+                    .get();
+
+                if (existingSnap.empty) {
+                    await db.collection('insurrectionCourts').add({
+                        ...court,
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    const docId = existingSnap.docs[0].id;
+                    await db.collection('insurrectionCourts').doc(docId).update({
+                        ...court,
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+            }
+
+            res.json({ success: true, totalNews: uniqueNews.length, courts });
+        } catch (error) {
+            console.error('Court composition crawl error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });

@@ -1,8 +1,10 @@
-import { useState, Fragment } from 'react';
+import { useState, useEffect, Fragment } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import Header from '../components/Header';
 
-// 판결 데이터
-const VERDICTS = [
+// 판결 데이터 (기본 fallback)
+const DEFAULT_VERDICTS = [
     {
         date: '2026.01.06',
         defendant: '윤석열',
@@ -63,15 +65,92 @@ const VERDICTS = [
         court: '서울중앙지법 형사합의25부',
         judge: '지귀연 부장판사',
         charge: '내란 수괴 (형법 제87조)',
-        sentence: '선고 예정',
-        prosecution: '사형 구형 (2026.01.13)',
-        status: 'pending',
-        detail: '내란 우두머리 혐의 1심 선고, TV 중계 허가'
+        sentence: '무기징역',
+        prosecution: '사형 (내란특검 구형)',
+        status: 'convicted',
+        detail: '"성경을 읽는다는 이유로 촛불을 훔칠 수는 없다" — 대통령 내란죄 유죄 선고'
+    },
+    {
+        date: '2026.02.19',
+        defendant: '김용현',
+        court: '서울중앙지법 형사합의25부',
+        judge: '지귀연 부장판사',
+        charge: '내란중요임무종사 (형법 제87조)',
+        sentence: '징역 30년',
+        prosecution: '무기징역',
+        status: 'convicted',
+        detail: '비상계엄을 주도적으로 준비, 대통령의 비이성적 결심을 조장'
+    },
+    {
+        date: '2026.02.19',
+        defendant: '노상원',
+        court: '서울중앙지법 형사합의25부',
+        judge: '지귀연 부장판사',
+        charge: '내란중요임무종사 (형법 제87조)',
+        sentence: '징역 18년',
+        prosecution: '징역 30년',
+        status: 'convicted',
+        detail: '계엄 사전 모의, 포고령 초안 작성, 선관위 침입 지휘. 예비역 민간인 신분'
+    },
+    {
+        date: '2026.02.19',
+        defendant: '조지호',
+        court: '서울중앙지법 형사합의25부',
+        judge: '지귀연 부장판사',
+        charge: '내란중요임무종사 (형법 제87조)',
+        sentence: '징역 12년',
+        prosecution: '징역 20년',
+        status: 'convicted',
+        detail: '경찰청장으로서 포고령 위법성 미검토, 군의 국회 진입 조력, 의원 출입 차단'
+    },
+    {
+        date: '2026.02.19',
+        defendant: '김봉식',
+        court: '서울중앙지법 형사합의25부',
+        judge: '지귀연 부장판사',
+        charge: '내란중요임무종사 (형법 제87조)',
+        sentence: '징역 10년',
+        prosecution: '징역 15년',
+        status: 'convicted',
+        detail: '서울경찰청장으로서 국회 봉쇄 가담, 안가회동 문건 수령'
+    },
+    {
+        date: '2026.02.19',
+        defendant: '목현태',
+        court: '서울중앙지법 형사합의25부',
+        judge: '지귀연 부장판사',
+        charge: '내란중요임무종사 (형법 제87조)',
+        sentence: '징역 3년',
+        prosecution: '징역 12년',
+        status: 'convicted',
+        detail: '국회경비대장으로서 국회의원 출입 차단, 국회의장 4번 수색 지시'
+    },
+    {
+        date: '2026.02.19',
+        defendant: '김용군',
+        court: '서울중앙지법 형사합의25부',
+        judge: '지귀연 부장판사',
+        charge: '내란중요임무종사 (형법 제87조)',
+        sentence: '무죄',
+        prosecution: '징역 10년',
+        status: 'acquitted',
+        detail: '국헌문란 목적을 미필적으로라도 인식·공유했다는 증거 부족'
+    },
+    {
+        date: '2026.02.19',
+        defendant: '윤승영',
+        court: '서울중앙지법 형사합의25부',
+        judge: '지귀연 부장판사',
+        charge: '내란중요임무종사 (형법 제87조)',
+        sentence: '무죄',
+        prosecution: '징역 10년',
+        status: 'acquitted',
+        detail: '범행 계획 공모 또는 국헌문란 목적 인식·공유 증거 부족'
     }
 ];
 
-// 1심 재판부 데이터
-const FIRST_INSTANCE_COURTS = [
+// 1심 재판부 데이터 (기본 fallback)
+const DEFAULT_FIRST_COURTS = [
     {
         division: '형사합의25부',
         chief: '지귀연',
@@ -105,8 +184,8 @@ const FIRST_INSTANCE_COURTS = [
     }
 ];
 
-// 항소심 재판부 데이터
-const APPEAL_COURTS = [
+// 항소심 재판부 데이터 (기본 fallback)
+const DEFAULT_APPEAL_COURTS = [
     {
         division: '형사1부',
         members: [
@@ -167,15 +246,15 @@ const STATUS_CONFIG = {
 };
 
 // 통계 계산
-function computeStats() {
-    const convicted = VERDICTS.filter(v => v.status === 'convicted').length;
-    const acquitted = VERDICTS.filter(v => v.status === 'acquitted').length;
-    const partial = VERDICTS.filter(v => v.status === 'partial').length;
-    const pending = VERDICTS.filter(v => v.status === 'pending').length;
+function computeStats(verdictsData) {
+    const convicted = verdictsData.filter(v => v.status === 'convicted').length;
+    const acquitted = verdictsData.filter(v => v.status === 'acquitted').length;
+    const partial = verdictsData.filter(v => v.status === 'partial').length;
+    const pending = verdictsData.filter(v => v.status === 'pending').length;
 
     // 구형 대비 선고 비율 (숫자 추출 가능한 건만)
     const sentenceRatios = [];
-    VERDICTS.forEach(v => {
+    verdictsData.forEach(v => {
         const sentenceMatch = v.sentence.match(/(\d+)년/);
         const prosMatch = v.prosecution.match(/(\d+)년/);
         if (sentenceMatch && prosMatch) {
@@ -194,15 +273,15 @@ function computeStats() {
 }
 
 // 기수 분석 계산
-function computeClassAnalysis() {
+function computeClassAnalysis(firstInstanceCourts, appealCourtsData) {
     const firstInstanceClasses = [];
-    FIRST_INSTANCE_COURTS.forEach(court => {
+    firstInstanceCourts.forEach(court => {
         firstInstanceClasses.push(court.chiefClass);
         court.associates.forEach(a => firstInstanceClasses.push(a.classYear));
     });
 
     const appealClasses = [];
-    APPEAL_COURTS.forEach(court => {
+    appealCourtsData.forEach(court => {
         court.members.forEach(m => appealClasses.push(m.classYear));
     });
 
@@ -225,16 +304,63 @@ function computeClassAnalysis() {
 export default function InsurrectionTrialAnalysis() {
     const [activeTab, setActiveTab] = useState('overview');
     const [courtTab, setCourtTab] = useState('first');
+    const [verdicts, setVerdicts] = useState(DEFAULT_VERDICTS);
+    const [firstCourts, setFirstCourts] = useState(DEFAULT_FIRST_COURTS);
+    const [appealCourts, setAppealCourts] = useState(DEFAULT_APPEAL_COURTS);
+    const [loading, setLoading] = useState(true);
 
-    const stats = computeStats();
-    const classAnalysis = computeClassAnalysis();
+    // Firestore에서 최신 데이터 가져오기
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // 판결 데이터
+                const verdictsSnap = await getDocs(collection(db, 'insurrectionVerdicts'));
+                if (verdictsSnap.size > 0) {
+                    const firestoreVerdicts = [];
+                    verdictsSnap.forEach(doc => {
+                        const data = doc.data();
+                        firestoreVerdicts.push({ id: doc.id, ...data });
+                    });
+                    // date 기준 정렬
+                    firestoreVerdicts.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+                    setVerdicts(firestoreVerdicts);
+                }
+
+                // 재판부 데이터
+                const courtsSnap = await getDocs(collection(db, 'insurrectionCourts'));
+                if (courtsSnap.size > 0) {
+                    const firstInstance = [];
+                    const appeal = [];
+                    courtsSnap.forEach(doc => {
+                        const data = doc.data();
+                        if (data.type === 'appeal') {
+                            appeal.push(data);
+                        } else {
+                            firstInstance.push(data);
+                        }
+                    });
+                    if (firstInstance.length > 0) setFirstCourts(firstInstance);
+                    if (appeal.length > 0) setAppealCourts(appeal);
+                }
+            } catch (error) {
+                console.error('Failed to fetch trial data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    const stats = computeStats(verdicts);
+    const classAnalysis = computeClassAnalysis(firstCourts, appealCourts);
 
     const tabs = [
         { id: 'overview', label: '종합 현황' },
         { id: 'courts', label: '재판부 구성' },
         { id: 'timeline', label: '판결 타임라인' },
         { id: 'song', label: '송영길 판결 분석' },
-        { id: 'classAnalysis', label: '기수 분석' }
+        { id: 'classAnalysis', label: '기수 분석' },
+        { id: 'legal', label: '형법 제91조 분석' }
     ];
 
     return (
@@ -242,6 +368,14 @@ export default function InsurrectionTrialAnalysis() {
             <Header />
             <div className="bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen pt-24">
                 <div className="container mx-auto px-4 py-8 max-w-6xl">
+
+                    {/* 로딩 인디케이터 */}
+                    {loading && (
+                        <div className="text-center py-4 mb-4">
+                            <div className="inline-block w-6 h-6 border-3 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                            <p className="text-sm text-gray-500 mt-2">최신 데이터 확인 중...</p>
+                        </div>
+                    )}
 
                     {/* 헤더 영역 */}
                     <div className="text-center mb-10">
@@ -356,7 +490,7 @@ export default function InsurrectionTrialAnalysis() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {VERDICTS.map((v, idx) => {
+                                        {verdicts.map((v, idx) => {
                                             const cfg = STATUS_CONFIG[v.status];
                                             return (
                                                 <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
@@ -409,7 +543,7 @@ export default function InsurrectionTrialAnalysis() {
 
                             {courtTab === 'first' && (
                                 <div className="grid md:grid-cols-2 gap-4">
-                                    {FIRST_INSTANCE_COURTS.map((court, idx) => (
+                                    {firstCourts.map((court, idx) => (
                                         <div key={idx} className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-indigo-500">
                                             <div className="flex items-center justify-between mb-3">
                                                 <h3 className="text-lg font-bold text-gray-800">{court.division}</h3>
@@ -453,7 +587,7 @@ export default function InsurrectionTrialAnalysis() {
                                         </p>
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-4">
-                                        {APPEAL_COURTS.map((court, idx) => (
+                                        {appealCourts.map((court, idx) => (
                                             <div key={idx} className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-amber-500">
                                                 <div className="flex items-center justify-between mb-3">
                                                     <h3 className="text-lg font-bold text-gray-800">{court.division}</h3>
@@ -498,7 +632,7 @@ export default function InsurrectionTrialAnalysis() {
                                 {/* 타임라인 세로줄 */}
                                 <div className="absolute left-4 md:left-8 top-0 bottom-0 w-0.5 bg-gray-300"></div>
 
-                                {VERDICTS.map((v, idx) => {
+                                {verdicts.map((v, idx) => {
                                     const cfg = STATUS_CONFIG[v.status];
                                     return (
                                         <div key={idx} className="relative pl-12 md:pl-20 pb-6">
@@ -721,7 +855,7 @@ export default function InsurrectionTrialAnalysis() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {FIRST_INSTANCE_COURTS.map((court) => (
+                                            {firstCourts.map((court) => (
                                                 <Fragment key={court.division}>
                                                     <tr className="border-b border-gray-100 hover:bg-gray-50">
                                                         <td className="py-2 px-2 font-medium text-gray-800">{court.chief}</td>
@@ -743,7 +877,7 @@ export default function InsurrectionTrialAnalysis() {
                                                     ))}
                                                 </Fragment>
                                             ))}
-                                            {APPEAL_COURTS.map((court) => (
+                                            {appealCourts.map((court) => (
                                                 court.members.map((m, i) => (
                                                     <tr key={`appeal-${court.division}-${i}`} className="border-b border-gray-100 hover:bg-gray-50">
                                                         <td className="py-2 px-2 font-medium text-gray-800">{m.name}</td>
@@ -762,10 +896,140 @@ export default function InsurrectionTrialAnalysis() {
                         </div>
                     )}
 
+                    {/* 형법 제91조 분석 탭 */}
+                    {activeTab === 'legal' && (
+                        <div className="space-y-6">
+                            <div className="bg-white rounded-xl shadow-lg p-6">
+                                <h2 className="text-xl font-bold text-gray-800 mb-2">형법 제91조 제2호 — 국헌문란의 목적</h2>
+                                <p className="text-sm text-gray-500 mb-6">내란죄 성립의 핵심 요건 분석</p>
+
+                                {/* 조문 원문 */}
+                                <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-5 mb-6">
+                                    <h3 className="font-bold text-indigo-800 mb-3">형법 제91조 (정의)</h3>
+                                    <div className="space-y-2 text-sm text-gray-700">
+                                        <p>본 장에서 "국헌문란"이라 함은 다음 각 호의 1에 해당하는 행위를 말한다.</p>
+                                        <div className="bg-white rounded-lg p-3 ml-4">
+                                            <p className="text-gray-600">제1호: 헌법 또는 법률에 정한 절차에 의하지 아니하고 헌법 또는 법률의 기능을 소멸시키는 것</p>
+                                        </div>
+                                        <div className="bg-white rounded-lg p-3 ml-4 border-2 border-indigo-300">
+                                            <p className="font-medium text-indigo-800">제2호: 헌법에 의하여 설치된 국가기관을 강압에 의하여 전복 또는 그 권능행사를 불가능하게 하는 것</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* 대법원 판례 해석 */}
+                                <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">
+                                    <h3 className="font-bold text-amber-800 mb-3 flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                        </svg>
+                                        대법원 판례 해석
+                                    </h3>
+                                    <p className="text-sm text-gray-700 leading-relaxed">
+                                        대법원 판례에 따르면, 형법 제91조 제2호에서 명시한 <span className="font-bold text-amber-800">"헌법에 의하여 설치된 국가 기관을 강압에 의하여 전복 또는 그 권능 행사를 불가능하게 하는 것"</span>의 의미는
+                                        해당 국가 기관을 제도적으로 영구히 폐지하는 경우뿐만 아니라,
+                                        <span className="font-bold text-red-700"> 사실상 상당 기간 그 기능을 제대로 할 수 없게 만드는 것</span>까지 포함합니다.
+                                    </p>
+                                </div>
+
+                                {/* 주요 법적 쟁점 3가지 */}
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-bold text-gray-800">주요 법적 쟁점</h3>
+
+                                    {/* 쟁점 1: 대통령의 내란죄 주체 */}
+                                    <div className="border border-red-200 rounded-xl p-5 bg-red-50/30">
+                                        <div className="flex items-start gap-3 mb-3">
+                                            <span className="flex-shrink-0 w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                                            <div>
+                                                <h4 className="font-bold text-gray-800">대통령의 내란죄 주체 인정</h4>
+                                                <p className="text-sm text-gray-500 mt-1">형법 제91조 제2호 + 형법 제87조 적용</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-gray-700 leading-relaxed ml-11">
+                                            형법 제91조 제2호가 적용되는 '국헌문란 목적 내란죄'는 <span className="font-bold">대통령도 저지를 수 있습니다</span>.
+                                            대통령이 군을 동원하여 국회를 강제로 점령하거나 국회의원을 체포함으로써 상당 기간 국회 활동을 저지하고 마비시키려는 목적을 가졌다면
+                                            국헌문란 목적을 가진 폭동으로 인정되어 내란죄에 해당합니다.
+                                        </p>
+                                        <div className="mt-3 ml-11 grid md:grid-cols-3 gap-2">
+                                            <div className="bg-red-100 rounded-lg p-2">
+                                                <p className="text-xs font-medium text-red-700">검찰 입장</p>
+                                                <p className="text-xs text-gray-600 mt-1">군 동원 국회 점령 시도는 명백한 내란수괴 행위</p>
+                                            </div>
+                                            <div className="bg-blue-100 rounded-lg p-2">
+                                                <p className="text-xs font-medium text-blue-700">변호인 입장</p>
+                                                <p className="text-xs text-gray-600 mt-1">헌법상 국군통수권자의 고유 권한 행사</p>
+                                            </div>
+                                            <div className="bg-purple-100 rounded-lg p-2">
+                                                <p className="text-xs font-medium text-purple-700">법원 판단</p>
+                                                <p className="text-xs text-gray-600 mt-1">대통령도 내란죄 주체, 국헌문란 목적 군 동원은 폭동</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 쟁점 2: 비상계엄과의 관계 */}
+                                    <div className="border border-amber-200 rounded-xl p-5 bg-amber-50/30">
+                                        <div className="flex items-start gap-3 mb-3">
+                                            <span className="flex-shrink-0 w-8 h-8 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                                            <div>
+                                                <h4 className="font-bold text-gray-800">비상계엄 선포와의 관계</h4>
+                                                <p className="text-sm text-gray-500 mt-1">계엄권의 한계와 내란죄 성립 조건</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-gray-700 leading-relaxed ml-11">
+                                            원칙적으로 대통령의 비상계엄 선포 자체는 사법 심사의 대상이 되기 어렵고 내란에 해당하지 않습니다.
+                                            그러나 비상계엄을 통해서도 할 수 없는 권한의 행사, 즉
+                                            <span className="font-bold text-amber-800"> 헌법과 계엄법이 보장하는 국회의 권한이나 행정 및 사법의 본질적인 기능을 상당 기간 침해하고 마비시킬 목적</span>으로
+                                            비상계엄을 선포했다면 형법 제91조 제2호에 따른 국헌문란 목적 내란죄가 성립할 수 있습니다.
+                                        </p>
+                                        <div className="mt-3 ml-11 bg-white rounded-lg p-3 border border-amber-200">
+                                            <p className="text-xs text-gray-600">
+                                                <span className="font-bold text-amber-700">본 사건 적용:</span> 12.3 비상계엄은 국회의 계엄해제 의결권을 방해하고,
+                                                국회의원 출입을 차단하여 국회의 헌법적 기능을 마비시킬 목적으로 선포된 것으로 법원이 판단
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* 쟁점 3: 공범 성립 기준 */}
+                                    <div className="border border-green-200 rounded-xl p-5 bg-green-50/30">
+                                        <div className="flex items-start gap-3 mb-3">
+                                            <span className="flex-shrink-0 w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                                            <div>
+                                                <h4 className="font-bold text-gray-800">내란죄 공범 성립 기준</h4>
+                                                <p className="text-sm text-gray-500 mt-1">집합범의 특성과 목적 인식 요건</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-gray-700 leading-relaxed ml-11">
+                                            내란죄는 다수가 결합하는 <span className="font-bold">집합범</span>의 성격을 가집니다.
+                                            공범으로 인정되려면 단순히 비상계엄 선포 등의 폭동 행위에 관여한 사실만으로는 부족하며,
+                                            <span className="font-bold text-green-800"> 반드시 이 '국헌문란의 목적'을 미필적으로라도 인식하고 공유</span>하면서
+                                            가담한 사실이 인정되어야만 합니다.
+                                        </p>
+                                        <div className="mt-3 ml-11 bg-white rounded-lg p-3 border border-green-200">
+                                            <p className="text-xs text-gray-600">
+                                                <span className="font-bold text-green-700">본 사건 적용:</span> 이 기준에 따라 김용군(방첩사 HQ요원)과 윤승영(수사기획조정관)은
+                                                국헌문란 목적을 인식·공유했다는 증거가 부족하여 무죄 선고
+                                            </p>
+                                        </div>
+                                        <div className="mt-3 ml-11 grid md:grid-cols-2 gap-2">
+                                            <div className="bg-red-50 rounded-lg p-2 border border-red-100">
+                                                <p className="text-xs font-medium text-red-700">유죄 인정 (6명)</p>
+                                                <p className="text-xs text-gray-600 mt-1">윤석열, 김용현, 노상원, 조지호, 김봉식, 목현태 — 국헌문란 목적 인식·공유 인정</p>
+                                            </div>
+                                            <div className="bg-green-50 rounded-lg p-2 border border-green-100">
+                                                <p className="text-xs font-medium text-green-700">무죄 선고 (2명)</p>
+                                                <p className="text-xs text-gray-600 mt-1">김용군, 윤승영 — 국헌문란 목적 인식·공유 증거 부족</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* 푸터 정보 */}
                     <div className="mt-12 text-center text-sm text-gray-400">
                         <p>본 페이지는 공개된 재판 정보를 바탕으로 작성되었습니다.</p>
-                        <p className="mt-1">최종 업데이트: 2026.02.16</p>
+                        <p className="mt-1">최종 업데이트: 2026.02.20</p>
                     </div>
                 </div>
             </div>
