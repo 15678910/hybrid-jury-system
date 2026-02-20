@@ -31,6 +31,9 @@ export default function Admin() {
     // 탭 관리
     const [activeTab, setActiveTab] = useState('general');
 
+    // 재능나눔 분류 뷰
+    const [showTalentView, setShowTalentView] = useState(false);
+
     // 판결 관리
     const [verdicts, setVerdicts] = useState([]);
     const [loadingVerdicts, setLoadingVerdicts] = useState(false);
@@ -1094,7 +1097,125 @@ export default function Admin() {
 
                 {/* 서명 목록 테이블 */}
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <h2 className="text-xl font-bold text-gray-900 p-6 pb-0">📋 서명 목록</h2>
+                    <div className="flex items-center justify-between p-6 pb-0">
+                        <h2 className="text-xl font-bold text-gray-900">📋 서명 목록</h2>
+                        <button
+                            onClick={() => setShowTalentView(!showTalentView)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                showTalentView
+                                    ? 'bg-orange-500 text-white'
+                                    : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                            }`}
+                        >
+                            🎯 재능나눔 분류
+                        </button>
+                    </div>
+
+                    {showTalentView && (() => {
+                        const talentSigs = signatures.filter(s => s.talent);
+                        const grouped = {};
+                        talentSigs.forEach(sig => {
+                            const key = sig.talent;
+                            if (!grouped[key]) grouped[key] = [];
+                            grouped[key].push(sig);
+                        });
+
+                        const knownOrder = ['IT', '미디어', '마케팅', '재정', '독립연구자'];
+                        const cardColors = {
+                            'IT': 'bg-blue-50 border-blue-200 text-blue-700',
+                            '미디어': 'bg-purple-50 border-purple-200 text-purple-700',
+                            '마케팅': 'bg-green-50 border-green-200 text-green-700',
+                            '재정': 'bg-yellow-50 border-yellow-200 text-yellow-700',
+                            '독립연구자': 'bg-indigo-50 border-indigo-200 text-indigo-700'
+                        };
+                        const headerColors = {
+                            'IT': 'bg-blue-100 text-blue-800',
+                            '미디어': 'bg-purple-100 text-purple-800',
+                            '마케팅': 'bg-green-100 text-green-800',
+                            '재정': 'bg-yellow-100 text-yellow-800',
+                            '독립연구자': 'bg-indigo-100 text-indigo-800'
+                        };
+                        const extraColors = [
+                            { card: 'bg-orange-50 border-orange-200 text-orange-700', header: 'bg-orange-100 text-orange-800' },
+                            { card: 'bg-rose-50 border-rose-200 text-rose-700', header: 'bg-rose-100 text-rose-800' },
+                            { card: 'bg-teal-50 border-teal-200 text-teal-700', header: 'bg-teal-100 text-teal-800' },
+                            { card: 'bg-cyan-50 border-cyan-200 text-cyan-700', header: 'bg-cyan-100 text-cyan-800' },
+                            { card: 'bg-pink-50 border-pink-200 text-pink-700', header: 'bg-pink-100 text-pink-800' }
+                        ];
+
+                        const customKeys = Object.keys(grouped).filter(k => !knownOrder.includes(k)).sort();
+                        const allKeys = [...knownOrder, ...customKeys];
+                        let extraIdx = 0;
+
+                        return (
+                            <div className="p-6 pt-4">
+                                {/* 카테고리별 통계 요약 */}
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
+                                    {allKeys.map(key => {
+                                        const count = (grouped[key] || []).length;
+                                        const color = cardColors[key] || extraColors[extraIdx++ % extraColors.length].card;
+                                        return (
+                                            <div key={key} className={`border rounded-lg p-3 text-center ${color}`}>
+                                                <div className="text-2xl font-bold">{count}</div>
+                                                <div className="text-sm font-medium">{key}</div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* 카테고리별 상세 목록 */}
+                                <div className="space-y-4">
+                                    {(() => {
+                                        extraIdx = 0;
+                                        const groups = allKeys
+                                            .filter(key => (grouped[key] || []).length > 0)
+                                            .map(key => ({
+                                                name: key,
+                                                members: grouped[key],
+                                                color: headerColors[key] || extraColors[extraIdx++ % extraColors.length].header
+                                            }));
+
+                                        if (groups.length === 0) {
+                                            return (
+                                                <div className="text-center py-8 text-gray-500">
+                                                    재능나눔을 등록한 참여자가 없습니다.
+                                                </div>
+                                            );
+                                        }
+
+                                        return groups.map(group => (
+                                            <div key={group.name} className="border border-gray-200 rounded-lg overflow-hidden">
+                                                <div className={`px-4 py-3 font-bold flex items-center justify-between ${group.color}`}>
+                                                    <span>{group.name}</span>
+                                                    <span className="text-sm font-medium">{group.members.length}명</span>
+                                                </div>
+                                                <div className="divide-y divide-gray-100">
+                                                    {group.members.map(sig => (
+                                                        <div key={sig.id} className="px-4 py-3 flex items-center justify-between hover:bg-gray-50">
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="font-medium text-gray-900">{sig.name}</span>
+                                                                <span className="text-sm text-gray-500">{sig.phone}</span>
+                                                            </div>
+                                                            <div className="text-sm text-gray-400">
+                                                                {sig.timestamp?.toDate ? sig.timestamp.toDate().toLocaleDateString('ko-KR') : (sig.timestamp ? new Date(sig.timestamp).toLocaleDateString('ko-KR') : '-')}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ));
+                                    })()}
+                                </div>
+
+                                {/* 재능나눔 미등록자 수 */}
+                                <div className="mt-4 text-sm text-gray-500 text-center">
+                                    전체 {signatures.length}명 중 재능나눔 등록: {talentSigs.length}명 / 미등록: {signatures.filter(s => !s.talent).length}명
+                                </div>
+                            </div>
+                        );
+                    })()}
+
+                    {!showTalentView && (
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead className="bg-gray-100">
@@ -1162,6 +1283,7 @@ export default function Admin() {
                             </tbody>
                         </table>
                     </div>
+                    )}
                 </div>
             </>
             )}

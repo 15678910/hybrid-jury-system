@@ -51,6 +51,8 @@ export default function App() {
     const [stats, setStats] = useState({ individual: 0, organization: 0, total: 0, telegram: 0, kakao: 0 });
     const [showNotification, setShowNotification] = useState(false);
     const [latestSignature, setLatestSignature] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successData, setSuccessData] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [showAdminLogin, setShowAdminLogin] = useState(false);
     const [adminPassword, setAdminPassword] = useState('');
@@ -745,17 +747,6 @@ export default function App() {
             setShowNotification(true);
             setTimeout(() => setShowNotification(false), 5000);
 
-            // SNS 자동 가입 처리
-            if (formData.sns.length > 0) {
-                formData.sns.forEach(platform => {
-                    if (platform === 'telegram') {
-                        window.open('https://t.me/judicialreform', '_blank');
-                    } else if (platform === 'kakao') {
-                        window.open('https://open.kakao.com/o/g1wj6P3h', '_blank');
-                    }
-                });
-            }
-
             // 폼 초기화
             setFormData({
                 name: '',
@@ -786,17 +777,14 @@ export default function App() {
             const newTotal = stats.total + 1;
             const remaining = 10000 - newTotal;
 
-            // 감사 메시지 (목표까지 남은 인원 표시)
-            const thankYouMessage = remaining > 0
-                ? `🎉 ${formData.name}님, 서명 감사합니다!\n\n` +
-                  `현재 ${newTotal.toLocaleString()}명이 참여했습니다.\n` +
-                  `1만 명 목표까지 ${remaining.toLocaleString()}명 남았습니다!\n\n` +
-                  `📢 SNS에 공유하여 더 많은 분들의 참여를 이끌어주세요!`
-                : `🎉 ${formData.name}님, 서명 감사합니다!\n\n` +
-                  `🎊 드디어 1만 명 목표를 달성했습니다!\n` +
-                  `함께해주신 모든 분들께 진심으로 감사드립니다!`;
-
-            alert(thankYouMessage);
+            // 성공 모달 표시 (window.open + alert 대신)
+            setSuccessData({
+                name: savedSignature.name,
+                total: newTotal,
+                remaining: remaining,
+                selectedSns: savedSignature.sns
+            });
+            setShowSuccessModal(true);
         } catch (error) {
             console.error('Error saving signature:', error);
             alert('서명 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
@@ -1177,6 +1165,83 @@ export default function App() {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* 등록 완료 성공 모달 */}
+            {showSuccessModal && successData && (
+                <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+                        {/* 상단 축하 영역 */}
+                        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 text-center">
+                            <div className="text-5xl mb-3">🎉</div>
+                            <h2 className="text-2xl font-bold mb-2">{successData.name}님, 감사합니다!</h2>
+                            <p className="text-blue-100">
+                                시민법관 참심제 도입에 함께해 주셨습니다
+                            </p>
+                        </div>
+
+                        {/* 참여 현황 */}
+                        <div className="p-6">
+                            <div className="bg-blue-50 rounded-lg p-4 mb-6 text-center">
+                                <div className="text-3xl font-bold text-blue-600 mb-1">
+                                    {successData.total.toLocaleString()}명
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                    {successData.remaining > 0
+                                        ? `1만 명 목표까지 ${successData.remaining.toLocaleString()}명 남았습니다`
+                                        : '🎊 1만 명 목표를 달성했습니다!'
+                                    }
+                                </div>
+                            </div>
+
+                            {/* SNS 커뮤니티 참여 안내 */}
+                            <div className="mb-6">
+                                <h3 className="text-lg font-bold text-gray-800 mb-3 text-center">
+                                    함께 소통해요!
+                                </h3>
+                                <div className="space-y-3">
+                                    <a
+                                        href="https://t.me/judicialreform"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-3 w-full p-4 bg-[#0088cc] hover:bg-[#0077b5] text-white rounded-xl transition-colors"
+                                    >
+                                        <svg className="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                                        </svg>
+                                        <div>
+                                            <div className="font-bold">텔레그램 그룹 참여</div>
+                                            <div className="text-sm text-blue-100">사법개혁 소식을 실시간으로 받아보세요</div>
+                                        </div>
+                                    </a>
+
+                                    <a
+                                        href="https://open.kakao.com/o/g1wj6P3h"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-3 w-full p-4 bg-[#FEE500] hover:bg-[#F5DC00] text-[#3C1E1E] rounded-xl transition-colors"
+                                    >
+                                        <svg className="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 3c-5.08 0-9.2 3.34-9.2 7.46 0 2.64 1.73 4.96 4.35 6.32-.13.47-.84 3.07-.87 3.27 0 0-.02.08.04.12.06.03.13.01.13.01.17-.02 3.03-2 3.98-2.65.5.07 1.01.11 1.54.11 5.08 0 9.2-3.34 9.2-7.46S17.08 3 12 3z"/>
+                                        </svg>
+                                        <div>
+                                            <div className="font-bold">카카오톡 오픈채팅 참여</div>
+                                            <div className="text-sm text-[#5C3D1E]">시민법관 참심제 논의에 함께하세요</div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+
+                            {/* 닫기 버튼 */}
+                            <button
+                                onClick={() => setShowSuccessModal(false)}
+                                className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-colors"
+                            >
+                                닫기
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
