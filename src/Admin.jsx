@@ -521,6 +521,30 @@ export default function Admin() {
         }
     };
 
+    // AI 양형 예측 실행
+    const triggerAiPrediction = async (defendant) => {
+        if (!defendant) {
+            defendant = prompt('양형 예측할 피고인 이름을 입력하세요:');
+            if (!defendant) return;
+        }
+        setAiAnalysisStatus({ loading: true, result: null });
+        try {
+            const response = await fetch(
+                `https://asia-northeast3-siminbupjung-blog.cloudfunctions.net/predictSentencingWithAI?defendant=${encodeURIComponent(defendant)}`
+            );
+            const data = await response.json();
+            setAiAnalysisStatus({ loading: false, result: data });
+            if (data.success) {
+                alert(`AI 양형 예측 완료: ${defendant}\n예측: ${data.prediction?.predictedSentence?.mostLikely || '결과 확인 필요'}`);
+            } else {
+                alert('AI 양형 예측 실패: ' + (data.error || '알 수 없는 오류'));
+            }
+        } catch (error) {
+            setAiAnalysisStatus({ loading: false, result: { error: error.message } });
+            alert('AI 양형 예측 실패: ' + error.message);
+        }
+    };
+
     // 재판부 구성 업데이트
     const triggerCourtUpdate = async () => {
         setCourtStatus({ loading: true, result: null });
@@ -1296,7 +1320,7 @@ export default function Admin() {
                     <p className="text-sm text-gray-600 mb-6">
                         뉴스에서 판결 데이터를 자동 수집하고, AI로 분석합니다.
                     </p>
-                    <div className="grid md:grid-cols-3 gap-4">
+                    <div className="grid md:grid-cols-4 gap-4">
                         <button
                             onClick={triggerCrawl}
                             disabled={crawlStatus.loading}
@@ -1314,6 +1338,15 @@ export default function Admin() {
                             <span className="text-3xl mb-2">{aiAnalysisStatus.loading ? '⏳' : '🧠'}</span>
                             <span className="font-bold text-purple-800">AI 심층 분석</span>
                             <span className="text-xs text-purple-600 mt-1">양형/쟁점/판사이력 생성</span>
+                        </button>
+                        <button
+                            onClick={() => triggerAiPrediction()}
+                            disabled={aiAnalysisStatus.loading}
+                            className="flex flex-col items-center p-4 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl hover:from-indigo-100 hover:to-indigo-200 transition border border-indigo-200 disabled:opacity-50"
+                        >
+                            <span className="text-3xl mb-2">{aiAnalysisStatus.loading ? '⏳' : '🔮'}</span>
+                            <span className="font-bold text-indigo-800">AI 양형 예측</span>
+                            <span className="text-xs text-indigo-600 mt-1">사례 기반 양형 예측</span>
                         </button>
                         <button
                             onClick={triggerCourtUpdate}
@@ -1482,9 +1515,18 @@ export default function Admin() {
                                                 <button
                                                     onClick={() => triggerAiAnalysis(v.defendant)}
                                                     className="px-2 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 text-xs mr-1"
+                                                    disabled={aiAnalysisStatus.loading}
                                                     title="AI 분석"
                                                 >
                                                     🧠
+                                                </button>
+                                                <button
+                                                    onClick={() => triggerAiPrediction(v.defendant)}
+                                                    className="px-2 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 text-xs mr-1"
+                                                    disabled={aiAnalysisStatus.loading}
+                                                    title="AI 양형 예측"
+                                                >
+                                                    🔮
                                                 </button>
                                                 <button
                                                     onClick={() => deleteVerdict(v.id)}

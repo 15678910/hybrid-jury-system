@@ -256,6 +256,34 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // 양형 분석 데이터: 읽기 허용 (프론트엔드에서 Firestore SDK로 직접 조회)
+    match /sentencingData/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // 판사 관련 데이터: 읽기 허용
+    match /judgeData/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /judgeYouTubeData/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /judgeCourtCases/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // 내란 재판 판결 데이터: 읽기 허용
+    match /insurrectionVerdicts/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // 기타 모든 컬렉션: 접근 불가
     match /{document=**} {
       allow read, write: if false;

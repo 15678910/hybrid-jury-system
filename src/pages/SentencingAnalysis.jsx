@@ -11,6 +11,7 @@ const PERSON_PHOTOS = {
     '곽종근': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Kwak_Jong-geun_in_November_2025.png/200px-Kwak_Jong-geun_in_November_2025.png',
     '김건희': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Kim_Keon-hee_2024.jpg/200px-Kim_Keon-hee_2024.jpg',
     '김봉식': '/김봉식.png',
+    '김용군': '/김용군.png',
     '김용현': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Kim_Yong-hyun_%28_%EA%B9%80%EC%9A%A9%ED%98%84_%29_%282024%29_%28cropped%29.jpg/200px-Kim_Yong-hyun_%28_%EA%B9%80%EC%9A%A9%ED%98%84_%29_%282024%29_%28cropped%29.jpg',
     '김주현': '/김주현.png',
     '김태효': '/김태효.png',
@@ -60,11 +61,11 @@ const personsData = {
             ratio: '-'
         },
         keyFacts: [
-            '특수전사령부 병력 국회 출동 지휘',
+            '김용현→박안수→곽종근 명령 체계: 계엄사령관 지시로 특전사 병력 국회 투입',
+            '롯데리아 회동 참석: 노상원·문상호 등과 계엄 사전 모의',
+            '특수전사령부(특전사) 병력 국회 출동 지휘 — 국회 진입 첫 번째 병력',
+            '"한동훈 잡아오라" 발언: 체포명단 실행 의도 드러남',
             '2025.1.3 구속기소 → 2025.4.4 건강 악화로 보석 허가',
-            '2025.12.24 군사법원에서 서울중앙지법으로 이관',
-            '12.3 비상계엄 당시 국회 진입 병력 지휘',
-            '"한동훈 잡아오라" 발언으로 논란',
             '국방부 해임 징계 처분 (2025.12.29)',
             '재판 군사법원→서울중앙지법 이송 (2026.1)'
         ],
@@ -364,7 +365,14 @@ const personsData = {
         keyFacts: [
             '비상계엄 선포 핵심 관여자, 군 병력 국회 투입 지휘',
             '내란특검 무기징역 구형 (2026.1.13)',
-            '2026.2.19 1심 선고: 징역 30년 (내란중요임무종사 유죄)'
+            '2026.2.19 1심 선고: 징역 30년 (내란중요임무종사 유죄)',
+            '노상원과 22회 이상 국방부장관 공관 회동, 계엄 사전 모의',
+            '롯데리아 회동 3회: 노상원·곽종근·문상호 등과 계엄 구체 계획 논의',
+            '체포명단 14명 작성 지시 (우원식, 이재명, 한동훈 + 야당의원·시민단체 등)',
+            '군 동원 명령 체계: 김용현→박안수→곽종근(특전사)/이진우(수방사)',
+            '윤석열에게 직접 보고, 12.1 최종 결의 (대통령-김용현 양자 회동)',
+            '12.3 삼청동 안가에서 경찰 수뇌부(조지호·김봉식) 소집, 최종 작전 지시',
+            '선관위 침투 계획: 김용현→노상원→문상호 라인으로 정보사 병력 투입 지시'
         ],
         verdictDate: '2026년 2월 19일',
         trialStatus: '1심 선고: 징역 30년 (2026.2.19)',
@@ -372,7 +380,7 @@ const personsData = {
             {
                 crime: '내란중요임무종사 (형법 제87조)',
                 standardRange: '5년~무기징역',
-                aggravating: ['비상계엄을 주도적으로 준비', '부정선거 수사 등 독단적 계획 수립', '대통령의 비이성적 결심 조장'],
+                aggravating: ['비상계엄을 주도적으로 준비', '부정선거 수사 등 독단적 계획 수립', '대통령의 비이성적 결심 조장', '노상원과 22회 이상 공관 회동으로 계엄 사전 모의', '체포명단 14명 작성 지시 (국회의장·야당 대표 포함)', '군·경찰 양면 동원 총괄 (육군·특전사·수방사·방첩사·경찰)'],
                 mitigating: ['내란수괴가 아닌 종사자 지위'],
                 verdict: '징역 30년',
                 analysis: '비상계엄을 주도적으로 준비하고 부정선거 수사 등 독단적 계획 수립. 대통령의 비이성적 결심을 조장한 측면이 크다고 판단'
@@ -399,6 +407,24 @@ const personsData = {
                     prosecution: '내란의 핵심 기획자로서 무기징역이 상당',
                     defense: '대통령의 지시에 따른 것이며 주도적 기획자가 아님',
                     court: '비상계엄을 주도적으로 준비, 대통령의 비이성적 결심을 조장'
+                }
+            },
+            {
+                title: '안가회동과 사전음모 체계',
+                description: '노상원과 22회 이상 국방부장관 공관 회동, 롯데리아 회동 3회를 통해 계엄을 체계적으로 사전 모의. 체포명단 14명 작성 지시, 포고령 초안 작성 지시 등 핵심 기획자 역할',
+                opinion: {
+                    prosecution: '장기간 체계적 사전 모의의 총괄자, 내란의 실질적 기획자',
+                    defense: '대통령의 국정운영 보좌 차원의 논의였으며 구체적 내란 모의가 아님',
+                    court: '비상계엄을 주도적으로 준비하고 대통령의 비이성적 결심을 조장한 핵심 인물로 판단'
+                }
+            },
+            {
+                title: '군·경찰 양면 동원 총괄',
+                description: '군 명령 체계(박안수→곽종근·이진우)와 경찰 수뇌부(조지호·김봉식)를 동시에 장악하여 내란 실행을 총괄. 12.3 삼청동 안가에서 경찰 수뇌부 최종 작전 지시',
+                opinion: {
+                    prosecution: '군과 경찰을 동시 동원한 유일한 인물로 사실상 내란의 총괄 실행자',
+                    defense: '국방부 장관으로서 계엄 관련 정상 업무 수행',
+                    court: '징역 30년 (무기징역에서 감경) — 내란수괴 다음으로 가장 중한 형량'
                 }
             }
         ]
@@ -445,8 +471,10 @@ const personsData = {
             ratio: '-'
         },
         keyFacts: [
-            '선관위에 정보사 병력 10명 투입 지휘, 서버실 침입',
-            '계엄 2일 전 "롯데리아 회동"에서 사전 모의',
+            '선관위에 정보사 병력 10명 투입 지휘, 서버실 침입·선거 데이터 탈취 시도',
+            '김용현→노상원→문상호 라인: 선관위 침투 핵심 실행자',
+            '롯데리아 회동 참석: 노상원·곽종근 등과 계엄 사전 모의',
+            '국군정보사 사령관으로서 부정선거 의혹 수사 명분으로 선관위 침입 계획 수립',
             '2024.12.20 구속, 2025.12.31 군사기밀 누설 추가 구속',
             '2026.1.2 국방부 파면 처분',
             '재판 서울중앙지법 이송 예정'
@@ -486,7 +514,9 @@ const personsData = {
             ratio: '-'
         },
         keyFacts: [
-            '12.3 비상계엄 계엄사령관 임명, 포고령 제1호 서명',
+            '12.3 비상계엄 계엄사령관 임명, 포고령 제1호 서명 — 형식적 계엄사령관 역할',
+            '김용현→박안수→곽종근(특전사)/이진우(수방사) 군 동원 명령 체계의 중간 지휘자',
+            '계엄사령관으로서 위헌적 포고령 제1호 발령 (정당·국회활동 금지 등)',
             '2024.12.17 구속 → 2025.6.25 보석 허가',
             '전역 후 대전지방법원 논산지원에서 단독 재판 진행'
         ],
@@ -516,8 +546,11 @@ const personsData = {
             ratio: '-'
         },
         keyFacts: [
-            '비상계엄 당시 법무부 장관',
-            '내란중요임무종사 혐의 기소'
+            '비상계엄 당시 법무부 장관, 내란중요임무종사 혐의 기소 (2025.12.11)',
+            '12.4 안가회동(삼청동 안전가옥) 참석 — 계엄 사후 수습 논의',
+            '구치소 수용 확보: 체포 대상자 수용을 위한 구치소 수용 확보 지시 의혹',
+            '법무부 장관으로서 계엄 관련 법적 절차 지원 역할',
+            '불구속 기소 후 1심 재판 진행 중'
         ],
         trialStatus: '1심 재판 진행 중'
     },
@@ -601,9 +634,12 @@ const personsData = {
             ratio: '-'
         },
         keyFacts: [
-            '방첩사 계엄 문건 작성 주도 의혹',
-            '국회·중앙선관위 병력 투입 지휘',
+            '김용현→여인형 라인: 국방부 장관 직속으로 방첩사 병력 동원 총괄',
+            '방첩사(국군기무사 후신) 계엄 문건 작성 주도 — 계엄 실행의 정보·작전 핵심',
+            '국회·중앙선관위에 방첩사 병력 투입 지휘, 체포조 편성',
+            '주요 인사 체포명단(14명) 실행을 위한 체포조 운영 지휘',
             '국방부 파면 징계 (2025.12.29)',
+            '일반이적 혐의 추가 기소 (2025.11.10)',
             '재판 군사법원→서울중앙지법 이송 (2026.1)'
         ],
         trialStatus: '1심 재판 진행 중 (서울중앙지법 이송)'
@@ -701,57 +737,48 @@ const personsData = {
         },
         keyIssues: [
             {
-                title: '현직 대통령의 내란죄 수사 가능 여부',
-                description: '헌법 제84조 불소추 특권이 수사 자체를 금지하는 것은 아님. 대통령 직무의 원활한 수행 보장 취지일 뿐, 증거 확보를 위한 수사는 허용',
+                title: '대통령의 내란죄 주체 여부',
+                description: '현직 대통령이 내란죄의 주체가 될 수 있는지가 헌정사상 최초의 쟁점. 재판부는 영국 찰스 1세 사건을 언급하며 "왕이라도 의회를 공격하면 반역죄 성립"이라고 판시',
                 opinion: {
-                    prosecution: '내란죄는 불소추 특권의 예외이며, 수사와 기소 모두 가능',
-                    defense: '현직 대통령에 대한 수사는 직무 수행을 방해하므로 위헌',
-                    court: '불소추 특권은 기소를 유예할 뿐, 수사 자체를 금지하지 않음'
+                    prosecution: '대통령도 헌법의 구속을 받으며, 국헌문란 목적의 비상계엄은 내란에 해당',
+                    defense: '비상계엄 선포는 대통령의 고유 권한이며, 정치적 판단 영역으로 사법심사 대상 아님',
+                    court: '비상계엄 선포 자체는 내란죄에 해당할 수 없으나, 헌법기관의 기능을 상당 기간 저지·마비시키려는 목적이면 국헌문란 목적 내란죄 성립 가능'
                 }
             },
             {
-                title: '비상계엄 선포와 내란죄의 관계 (형법 제91조 제2호)',
-                description: '원칙적으로 대통령의 비상계엄 선포 자체는 사법 심사의 대상이 되기 어렵고 내란에 해당하지 않음. 그러나 비상계엄을 통해서도 할 수 없는 권한의 행사, 즉 헌법과 계엄법이 보장하는 국회의 권한이나 행정 및 사법의 본질적인 기능을 상당 기간 침해하고 마비시킬 목적으로 비상계엄을 선포했다면 형법 제91조 제2호에 따른 국헌문란 목적 내란죄가 성립',
+                title: '사형 → 무기징역 감경 이유',
+                description: '특검 사형 구형에 대해 재판부가 무기징역으로 감경한 양형 판단',
                 opinion: {
-                    prosecution: '국회 기능 마비를 목적으로 한 계엄은 형법 제91조 제2호의 국헌문란에 해당하며 그 자체가 내란',
-                    defense: '대통령의 비상계엄권은 헌법이 부여한 고유 권한이며, 사법 심사 대상이 아니므로 내란이 될 수 없음',
-                    court: '헌법과 계엄법이 보장하는 국회 권한을 침해·마비시킬 목적의 계엄은 헌법적 권한의 범위를 벗어나 내란죄 성립'
+                    prosecution: '민주주의 근간을 흔든 중대 범죄, 산정 불가능한 사회적 피해, 반성 부재로 사형 상당',
+                    defense: '실탄 미사용, 인명 피해 없음, 수시간 내 해제, 초범, 65세 고령',
+                    court: '아주 치밀한 계획이 아니었고, 물리력 행사를 자제시키려 했으며, 실탄 소지·직접 폭력 행사 예 거의 없고, 범죄 전력 없음, 장기간 공무원 봉직, 65세 고령 고려하여 무기징역'
                 }
             },
             {
-                title: '형법 제91조 제2호 — 국헌문란 목적의 법적 정의',
-                description: '형법 제91조 제2호는 국헌문란의 목적을 "헌법에 의하여 설치된 국가 기관을 강압에 의하여 전복 또는 그 권능 행사를 불가능하게 하는 것"으로 정의. 대법원 판례에 따르면, 해당 국가 기관을 제도적으로 영구히 폐지하는 경우뿐만 아니라, 사실상 상당 기간 그 기능을 제대로 할 수 없게 만드는 것까지 포함. 군을 국회로 보내 계엄해제 의결을 방해한 것이 핵심',
+                title: '"폭동" 성립의 법리적 판단',
+                description: '재판부는 "이 사건의 핵심은 군을 국회로 보낸 것"이라 강조. 무장 군의 국회 침입, 헬기 동원, 담장 넘기, 의원 출입 차단, 체포조 출동 등 "대부분이 모두 폭동에 해당"',
                 opinion: {
-                    prosecution: '군 투입으로 국회의 계엄해제 의결권을 상당 기간 방해한 것은 형법 제91조 제2호의 국헌문란에 해당',
-                    defense: '국회가 수시간 내 계엄해제를 의결하였으므로 "상당 기간" 기능 마비에 이르지 않음',
-                    court: '제도적 폐지뿐 아니라 사실상 상당 기간 기능을 제대로 할 수 없게 만드는 것도 국헌문란에 해당'
+                    prosecution: '무장한 군의 국회 강제 침입은 명백한 폭동 행위',
+                    defense: '실탄 미사용, 발포 없음, 실질적 폭력 부재로 폭동 미해당',
+                    court: '단순 물리적 폭력만이 폭동이 아니며, 무력의 과시와 위압적 실력 행사 자체가 폭동. 내란죄는 위험범으로 실제 피해 여부와 무관하게 성립'
                 }
             },
             {
-                title: '재판 출석 거부와 양형',
-                description: '윤석열은 특별한 사유 없이 재판 출석을 거부하였으며, 사과나 반성의 기미가 부족. 이는 양형에서 불리한 정황으로 고려됨',
+                title: '계엄 모의 시점 쟁점',
+                description: '특검은 2023년부터 계엄 모의 시작 주장, 재판부는 2024.12.1(계엄 2일 전) 결심으로 판단. 노상원 수첩 증거능력 배척',
                 opinion: {
-                    prosecution: '재판 출석 거부는 사법부 경시이며 중형 사유',
-                    defense: '헌법상 묵비권과 방어권의 행사',
-                    court: '출석 거부와 반성 부재는 양형에서 불리하게 고려'
+                    prosecution: '노상원 수첩(70페이지 수기 메모), 사전 회동 기록 등 2023년부터 장기 모의 증거 다수',
+                    defense: '부정선거 수사 준비일 뿐 계엄 모의 아님, 수첩은 개인적 메모에 불과',
+                    court: '수첩의 외관·형식·내용이 조잡하고 보관 방법 고려 시 중요사항 담았다고 보기 어려움. 계엄은 이틀 전 결심으로 판단'
                 }
             },
             {
-                title: '대통령의 내란죄 주체 인정 (형법 제87조, 제91조)',
-                description: '형법 제91조 제2호가 적용되는 국헌문란 목적 내란죄는 대통령도 저지를 수 있음. 대통령이 군을 동원하여 국회를 강제로 점령하거나 국회의원을 체포함으로써 상당 기간 국회 활동을 저지하고 마비시키려는 목적을 가졌다면 국헌문란 목적을 가진 폭동으로 인정되어 내란죄에 해당',
+                title: '내란 공범의 범위 — 국헌문란 목적 인식 기준',
+                description: '재판부는 내란죄 공범 성립 요건으로 "국헌문란 목적의 미필적 인식·공유" 필요. 이 기준에 따라 김용군·윤승영 무죄, 목현태는 미필적 고의로 유죄',
                 opinion: {
-                    prosecution: '대통령이 군을 동원하여 국회를 점령하고 의원 체포를 시도한 것은 명백한 내란수괴 행위',
-                    defense: '대통령은 헌법상 국군통수권자이며, 계엄 선포는 헌법이 부여한 고유 권한으로 내란 주체가 될 수 없음',
-                    court: '대통령도 내란죄의 주체가 되며, 국헌문란 목적의 군 동원은 헌법적 권한 범위를 벗어난 폭동'
-                }
-            },
-            {
-                title: '내란죄 공범 성립 기준 (집합범의 특성)',
-                description: '내란죄는 다수가 결합하는 집합범의 성격을 가짐. 공범으로 인정되려면 단순히 비상계엄 선포 등의 폭동 행위에 관여한 사실만으로는 부족하며, 반드시 "국헌문란의 목적"을 미필적으로라도 인식하고 공유하면서 가담한 사실이 인정되어야 함. 이 기준에 따라 김용군·윤승영은 국헌문란 목적 인식 부족으로 무죄 선고',
-                opinion: {
-                    prosecution: '모든 피고인이 국헌문란 목적을 인식하고 가담하였음',
-                    defense: '상급자의 지시에 따랐을 뿐 국헌문란 목적을 인식하거나 공유하지 않았음',
-                    court: '국헌문란 목적의 미필적 인식·공유가 입증된 경우에만 내란죄 공범 성립. 김용군·윤승영은 목적 인식 증거 부족으로 무죄'
+                    prosecution: '계엄 상황에서 군·경찰 동원에 가담한 이상 국헌문란 목적 인식 인정되어야',
+                    defense: '비상계엄 매뉴얼에 따른 정상 업무로 인식했으며 국헌문란 목적 공유하지 않음',
+                    court: '단순 참여만으로 부족, 국헌문란 목적에 대한 명확한 인식·공유 필요. 사후에 상황 인지하고도 계속 참여하면 미필적 고의 인정 가능'
                 }
             }
         ]
@@ -961,7 +988,10 @@ const personsData = {
             ratio: '-'
         },
         keyFacts: [
-            '비상계엄 당시 수방사 병력 국회 투입',
+            '수도방위사령관으로서 수방사 병력 약 3,300명 동원 — 국회 투입 핵심 병력',
+            '김용현→박안수→이진우 명령 체계: 계엄사령관 지시로 수방사 병력 국회 투입',
+            '수방사 병력이 국회 진입·봉쇄의 주력 부대로 활동',
+            '윤석열 대통령이 직접 전화하여 병력 투입 독촉한 것으로 알려짐',
             '국방부 파면 징계 (2025.12.29)',
             '재판 군사법원→서울중앙지법 이송 (2026.1)'
         ],
@@ -1181,25 +1211,76 @@ const personsData = {
         charges: [
             {
                 id: 1,
-                name: '직권남용',
+                name: '직권남용권리행사방해',
                 law: '형법 제123조',
-                description: '2025.12.11 기소. 헌법재판관 지명 관련',
+                description: '2025.12.11 기소. 헌법재판관 졸속 지명 관련',
                 prosecutionRequest: '조사 중',
                 verdict: '재판 진행 중',
+                reason: '-'
+            },
+            {
+                id: 2,
+                name: '내란 방조 (수사 중)',
+                law: '형법 제87조, 제32조',
+                description: '내란특검 수사 진행 중. 안가회동 참석, 계엄선포문 사후작성 관여',
+                prosecutionRequest: '수사 중',
+                verdict: '수사 중',
                 reason: '-'
             }
         ],
         summary: {
-            prosecutionTotal: '재판 진행 중',
+            prosecutionTotal: '직권남용 재판 진행 중 + 내란 방조 수사 중',
             verdictTotal: '재판 진행 중',
             ratio: '-'
         },
         keyFacts: [
-            '검사 출신 윤석열 핵심 법률 참모',
-            '12.4 안가회동(삼청동 안전가옥) 참석',
-            '직권남용 혐의 불구속 기소'
+            '검사 출신 윤석열 핵심 법률 참모, 대통령실 민정수석',
+            '12.4 안가회동(삼청동 안전가옥) 참석 — 계엄 사후 수습 논의',
+            '비상계엄 선포문 사후 작성 관여: 계엄 선포 후 법적 형식을 갖추기 위해 선포문 작성',
+            '헌법재판관 졸속 지명: 계엄 직전 헌법재판관 3인을 졸속으로 지명, 탄핵심판 영향력 확보 시도',
+            '직권남용권리행사방해 혐의 불구속 기소 (2025.12.11)',
+            '내란특검, 안가회동 참석·계엄선포문 관여를 근거로 내란 방조 수사 중'
         ],
-        trialStatus: '1심 재판 진행 중'
+        trialStatus: '1심 재판 진행 중 (직권남용) + 내란 방조 수사 중',
+        sentencingGuidelines: [
+            {
+                crime: '직권남용권리행사방해 (형법 제123조)',
+                standardRange: '5년 이하 징역',
+                aggravating: ['대통령 측근으로서 헌법재판관 지명 과정 관여', '계엄 직전 시점에 졸속 지명으로 사법부 독립 훼손 시도'],
+                mitigating: ['대통령 지시에 따른 업무 수행', '직접적 내란 실행 행위 아님'],
+                verdict: '재판 진행 중',
+                analysis: '민정수석으로서 헌법재판관 졸속 지명에 관여한 직권남용 혐의'
+            }
+        ],
+        keyIssues: [
+            {
+                title: '안가회동 참석과 내란 방조',
+                description: '12.4 삼청동 안전가옥 회동에 참석하여 계엄 사후 수습을 논의. 이완규 법제처장과 함께 법률적 뒷받침 역할 수행',
+                opinion: {
+                    prosecution: '안가회동 참석은 내란 사후 수습에 가담한 증거',
+                    defense: '대통령 참모로서 위기 상황 대응을 위한 정상적 업무 회의',
+                    court: '수사 진행 중'
+                }
+            },
+            {
+                title: '계엄선포문 사후 작성',
+                description: '비상계엄 선포 후 법적 형식을 갖추기 위해 계엄선포문을 사후적으로 작성한 관여 의혹. 계엄의 졸속성과 불법성을 보여주는 증거',
+                opinion: {
+                    prosecution: '계엄선포문 사후 작성은 계엄 자체가 법적 절차 없이 감행되었음을 증명',
+                    defense: '행정 절차상 문서 정비에 불과',
+                    court: '수사 진행 중'
+                }
+            },
+            {
+                title: '헌법재판관 졸속 지명',
+                description: '계엄 직전 헌법재판관 3인을 졸속으로 지명하여 탄핵심판에 영향력을 확보하려는 시도. 사법부 독립 훼손 의혹',
+                opinion: {
+                    prosecution: '내란의 법적 기반을 마련하기 위한 사전 포석',
+                    defense: '공석인 헌법재판관 충원은 정상적 업무',
+                    court: '직권남용으로 기소, 재판 진행 중'
+                }
+            }
+        ]
     },
     '김태효': {
         id: 'kimtaehyo',
@@ -1286,19 +1367,70 @@ const personsData = {
                 prosecutionRequest: '조사 중',
                 verdict: '재판 진행 중',
                 reason: '-'
+            },
+            {
+                id: 2,
+                name: '내란 방조 (수사 중)',
+                law: '형법 제87조, 제32조',
+                description: '내란특검 수사 진행 중. 안가회동 참석, 계엄 법적 자문 관여',
+                prosecutionRequest: '수사 중',
+                verdict: '수사 중',
+                reason: '-'
             }
         ],
         summary: {
-            prosecutionTotal: '재판 진행 중',
+            prosecutionTotal: '위증 재판 진행 중 + 내란 방조 수사 중',
             verdictTotal: '재판 진행 중',
             ratio: '-'
         },
         keyFacts: [
-            '윤석열 대통령 사법연수원 동기',
-            '12.4 안가회동(삼청동 안전가옥) 참석',
-            '위증 혐의 불구속 기소, 내란 방조 수사 중'
+            '윤석열 대통령 사법연수원 동기 (25기), 핵심 법률 측근',
+            '법제처장으로서 비상계엄의 법적 정당성 자문 역할 의혹',
+            '12.4 안가회동(삼청동 안전가옥) 참석 — 김주현 민정수석과 함께 법률적 수습 논의',
+            '국회 법사위 출석 시 안가회동 참석 사실 등에 대해 허위 진술 (위증)',
+            '위증 혐의 불구속 기소 (2025.12.11)',
+            '내란특검, 안가회동 참석·법적 자문을 근거로 내란 방조 수사 중'
         ],
-        trialStatus: '1심 재판 진행 중'
+        trialStatus: '1심 재판 진행 중 (위증) + 내란 방조 수사 중',
+        sentencingGuidelines: [
+            {
+                crime: '위증 (국회증언감정법)',
+                standardRange: '1년 이상 10년 이하 징역',
+                aggravating: ['국회 법사위라는 공식 절차에서의 위증', '내란 관련 핵심 사실에 대한 허위 진술', '사법절차 방해'],
+                mitigating: ['직접적 내란 실행 행위 아님'],
+                verdict: '재판 진행 중',
+                analysis: '법제처장으로서 국회에서 안가회동 참석 사실 등에 대해 허위 진술한 혐의'
+            }
+        ],
+        keyIssues: [
+            {
+                title: '안가회동 참석과 법률적 뒷받침',
+                description: '12.4 삼청동 안전가옥 회동에 참석. 법제처장으로서 비상계엄의 법적 정당성을 뒷받침하는 역할을 수행했는지가 핵심 쟁점',
+                opinion: {
+                    prosecution: '법제처장이 안가회동에 참석한 것은 내란의 법적 기반을 마련한 행위',
+                    defense: '위기 상황에서 법제처장으로서 법률 자문을 제공한 정상 업무',
+                    court: '수사 진행 중'
+                }
+            },
+            {
+                title: '국회 법사위 위증',
+                description: '국회 법제사법위원회에 출석하여 안가회동 참석 등 핵심 사실에 대해 허위 진술',
+                opinion: {
+                    prosecution: '내란 관련 핵심 사실을 은폐하기 위한 고의적 위증',
+                    defense: '기억에 의존한 진술이며 고의적 허위가 아님',
+                    court: '재판 진행 중'
+                }
+            },
+            {
+                title: '윤석열 사법연수원 동기로서의 역할',
+                description: '윤석열과 사법연수원 25기 동기로서 법제처장에 임명. 계엄의 법적 정당성 검토 및 자문 역할을 수행했을 가능성',
+                opinion: {
+                    prosecution: '대통령 측근으로서 내란의 법적 기반을 마련하는 데 기여',
+                    defense: '법제처장으로서 독립적 법률 검토 업무 수행',
+                    court: '수사 진행 중'
+                }
+            }
+        ]
     },
     '추경호': {
         id: 'chukyungho',
@@ -1482,10 +1614,13 @@ const personsData = {
         },
         keyFacts: [
             '김용현 전 장관 최측근, 예비역 민간인으로 계엄 핵심 기획',
-            '계엄 포고령 초안 작성자로 추정',
-            '롯데리아 회동에서 계엄 사전 모의 ("버거보살" 별명)',
-            '수첩에 500여명 체포·살해 구상, NLL 북한 공격 유도 등 기록',
-            '별건(개인정보보호법 위반) 1심 징역 2년 선고, 쌍방 항소'
+            '김용현 국방장관 공관 22회 이상 방문 — 계엄 사전 모의 핵심 채널',
+            '롯데리아 회동 3회: 곽종근·문상호 등과 계엄 구체 계획 논의 ("버거보살" 별명)',
+            '포고령 초안 작성: USB에서 포고령 초안 파일 발견, 김용현 지시로 작성',
+            '수첩에 체포명단 14명 기록 (우원식·이재명·한동훈 + 야당의원·시민단체 등)',
+            '수첩에 NLL 북한 공격 유도, 500여명 체포·살해 구상 등 극단적 계획 기록',
+            '선관위 침투 계획 중간 연결자: 김용현→노상원→문상호(정보사) 라인',
+            '별건(개인정보보호법 위반·알선수재) 1심 징역 2년, 추징금 2,490만원 선고, 쌍방 항소'
         ],
         verdictDate: '2026년 2월 19일',
         trialStatus: '1심 선고: 징역 18년 (2026.2.19) + 별건 징역 2년 (2025.12.15)',
@@ -1520,6 +1655,24 @@ const personsData = {
                     prosecution: '현역이 아닌 민간인이 군사 작전을 기획한 점이 더욱 위험',
                     defense: '예비역으로서 군 지휘권이 없었으므로 중요임무종사에 해당하지 않음',
                     court: '내란중요임무종사 유죄 인정'
+                }
+            },
+            {
+                title: '포고령 초안 작성과 USB 증거',
+                description: '노상원 압수 USB에서 포고령 초안 파일이 발견됨. 김용현 지시로 포고령을 사전 작성한 것으로 추정되며, 계엄의 사전 기획성을 입증하는 핵심 물증',
+                opinion: {
+                    prosecution: '포고령 사전 작성은 계엄이 즉흥적 결정이 아닌 치밀한 사전 모의임을 입증',
+                    defense: '국방부 장관의 업무 지시에 따른 참고 문서 작성에 불과',
+                    court: '계엄 선포까지 이를 수 있게 하는 동력 중 하나로 평가'
+                }
+            },
+            {
+                title: '22회 공관 방문과 사전 모의 규모',
+                description: '김용현 국방장관 공관을 22회 이상 방문하며 계엄을 체계적으로 사전 모의. 롯데리아 회동 3회를 통해 군부 지휘관(곽종근·문상호)과 구체적 실행 계획 논의',
+                opinion: {
+                    prosecution: '22회 이상 회동은 장기간 치밀한 내란 모의의 증거',
+                    defense: '전역 후 후배와의 사적 만남이며 내란 모의가 아님',
+                    court: '김용현과의 긴밀한 사전 모의를 통한 계엄 핵심 기획자로 인정'
                 }
             }
         ]
@@ -1564,7 +1717,27 @@ const personsData = {
             '"국헌 문란의 목적이 없었다"며 내란 혐의 부인'
         ],
         verdictDate: '2026년 2월 19일',
-        trialStatus: '1심 선고: 징역 3년 (2026.2.19)'
+        trialStatus: '1심 선고: 징역 3년 (2026.2.19)',
+        keyIssues: [
+            {
+                title: '미필적 고의에 의한 내란 가담 인정',
+                description: '재판부는 "처음부터 국헌문란 목적을 인식하지는 않았지만, 군 출입이 허용되는 상황을 목격하면서도 계속 의원 출입 차단에 가담한 것은 미필적으로나마 국회 활동 저지 행위임을 인식한 것"으로 판단',
+                opinion: {
+                    prosecution: '국회경비대장으로서 군의 국회 진입을 목격하고도 의원 출입 차단을 계속한 것은 적극적 내란 가담',
+                    defense: '상급자(조지호, 김봉식) 지시에 따른 것이며, 처음부터 국헌문란 목적을 인식하지 못함',
+                    court: '처음에는 목적 미인식이나, 상황 전개를 목격한 후에도 계속 참여한 것은 미필적 고의로 내란 가담 인정'
+                }
+            },
+            {
+                title: '하급자의 책임 범위와 양형',
+                description: '구형 12년 대비 3년(구형의 25%) 선고로, 하급자의 독자적 판단 여지가 제한적이었음을 반영한 양형',
+                opinion: {
+                    prosecution: '국회경비대장이라는 직책상 의원 출입 차단의 직접 책임자',
+                    defense: '독자적 판단 여지 극히 제한, 상급자 지시 이행에 불과',
+                    court: '하급자로서 독자적 판단 여지 제한적, 미필적 고의 수준으로 비난 가능성 상대적으로 낮음'
+                }
+            }
+        ]
     },
     '윤승영': {
         id: 'yoonseungyoung',
@@ -1590,8 +1763,8 @@ const personsData = {
                 law: '형법 제123조',
                 description: '체포조 운용 관련',
                 prosecutionRequest: '포함 구형',
-                verdict: '재판 진행 중',
-                reason: '-'
+                verdict: '무죄 (2026.2.19 선고)',
+                reason: '국헌문란 목적 인식·공유 증거 부족'
             }
         ],
         summary: {
@@ -1600,12 +1773,93 @@ const personsData = {
             ratio: '무죄'
         },
         keyFacts: [
-            '비상계엄 당일 국군방첩사로부터 체포조 지원 요청 수령',
-            '2025.2.28 불구속 기소',
-            '"국헌 문란의 목적이 없었다"며 내란 혐의 부인'
+            '비상계엄 당일 국군방첩사로부터 "국회로 체포조를 보낼 건데 인솔할 형사 5명 필요" 요청 수령',
+            '이현일 국수본 수사기획계장으로부터 방첩사 체포조 편성 지원 요청 보고받음',
+            '조지호 경찰청장에게 보고 후 승인받아 경찰관 지원 편성',
+            '2025.2.28 불구속 기소 (내란중요임무종사, 직권남용)',
+            '2026.2.19 무죄 선고 — "국헌문란 목적 인식·공유 증거 부족, 매뉴얼 오인 가능성"',
+            '김용군과 함께 내란 피고인 8명 중 무죄 선고받은 2명'
         ],
         verdictDate: '2026년 2월 19일',
-        trialStatus: '1심 선고: 무죄 (2026.2.19, 내란죄 불성립)'
+        trialStatus: '1심 선고: 무죄 (2026.2.19, 내란죄 불성립)',
+        sentencingGuidelines: [
+            {
+                crime: '내란중요임무종사 (형법 제87조)',
+                standardRange: '5년~무기징역 (유죄 시)',
+                aggravating: ['방첩사 체포조에 경찰 인력 지원 가담', '조지호 경찰청장에게 보고 후 승인 받아 실행'],
+                mitigating: ['비상계엄 매뉴얼에 따른 합동수사단 지원으로 오인', '체포 대상을 포고령 위반 사범으로 인식', '국회 활동 저지·마비 목적 공유 증거 부족', '중간 전달자(실무급)로서 독자적 판단 여지 제한'],
+                verdict: '무죄',
+                analysis: '재판부는 "비상계엄 하 매뉴얼에 따라 합동수사단을 지원하는 행위로 인식했을 합리적 의심을 배제하기 어렵다"며 무죄 판결. 경찰 수뇌부(조지호·김봉식)는 유죄이나 중간 실무급인 윤승영은 범의 불인정'
+            },
+            {
+                crime: '직권남용권리행사방해 (형법 제123조)',
+                standardRange: '5년 이하 징역',
+                aggravating: ['체포조 운용 관련 경찰관 지원 편성 가담'],
+                mitigating: ['국헌문란 목적 인식 증거 부족', '상급자 지시 전달에 불과'],
+                verdict: '무죄',
+                analysis: '내란중요임무종사와 동일한 이유로 무죄 판결'
+            }
+        ],
+        judgeHistory: {
+            judgeName: '지귀연',
+            position: '서울중앙지방법원 형사합의25부 부장판사',
+            recentCases: [
+                {
+                    caseName: '윤석열 내란수괴 사건',
+                    year: '2026',
+                    verdict: '무기징역 선고 (구형: 사형)',
+                    detail: '대한민국 최초 현직 대통령 내란죄 유죄 판결'
+                },
+                {
+                    caseName: '김용현 외 6인 내란 사건',
+                    year: '2026',
+                    verdict: '김용현 30년, 노상원 18년, 조지호 12년, 김봉식 10년, 목현태 3년, 김용군·윤승영 무죄',
+                    detail: '내란 공범 중 윤승영·김용군 2명만 무죄 선고'
+                },
+                {
+                    caseName: '한덕수 내란 사건',
+                    year: '2026',
+                    verdict: '징역 23년, 법정구속 (구형: 15년)',
+                    detail: '구형 초과 선고 — 구형의 약 1.5배'
+                },
+                {
+                    caseName: '이상민 내란 사건',
+                    year: '2026',
+                    verdict: '징역 7년 (직권남용 무죄)',
+                    detail: '구형 15년의 47%'
+                }
+            ],
+            profile: '사법연수원 25기. 서울중앙지법 형사합의25부 부장판사. 2024년 12월 내란 사건 1심 전담 재판장. 노상원 수첩 증거능력 배척, 계엄 모의 시점 축소 등 판결 논란.'
+        },
+        keyIssues: [
+            {
+                title: '"매뉴얼 오인" 항변의 수용 여부',
+                description: '윤승영은 방첩사 체포조 지원을 비상계엄 매뉴얼에 따른 합동수사단 지원으로 인식했다고 주장. 재판부가 이를 수용하여 무죄 선고',
+                opinion: {
+                    prosecution: '경찰 수뇌부(조지호)에게 보고·승인 받은 후 체포조 지원을 실행한 것은 단순 오인이 아닌 적극적 가담',
+                    defense: '체포 대상이 정치인이 아닌 포고령 위반 사범으로 알았으며, 국헌문란 목적을 인식·공유한 바 없음',
+                    court: '비상계엄 하 합동수사단 지원으로 오인했을 합리적 의심 배제 불가, 국헌문란 목적 공유 증거 부족'
+                }
+            },
+            {
+                title: '경찰 수뇌부 유죄 vs 실무급 무죄의 형평성',
+                description: '보고 라인의 상위자(조지호 청장 12년, 김봉식 서울청장 10년)는 유죄이나 중간 전달자 윤승영은 무죄로, 동일 지시 체계 내 차별적 판결 논란',
+                opinion: {
+                    prosecution: '조지호 청장에게 보고하고 승인 받아 실행한 이상 범행 인식 있었다고 봐야 함',
+                    defense: '보고·전달 행위만으로 국헌문란 목적까지 인식했다고 볼 수 없음',
+                    court: '상급자와 달리 실무급 조정관은 전체 그림을 인지하지 못했을 가능성 인정'
+                }
+            },
+            {
+                title: '항소심에서의 유죄 전환 가능성',
+                description: '특검이 윤승영 무죄 판결에 항소할 경우 항소심에서 유죄로 전환될 가능성',
+                opinion: {
+                    prosecution: '1심 무죄 판단은 국헌문란 목적 인식에 대한 법리 해석 오류, 항소심에서 정정 필요',
+                    defense: '1심 재판부의 합리적 의심 판단은 타당, 2심에서도 무죄 유지될 것',
+                    court: '내란죄 공범의 목적 인식 범위에 대한 법리 해석이 항소심의 핵심 쟁점'
+                }
+            }
+        ]
     },
     '조지호': {
         id: 'jojiho',
@@ -1652,10 +1906,10 @@ const personsData = {
             {
                 crime: '내란중요임무종사 (형법 제87조)',
                 standardRange: '5년~무기징역',
-                aggravating: ['경찰청장으로서 포고령 위법성 미검토', '군의 국회 진입 조력', '국회의원 출입 차단 지시'],
-                mitigating: ['상급자 지시에 따른 측면'],
-                verdict: '징역 12년',
-                analysis: '경찰 총책임자로서 포고령의 위법성을 검토하지 않고 군의 국회 진입을 돕고 의원 출입을 차단'
+                aggravating: ['경찰청장으로서 포고령 위법성 미검토', '군의 국회 진입 조력 — 경찰이 군 출입을 도움', '국회의원 출입 차단 지시', '포고령을 근거로 국회 출입 차단 주도'],
+                mitigating: ['계엄 당일에야 군 투입 사정을 알게 됨', '통제 시간이 비교적 짧음', '혈액암 2기 투병 중 (건강 사정)'],
+                verdict: '징역 12년 (구형 20년의 60%)',
+                analysis: '재판부: "경찰 총책임자임에도 포고령을 면밀히 검토하지 않고, 오히려 경찰이 군 출입을 도왔다." 계엄 당일에야 군 투입을 인지했고 통제 시간이 짧았으며 혈액암 투병 중인 점을 감경 사유로 고려'
             }
         ],
         judgeHistory: {
@@ -1740,28 +1994,36 @@ export default function SentencingAnalysis() {
     useEffect(() => {
         const fetchAllData = async () => {
             try {
-                const [sentencingSnap, judgeSnap, youtubeSnap, courtSnap] = await Promise.all([
+                const results = await Promise.allSettled([
                     getDocs(collection(db, 'sentencingData')),
                     getDocs(collection(db, 'judgeData')),
                     getDocs(collection(db, 'judgeYouTubeData')),
                     getDocs(collection(db, 'judgeCourtCases'))
                 ]);
 
-                const sentencing = {};
-                sentencingSnap.forEach(doc => { sentencing[doc.id] = doc.data(); });
-                setFirestoreData(sentencing);
+                if (results[0].status === 'fulfilled') {
+                    const sentencing = {};
+                    results[0].value.forEach(doc => { sentencing[doc.id] = doc.data(); });
+                    setFirestoreData(sentencing);
+                }
 
-                const judges = {};
-                judgeSnap.forEach(doc => { judges[doc.id] = doc.data(); });
-                setJudgeNewsData(judges);
+                if (results[1].status === 'fulfilled') {
+                    const judges = {};
+                    results[1].value.forEach(doc => { judges[doc.id] = doc.data(); });
+                    setJudgeNewsData(judges);
+                }
 
-                const youtube = {};
-                youtubeSnap.forEach(doc => { youtube[doc.id] = doc.data(); });
-                setJudgeYouTubeData(youtube);
+                if (results[2].status === 'fulfilled') {
+                    const youtube = {};
+                    results[2].value.forEach(doc => { youtube[doc.id] = doc.data(); });
+                    setJudgeYouTubeData(youtube);
+                }
 
-                const court = {};
-                courtSnap.forEach(doc => { court[doc.id] = doc.data(); });
-                setJudgeCourtData(court);
+                if (results[3].status === 'fulfilled') {
+                    const court = {};
+                    results[3].value.forEach(doc => { court[doc.id] = doc.data(); });
+                    setJudgeCourtData(court);
+                }
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -1879,21 +2141,27 @@ export default function SentencingAnalysis() {
         }
 
         // Firestore 데이터가 있으면 병합 (Firestore 데이터 우선)
-        const mergedStatus = dynamicData.status || staticData.status;
+        // Firestore에서 "null" 문자열로 저장된 값 필터링
+        const clean = (v) => (v && v !== 'null' && v !== 'undefined') ? v : null;
+        const mergedStatus = clean(dynamicData.status) || staticData.status;
         return {
             ...staticData,
             status: mergedStatus,
             statusColor: mergedStatus === '구속' ? 'red' : mergedStatus === '보석' ? 'orange' : (mergedStatus === '불구속' ? 'green' : staticData.statusColor),
-            verdictDate: dynamicData.verdictDate || staticData.verdictDate,
-            trialStatus: dynamicData.trialStatus || staticData.trialStatus,
-            charges: dynamicData.charges?.length > 0 ? dynamicData.charges.map((c, idx) => ({
-                id: idx + 1,
-                name: c.name,
-                law: c.law,
-                verdict: c.verdict || '재판 진행 중',
-                prosecutionRequest: c.sentence || '조사 중',
-                reason: '-'
-            })) : staticData.charges,
+            verdictDate: clean(dynamicData.verdictDate) || staticData.verdictDate,
+            trialStatus: clean(dynamicData.trialStatus) || staticData.trialStatus,
+            charges: dynamicData.charges?.length > 0 ? dynamicData.charges.map((c, idx) => {
+                const staticCharge = staticData.charges?.find(sc => sc.name === c.name) || staticData.charges?.[idx] || {};
+                return {
+                    ...staticCharge,
+                    id: idx + 1,
+                    name: clean(c.name) || staticCharge.name,
+                    law: clean(c.law) || staticCharge.law,
+                    verdict: clean(c.verdict) || staticCharge.verdict || '재판 진행 중',
+                    prosecutionRequest: clean(c.sentence) || clean(c.prosecutionRequest) || staticCharge.prosecutionRequest || '조사 중',
+                    reason: staticCharge.reason || '-'
+                };
+            }) : staticData.charges,
             summary: {
                 ...staticData.summary,
                 verdictTotal: dynamicData.verdict || staticData.summary?.verdictTotal || '재판 진행 중'
@@ -1909,6 +2177,7 @@ export default function SentencingAnalysis() {
             keyIssues: dynamicData.keyIssues?.length > 0
                 ? dynamicData.keyIssues
                 : staticData.keyIssues,
+            aiPrediction: dynamicData.aiPrediction || null,
             // 동적 데이터 메타정보
             _lastUpdated: dynamicData.lastUpdated,
             _hasLiveData: !!dynamicData,
@@ -1992,6 +2261,7 @@ export default function SentencingAnalysis() {
                                             onClick={() => {
                                                 setSelectedPerson(name);
                                                 setActiveTab(personsData[name].verdictDate ? 'verdict' : 'overview');
+                                                window.scrollTo(0, 0);
                                             }}
                                             className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
                                         >
@@ -2151,10 +2421,12 @@ export default function SentencingAnalysis() {
                             { id: 'charges', label: '혐의별 분석' },
                             { id: 'sentencing', label: '양형기준 비교' },
                             { id: 'judge', label: '판사 판결 이력' },
-                            { id: 'issues', label: '핵심 쟁점' }
+                            { id: 'issues', label: '핵심 쟁점' },
+                            { id: 'aiPrediction', label: 'AI 양형 예측' }
                         ] : [
                             { id: 'overview', label: '개요' },
-                            { id: 'charges', label: '혐의 분석' }
+                            { id: 'charges', label: '혐의 분석' },
+                            { id: 'aiPrediction', label: 'AI 양형 예측' }
                         ]).map(tab => (
                             <button
                                 key={tab.id}
@@ -2670,6 +2942,246 @@ export default function SentencingAnalysis() {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+                    )}
+
+                    {activeTab === 'aiPrediction' && (
+                        <div className="space-y-6">
+                            {/* 면책 고지 */}
+                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                                <p className="text-amber-800 text-sm">
+                                    ⚠️ 이 분석은 Gemini AI가 공개된 뉴스 보도와 역사적 선례를 기반으로 예측한 것이며, 실제 법원 판결과 다를 수 있습니다. 법적 조언이 아닌 참고 자료로만 활용하시기 바랍니다.
+                                </p>
+                            </div>
+
+                            {person.aiPrediction ? (() => {
+                                const pred = person.aiPrediction;
+                                return (
+                                    <>
+                                        {/* 예측 결과 요약 */}
+                                        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                                            <div className="p-4 bg-indigo-50 border-b border-indigo-100">
+                                                <h3 className="font-bold text-gray-900">예측 결과</h3>
+                                            </div>
+                                            <div className="p-4">
+                                                <div className="grid md:grid-cols-3 gap-4">
+                                                    <div className="bg-blue-50 rounded-lg p-4 text-center">
+                                                        <p className="text-sm text-blue-600 mb-1">예측 양형 범위</p>
+                                                        <p className="text-lg font-bold text-blue-900">{pred.predictedSentence?.range}</p>
+                                                    </div>
+                                                    <div className="bg-red-50 rounded-lg p-4 text-center">
+                                                        <p className="text-sm text-red-600 mb-1">가장 유력한 양형</p>
+                                                        <p className="text-lg font-bold text-red-900">{pred.predictedSentence?.mostLikely}</p>
+                                                    </div>
+                                                    <div className="bg-gray-50 rounded-lg p-4 text-center">
+                                                        <p className="text-sm text-gray-600 mb-1">예측 신뢰도</p>
+                                                        <p className={`text-lg font-bold ${
+                                                            pred.predictedSentence?.confidence === 'high' ? 'text-green-600' :
+                                                            pred.predictedSentence?.confidence === 'medium' ? 'text-yellow-600' :
+                                                            'text-gray-600'
+                                                        }`}>
+                                                            {pred.predictedSentence?.confidence === 'high' ? '높음' :
+                                                             pred.predictedSentence?.confidence === 'medium' ? '보통' : '낮음'}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* 선고 완료 시: 예측 vs 실제 비교 */}
+                                        {person.verdictDate && person.summary?.verdictTotal && (
+                                            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                                                <div className="p-4 bg-orange-50 border-b border-orange-100">
+                                                    <h3 className="font-bold text-gray-900">AI 예측 vs 실제 선고</h3>
+                                                </div>
+                                                <div className="p-4 grid md:grid-cols-2 gap-4">
+                                                    <div className="bg-indigo-50 rounded-lg p-4 text-center">
+                                                        <p className="text-sm text-indigo-600 mb-1">AI 예측</p>
+                                                        <p className="text-xl font-bold text-indigo-900">{pred.predictedSentence?.mostLikely}</p>
+                                                    </div>
+                                                    <div className="bg-red-50 rounded-lg p-4 text-center">
+                                                        <p className="text-sm text-red-600 mb-1">실제 선고</p>
+                                                        <p className="text-xl font-bold text-red-900">{person.summary.verdictTotal}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* 역사적 선례 비교 */}
+                                        {pred.historicalComparison && (
+                                            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                                                <div className="p-4 bg-purple-50 border-b border-purple-100">
+                                                    <h3 className="font-bold text-gray-900">역사적 선례 비교</h3>
+                                                </div>
+                                                <div className="p-4 space-y-4">
+                                                    {/* 전두환 비교 */}
+                                                    {pred.historicalComparison.chundoohwan && (
+                                                        <div className="border border-gray-200 rounded-lg p-4">
+                                                            <div className="flex items-center gap-3 mb-3">
+                                                                <span className="text-lg font-bold text-gray-900">전두환</span>
+                                                                <span className="text-sm text-gray-500">1996년 | 내란수괴</span>
+                                                                <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">
+                                                                    1심: 사형 → 항소심: 무기징역
+                                                                </span>
+                                                            </div>
+                                                            <div className="grid md:grid-cols-2 gap-3 mb-3">
+                                                                <div className="bg-blue-50 rounded-lg p-3">
+                                                                    <p className="text-sm text-blue-700 font-medium mb-1">유사점</p>
+                                                                    <p className="text-sm text-gray-700">{pred.historicalComparison.chundoohwan.similarity}</p>
+                                                                </div>
+                                                                <div className="bg-orange-50 rounded-lg p-3">
+                                                                    <p className="text-sm text-orange-700 font-medium mb-1">차이점</p>
+                                                                    <p className="text-sm text-gray-700">{pred.historicalComparison.chundoohwan.difference}</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="bg-gray-50 rounded-lg p-3">
+                                                                <p className="text-sm text-gray-600 font-medium mb-1">양형 영향</p>
+                                                                <p className="text-sm text-gray-700">{pred.historicalComparison.chundoohwan.sentenceImpact}</p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* 노태우 비교 */}
+                                                    {pred.historicalComparison.nohtaewoo && (
+                                                        <div className="border border-gray-200 rounded-lg p-4">
+                                                            <div className="flex items-center gap-3 mb-3">
+                                                                <span className="text-lg font-bold text-gray-900">노태우</span>
+                                                                <span className="text-sm text-gray-500">1996년 | 내란중요임무종사</span>
+                                                                <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">
+                                                                    1심: 22년6월 → 항소심: 17년
+                                                                </span>
+                                                            </div>
+                                                            <div className="grid md:grid-cols-2 gap-3 mb-3">
+                                                                <div className="bg-blue-50 rounded-lg p-3">
+                                                                    <p className="text-sm text-blue-700 font-medium mb-1">유사점</p>
+                                                                    <p className="text-sm text-gray-700">{pred.historicalComparison.nohtaewoo.similarity}</p>
+                                                                </div>
+                                                                <div className="bg-orange-50 rounded-lg p-3">
+                                                                    <p className="text-sm text-orange-700 font-medium mb-1">차이점</p>
+                                                                    <p className="text-sm text-gray-700">{pred.historicalComparison.nohtaewoo.difference}</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="bg-gray-50 rounded-lg p-3">
+                                                                <p className="text-sm text-gray-600 font-medium mb-1">양형 영향</p>
+                                                                <p className="text-sm text-gray-700">{pred.historicalComparison.nohtaewoo.sentenceImpact}</p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* 공범 비교 */}
+                                        {pred.codefendantComparison?.length > 0 && (
+                                            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                                                <div className="p-4 bg-green-50 border-b border-green-100">
+                                                    <h3 className="font-bold text-gray-900">공범 선고 비교</h3>
+                                                </div>
+                                                <div className="divide-y divide-gray-100">
+                                                    {pred.codefendantComparison.map((codef, idx) => (
+                                                        <div key={idx} className="p-4">
+                                                            <div className="flex items-center gap-3 mb-2">
+                                                                <span className="font-bold text-gray-900">{codef.name}</span>
+                                                                <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">{codef.sentence}</span>
+                                                            </div>
+                                                            <p className="text-sm text-gray-700">{codef.comparedToDefendant}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* 법적 분석 */}
+                                        {pred.legalAnalysis && (
+                                            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                                                <div className="p-4 bg-gray-50 border-b border-gray-100">
+                                                    <h3 className="font-bold text-gray-900">법적 분석</h3>
+                                                </div>
+                                                <div className="p-4 space-y-4">
+                                                    {pred.legalAnalysis.applicableLaws?.length > 0 && (
+                                                        <div>
+                                                            <h4 className="text-sm font-bold text-gray-700 mb-2">적용 법률 및 양형 기준</h4>
+                                                            <ul className="space-y-1">
+                                                                {pred.legalAnalysis.applicableLaws.map((law, i) => (
+                                                                    <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                                                                        <span className="text-blue-500 mt-0.5">•</span>
+                                                                        <span>{law}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+                                                    <div className="grid md:grid-cols-2 gap-4">
+                                                        {pred.legalAnalysis.aggravatingFactors?.length > 0 && (
+                                                            <div className="bg-red-50 rounded-lg p-3">
+                                                                <h4 className="text-sm font-bold text-red-700 mb-2">가중 사유</h4>
+                                                                <ul className="space-y-1">
+                                                                    {pred.legalAnalysis.aggravatingFactors.map((f, i) => (
+                                                                        <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                                                                            <span className="text-red-400 mt-0.5">▲</span>
+                                                                            <span>{f}</span>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </div>
+                                                        )}
+                                                        {pred.legalAnalysis.mitigatingFactors?.length > 0 && (
+                                                            <div className="bg-blue-50 rounded-lg p-3">
+                                                                <h4 className="text-sm font-bold text-blue-700 mb-2">감경 사유</h4>
+                                                                <ul className="space-y-1">
+                                                                    {pred.legalAnalysis.mitigatingFactors.map((f, i) => (
+                                                                        <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                                                                            <span className="text-blue-400 mt-0.5">▼</span>
+                                                                            <span>{f}</span>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    {pred.legalAnalysis.keyLegalIssues?.length > 0 && (
+                                                        <div>
+                                                            <h4 className="text-sm font-bold text-gray-700 mb-2">핵심 법적 쟁점</h4>
+                                                            <ul className="space-y-1">
+                                                                {pred.legalAnalysis.keyLegalIssues.map((issue, i) => (
+                                                                    <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                                                                        <span className="text-purple-500 mt-0.5">◆</span>
+                                                                        <span>{issue}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* 종합 예측 근거 */}
+                                        {pred.sentencingReasoning && (
+                                            <div className="bg-white rounded-xl shadow-sm p-4">
+                                                <h3 className="font-bold text-gray-900 mb-3">종합 예측 근거</h3>
+                                                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                                                    {pred.sentencingReasoning}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* 생성 시간 */}
+                                        <p className="text-xs text-gray-400 text-center">
+                                            AI 모델: {pred.model || 'Gemini'} | 참조 뉴스: {pred.newsSourceCount || 0}건
+                                            {pred.generatedAt && ` | 생성: ${pred.generatedAt.toDate ? pred.generatedAt.toDate().toLocaleDateString('ko-KR') : new Date(pred.generatedAt).toLocaleDateString('ko-KR')}`}
+                                        </p>
+                                    </>
+                                );
+                            })() : (
+                                <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+                                    <div className="text-4xl mb-3">🔮</div>
+                                    <h3 className="text-lg font-bold text-gray-700 mb-2">AI 양형 예측이 아직 생성되지 않았습니다</h3>
+                                    <p className="text-sm text-gray-500">
+                                        관리자 페이지에서 AI 양형 예측을 실행하면 이 탭에 결과가 표시됩니다.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     )}
 

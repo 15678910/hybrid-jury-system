@@ -4004,6 +4004,753 @@ ${newsText}
         }
     });
 
+// 역사적 내란 사건 선례 데이터
+const HISTORICAL_PRECEDENTS = {
+    chundoohwan: {
+        name: '전두환',
+        year: 1996,
+        charges: '내란수괴 (형법 제87조), 내란목적살인 (형법 제88조)',
+        background: '1979년 12.12 군사반란으로 군권 장악 후 1980년 5.18 광주민주화운동 유혈진압. 1995년 "역사바로세우기" 특별법 제정으로 공소시효 문제 해결 후 재판 개시.',
+        firstInstance: '사형 (1996년 8월 26일, 서울지방법원)',
+        appeal: '무기징역 (1996년 12월 16일, 서울고등법원)',
+        supremeCourt: '무기징역 확정 (1997년 4월 17일, 대법원)',
+        finalResult: '1997년 12월 22일 특별사면 (김영삼 대통령, 김대중 대통령 당선자 합의)',
+        aggravatingFactors: [
+            '군사반란 및 내란의 최고 주도자(수괴)',
+            '계엄군을 동원한 광주 시민 살상 명령',
+            '헌정질서 파괴 및 국가 전복 행위',
+            '대통령 권한 불법 찬탈'
+        ],
+        mitigatingFactors: [
+            '항소심에서 내란목적살인 일부 감경',
+            '사건 발생 후 16년 경과',
+            '국민 화합 차원의 정치적 고려'
+        ]
+    },
+    nohtaewoo: {
+        name: '노태우',
+        year: 1996,
+        charges: '내란중요임무종사 (형법 제87조)',
+        background: '12.12 군사반란 당시 9사단장으로서 핵심 전투부대를 동원하여 전두환의 군사반란을 적극 지원.',
+        firstInstance: '징역 22년 6개월 (1996년 8월 26일)',
+        appeal: '징역 17년 (1996년 12월 16일)',
+        supremeCourt: '징역 17년 확정 (1997년 4월 17일)',
+        finalResult: '1997년 12월 22일 특별사면',
+        aggravatingFactors: [
+            '군사반란의 핵심 실행자',
+            '9사단 병력 동원으로 반란 성공에 결정적 기여',
+            '내란 후 권력 핵심부 진입'
+        ],
+        mitigatingFactors: [
+            '수괴가 아닌 중요임무종사자 지위',
+            '전두환 대비 종속적 역할',
+            '항소심에서 역할 재평가 (22년6월→17년)'
+        ]
+    },
+    kimjaegyu: {
+        name: '김재규',
+        year: 1979,
+        charges: '내란목적살인 (형법 제88조), 살인 (형법 제250조)',
+        background: '1979년 10월 26일 중앙정보부장 김재규가 박정희 대통령과 차지철 경호실장을 사살한 10.26 사건. 김재규는 유신체제 종식과 민주화를 주장했으나, 법원은 내란목적살인으로 판단.',
+        firstInstance: '사형 (1980년 5월 20일, 서울형사지방법원)',
+        appeal: '없음 (대법원 직접 상고)',
+        supremeCourt: '사형 확정 (1980년 5월 20일, 대법원 전원합의체)',
+        finalResult: '1980년 5월 24일 사형 집행 (서울구치소)',
+        aggravatingFactors: [
+            '대통령 시해라는 극단적 행위',
+            '국가 최고 통수권자 살해로 헌정질서 중대 침해',
+            '계획적 범행 (사전 권총 준비, 연회 장소 선정)',
+            '경호실장 등 다수 살상'
+        ],
+        mitigatingFactors: [
+            '유신독재 종식 목적 주장 (법원 불인정)',
+            '사건 직후 자수적 행위',
+            '일부 국민의 민주화 열망과 연계'
+        ]
+    },
+    leesukki: {
+        name: '이석기',
+        year: 2014,
+        charges: '내란음모 (형법 제90조), 내란선동 (형법 제90조)',
+        background: '통합진보당 국회의원 이석기가 2013년 5월 지하혁명조직(RO) 회합에서 북한의 대남전쟁 시 내란을 선동한 혐의. 국정원이 통신 감청으로 적발.',
+        firstInstance: '징역 12년, 자격정지 10년 (2014년 2월 17일, 수원지방법원)',
+        appeal: '징역 9년, 자격정지 7년 (2014년 8월 11일, 서울고등법원) - 내란음모 무죄, 내란선동만 유죄',
+        supremeCourt: '징역 9년, 자격정지 7년 확정 (2015년 1월 22일, 대법원)',
+        finalResult: '2021년 12월 31일 특별사면 (문재인 대통령)',
+        aggravatingFactors: [
+            '현직 국회의원의 내란 관련 범죄',
+            '지하혁명조직(RO) 활용한 조직적 범행',
+            '실제 전쟁 대비 구체적 행동 지침 전달',
+            '국가안보에 대한 중대한 위협'
+        ],
+        mitigatingFactors: [
+            '항소심에서 내란음모 무죄 (구체적 실행계획 부재)',
+            '실제 폭동이나 무력행사에 이르지 않음',
+            '발언의 구체적 실현가능성 낮음'
+        ]
+    }
+};
+
+// 프론트엔드 양형 데이터 (정적 데이터 통합)
+const FRONTEND_SENTENCING_DATA = {
+    '윤석열': {
+        position: '대통령 (직무정지)',
+        charges: '내란수괴 (형법 제87조), 특수공무집행방해 등',
+        prosecutionRequest: '내란수괴: 사형 구형 + 특수공무집행방해 등: 징역 10년 구형',
+        verdict: '내란수괴: 무기징역 (2026.2.19) + 체포방해 등: 징역 5년 (2026.1.16)',
+        ratio: '사형→무기징역 (감경)',
+        sentencingGuidelines: {
+            aggravating: ['범행을 주도적으로 계획·지시', '국회 기능 마비 시도', '대통령으로서 헌법 수호 의무 중대 위반', '재판 출석 거부 및 반성 부재', '막대한 사회적 비용 초래'],
+            mitigating: ['계엄이 수시간 만에 해제', '실질적 인명 피해 없음']
+        },
+        pendingTrials: [
+            '일반이적 (형법 제93조) - 평양 무인기 대북전단 살포로 북한 도발 유도 (비공개 증인신문 중)',
+            '위증 (형법 제152조) - 채상병 수사외압 사건',
+            '채상병 수사외압·은폐 (직권남용)',
+            '이종섭 범인도피교사',
+            '명태균 게이트',
+            '20대 대선 허위사실공표 (공직선거법)'
+        ],
+        uncharged: [
+            '외환유치 (형법 제92조, 사형/무기) - 북한과의 통모 입증 어려움으로 미기소, 일반이적으로 대체',
+            '여적 (형법 제93조, 사형 단일형) - 북한과 직접 합세 증거 부재',
+            '내란목적살인예비 (형법 제88조) - 노상원 수첩 500명 살해 계획, 노상원만 피의자 전환'
+        ],
+        verdictOmissions: [
+            '노상원 수첩 증거능력 배척 - "작성 시기 불명확, 내용 사실 불일치, 형태·보관 조악"',
+            '계엄 모의 시점 축소 - 특검 주장 2023년부터 vs 재판부 인정 2024.12.1 무렵',
+            '외환죄(일반이적) 별도 재판으로 분리 - 내란+외환 병합 시 양형 가중 가능했음',
+            '내란목적살인예비 미적용 - 수첩 배척으로 폭력성·계획성 과소평가 비판'
+        ]
+    },
+    '김용현': {
+        position: '전 국방부 장관',
+        charges: '내란중요임무종사 (형법 제87조)',
+        prosecutionRequest: '무기징역 (특검 구형)',
+        verdict: '징역 30년 (2026.2.19 선고)',
+        ratio: '무기징역→30년 (감경)',
+        sentencingGuidelines: {
+            aggravating: ['비상계엄을 주도적으로 준비', '부정선거 수사 등 독단적 계획 수립', '대통령의 비이성적 결심 조장', '안가회동 5회 주도 (2024.11.29~12.3) — 체포명단 14명 배포', '롯데리아 회동 주관 (군·정보 라인 사전 모의)', '군·경찰 양면 동원 총괄 (김용현→박안수→곽종근/이진우 + 김용현→조지호 라인)'],
+            mitigating: ['내란수괴가 아닌 종사자 지위']
+        },
+        pendingTrials: ['일반이적 (형법 제93조) - 평양 무인기 사건 공동 피고인']
+    },
+    '한덕수': {
+        position: '전 국무총리',
+        charges: '내란중요임무종사 (형법 제87조), 허위공문서 작성, 대통령기록물법 위반, 위증',
+        prosecutionRequest: '징역 15년 (특검 구형)',
+        verdict: '징역 23년, 법정구속 (2026.1.21)',
+        ratio: '구형의 약 1.5배 (8년 초과)',
+        sentencingGuidelines: {
+            aggravating: ['국무총리 직위의 중대성', '헌법 수호 의무 위반', '국헌문란 목적 내란 가담', '"위로부터의 내란"에 합류'],
+            mitigating: ['직접 병력 동원은 아님']
+        }
+    },
+    '이상민': {
+        position: '전 행정안전부 장관',
+        charges: '내란중요임무종사 (형법 제87조), 위증',
+        prosecutionRequest: '징역 15년 (특검 구형)',
+        verdict: '징역 7년 (직권남용 무죄) (2026.2.12)',
+        ratio: '구형의 47%',
+        sentencingGuidelines: {
+            aggravating: ['국가 존립 위태롭게 함', '장관급 고위직 가담'],
+            mitigating: ['직접 실행행위 아닌 지시 전달']
+        }
+    },
+    '김건희': {
+        position: '대통령 배우자',
+        charges: '도이치모터스 주가조작 (자본시장법 위반), 정치자금법 위반, 알선수재',
+        prosecutionRequest: '징역 15년, 벌금 20억원, 추징금 9억 4,800만원 (특검 구형)',
+        verdict: '징역 1년 8개월, 추징금 1,281만 5,000원 (주가조작·정치자금법 무죄) (2026.1.28)',
+        ratio: '구형의 약 1/9 수준',
+        sentencingGuidelines: {
+            aggravating: ['공무원 배우자 지위 이용', '금품 수수', '반복적 범행', '검찰 수사 무마 개입 의혹'],
+            mitigating: ['초범', '공동정범 요건 불성립(주가조작)', '명태균 진술 신빙성 부족(정치자금)']
+        },
+        doichiMotors: {
+            description: '2009-2012년 권오수 회장 일당 91명 명의 157개 계좌 동원, 주가 2000원대→8000원 조작',
+            kimRole: '2010년부터 2년간 주가조작 일당과 공모, 8억 1000만원 부당이득 혐의',
+            mainCulpritsVerdict: '2025.4.3 대법원 전원 유죄 확정 (권오수: 징역 3년 집행유예 4년)',
+            firstTrialResult: '2026.1.28 주가조작 무죄 (공동정범 요건 불성립, 방조해도 공소시효 완성)'
+        },
+        prosecutorCorruption: {
+            description: '검찰의 조직적 수사 무마 및 증거 인멸 의혹',
+            suspects: ['박성재 전 법무부장관', '심우정 전 검찰총장', '이창수 전 서울중앙지검장'],
+            evidence: [
+                '2024.10 김건희 도이치모터스·디올백 무혐의·불기소 처분',
+                '특검 서울중앙지검 압수수색 시 담당자 컴퓨터 데이터 완전 삭제(디가우징) 발견',
+                '디가우징으로 포렌식 복원 불가능',
+                '김건희→박성재 메시지: "내 수사는 어떻게 되고 있느냐"'
+            ]
+        },
+        pendingTrials: [
+            '도이치모터스 주가조작 항소심 (특검 항소)',
+            '정치자금법 위반 항소심'
+        ]
+    },
+    '조지호': {
+        position: '전 경찰청장',
+        charges: '내란중요임무종사 (형법 제87조)',
+        prosecutionRequest: '징역 20년 (특검 구형)',
+        verdict: '징역 12년 (2026.2.19 선고)',
+        ratio: '구형의 60%',
+        sentencingGuidelines: {
+            aggravating: ['경찰청장으로서 포고령 위법성 미검토', '군의 국회 진입 조력', '국회의원 출입 차단 지시'],
+            mitigating: ['상급자 지시에 따른 측면']
+        }
+    },
+    '김봉식': {
+        position: '전 서울경찰청장',
+        charges: '내란중요임무종사 (형법 제87조)',
+        prosecutionRequest: '징역 15년 (특검 구형)',
+        verdict: '징역 10년 (2026.2.19 선고)',
+        ratio: '구형의 67%',
+        sentencingGuidelines: {
+            aggravating: ['서울경찰청장으로서 국회 봉쇄 가담', '안가회동 문건 수령', '포고령 위법성 미검토'],
+            mitigating: ['상급자 지시에 따른 측면', '직접 군사작전 지휘는 아님']
+        }
+    },
+    '노상원': {
+        position: '전 국군정보사령관 (예비역, 민간인)',
+        charges: '내란중요임무종사 (형법 제87조), 내란목적살인예비',
+        prosecutionRequest: '징역 30년 (내란 본건)',
+        verdict: '징역 18년 (2026.2.19 선고) + 별건 징역 2년',
+        ratio: '구형의 60%',
+        sentencingGuidelines: {
+            aggravating: ['계엄 사전 모의 핵심 참여 — 22회 대통령 공관 방문', '포고령 초안 작성 및 USB 전달', '선관위 침입 지휘 (문상호 통해 중간 연결)', '체포·살해 명단 수첩 기록 (70페이지)', '예비역 민간인이면서 현역 장성급 역할 수행'],
+            mitigating: ['예비역 민간인으로서 직접 지휘권 부재']
+        },
+        notebook: {
+            description: '70페이지 수기 메모 — "계엄의 스모킹건"',
+            content: [
+                '500명 체포(수거) 대상 명단: 문재인, 이재명, 조국, 유시민, 이준석, 김제동 등 (A~D등급 분류)',
+                '살해 방법: "이송 중 사고", "막사 폭발물", "확인사살", "외부업체 어뢰 공격"',
+                '수용 장소: 연평도, 울릉도, 마라도, 민통선(오음리, 현리, 인제, 화천, 양구)',
+                'NLL 북한 공격 유도: "외부 용역업체 미리/어뢰 공격", "북에 나포 직전 격침"',
+                '3선 개헌 계획, 중국·러시아 선거제도 연구, 전국민 출국 금지 검토'
+            ],
+            evidenceStatus: '1심 증거능력 배척 (지귀연 재판부), 항소심 재검토 가능'
+        }
+    },
+    '목현태': {
+        position: '전 서울경찰청 국회경비대장',
+        charges: '내란중요임무종사 (형법 제87조)',
+        prosecutionRequest: '징역 12년 (특검 구형)',
+        verdict: '징역 3년 (2026.2.19 선고)',
+        ratio: '구형의 25%',
+        sentencingGuidelines: {
+            aggravating: ['국회경비대장으로서 국회의원 출입 차단 지시', '계엄해제 의결 방해'],
+            mitigating: ['하급자로서 독자적 판단 여지 제한']
+        }
+    },
+    '여인형': {
+        position: '전 국군방첩사령관',
+        charges: '내란중요임무종사 (형법 제87조), 일반이적 (형법 제99조)',
+        prosecutionRequest: '미정 (재판 진행 중)',
+        verdict: '미선고 (2026.2.11 첫 공판, 혐의 전면 부인)',
+        ratio: '미선고',
+        sentencingGuidelines: {
+            aggravating: ['방첩사령관으로서 계엄 핵심 모의 참여', '김용현→여인형 라인 — 방첩사 체포조 운영 지휘', '일반이적(외환죄) 추가 기소 — 평양 무인기 침투로 북한 도발 유도', '계엄 명분 마련 목적의 대북 도발 기획', '국방부 파면 징계 (2025.12.29)'],
+            mitigating: ['혐의 전면 부인', '상급자(대통령) 지시에 따른 측면']
+        }
+    },
+    '문상호': {
+        position: '전 국군정보사령관',
+        charges: '내란중요임무종사 (형법 제87조), 군사기밀누설, 직권남용',
+        prosecutionRequest: '미정 (재판 진행 중)',
+        verdict: '미선고 (재판 진행 중)',
+        ratio: '미선고',
+        sentencingGuidelines: {
+            aggravating: ['정보사 요원 30여명 개인정보를 민간인(노상원)에게 전달', '선관위 침투 라인: 김용현→노상원→문상호→정보사 요원', '선관위 직원 체포·감금 계획 지휘', '"포승줄로 묶고 복면 씌워 수방사 벙커로 이송" 지시', '롯데리아 회동 참석 — 사전 모의 가담', '군사기밀 누설 추가 혐의', '국방부 파면 징계 (2026.1.2)'],
+            mitigating: ['상급자 지시에 따른 측면']
+        }
+    },
+    '박안수': {
+        position: '전 육군참모총장 (계엄사령관)',
+        charges: '내란중요임무종사 (형법 제87조), 직권남용',
+        prosecutionRequest: '미정 (재판 진행 중)',
+        verdict: '미선고 (서울중앙지법 이송 요청 중)',
+        ratio: '미선고',
+        sentencingGuidelines: {
+            aggravating: ['계엄사령관으로서 불법 계엄 포고령 발령', '군 동원 명령 체계 중간 지휘자 (김용현→박안수→곽종근/이진우)', '국회에 특전사·707특수임무단 등 무장 병력 투입 지휘', '위헌적 포고령으로 정당·국회 활동 금지', '국회 권능 행사 방해 총괄 지휘'],
+            mitigating: ['상급자(대통령) 지시에 의한 측면']
+        }
+    },
+    '이진우': {
+        position: '전 수도방위사령관',
+        charges: '내란중요임무종사 (형법 제87조)',
+        prosecutionRequest: '미정 (재판 진행 중)',
+        verdict: '미선고 (2026.2.11 첫 공판, 혐의 부인)',
+        ratio: '미선고',
+        sentencingGuidelines: {
+            aggravating: ['수방사 병력 약 3,300명 동원하여 국회 봉쇄', '"국회의원을 끌어내라" 지시 수행 의혹', '윤석열 대통령 직접 전화로 "빨리하라" 독촉 — 명령 체계 직접 연결', '탄핵심판 위증 혐의 추가 (2026.2.13 경찰 소환)', '국방부 파면 징계 (2025.12.29)'],
+            mitigating: ['혐의 부인', '수방사 목적이 "외부 위협 방어 및 질서 유지"라고 주장']
+        }
+    },
+    '곽종근': {
+        position: '전 육군특수전사령관',
+        charges: '내란중요임무종사 (형법 제87조), 직권남용',
+        prosecutionRequest: '미정 (재판 진행 중)',
+        verdict: '미선고 (재판 진행 중)',
+        ratio: '미선고',
+        sentencingGuidelines: {
+            aggravating: ['특전사 부대를 직접 이끌고 국회 진입 지시', '명령 체계: 김용현→박안수→곽종근 라인', '대통령 통화 이전에 이미 1공수여단장에게 "문 부수고 의원 끌어내라" 지시', '롯데리아 회동 참석 — 사전 모의 가담', '국회 주권 직접 침해'],
+            mitigating: ['상급자 지시에 따른 측면', '증언 일관성 문제']
+        }
+    },
+    '추경호': {
+        position: '국민의힘 전 원내대표',
+        charges: '내란중요임무종사 (형법 제87조)',
+        prosecutionRequest: '미정 (2026.3.25 첫 정식재판 예정)',
+        verdict: '미선고 (불구속 기소, 구속영장 기각)',
+        ratio: '미선고',
+        sentencingGuidelines: {
+            aggravating: ['국회 계엄 해제 표결 방해', '긴급 의원총회 장소 변경으로 의원 소집 지연'],
+            mitigating: ['불구속 상태', '직접 병력 동원은 아님']
+        }
+    },
+    '박성재': {
+        position: '전 법무부 장관',
+        charges: '내란중요임무종사 (형법 제87조), 직권남용, 청탁금지법 위반',
+        prosecutionRequest: '미정 (재판 진행 중)',
+        verdict: '미선고 (불구속 기소, 주 2회 재판 중)',
+        ratio: '미선고',
+        sentencingGuidelines: {
+            aggravating: ['12.4 안가회동(삼청동 안전가옥) 참석', '계엄 선포 후 검사 파견 및 구치소 수용 공간 확보 지시', '서울권 구치소 3,600명 추가 수용 공간 확보 지시', '전시 경미범 임시 가석방 제도 언급 (전시 아닌데 전시 제도 적용 시도)', '김건희 수사 무마 의혹 (도이치모터스 불기소 당시 지휘부)'],
+            mitigating: ['불구속 상태', '직접 병력 동원은 아님']
+        }
+    },
+    '조태용': {
+        position: '전 국가정보원장',
+        charges: '직무유기, 국정원법 위반 (정치 중립 위반)',
+        prosecutionRequest: '미정 (재판 진행 중)',
+        verdict: '미선고 (구속 기소, 2026.2.4 첫 공판 혐의 전면 부인)',
+        ratio: '미선고',
+        sentencingGuidelines: {
+            aggravating: ['계엄 선포 계획 알고도 국회 정보위에 미보고', '국민의힘에만 CCTV 영상 선별 제공 (정치 중립 위반)', '홍장원 1차장으로부터 이재명·한동훈 체포 계획 들었으나 침묵'],
+            mitigating: ['혐의 전면 부인 ("상상에 기반한 기소")', '직접 내란 실행행위는 아님']
+        }
+    },
+    '김주현': {
+        position: '전 대통령실 민정수석',
+        charges: '직권남용권리행사방해 (형법 제123조), 내란 방조 수사 중 (형법 제87조, 제32조)',
+        prosecutionRequest: '직권남용 재판 진행 중 + 내란 방조 수사 중',
+        verdict: '미선고 (재판 진행 중)',
+        ratio: '미선고',
+        sentencingGuidelines: {
+            aggravating: ['12.4 안가회동 참석 — 계엄 사후 수습 논의', '계엄선포문 사후 작성 관여 — 계엄의 졸속성 증거', '헌법재판관 3인 졸속 지명 — 탄핵심판 영향력 확보 시도', '대통령 핵심 법률 참모로서 내란 법적 기반 마련'],
+            mitigating: ['직접적 내란 실행 행위 아님', '불구속 상태', '대통령 지시에 따른 업무 수행']
+        }
+    },
+    '이완규': {
+        position: '전 법제처장',
+        charges: '위증 (국회증언감정법), 내란 방조 수사 중 (형법 제87조, 제32조)',
+        prosecutionRequest: '위증 재판 진행 중 + 내란 방조 수사 중',
+        verdict: '미선고 (재판 진행 중)',
+        ratio: '미선고',
+        sentencingGuidelines: {
+            aggravating: ['12.4 안가회동 참석 — 법률적 뒷받침 역할', '법제처장으로서 비상계엄의 법적 정당성 자문 의혹', '국회 법사위 위증 — 안가회동 참석 사실 허위 진술', '윤석열 사법연수원 25기 동기 — 핵심 법률 측근'],
+            mitigating: ['직접적 내란 실행 행위 아님', '불구속 상태']
+        }
+    },
+    '윤승영': {
+        position: '전 경찰청 국수본 수사기획조정관 (치안정감)',
+        charges: '내란중요임무종사 (형법 제87조), 직권남용권리행사방해',
+        prosecutionRequest: '불구속 기소 (2025.2.28)',
+        verdict: '무죄 (2026.2.19 선고)',
+        ratio: '무죄 (내란죄·직권남용 모두 무죄)',
+        sentencingGuidelines: {
+            aggravating: ['방첩사 체포조 편성 시 경찰 인력 지원 중간 보고·조정', '조지호 청장에게 보고 후 승인 받아 체포조 지원 가담'],
+            mitigating: ['비상계엄 매뉴얼에 따른 합동수사단 지원으로 오인 — 재판부 수용', '체포 대상을 정치인이 아닌 포고령 위반 사범으로 인식', '국회 활동 저지·마비 목적 공유 증거 부족', '명령 전달자(중간 실무급)로서 범의 불인정']
+        }
+    }
+};
+
+// AI 양형 예측 함수
+exports.predictSentencingWithAI = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 300, memory: '1GB' })
+    .https.onRequest(async (req, res) => {
+        // CORS 헤더
+        res.set('Access-Control-Allow-Origin', '*');
+        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.set('Access-Control-Allow-Headers', 'Content-Type');
+        if (req.method === 'OPTIONS') {
+            return res.status(204).send('');
+        }
+
+        const defendant = req.query.defendant || req.body?.defendant;
+        if (!defendant) {
+            return res.status(400).json({ error: '피고인 이름(defendant)을 지정해주세요.' });
+        }
+
+        try {
+            // 1. 기존 sentencingData에서 피고인 정보 조회
+            const existingDoc = await db.collection('sentencingData').doc(defendant).get();
+            const existingData = existingDoc.exists ? existingDoc.data() : {};
+
+            // 2. 이미 선고된 공범 데이터 조회
+            const verdictsSnap = await db.collection('insurrectionVerdicts').get();
+            const codefendantVerdicts = verdictsSnap.docs
+                .map(d => d.data())
+                .filter(v => v.status === 'convicted' && v.defendant !== defendant)
+                .map(v => `${v.defendant}: ${v.charge} → ${v.sentence} (${v.court}, ${v.date})`)
+                .join('\n');
+
+            // 3. 최신 뉴스 수집
+            const newsQueries = [
+                `${defendant} 내란 재판 양형`,
+                `${defendant} 내란 구형 판결`,
+                `${defendant} 내란 선고`
+            ];
+
+            let allNews = [];
+            for (const query of newsQueries) {
+                try {
+                    const news = await searchNews(query, 10);
+                    allNews = allNews.concat(news);
+                } catch (e) { /* 뉴스 검색 실패 무시 */ }
+                await new Promise(r => setTimeout(r, 500));
+            }
+
+            // 중복 제거
+            const seen = new Set();
+            allNews = allNews.filter(item => {
+                const key = item.title?.replace(/\s/g, '');
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+
+            // MSN 필터링 (JavaScript 렌더링 필요, 본문 추출 불가)
+            allNews = allNews.filter(item => {
+                const url = item.link || '';
+                return !url.includes('msn.com');
+            });
+
+            // 신뢰 출처 우선 정렬
+            const trustedDomains = ['yna.co.kr', 'hani.co.kr', 'khan.co.kr', 'news1.kr', 'ytn.co.kr', 'sbs.co.kr', 'kbs.co.kr', 'mbc.co.kr', 'joongang.co.kr', 'donga.com', 'chosun.com', 'hankyung.com', 'mk.co.kr', 'lawtimes.co.kr', 'lec.co.kr'];
+            allNews.sort((a, b) => {
+                const aUrl = a.link || '';
+                const bUrl = b.link || '';
+                const aTrusted = trustedDomains.some(d => aUrl.includes(d)) ? 0 : 1;
+                const bTrusted = trustedDomains.some(d => bUrl.includes(d)) ? 0 : 1;
+                return aTrusted - bTrusted;
+            });
+
+            // 4. 기사 본문 추출 (상위 5개)
+            let newsText = '';
+            const topNews = allNews.slice(0, 5);
+            for (const item of topNews) {
+                try {
+                    const content = await fetchArticleContent(item.link);
+                    if (content) {
+                        newsText += `[${item.title}]\n${content.substring(0, 1000)}\n\n`;
+                    }
+                } catch (e) { /* 본문 추출 실패 무시 */ }
+                await new Promise(r => setTimeout(r, 300));
+            }
+
+            if (!newsText && topNews.length > 0) {
+                newsText = topNews.map(n => `[${n.title}] ${n.description || ''}`).join('\n');
+            }
+
+            // 5. 피고인 혐의/구형 정보 구성
+            const chargesInfo = existingData.charges
+                ? existingData.charges.map(c => `- ${c.name} (${c.law}): 구형 ${c.prosecutionRequest || '미정'}`).join('\n')
+                : '혐의 정보 없음';
+
+            const prosecutionTotal = existingData.summary?.prosecutionTotal || '미정';
+
+            // 6. 정적 양형 데이터 조회
+            const staticData = FRONTEND_SENTENCING_DATA[defendant];
+
+            // 7. 3단계 AI 분석 파이프라인
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+            // === Step 1: 법률 분석 (Legal Framework) ===
+            const step1Prompt = `당신은 대한민국 형사법 전문가입니다. 다음 피고인에 대한 법률 분석을 수행하세요.
+
+## ⚖️ 내란죄 관련 법정형 체계 (반드시 준수)
+
+### 형법 제87조 (내란) - 국헌문란 목적 폭동
+1호. **내란수괴**: 사형·무기징역·무기금고 → 법정 최고형: 사형, 법정 최저형: 무기징역/무기금고 (유기징역 선택지 없음)
+2호. **내란중요임무종사** (모의참여·지휘·중요임무종사·살인파괴 실행자): 사형·무기 또는 5년 이상의 징역이나 금고
+3호. **부화수행·단순관여**: 5년 이하의 징역 또는 금고
+
+### 형법 제88조 (내란목적살인)
+내란 목적으로 사람을 살해한 자: 사형·무기 또는 7년 이상의 징역
+
+### 형법 제89조 (미수범)
+내란죄의 미수범은 처벌 (법정형 기수범과 동일)
+
+### 형법 제90조 (예비·음모·선전·선동)
+내란 예비·음모: 3년 이상의 유기징역·유기금고
+내란 선전·선동: 동일
+
+### 형법 제91조 (국헌문란의 정의)
+1호. 헌법 또는 법률에 정한 절차에 의하지 아니하고 헌법 또는 법률의 기능을 소멸시키는 것
+2호. 헌법에 의하여 설치된 국가기관을 강압에 의하여 전복 또는 그 권능행사를 불가능하게 하는 것
+
+### 외환죄 관련 법정형 체계 (별도 재판 진행 중인 혐의)
+- 형법 제92조 (외환유치): 사형 또는 무기징역 — 외국과 통모하여 전단을 열게 하는 행위
+- 형법 제93조 (여적): 사형(단일형, 형법상 유일) — 적국과 합세하여 항적
+- 형법 제99조 (일반이적): 무기 또는 3년 이상 징역 — 군사상 이익을 해하거나 적국에 군사상 이익 공여
+- 쟁점: 북한이 형법상 '적국'인지 (헌법 제3조 영토조항 vs 정전협정 상대 실질론)
+
+### 핵심 양형 원칙
+- 내란수괴(제87조 1호)는 사형·무기징역·무기금고만 선택 가능하며, 유기징역 선고가 법률상 불가능
+- 내란중요임무종사(제87조 2호)는 사형부터 징역 5년까지 폭넓은 범위
+- 경합범 가중(형법 제37조, 제38조): 동시 판결 시 가장 중한 죄의 장기에 1/2 가중
+- 내란죄 + 외환죄(일반이적) 경합 시 양형에 중대한 영향
+
+## 피고인 정보
+- 이름: ${defendant}
+- 직위: ${existingData.position || staticData?.position || '미상'}
+- 현재 상태: ${existingData.status || '재판 진행 중'}
+- 검찰 총 구형: ${prosecutionTotal}
+${staticData ? `- 1심 판결: ${staticData.verdict}` : ''}
+
+## 혐의 상세
+${chargesInfo}
+
+${staticData?.pendingTrials ? `## 별도 진행 중인 추가 재판
+${staticData.pendingTrials.map(t => `- ${t}`).join('\n')}` : ''}
+
+${staticData?.uncharged ? `## 언론에서 논의되었으나 미기소된 혐의
+${staticData.uncharged.map(u => `- ${u}`).join('\n')}` : ''}
+
+${staticData?.verdictOmissions ? `## 1심 판결에서 누락/배척된 사항 (비판점)
+${staticData.verdictOmissions.map(o => `- ${o}`).join('\n')}` : ''}
+
+${staticData ? `## 대법원 양형위원회 기준 참고
+- 가중사유: ${staticData.sentencingGuidelines.aggravating.join(', ')}
+- 감경사유: ${staticData.sentencingGuidelines.mitigating.join(', ')}` : ''}
+
+## 이미 선고된 공범 판결
+${codefendantVerdicts || '아직 선고된 공범 없음'}
+
+${staticData ? `## 전체 공범 판결 요약
+${Object.entries(FRONTEND_SENTENCING_DATA).filter(([name]) => name !== defendant).map(([name, data]) => `- ${name} (${data.position}): ${data.charges} → 구형: ${data.prosecutionRequest} → 판결: ${data.verdict} (${data.ratio})`).join('\n')}` : ''}
+
+다음 JSON 형식으로만 응답하세요:
+{
+    "applicableLaws": ["적용 법조항과 각 법조항의 법정형(최고형·최저형 명시) 상세 설명 (최소 5개)"],
+    "statutoryRange": "이 피고인에게 적용되는 법정형의 정확한 범위 (예: 내란수괴 제87조 1호 → 사형/무기징역/무기금고만 가능, 유기징역 불가). 반드시 해당 조항의 최고형과 최저형을 명시할 것 (3-5문장)",
+    "aggravatingFactors": ["가중 사유 - 각 항목을 2-3문장으로 구체적 근거와 함께 서술 (최소 5개)"],
+    "mitigatingFactors": ["감경 사유 - 각 항목을 2-3문장으로 구체적 근거와 함께 서술 (최소 3개)"],
+    "keyLegalIssues": ["핵심 법적 쟁점 - 각 쟁점의 법리적 논쟁을 3-4문장으로 상세 서술 (최소 4개)"],
+    "sentencingFramework": "위 법정형 체계에 근거한 양형 범위 분석. 반드시 해당 죄명의 법정 최고형·최저형을 명시하고, 경합범 가중 시 범위 변동도 설명 (5-7문장)"
+}`;
+
+            const step1Result = await model.generateContent(step1Prompt);
+            const step1Text = step1Result.response.text();
+            let step1Data;
+            try {
+                const json1 = step1Text.match(/\{[\s\S]*\}/);
+                step1Data = json1 ? JSON.parse(json1[0]) : JSON.parse(step1Text);
+            } catch (e) {
+                step1Data = { applicableLaws: [], aggravatingFactors: [], mitigatingFactors: [], keyLegalIssues: [], sentencingFramework: '파싱 실패' };
+            }
+
+            // === Step 2: 역사적 선례 비교 (Historical Precedent) ===
+            const allPrecedents = Object.values(HISTORICAL_PRECEDENTS);
+            const step2Prompt = `당신은 대한민국 형사법 선례 분석 전문가입니다. Step 1의 법률 분석 결과를 바탕으로 역사적 선례와 공범 판결을 비교 분석하세요.
+
+## Step 1 법률 분석 결과
+- 적용법조: ${JSON.stringify(step1Data.applicableLaws)}
+- 가중사유: ${JSON.stringify(step1Data.aggravatingFactors)}
+- 감경사유: ${JSON.stringify(step1Data.mitigatingFactors)}
+- 양형기준: ${step1Data.sentencingFramework}
+
+## 피고인 정보
+- 이름: ${defendant}
+- 직위: ${existingData.position || staticData?.position || '미상'}
+- 검찰 구형: ${prosecutionTotal}
+${staticData ? `- 1심 판결: ${staticData.verdict}
+- 구형 대비 선고 비율: ${staticData.ratio}` : ''}
+
+## 역사적 선례 (${allPrecedents.length}건)
+${allPrecedents.map((p, i) => `### 선례 ${i + 1}: ${p.name} (${p.year}년)
+- 혐의: ${p.charges}
+- 배경: ${p.background}
+- 1심: ${p.firstInstance}
+- 항소심: ${p.appeal}
+- 대법원: ${p.supremeCourt}
+- 최종: ${p.finalResult}
+- 가중요소: ${p.aggravatingFactors.join(', ')}
+- 감경요소: ${p.mitigatingFactors.join(', ')}`).join('\n\n')}
+
+## 이미 선고된 공범 판결
+${codefendantVerdicts || '아직 선고된 공범 없음'}
+
+${staticData ? `## 전체 공범 양형 비교 데이터
+${Object.entries(FRONTEND_SENTENCING_DATA).filter(([name]) => name !== defendant).map(([name, data]) => `- ${name}: 구형 ${data.prosecutionRequest} → 판결 ${data.verdict} (비율: ${data.ratio}). 가중: ${data.sentencingGuidelines.aggravating.join(', ')} / 감경: ${data.sentencingGuidelines.mitigating.join(', ')}`).join('\n')}` : ''}
+
+${FRONTEND_SENTENCING_DATA['노상원']?.notebook ? `## 노상원 수첩 (70페이지 수기 메모 — "계엄의 스모킹건")
+${FRONTEND_SENTENCING_DATA['노상원'].notebook.content.map(c => `- ${c}`).join('\n')}
+- 증거 상태: ${FRONTEND_SENTENCING_DATA['노상원'].notebook.evidenceStatus}` : ''}
+
+${staticData?.verdictOmissions ? `## 1심 판결 누락/배척 사항 (언론·법조계 비판)
+${staticData.verdictOmissions.map(o => `- ${o}`).join('\n')}` : ''}
+
+다음 JSON 형식으로만 응답하세요:
+{
+    "historicalComparison": {
+        "chundoohwan": {
+            "similarity": "전두환 사건과의 유사점 (3-4문장, 구체적 법조항 비교 포함)",
+            "difference": "전두환 사건과의 차이점 (3-4문장, 시대적·법률적 차이 분석)",
+            "sentenceImpact": "전두환 선례가 이 피고인 양형에 미치는 영향 (3-4문장)"
+        },
+        "nohtaewoo": {
+            "similarity": "노태우 사건과의 유사점 (3-4문장)",
+            "difference": "노태우 사건과의 차이점 (3-4문장)",
+            "sentenceImpact": "노태우 선례가 양형에 미치는 영향 (3-4문장)"
+        },
+        "kimjaegyu": {
+            "similarity": "김재규 사건과의 유사점 (3-4문장)",
+            "difference": "김재규 사건과의 차이점 (3-4문장)",
+            "sentenceImpact": "김재규 선례가 양형에 미치는 영향 (3-4문장)"
+        },
+        "leesukki": {
+            "similarity": "이석기 사건과의 유사점 (3-4문장)",
+            "difference": "이석기 사건과의 차이점 (3-4문장)",
+            "sentenceImpact": "이석기 선례가 양형에 미치는 영향 (3-4문장)"
+        }
+    },
+    "codefendantComparison": [
+        {
+            "name": "공범 이름",
+            "sentence": "선고 형량",
+            "role": "사건 내 역할",
+            "comparedToDefendant": "이 피고인과의 비교 분석 (3-4문장, 역할·책임 수준 비교)"
+        }
+    ],
+    "verdictOmissionAnalysis": {
+        "omittedCharges": "1심에서 누락/별도 분리된 혐의 분석 (외환죄, 내란목적살인예비 등)과 향후 양형 영향 (3-5문장)",
+        "notebookImpact": "노상원 수첩 증거 배척이 양형에 미친 영향 분석. 수첩이 증거로 채택되었다면 양형이 어떻게 달라졌을지 (3-5문장)",
+        "pendingTrialsImpact": "별도 진행 중인 재판(일반이적 등)이 최종 양형에 미칠 영향 (3-5문장)"
+    },
+    "precedentSummary": "역사적 선례, 공범 판결, 판결 누락 사항을 종합한 양형 방향 분석 (5-7문장)"
+}`;
+
+            const step2Result = await model.generateContent(step2Prompt);
+            const step2Text = step2Result.response.text();
+            let step2Data;
+            try {
+                const json2 = step2Text.match(/\{[\s\S]*\}/);
+                step2Data = json2 ? JSON.parse(json2[0]) : JSON.parse(step2Text);
+            } catch (e) {
+                step2Data = { historicalComparison: {}, codefendantComparison: [], precedentSummary: '파싱 실패' };
+            }
+
+            // === Step 3: 최종 예측 (Final Prediction) ===
+            const step3Prompt = `당신은 대한민국 최고의 양형 예측 전문가입니다. Step 1(법률 분석)과 Step 2(선례 비교)의 결과를 종합하여 최종 양형을 예측하세요.
+
+## ⚖️ 법정형 제약 (양형 예측 시 반드시 준수)
+- 내란수괴(형법 제87조 1호): 사형·무기징역·무기금고만 가능. 유기징역(예: 징역 20년) 선고 법률상 불가능
+- 내란중요임무종사(형법 제87조 2호): 사형, 무기 또는 5년 이상의 징역·금고
+- 부화수행(형법 제87조 3호): 5년 이하의 징역·금고
+- 내란수괴의 경우 '사형 또는 무기징역' 중에서만 예측해야 하며, 유기징역 예측은 법적 오류
+${step1Data.statutoryRange ? `- Step 1 법정형 분석: ${step1Data.statutoryRange}` : ''}
+
+## Step 1 법률 분석 요약
+- 적용법조: ${JSON.stringify(step1Data.applicableLaws)}
+- 가중사유 수: ${step1Data.aggravatingFactors?.length || 0}개
+- 감경사유 수: ${step1Data.mitigatingFactors?.length || 0}개
+- 양형기준: ${step1Data.sentencingFramework}
+
+## Step 2 선례 분석 요약
+- 역사적 선례 비교: ${allPrecedents.length}건 분석 완료
+- 공범 비교: ${step2Data.codefendantComparison?.length || 0}건
+- 선례 종합: ${step2Data.precedentSummary}
+
+## 피고인 정보
+- 이름: ${defendant}
+- 직위: ${existingData.position || staticData?.position || '미상'}
+- 검찰 구형: ${prosecutionTotal}
+${staticData ? `- 1심 판결: ${staticData.verdict}
+- 구형 대비 선고 비율: ${staticData.ratio}` : ''}
+
+${staticData ? `## 공범별 구형 대비 선고 비율 통계
+${Object.entries(FRONTEND_SENTENCING_DATA).map(([name, data]) => `- ${name} (${data.position}): ${data.ratio}`).join('\n')}` : ''}
+
+## 최근 뉴스 (참고자료)
+${newsText || '최신 뉴스 없음'}
+
+위 정보를 종합하여 최종 양형을 예측하세요. 반드시 해당 죄명의 법정형 범위 내에서만 예측할 것. 다음 JSON 형식으로만 응답:
+{
+    "predictedSentence": {
+        "range": "법정형 범위 내 예측 양형 범위 (내란수괴는 '사형 또는 무기징역'만 가능)",
+        "mostLikely": "가장 유력한 양형 (법정형 범위 내에서만 선택)",
+        "confidence": "high 또는 medium 또는 low",
+        "reasoning": "예측 근거 요약 - 법정형 제약과 선례를 반영 (3-4문장)"
+    },
+    "sentencingReasoning": "종합 양형 예측 근거 - 법정형 체계, 법률분석, 선례비교, 공범판결, 뉴스 동향을 모두 반영한 상세 분석. 특히 법정형의 최고형·최저형을 명시하고 그 범위 내에서 분석 (10-15문장으로 매우 상세하게)",
+    "riskFactors": [
+        {
+            "factor": "양형에 영향을 미칠 수 있는 위험/변수 요인",
+            "impact": "해당 요인이 양형을 높이거나 낮출 수 있는 방향과 정도 (2-3문장)",
+            "probability": "high 또는 medium 또는 low"
+        }
+    ],
+    "appealOutlook": {
+        "likelihood": "항소 가능성 (high/medium/low)",
+        "expectedChange": "항소심 예상 변화 - 법정형 범위 내에서 변경 가능성 (2-3문장)",
+        "finalOutlook": "최종 확정 예상 (2-3문장)"
+    },
+    "disclaimer": "본 분석은 AI가 공개된 자료를 기반으로 생성한 예측이며, 실제 법원 판결과 다를 수 있습니다. 법적 조언이 아닌 참고 자료로만 활용하시기 바랍니다."
+}`;
+
+            const step3Result = await model.generateContent(step3Prompt);
+            const step3Text = step3Result.response.text();
+            let step3Data;
+            try {
+                const json3 = step3Text.match(/\{[\s\S]*\}/);
+                step3Data = json3 ? JSON.parse(json3[0]) : JSON.parse(step3Text);
+            } catch (e) {
+                step3Data = { predictedSentence: { range: '분석 실패', mostLikely: '분석 실패', confidence: 'low' }, sentencingReasoning: step3Text?.substring(0, 500) || '파싱 실패' };
+            }
+
+            // 8. 3단계 결과 병합
+            const prediction = {
+                ...step1Data,
+                ...step2Data,
+                ...step3Data
+            };
+
+            // 9. Firestore에 저장
+            await db.collection('sentencingData').doc(defendant).set({
+                aiPrediction: {
+                    ...prediction,
+                    generatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    newsSourceCount: topNews.length,
+                    model: 'gemini-2.5-flash',
+                    analysisSteps: 3,
+                    version: 'v2.0',
+                    historicalPrecedentCount: Object.keys(HISTORICAL_PRECEDENTS).length,
+                    hasStaticData: !!staticData
+                },
+                lastUpdated: admin.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            return res.json({
+                success: true,
+                defendant,
+                prediction,
+                newsCount: topNews.length,
+                version: 'v2.0',
+                analysisSteps: 3
+            });
+
+        } catch (error) {
+            return res.status(500).json({
+                error: 'AI 양형 예측 실패',
+                message: error.message
+            });
+        }
+    });
+
 // 3. 재판부 구성 자동 수집 (관리자 트리거)
 exports.crawlCourtComposition = functions
     .region('asia-northeast3')
