@@ -112,9 +112,8 @@ export default function Resources() {
 
   const handleDownload = (resource) => {
     // 실제 다운로드 로직 (파일이 존재하는 경우)
-    console.log('Download:', resource.title);
     // window.open(resource.link, '_blank');
-    
+
     // 파일이 없는 경우 알림
     alert(`"${resource.title}" 파일 준비 중입니다.\n곧 다운로드 가능합니다.`);
   };

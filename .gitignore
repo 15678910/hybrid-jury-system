@@ -3,6 +3,7 @@
 .env.local
 .env.production
 backend/.env
+functions/.env
 
 # Firebase Service Account Key (절대 공유하면 안됨!)
 serviceAccountKey.json
@@ -34,9 +35,13 @@ dist-ssr
 *.sw?
 
 .vercel
-"*.pdf" 
-*.pdf 
+"*.pdf"
+*.pdf
 trigger rebuild
+
+# Large generated files (서버 사이드 검색으로 전환됨)
+public/embeddings.json
+functions/data/chunkEmbeddings.json
 
 .vercel
 

@@ -23,8 +23,8 @@ function Poster({ onClose }) {
 
     if (audioRef.current.paused) {
       audioRef.current.play()
-        .then(() => console.log('음악 재생 성공'))
-        .catch(err => console.log('재생 실패:', err))
+        .then(() => {})
+        .catch(() => {})
     } else {
       audioRef.current.pause()
     }

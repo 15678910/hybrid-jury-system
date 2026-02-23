@@ -8,8 +8,11 @@ service cloud.firestore {
       // 읽기: 본인만 가능
       allow read: if request.auth != null && request.auth.uid == userId;
 
-      // 생성/수정: 본인만 가능 (카카오 사용자는 인증 없이 접근하므로 조건 완화)
-      allow create, update: if true;
+      // 생성/수정: 인증된 사용자 또는 카카오 로그인 사용자 허용
+      // 카카오 로그인은 Firebase Auth를 거치지 않으므로 userId 패턴으로 허용
+      allow create, update: if request.auth != null
+                            || (request.resource.data.provider == 'kakao'
+                                && userId.matches('kakao_[0-9]+'));
 
       // 삭제: 불가
       allow delete: if false;
@@ -38,7 +41,8 @@ service cloud.firestore {
       allow read: if true;
 
       // 생성: 필수 필드가 있는 경우 허용
-      allow create: if request.resource.data.keys().hasAll(['title', 'content', 'author'])
+      allow create: if request.auth != null
+                    && request.resource.data.keys().hasAll(['title', 'content', 'author'])
                     && request.resource.data.title is string
                     && request.resource.data.content is string;
 
@@ -91,8 +95,8 @@ service cloud.firestore {
       allow update: if request.resource.data.diff(resource.data).affectedKeys()
                        .hasOnly(['title', 'description', 'category', 'images', 'updatedAt']);
 
-      // 삭제: 관리자 페이지에서 코드 검증 후 삭제 허용
-      allow delete: if true;
+      // 삭제: 인증된 사용자만 허용 (관리자 페이지에서 코드 검증 후 삭제)
+      allow delete: if request.auth != null;
     }
 
     // 의제별 투표 컬렉션 (법왜곡죄, 내란전담재판부, 시민법관참심제)
@@ -211,8 +215,8 @@ service cloud.firestore {
       allow update: if request.resource.data.diff(resource.data).affectedKeys()
                        .hasOnly(['status', 'promotedAt', 'rejectedAt', 'rejectedReason'])
                     && request.resource.data.status in ['proposal', 'promoted', 'rejected'];
-      // 관리자 삭제 허용 (클라이언트에서 관리자 코드 검증 후 삭제)
-      allow delete: if true;
+      // 관리자 삭제 허용 (인증된 사용자만, 클라이언트에서 관리자 코드 검증 후 삭제)
+      allow delete: if request.auth != null;
     }
 
     // 제안 추천(지지) 컬렉션 (proposal_supports_로 시작하는 모든 컬렉션)
@@ -226,10 +230,14 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // 설정 컬렉션: 읽기는 모두 허용, 쓰기는 허용 (관리자 페이지에서 코드 검증 후 저장)
+    // 설정 컬렉션: 읽기는 모두 허용
+    // governance 설정은 제안 승격 시 topics 필드 업데이트 허용 (카카오 로그인 사용자 포함)
+    // 기타 설정은 인증된 사용자만 허용
     match /settings/{settingId} {
       allow read: if true;
-      allow create, update: if true;
+      allow create, update: if request.auth != null
+                            || (settingId == 'governance'
+                                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['topics']));
       allow delete: if false;
     }
 
@@ -280,6 +288,18 @@ service cloud.firestore {
 
     // 내란 재판 판결 데이터: 읽기 허용
     match /insurrectionVerdicts/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // 내란 재판 재판부 구성 데이터: 읽기 허용
+    match /insurrectionCourts/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // 사법개혁 뉴스 데이터: 읽기 허용
+    match /reformNews/{docId} {
       allow read: if true;
       allow write: if false;
     }

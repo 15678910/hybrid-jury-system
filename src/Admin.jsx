@@ -371,7 +371,11 @@ export default function Admin() {
     const handleLogin = (e) => {
         e.preventDefault();
         // 환경변수에서 비밀번호 가져오기
-        const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin2024';
+        const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
+        if (!adminPassword) {
+            alert('관리자 설정 오류');
+            return;
+        }
 
         if (password === adminPassword) {
             const loginTime = Date.now().toString();
@@ -408,12 +412,21 @@ export default function Admin() {
         }
     };
 
+    // CSV 필드 이스케이프 (쉼표, 따옴표, 줄바꿈 처리)
+    const escapeCsvField = (field) => {
+        const str = String(field ?? '');
+        if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+            return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+    };
+
     // 엑셀 다운로드
     const downloadExcel = () => {
         let csv = '이름,유형,재능나눔,연락처,SNS,참여시간\n';
         signatures.forEach(sig => {
             const timestamp = sig.timestamp?.toDate ? sig.timestamp.toDate().toLocaleString('ko-KR') : (sig.timestamp ? new Date(sig.timestamp).toLocaleString('ko-KR') : '-');
-            csv += `${sig.name},${sig.type === 'individual' ? '개인' : '단체'},${sig.talent || '-'},${sig.phone},${sig.sns?.join('/') || '-'},${timestamp}\n`;
+            csv += `${escapeCsvField(sig.name)},${escapeCsvField(sig.type === 'individual' ? '개인' : '단체')},${escapeCsvField(sig.talent || '-')},${escapeCsvField(sig.phone)},${escapeCsvField(sig.sns?.join('/') || '-')},${escapeCsvField(timestamp)}\n`;
         });
 
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -490,7 +503,9 @@ export default function Admin() {
     const triggerCrawl = async () => {
         setCrawlStatus({ loading: true, result: null });
         try {
-            const response = await fetch('https://asia-northeast3-siminbupjung-blog.cloudfunctions.net/triggerVerdictCrawl');
+            const response = await fetch('https://asia-northeast3-siminbupjung-blog.cloudfunctions.net/triggerVerdictCrawl', {
+                headers: { 'X-Admin-Key': import.meta.env.VITE_ADMIN_API_KEY || '' }
+            });
             const data = await response.json();
             setCrawlStatus({ loading: false, result: data });
             if (data.savedNew > 0) loadVerdicts();
@@ -510,7 +525,9 @@ export default function Admin() {
         }
         setAiAnalysisStatus({ loading: true, result: null });
         try {
-            const response = await fetch(`https://asia-northeast3-siminbupjung-blog.cloudfunctions.net/analyzeVerdictWithAI?defendant=${encodeURIComponent(defendant)}`);
+            const response = await fetch(`https://asia-northeast3-siminbupjung-blog.cloudfunctions.net/analyzeVerdictWithAI?defendant=${encodeURIComponent(defendant)}`, {
+                headers: { 'X-Admin-Key': import.meta.env.VITE_ADMIN_API_KEY || '' }
+            });
             const data = await response.json();
             setAiAnalysisStatus({ loading: false, result: data });
             alert(`AI 분석 완료: ${defendant}`);
@@ -530,7 +547,8 @@ export default function Admin() {
         setAiAnalysisStatus({ loading: true, result: null });
         try {
             const response = await fetch(
-                `https://asia-northeast3-siminbupjung-blog.cloudfunctions.net/predictSentencingWithAI?defendant=${encodeURIComponent(defendant)}`
+                `https://asia-northeast3-siminbupjung-blog.cloudfunctions.net/predictSentencingWithAI?defendant=${encodeURIComponent(defendant)}`,
+                { headers: { 'X-Admin-Key': import.meta.env.VITE_ADMIN_API_KEY || '' } }
             );
             const data = await response.json();
             setAiAnalysisStatus({ loading: false, result: data });
@@ -549,7 +567,9 @@ export default function Admin() {
     const triggerCourtUpdate = async () => {
         setCourtStatus({ loading: true, result: null });
         try {
-            const response = await fetch('https://asia-northeast3-siminbupjung-blog.cloudfunctions.net/crawlCourtComposition');
+            const response = await fetch('https://asia-northeast3-siminbupjung-blog.cloudfunctions.net/crawlCourtComposition', {
+                headers: { 'X-Admin-Key': import.meta.env.VITE_ADMIN_API_KEY || '' }
+            });
             const data = await response.json();
             setCourtStatus({ loading: false, result: data });
             alert(`재판부 구성 업데이트 완료: ${data.courts?.length || 0}건`);
@@ -573,7 +593,7 @@ export default function Admin() {
                     
                     <form onSubmit={handleLogin}>
                         <input
-                            type="text"
+                            type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="비밀번호를 입력하세요"

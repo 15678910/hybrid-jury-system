@@ -129,12 +129,6 @@ export default function Header() {
                                         내란재판분석
                                     </Link>
                                     <Link
-                                        to="/trial-analysis"
-                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                    >
-                                        내란재판 종합분석
-                                    </Link>
-                                    <Link
                                         to="/reform-analysis"
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                     >
@@ -213,7 +207,6 @@ export default function Header() {
                                 <Link to="/blog" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>블로그</Link>
                                 <Link to="/videos" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
                                 <Link to="/sentencing-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>내란재판분석</Link>
-                                <Link to="/trial-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>내란재판 종합분석</Link>
                                 <Link to="/reform-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>개혁안 비교</Link>
                                 <Link to="/judge-evaluation" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>판사평가</Link>
                                 <Link to="/judicial-network" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>관계도</Link>

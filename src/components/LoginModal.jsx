@@ -69,9 +69,6 @@ export default function LoginModal({
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // 디버그 로그
-    console.log('[LoginModal] step:', step, 'selectedUser:', selectedUser?.email, 'googleLoginInProgress:', googleLoginInProgress?.current);
-
     // 모달 초기화
     const resetModal = () => {
         setIsLoading(false);
@@ -97,29 +94,22 @@ export default function LoginModal({
         // 1. 먼저 플래그 설정 (동기적으로!)
         if (googleLoginInProgress) {
             googleLoginInProgress.current = true;
-            console.log('[LoginModal] googleLoginInProgress.current = true 설정됨');
         }
 
         // 2. provider 설정
         setSelectedProvider('google');
 
         try {
-            console.log('[LoginModal] Google 로그인 시작');
-
             const result = await selectGoogleAccount();
-            console.log('[LoginModal] Google 로그인 결과:', result.success, result.user?.email);
 
             if (result.success && result.user) {
                 // 로그인 성공 - 확인 화면으로 이동
-                console.log('[LoginModal] 확인 화면으로 전환');
                 setSelectedUser(result.user);
                 setStep('confirm');
                 setIsLoading(false);
-                console.log('[LoginModal] setStep(confirm) 호출 완료');
                 return; // 여기서 종료
             } else if (result.isRedirect) {
                 // 리다이렉트 방식으로 전환됨 - 페이지가 리다이렉트되므로 대기
-                console.log('[LoginModal] 리다이렉트 방식으로 전환됨');
                 return;
             } else {
                 // 에러 처리 - 플래그 해제

@@ -125,7 +125,6 @@ export default function AdminCardNews() {
                     ctx.drawImage(img, 0, 0, width, height);
 
                     canvas.toBlob((blob) => {
-                        console.log('압축 후 크기:', Math.round(blob.size / 1024), 'KB');
                         resolve(blob);
                     }, 'image/jpeg', 0.8);
                 };

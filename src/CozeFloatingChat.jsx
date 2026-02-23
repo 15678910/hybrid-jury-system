@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { FAQMatcher } from './lib/faqMatcher';
-import { getVectorSearch } from './lib/vectorSearch';
 import faqData from './data/faq.json';
 
 export default function FloatingChat() {
@@ -9,25 +8,12 @@ export default function FloatingChat() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [matcher, setMatcher] = useState(null);
-  const [vectorSearch, setVectorSearch] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
   useEffect(() => {
     const faqMatcher = new FAQMatcher(faqData);
     setMatcher(faqMatcher);
-
-    // 벡터 검색 비동기 초기화
-    const initVectorSearch = async () => {
-      try {
-        const vs = await getVectorSearch();
-        setVectorSearch(vs);
-        console.log('벡터 검색 초기화 완료:', vs.getStats());
-      } catch (err) {
-        console.log('벡터 검색 초기화 실패:', err);
-      }
-    };
-    initVectorSearch();
 
     // 초기 환영 메시지
     setMessages([{
@@ -97,111 +83,41 @@ export default function FloatingChat() {
         return;
       }
 
-      // 2단계: PDF 검색 + AI 요약 (더 많은 청크를 AI에게 전달)
-      let pdfResults = [];
-      if (vectorSearch) {
-        try {
-          // 더 많은 청크 검색 (10개)
-          pdfResults = vectorSearch.search(currentInput, 10, 0.01);
-          console.log('PDF 검색 결과:', pdfResults.length, '개');
-          if (pdfResults.length > 0) {
-            console.log('최고 점수:', pdfResults[0].score, '소스:', pdfResults[0].source);
-            console.log('텍스트 미리보기:', pdfResults[0].text?.substring(0, 100));
+      // 2단계: 서버 RAG API 호출
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question: currentInput,
+            conversationHistory: messages.slice(-6)
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+          if (data.error) {
+            throw new Error(data.error);
           }
-        } catch (err) {
-          console.log('PDF 검색 오류:', err);
+
+          const aiResponse = {
+            role: 'assistant',
+            content: data.answer,
+            source: data.mode === 'rag' ? 'ai' : (data.mode === 'fallback' ? 'pdf' : 'ai'),
+            sources: data.sources || [],
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, aiResponse]);
+          setIsLoading(false);
+          return;
         }
-      } else {
-        console.log('vectorSearch가 null입니다!');
+        throw new Error('API 요청 실패');
+      } catch (apiError) {
+        console.error('RAG API 호출 실패:', apiError);
       }
 
-      // PDF 검색 결과가 있으면 먼저 AI 요약 시도, 실패시 PDF 직접 표시
-      if (pdfResults.length > 0) {
-        const pdfContext = pdfResults.map((r) => `[출처: ${vectorSearch.getSourceLabel(r.source)}]\n${r.text}`).join('\n\n---\n\n');
-
-        try {
-          const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ question: currentInput, context: pdfContext }),
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            // API 에러 응답 체크
-            if (data.error) {
-              throw new Error(data.error);
-            }
-            const aiResponse = {
-              role: 'assistant',
-              content: data.answer,
-              source: 'ai',
-              timestamp: new Date()
-            };
-            setMessages(prev => [...prev, aiResponse]);
-            setIsLoading(false);
-            return;
-          }
-        } catch (apiError) {
-          console.log('AI API 호출 실패, PDF 직접 표시:', apiError);
-        }
-
-        // AI 실패시 PDF 직접 표시 - 가장 관련 있는 청크 1개만 선택
-        const queryKeywords = currentInput.match(/[가-힣]{2,}/g) || [];
-
-        // 국가별 본문 시작 패턴 (목차가 아닌 실제 본문)
-        const countryContentPatterns = {
-          '북한': ['북한의 1976년 재판소구성법', '인민참심원은 1년에', '북한도 1945년 이후'],
-          '독일': ['독일의 재판제도와 현실', '독일 참심제의 역사'],
-          '핀란드': ['핀란드에서는', '핀란드의 참심원'],
-          '스웨덴': ['스웨덴에서는 출판소송'],
-          '중국': ['1951년의 법원조직법', '인민법원의 체계'],
-        };
-
-        let bestResult = null;
-
-        // 국가명이 질문에 있으면 해당 국가의 본문 청크 찾기
-        for (const [country, patterns] of Object.entries(countryContentPatterns)) {
-          if (currentInput.includes(country)) {
-            bestResult = pdfResults.find(r => patterns.some(p => r.text.includes(p)));
-            if (bestResult) break;
-          }
-        }
-
-        // 국가 패턴에 안 걸렸으면 첫 번째 결과
-        if (!bestResult) {
-          bestResult = pdfResults[0];
-        }
-
-        const sourceLabel = vectorSearch.getSourceLabel(bestResult.source);
-
-        // 텍스트에서 핵심 부분만 추출 (500자)
-        let displayText = bestResult.text;
-
-        // 국가명 주변 텍스트 추출
-        const mainKeyword = queryKeywords[0];
-        if (mainKeyword && displayText.length > 500) {
-          const keywordIdx = displayText.indexOf(mainKeyword);
-          if (keywordIdx > 30) {
-            displayText = '...' + displayText.substring(keywordIdx - 20, keywordIdx + 480);
-          } else {
-            displayText = displayText.substring(0, 500);
-          }
-          if (displayText.length >= 500) displayText += '...';
-        }
-
-        const pdfResponse = {
-          role: 'assistant',
-          content: `[${sourceLabel}에서 찾은 정보]\n\n${displayText}`,
-          source: 'pdf',
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, pdfResponse]);
-        setIsLoading(false);
-        return;
-      }
-
-      // 3단계: AI API도 실패하고 PDF도 없으면 안내 메시지
+      // 3단계: API 실패 시 안내 메시지
       const fallbackResponse = {
         role: 'assistant',
         content: '해당 질문에 대한 답변을 찾지 못했습니다.\n\n아래 주제에 대해 질문해 보세요:\n• 참심제가 무엇인가요?\n• 참심제와 배심제의 차이점\n• 헌법 개정이 필요한가요?\n• 시민법관 선발 방법\n• 시민법관의 권한과 보수',
@@ -249,39 +165,123 @@ export default function FloatingChat() {
     );
   };
 
-  // 텍스트 포맷팅 - 가독성 향상
+  // 인라인 마크다운 처리 (**, *, 참고자료 등)
+  const renderInline = (text) => {
+    if (!text) return null;
+    // **bold** → <strong>, *italic* → <em>, (참고자료 N) → badge
+    const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
+      }
+      if (part.startsWith('*') && part.endsWith('*')) {
+        return <em key={i}>{part.slice(1, -1)}</em>;
+      }
+      return <span key={i}>{part}</span>;
+    });
+  };
+
+  // 텍스트 포맷팅 - 마크다운 렌더링
   const formatContent = (content, source) => {
     if (!content) return null;
 
     // 소스 라벨 제거 (별도로 표시)
     let text = content.replace(/^\[.*?\]\n\n/, '');
 
-    // 줄바꿈으로 단락 분리
-    const paragraphs = text.split('\n\n').filter(p => p.trim());
+    // 줄 단위로 파싱
+    const lines = text.split('\n');
+    const elements = [];
+    let currentList = [];
+    let listType = null; // 'ul' or 'ol'
 
-    return paragraphs.map((para, idx) => {
-      // 불릿 포인트 처리
-      if (para.includes('•') || para.includes('-')) {
-        const items = para.split(/[•\-]/).filter(item => item.trim());
-        return (
-          <ul key={idx} className="list-none space-y-1 my-2">
-            {items.map((item, i) => (
+    const flushList = () => {
+      if (currentList.length === 0) return;
+      if (listType === 'ol') {
+        elements.push(
+          <ol key={`ol-${elements.length}`} className="list-none space-y-1.5 my-2 ml-1">
+            {currentList.map((item, i) => (
               <li key={i} className="flex items-start gap-2">
-                <span className="text-blue-500 mt-0.5">•</span>
-                <span>{item.trim()}</span>
+                <span className="text-blue-400 font-semibold min-w-[1.2em] text-right">{item.num}.</span>
+                <span>{renderInline(item.text)}</span>
+              </li>
+            ))}
+          </ol>
+        );
+      } else {
+        elements.push(
+          <ul key={`ul-${elements.length}`} className="list-none space-y-1 my-2 ml-3">
+            {currentList.map((item, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className="text-blue-400 mt-0.5">•</span>
+                <span>{renderInline(item.text)}</span>
               </li>
             ))}
           </ul>
         );
       }
+      currentList = [];
+      listType = null;
+    };
 
-      // 일반 단락
-      return (
-        <p key={idx} className={idx > 0 ? 'mt-2' : ''}>
-          {para}
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmed = line.trim();
+
+      // 빈 줄 → 리스트 종료 + 간격
+      if (!trimmed) {
+        flushList();
+        continue;
+      }
+
+      // ## 제목
+      if (trimmed.startsWith('## ')) {
+        flushList();
+        elements.push(
+          <p key={`h-${i}`} className="font-semibold text-white mt-3 mb-1">
+            {renderInline(trimmed.slice(3))}
+          </p>
+        );
+        continue;
+      }
+
+      // 번호 리스트: "1. ", "2. " 등
+      const olMatch = trimmed.match(/^(\d+)\.\s+(.+)/);
+      if (olMatch) {
+        if (listType !== 'ol') flushList();
+        listType = 'ol';
+        currentList.push({ num: olMatch[1], text: olMatch[2] });
+        continue;
+      }
+
+      // 불릿 리스트: "* ", "- ", "• " 등
+      const ulMatch = trimmed.match(/^[*\-•]\s+(.+)/);
+      if (ulMatch) {
+        if (listType !== 'ul') flushList();
+        listType = 'ul';
+        currentList.push({ text: ulMatch[1] });
+        continue;
+      }
+
+      // 들여쓴 하위 항목: "  * ", "    - " 등
+      const subMatch = trimmed.match(/^[*\-•]\s+(.+)/);
+      if (line.startsWith('    ') && subMatch) {
+        if (listType !== 'ul') flushList();
+        listType = 'ul';
+        currentList.push({ text: `  ${subMatch[1]}` });
+        continue;
+      }
+
+      // 일반 텍스트
+      flushList();
+      elements.push(
+        <p key={`p-${i}`} className="mt-1">
+          {renderInline(trimmed)}
         </p>
       );
-    });
+    }
+
+    flushList();
+    return elements;
   };
 
   const quickQuestions = [
@@ -355,6 +355,19 @@ export default function FloatingChat() {
                       <div className="text-[13px] leading-[1.7] text-gray-700">
                         {formatContent(message.content, message.source)}
                       </div>
+
+                      {/* 출처 표시 */}
+                      {message.sources && message.sources.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-gray-100">
+                          <div className="flex flex-wrap gap-1">
+                            {message.sources.map((s, i) => (
+                              <span key={i} className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded">
+                                📎 {s.label}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {/* 환영 메시지 아래 자주 묻는 질문 */}
                       {message.source === 'system' && index === 0 && (

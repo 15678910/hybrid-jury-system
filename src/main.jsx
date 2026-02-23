@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './index.css'
+import ErrorBoundary from './components/ErrorBoundary'
 
 // 홈페이지는 즉시 로드 (사용자가 가장 먼저 보는 페이지)
 import App from './App.jsx'
@@ -50,8 +51,9 @@ const PageLoader = () => (
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
           <Route path="/" element={<App />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/blog/admin" element={<AdminBlog />} />
@@ -82,10 +84,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/case-search" element={<CaseSearch />} />
           <Route path="/precedent/:id" element={<PrecedentDetail />} />
           <Route path="/legal-search" element={<Navigate to="/case-search" replace />} />
-        </Routes>
-        {/* 모든 페이지에서 보이는 플로팅 챗봇 */}
-        <FloatingChat />
-      </Suspense>
+          </Routes>
+          {/* 모든 페이지에서 보이는 플로팅 챗봇 */}
+          <FloatingChat />
+        </Suspense>
+      </ErrorBoundary>
     </BrowserRouter>
   </React.StrictMode>,
 )

@@ -31,6 +31,10 @@
         "function": "reformAnalysisPage"
       },
       {
+        "source": "/api/chat",
+        "function": "ragChat"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

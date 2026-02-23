@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import { db } from '../lib/firebase';
 import {
     doc,
@@ -416,11 +417,11 @@ export default function JudgeDetail() {
                                         >
                                             <h3
                                                 className="text-blue-600 hover:underline font-medium"
-                                                dangerouslySetInnerHTML={{ __html: news.title }}
+                                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(news.title) }}
                                             />
                                             <p
                                                 className="text-sm text-gray-600 mt-1 line-clamp-2"
-                                                dangerouslySetInnerHTML={{ __html: news.description }}
+                                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(news.description) }}
                                             />
                                             <p className="text-xs text-gray-400 mt-1">
                                                 {new Date(news.pubDate).toLocaleDateString('ko-KR')}

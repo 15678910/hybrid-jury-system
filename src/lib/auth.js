@@ -41,11 +41,8 @@ const getGoogleAuthUrl = () => {
 // URL 해시에서 ID 토큰 추출
 const extractIdTokenFromHash = () => {
     const fullHash = window.location.hash;
-    console.log('[Auth] 전체 URL:', window.location.href);
-    console.log('[Auth] URL 해시:', fullHash);
 
     if (!fullHash || fullHash.length <= 1) {
-        console.log('[Auth] 해시 없음');
         return null;
     }
 
@@ -53,7 +50,6 @@ const extractIdTokenFromHash = () => {
     const params = new URLSearchParams(hash);
     const idToken = params.get('id_token');
 
-    console.log('[Auth] 추출된 id_token:', idToken ? `${idToken.substring(0, 50)}...` : 'null');
     return idToken;
 };
 
@@ -79,12 +75,6 @@ const decodeIdToken = (idToken) => {
         const decoded = new TextDecoder('utf-8').decode(bytes);
         const parsed = JSON.parse(decoded);
 
-        console.log('[Auth] 디코딩된 토큰 정보:', {
-            email: parsed.email,
-            name: parsed.name,
-            sub: parsed.sub
-        });
-
         return {
             uid: parsed.sub, // Google unique ID
             email: parsed.email,
@@ -101,11 +91,8 @@ const decodeIdToken = (idToken) => {
 // Google 계정 선택 및 로그인 (OAuth Implicit Flow)
 export const selectGoogleAccount = async () => {
     try {
-        console.log('[Auth] Google OAuth 로그인 시작...');
-
         // 현재 URL 저장 (로그인 후 돌아올 위치)
         const currentPath = window.location.pathname;
-        console.log('[Auth] 현재 경로 저장:', currentPath);
         sessionStorage.setItem('googleLoginReturnUrl', currentPath);
         sessionStorage.setItem('googleLoginPending', 'true');
 
@@ -155,8 +142,6 @@ export const checkGoogleRedirectResult = async () => {
             return null;
         }
 
-        console.log('[Auth] Google ID 토큰 발견, 처리 중...');
-
         // URL 해시 제거 (보안 및 깔끔한 URL)
         window.history.replaceState(null, '', window.location.pathname + window.location.search);
 
@@ -166,8 +151,6 @@ export const checkGoogleRedirectResult = async () => {
             throw new Error('ID 토큰 디코딩 실패');
         }
 
-        console.log('[Auth] 사용자 정보 추출 성공:', user.email);
-
         // 임시 저장 (확인 후 최종 저장) - GA 이벤트도 확인 후 전송
         sessionStorage.setItem('pendingGoogleUser', JSON.stringify(user));
 
@@ -176,7 +159,6 @@ export const checkGoogleRedirectResult = async () => {
 
         // 원래 페이지로 돌아갈 URL
         const returnUrl = sessionStorage.getItem('googleLoginReturnUrl') || '/';
-        console.log('[Auth] 저장된 returnUrl:', returnUrl);
         sessionStorage.removeItem('googleLoginReturnUrl');
 
         // Firebase 로그인은 백그라운드에서 시도 (결과 기다리지 않음)
@@ -185,7 +167,6 @@ export const checkGoogleRedirectResult = async () => {
                 await waitForAuth();
                 const credential = GoogleAuthProvider.credential(idToken);
                 const result = await signInWithCredential(auth, credential);
-                console.log('[Auth] Firebase 백그라운드 로그인 성공:', result.user.email);
 
                 // Firestore에 사용자 정보 저장
                 await saveUserToFirestore({
@@ -237,15 +218,12 @@ export const confirmGoogleLogin = async () => {
         // 임시 데이터 삭제
         sessionStorage.removeItem('pendingGoogleUser');
 
-        console.log('Google 로그인 확정:', googleUser.email);
-
         // Google Analytics 로그인 이벤트 추적
         if (window.gtag) {
             window.gtag('event', 'login', {
                 method: 'google',
                 user_id: googleUser.uid
             });
-            console.log('GA 로그인 이벤트 전송 완료 (google)');
         }
 
         // Firebase 로그인은 백그라운드에서 시도 (결과 기다리지 않음)
@@ -307,7 +285,6 @@ export const selectKakaoAccount = () => {
         // 모바일에서는 리다이렉트 방식 사용 (팝업 차단 방지)
         if (isMobile()) {
             const currentPath = window.location.pathname;
-            console.log('[Auth] 카카오 현재 경로 저장:', currentPath);
             sessionStorage.setItem('kakaoLoginPending', 'true');
             sessionStorage.setItem('kakaoLoginReturnUrl', currentPath);
 
@@ -387,8 +364,6 @@ export const checkKakaoRedirectResult = async () => {
             return null;
         }
 
-        console.log('[Auth] 카카오 인증 코드 발견, 처리 중...');
-
         // URL에서 code 파라미터 제거
         window.history.replaceState(null, '', window.location.pathname);
 
@@ -459,7 +434,6 @@ export const checkKakaoRedirectResult = async () => {
         sessionStorage.removeItem('kakaoLoginPending');
 
         const returnUrl = sessionStorage.getItem('kakaoLoginReturnUrl') || '/';
-        console.log('[Auth] 카카오 저장된 returnUrl:', returnUrl);
         sessionStorage.removeItem('kakaoLoginReturnUrl');
 
         return {
@@ -502,15 +476,12 @@ export const confirmKakaoLogin = async () => {
         sessionStorage.removeItem('pendingKakaoUser');
         sessionStorage.removeItem('pendingKakaoToken');
 
-        console.log('로그인 성공:', kakaoUser);
-
         // Google Analytics 로그인 이벤트 추적 (안전하고 권한 필요 없음)
         if (window.gtag) {
             window.gtag('event', 'login', {
                 method: 'kakao',
                 user_id: kakaoUser.uid
             });
-            console.log('GA 로그인 이벤트 전송 완료 (kakao)');
         }
 
         // Firestore 저장은 백그라운드에서 비동기 처리 (기다리지 않음)
@@ -678,7 +649,6 @@ const saveUserToFirestore = async (userData) => {
             lastLoginAt: new Date()
         }, { merge: true });
 
-        console.log('[Auth] 사용자 정보 저장 성공:', userData.uid);
     } catch (error) {
         console.error('사용자 정보 저장 에러:', error);
     }
@@ -696,9 +666,7 @@ export const signOut = async () => {
 
         // 카카오 로그아웃
         if (window.Kakao && window.Kakao.Auth.getAccessToken()) {
-            window.Kakao.Auth.logout(() => {
-                console.log('카카오 로그아웃 완료');
-            });
+            window.Kakao.Auth.logout(() => {});
         }
 
         // sessionStorage 정리 (세션 기반 로그인)

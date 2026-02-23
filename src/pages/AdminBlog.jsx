@@ -102,7 +102,6 @@ export default function AdminBlog() {
 
                     // Blob으로 변환 (품질 70%)
                     canvas.toBlob((blob) => {
-                        console.log('압축 후 크기:', Math.round(blob.size / 1024), 'KB');
                         resolve(blob);
                     }, 'image/jpeg', 0.7);
                 };
@@ -123,7 +122,6 @@ export default function AdminBlog() {
         });
 
         const downloadURL = await getDownloadURL(storageRef);
-        console.log('이미지 업로드 완료:', downloadURL);
         return downloadURL;
     };
 

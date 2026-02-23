@@ -20,7 +20,7 @@ const getLocalCache = () => {
             return { data, isStale };
         }
     } catch (e) {
-        console.log('Cache read error:', e);
+        console.warn('Cache read error:', e);
     }
     return null;
 };
@@ -33,7 +33,7 @@ const setLocalCache = (data) => {
             timestamp: Date.now()
         }));
     } catch (e) {
-        console.log('Cache write error:', e);
+        console.warn('Cache write error:', e);
     }
 };
 

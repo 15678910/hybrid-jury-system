@@ -77,7 +77,6 @@ export class FAQMatcher {
 
     // 국가명이 포함되면 무조건 PDF 검색으로 (FAQ 스킵)
     if (hasCountryKeyword) {
-      console.log('국가명 감지, FAQ 스킵:', question);
       return null;
     }
 
@@ -89,7 +88,6 @@ export class FAQMatcher {
 
     // 상세 키워드가 있으면 PDF 검색으로
     if (hasDetailKeyword) {
-      console.log('상세 키워드 감지, FAQ 스킵:', question);
       return null;
     }
 

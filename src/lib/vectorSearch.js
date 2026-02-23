@@ -1,6 +1,10 @@
 /**
- * 벡터 검색 모듈
- * PDF 청크에서 관련 문맥을 검색
+ * @deprecated 2026-02-23 — 서버 사이드 BM25 검색으로 대체됨
+ * 이 모듈은 더 이상 사용되지 않습니다.
+ * 서버 검색: functions/shared/ragSearch.js (BM25)
+ * 프론트엔드: /api/chat 엔드포인트를 직접 호출
+ *
+ * 이 파일을 삭제하지 마세요 — scripts/buildEmbeddings.cjs에서 참조될 수 있습니다.
  */
 
 class VectorSearch {
@@ -39,8 +43,6 @@ class VectorSearch {
       });
 
       this.isLoaded = true;
-      console.log('벡터 검색 데이터 로드 완료:', this.getStats());
-      console.log('북한 in vocabulary:', this.vocabulary.includes('북한'), 'index:', this.vocabulary.indexOf('북한'));
     } catch (error) {
       console.error('벡터 검색 데이터 로드 실패:', error);
       throw error;
@@ -162,14 +164,6 @@ class VectorSearch {
     }
 
     const queryVector = this.textToVector(query);
-    console.log('검색 쿼리:', query);
-    console.log('쿼리 벡터 non-zero 요소:', queryVector.filter(v => v > 0).length);
-
-    // 북한 키워드 디버그
-    const nkIndex = this.vocabulary.indexOf('북한');
-    if (query.includes('북한')) {
-      console.log('북한 검색 디버그 - vocabulary index:', nkIndex, 'queryVector[nkIndex]:', nkIndex >= 0 ? queryVector[nkIndex] : 'N/A');
-    }
 
     const results = this.chunks.map(chunk => {
       const chunkVector = this.embeddingMap.get(chunk.id);
@@ -189,11 +183,6 @@ class VectorSearch {
     .filter(r => r.score >= threshold)
     .sort((a, b) => b.score - a.score)
     .slice(0, topK);
-
-    console.log('검색 결과 수:', results.length);
-    if (results.length > 0) {
-      console.log('상위 결과:', results[0].chunk.source, '점수:', results[0].score);
-    }
 
     return results.map(r => ({
       ...r.chunk,

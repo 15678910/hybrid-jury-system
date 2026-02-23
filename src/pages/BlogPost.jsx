@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { doc, getDoc, collection, query, orderBy, getDocs, updateDoc, increment, addDoc, serverTimestamp } from 'firebase/firestore';
+import DOMPurify from 'dompurify';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 import { KakaoIcon, FacebookIcon, XIcon, TelegramIcon, InstagramIcon, ThreadsIcon, LinkedInIcon } from '../components/icons';
@@ -28,7 +29,6 @@ export default function BlogPost() {
             if (window.Kakao && !window.Kakao.isInitialized()) {
                 try {
                     window.Kakao.init('83e843186c1251b9b5a8013fd5f29798');
-                    console.log('Kakao SDK initialized');
                     setKakaoReady(true);
                 } catch (e) {
                     console.error('Kakao init error:', e);
@@ -196,9 +196,6 @@ export default function BlogPost() {
     const postText = `${post.title} - 시민법정`;
 
     const shareToKakao = () => {
-        console.log('Kakao SDK ready:', kakaoReady);
-        console.log('Kakao object:', window.Kakao);
-
         // 요약본 생성: summary가 있으면 사용, 없으면 본문 첫 100자
         const description = post.summary || post.content.substring(0, 100).replace(/\n/g, ' ') + '...';
 
@@ -230,7 +227,6 @@ export default function BlogPost() {
                 fallbackShare();
             }
         } else {
-            console.log('Kakao SDK not ready, using fallback');
             fallbackShare();
         }
     };
@@ -347,7 +343,7 @@ export default function BlogPost() {
                             // HTML 콘텐츠 (리치 텍스트 에디터로 작성된 글)
                             <div
                                 className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700"
-                                dangerouslySetInnerHTML={{ __html: post.content }}
+                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
                             />
                         ) : (
                             // 일반 텍스트 (기존 글 호환)

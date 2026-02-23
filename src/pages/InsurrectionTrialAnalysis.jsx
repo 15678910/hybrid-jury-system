@@ -255,8 +255,8 @@ function computeStats(verdictsData) {
     // 구형 대비 선고 비율 (숫자 추출 가능한 건만)
     const sentenceRatios = [];
     verdictsData.forEach(v => {
-        const sentenceMatch = v.sentence.match(/(\d+)년/);
-        const prosMatch = v.prosecution.match(/(\d+)년/);
+        const sentenceMatch = (v.sentence || '').match(/(\d+)년/);
+        const prosMatch = (v.prosecution || '').match(/(\d+)년/);
         if (sentenceMatch && prosMatch) {
             const sentenceYears = parseInt(sentenceMatch[1], 10);
             const prosYears = parseInt(prosMatch[1], 10);
@@ -276,13 +276,13 @@ function computeStats(verdictsData) {
 function computeClassAnalysis(firstInstanceCourts, appealCourtsData) {
     const firstInstanceClasses = [];
     firstInstanceCourts.forEach(court => {
-        firstInstanceClasses.push(court.chiefClass);
-        court.associates.forEach(a => firstInstanceClasses.push(a.classYear));
+        if (court.chiefClass) firstInstanceClasses.push(court.chiefClass);
+        (court.associates || []).forEach(a => { if (a.classYear) firstInstanceClasses.push(a.classYear); });
     });
 
     const appealClasses = [];
     appealCourtsData.forEach(court => {
-        court.members.forEach(m => appealClasses.push(m.classYear));
+        (court.members || []).forEach(m => { if (m.classYear) appealClasses.push(m.classYear); });
     });
 
     const avg = (arr) => arr.length ? Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 10) / 10 : 0;
@@ -491,14 +491,14 @@ export default function InsurrectionTrialAnalysis() {
                                     </thead>
                                     <tbody>
                                         {verdicts.map((v, idx) => {
-                                            const cfg = STATUS_CONFIG[v.status];
+                                            const cfg = STATUS_CONFIG[v.status] || STATUS_CONFIG.pending;
                                             return (
                                                 <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
-                                                    <td className="py-3 px-2 text-gray-600 whitespace-nowrap">{v.date}</td>
-                                                    <td className="py-3 px-2 font-medium text-gray-800">{v.defendant}</td>
-                                                    <td className="py-3 px-2 text-gray-600 hidden md:table-cell max-w-xs truncate">{v.charge}</td>
-                                                    <td className="py-3 px-2 text-gray-600">{v.prosecution}</td>
-                                                    <td className="py-3 px-2 font-medium text-gray-800">{v.sentence}</td>
+                                                    <td className="py-3 px-2 text-gray-600 whitespace-nowrap">{v.date || '-'}</td>
+                                                    <td className="py-3 px-2 font-medium text-gray-800">{v.defendant || '-'}</td>
+                                                    <td className="py-3 px-2 text-gray-600 hidden md:table-cell max-w-xs truncate">{v.charge || '-'}</td>
+                                                    <td className="py-3 px-2 text-gray-600">{v.prosecution || '-'}</td>
+                                                    <td className="py-3 px-2 font-medium text-gray-800">{v.sentence || '-'}</td>
                                                     <td className="py-3 px-2">
                                                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}>
                                                             <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`}></span>
@@ -633,7 +633,7 @@ export default function InsurrectionTrialAnalysis() {
                                 <div className="absolute left-4 md:left-8 top-0 bottom-0 w-0.5 bg-gray-300"></div>
 
                                 {verdicts.map((v, idx) => {
-                                    const cfg = STATUS_CONFIG[v.status];
+                                    const cfg = STATUS_CONFIG[v.status] || STATUS_CONFIG.pending;
                                     return (
                                         <div key={idx} className="relative pl-12 md:pl-20 pb-6">
                                             {/* 타임라인 도트 */}
@@ -642,9 +642,9 @@ export default function InsurrectionTrialAnalysis() {
                                             <div className={`bg-white rounded-xl shadow-lg p-5 border-l-4 ${cfg.border}`}>
                                                 <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
                                                     <div>
-                                                        <span className="text-xs text-gray-400 font-medium">{v.date}</span>
-                                                        <h3 className="text-lg font-bold text-gray-800">{v.defendant}</h3>
-                                                        <p className="text-sm text-gray-500">{v.court}{v.judge ? ` | ${v.judge}` : ''}</p>
+                                                        <span className="text-xs text-gray-400 font-medium">{v.date || '-'}</span>
+                                                        <h3 className="text-lg font-bold text-gray-800">{v.defendant || '-'}</h3>
+                                                        <p className="text-sm text-gray-500">{v.court || ''}{v.judge ? ` | ${v.judge}` : ''}</p>
                                                     </div>
                                                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${cfg.bg} ${cfg.text}`}>
                                                         <span className={`w-2 h-2 rounded-full ${cfg.dot}`}></span>
@@ -655,21 +655,21 @@ export default function InsurrectionTrialAnalysis() {
                                                 <div className="grid md:grid-cols-2 gap-3 mt-3">
                                                     <div className="bg-gray-50 rounded-lg p-3">
                                                         <p className="text-xs text-gray-400 mb-1">혐의</p>
-                                                        <p className="text-sm text-gray-700">{v.charge}</p>
+                                                        <p className="text-sm text-gray-700">{v.charge || '-'}</p>
                                                     </div>
                                                     <div className="bg-gray-50 rounded-lg p-3">
                                                         <p className="text-xs text-gray-400 mb-1">구형 / 선고</p>
                                                         <p className="text-sm text-gray-700">
-                                                            <span className="text-gray-500">구형:</span> {v.prosecution}
+                                                            <span className="text-gray-500">구형:</span> {v.prosecution || '-'}
                                                         </p>
                                                         <p className="text-sm font-medium text-gray-800">
-                                                            <span className="text-gray-500">선고:</span> {v.sentence}
+                                                            <span className="text-gray-500">선고:</span> {v.sentence || '-'}
                                                         </p>
                                                     </div>
                                                 </div>
 
                                                 <p className="mt-3 text-sm text-gray-600 bg-slate-50 rounded-lg p-3">
-                                                    {v.detail}
+                                                    {v.detail || ''}
                                                 </p>
                                             </div>
                                         </div>

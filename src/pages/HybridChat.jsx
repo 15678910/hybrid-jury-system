@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FAQMatcher } from '../lib/faqMatcher';
-import { getVectorSearch } from '../lib/vectorSearch';
 import faqData from '../data/faq.json';
 
 export default function HybridChat() {
@@ -8,21 +7,12 @@ export default function HybridChat() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [matcher, setMatcher] = useState(null);
-  const [vectorSearch, setVectorSearch] = useState(null);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     const faqMatcher = new FAQMatcher(faqData);
     setMatcher(faqMatcher);
 
-    // 벡터 검색 초기화
-    getVectorSearch().then(vs => {
-      setVectorSearch(vs);
-      console.log('벡터 검색 초기화 완료:', vs.getStats());
-    }).catch(err => {
-      console.error('벡터 검색 초기화 실패:', err);
-    });
-    
     // 초기 환영 메시지
     setMessages([{
       role: 'assistant',
@@ -74,65 +64,13 @@ export default function HybridChat() {
         return;
       }
 
-      // 2단계: 벡터 검색 - 높은 점수면 AI 없이 직접 답변 (비용 0원)
-      if (vectorSearch) {
-        const searchResults = vectorSearch.search(input.trim(), 3, 0.01);
-        console.log('벡터 검색 결과:', searchResults.length > 0 ? searchResults[0] : '없음');
-
-        // 점수가 0.2 이상이면 PDF 내용으로 직접 답변
-        if (searchResults.length > 0 && searchResults[0].score >= 0.2) {
-          const topResult = searchResults[0];
-          const sourceLabel = vectorSearch.getSourceLabel(topResult.source);
-
-          const vectorResponse = {
-            role: 'assistant',
-            content: `[${sourceLabel}에서 찾은 정보]\n\n${topResult.text}`,
-            source: 'pdf',
-            timestamp: new Date()
-          };
-
-          setMessages(prev => [...prev, vectorResponse]);
-          setIsLoading(false);
-          return;
-        }
-
-        // 점수가 0.05~0.2이면 컨텍스트와 함께 AI 호출 (비용 발생하지만 정확도 높음)
-        if (searchResults.length > 0 && searchResults[0].score >= 0.05) {
-          const context = vectorSearch.getContextString(input.trim(), 3);
-
-          const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              question: input.trim(),
-              context: context
-            }),
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            const aiResponse = {
-              role: 'assistant',
-              content: data.answer,
-              source: 'ai+pdf',
-              timestamp: new Date()
-            };
-            setMessages(prev => [...prev, aiResponse]);
-            setIsLoading(false);
-            return;
-          }
-        }
-      }
-
-      // 3단계: 캐시 + AI API 호출 (일반 질문)
+      // 2단계: 서버 RAG API 호출 (BM25 검색 + Gemini AI 답변)
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           question: input.trim(),
-          conversationHistory: messages.slice(-6) // 최근 3턴만 전달
+          conversationHistory: messages.slice(-6)
         }),
       });
 
@@ -141,11 +79,16 @@ export default function HybridChat() {
       }
 
       const data = await response.json();
-      
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
       const aiResponse = {
         role: 'assistant',
         content: data.answer,
-        source: data.cached ? 'cache' : 'ai',
+        source: data.mode === 'rag' ? 'ai+pdf' : (data.mode === 'fallback' ? 'pdf' : 'ai'),
+        sources: data.sources || [],
         timestamp: new Date()
       };
 
@@ -255,6 +198,16 @@ export default function HybridChat() {
                   {message.content}
                 </div>
 
+                {message.sources && message.sources.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {message.sources.map((s, i) => (
+                      <span key={i} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">
+                        📎 {s.label}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 <div className="text-xs opacity-60 mt-2">
                   {message.timestamp.toLocaleTimeString('ko-KR', {
                     hour: '2-digit',
@@ -304,9 +257,9 @@ export default function HybridChat() {
           </div>
           
           <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-            <span>💡 FAQ 50개 (무료)</span>
-            <span>📄 PDF 검색 (무료)</span>
-            <span>🤖 AI 요약 (필요시만)</span>
+            <span>💡 FAQ 50개 (즉시 응답)</span>
+            <span>🔍 BM25 검색 + AI 답변</span>
+            <span>📎 출처 자동 인용</span>
           </div>
         </form>
       </div>

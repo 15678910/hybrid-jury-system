@@ -12,6 +12,24 @@ const db = admin.firestore();
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const genAI = GOOGLE_API_KEY ? new GoogleGenerativeAI(GOOGLE_API_KEY) : null;
 
+// CORS 허용 도메인 설정
+const ALLOWED_ORIGINS = [
+    'https://siminbupjung-blog.web.app',
+    'https://xn--lg3b0kt4n41f.kr',
+    'https://시민법정.kr',
+    'http://localhost:5173',
+    'http://localhost:3000'
+];
+
+const setCorsHeaders = (req, res) => {
+    const origin = req.get('Origin');
+    if (ALLOWED_ORIGINS.includes(origin)) {
+        res.set('Access-Control-Allow-Origin', origin);
+    }
+    res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Admin-Key, X-Telegram-Bot-Api-Secret-Token');
+};
+
 // 텔레그램 봇 설정 (환경변수에서 가져옴)
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const GROUP_CHAT_ID = process.env.TELEGRAM_GROUP_CHAT_ID || '-1003615735371';
@@ -54,7 +72,6 @@ const sendTelegramMessage = async (chatId, text, options = {}) => {
         });
 
         const result = await response.json();
-        console.log('Telegram response:', result);
         return result;
     } catch (error) {
         console.error('Error sending Telegram message:', error);
@@ -80,7 +97,6 @@ const sendTelegramPhoto = async (chatId, photoUrl, caption = '', options = {}) =
         });
 
         const result = await response.json();
-        console.log('Telegram photo response:', result);
         return result;
     } catch (error) {
         console.error('Error sending Telegram photo:', error);
@@ -107,7 +123,6 @@ const sendTelegramPoll = async (chatId, question, options, openPeriod = DEFAULT_
         });
 
         const result = await response.json();
-        console.log('Telegram poll response:', result);
         return result;
     } catch (error) {
         console.error('Error sending Telegram poll:', error);
@@ -315,7 +330,7 @@ ${options.map((opt, i) => `  ${i + 1}. ${opt}`).join('\n')}
         });
     }
 
-    console.log(`Custom poll created: ${pollRef.id} by ${userName}`);
+    functions.logger.info(`Custom poll created: ${pollRef.id} by ${userName}`);
     return true;
 };
 
@@ -458,7 +473,7 @@ ${options.map((opt, i) => `  ${i + 1}. ${opt}`).join('\n')}
         });
     }
 
-    console.log(`Multi poll created: ${pollRef.id} by ${userName}`);
+    functions.logger.info(`Multi poll created: ${pollRef.id} by ${userName}`);
     return true;
 };
 
@@ -544,7 +559,7 @@ const handleSurvey = async (message) => {
         });
     }
 
-    console.log(`Survey created: ${surveyRef.id} by ${userName}`);
+    functions.logger.info(`Survey created: ${surveyRef.id} by ${userName}`);
     return true;
 };
 
@@ -629,7 +644,7 @@ const handleProposal = async (message) => {
         });
     }
 
-    console.log(`Proposal created: ${proposalRef.id} by ${userName}`);
+    functions.logger.info(`Proposal created: ${proposalRef.id} by ${userName}`);
     return true;
 };
 
@@ -645,7 +660,6 @@ const handlePollResult = async (poll) => {
     const snapshot = await proposalsRef.where('pollId', '==', pollId).get();
 
     if (snapshot.empty) {
-        console.log('No proposal found for poll:', pollId);
         return;
     }
 
@@ -654,7 +668,6 @@ const handlePollResult = async (poll) => {
 
     // 이미 처리된 제안인지 확인
     if (proposal.status !== 'voting') {
-        console.log('Proposal already processed:', proposalDoc.id);
         return;
     }
 
@@ -777,13 +790,24 @@ ${status === 'passed' ? '🎉 제안이 통과되었습니다! 커뮤니티 규�
     }
 
     await sendTelegramMessage(proposal.chatId, resultMsg);
-    console.log(`Poll result processed: ${proposalDoc.id} - ${proposal.type}`);
+    functions.logger.info(`Poll result processed: ${proposalDoc.id} - ${proposal.type}`);
 };
 
 // 텔레그램 Webhook 처리 (새 멤버 감지 + #제안 처리 + 투표 결과 처리)
 exports.telegramWebhook = functions.https.onRequest(async (req, res) => {
     try {
-        console.log('Received webhook:', JSON.stringify(req.body));
+        // 텔레그램 secret token 검증 (환경변수 설정 시 필수, 미설정 시 경고 후 허용)
+        const secretToken = process.env.TELEGRAM_WEBHOOK_SECRET;
+        if (secretToken) {
+            if (req.get('X-Telegram-Bot-Api-Secret-Token') !== secretToken) {
+                console.error('Unauthorized webhook request');
+                return res.status(403).send('Forbidden');
+            }
+        } else {
+            functions.logger.warn('TELEGRAM_WEBHOOK_SECRET not configured - webhook verification disabled');
+        }
+
+        functions.logger.info('Received webhook update_id:', req.body?.update_id);
 
         const update = req.body;
 
@@ -800,7 +824,7 @@ exports.telegramWebhook = functions.https.onRequest(async (req, res) => {
                 const welcomeMsg = getWelcomeMessage(userName);
 
                 await sendTelegramMessage(chatId, welcomeMsg);
-                console.log(`Welcomed new member: ${userName}`);
+                functions.logger.info(`Welcomed new member: ${userName}`);
             }
         }
 
@@ -822,31 +846,31 @@ exports.telegramWebhook = functions.https.onRequest(async (req, res) => {
                     }
                 });
                 handled = true;
-                console.log('참여하기 poster sent');
+                functions.logger.info('참여하기 poster sent');
             }
 
             // #제안 처리
             if (!handled) {
                 handled = await handleProposal(update.message);
-                if (handled) console.log('Proposal handled');
+                if (handled) functions.logger.info('Proposal handled');
             }
 
             // #설문 처리
             if (!handled) {
                 handled = await handleSurvey(update.message);
-                if (handled) console.log('Survey handled');
+                if (handled) functions.logger.info('Survey handled');
             }
 
             // #투표 처리 (커스텀 선택지)
             if (!handled) {
                 handled = await handleCustomPoll(update.message);
-                if (handled) console.log('Custom poll handled');
+                if (handled) functions.logger.info('Custom poll handled');
             }
 
             // #복수투표 처리 (복수 선택 가능)
             if (!handled) {
                 handled = await handleMultiPoll(update.message);
-                if (handled) console.log('Multi poll handled');
+                if (handled) functions.logger.info('Multi poll handled');
             }
         }
 
@@ -864,6 +888,15 @@ exports.telegramWebhook = functions.https.onRequest(async (req, res) => {
 
 // Webhook 설정 함수 (수동 호출용)
 exports.setWebhook = functions.https.onRequest(async (req, res) => {
+    // 관리자 API 키 검증 (환경변수 설정 시 필수, 미설정 시 경고 후 허용)
+    const adminKey = process.env.ADMIN_API_KEY;
+    if (adminKey) {
+        if (req.get('X-Admin-Key') !== adminKey) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+    } else {
+        functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for setWebhook');
+    }
     const webhookUrl = `https://us-central1-siminbupjung-blog.cloudfunctions.net/telegramWebhook`;
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/setWebhook`;
 
@@ -873,11 +906,12 @@ exports.setWebhook = functions.https.onRequest(async (req, res) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 url: webhookUrl,
-                allowed_updates: ['message', 'poll', 'chat_member', 'my_chat_member']
+                allowed_updates: ['message', 'poll', 'chat_member', 'my_chat_member'],
+                secret_token: process.env.TELEGRAM_WEBHOOK_SECRET || undefined
             })
         });
         const result = await response.json();
-        console.log('Webhook set result:', result);
+        functions.logger.info('Webhook set result:', result);
         res.json(result);
     } catch (error) {
         console.error('Error setting webhook:', error);
@@ -887,6 +921,15 @@ exports.setWebhook = functions.https.onRequest(async (req, res) => {
 
 // Webhook 삭제 함수 (필요 시)
 exports.deleteWebhook = functions.https.onRequest(async (req, res) => {
+    // 관리자 API 키 검증 (환경변수 설정 시 필수, 미설정 시 경고 후 허용)
+    const adminKey = process.env.ADMIN_API_KEY;
+    if (adminKey) {
+        if (req.get('X-Admin-Key') !== adminKey) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+    } else {
+        functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for deleteWebhook');
+    }
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/deleteWebhook`;
 
     try {
@@ -900,6 +943,16 @@ exports.deleteWebhook = functions.https.onRequest(async (req, res) => {
 
 // 참여하기 포스터 수동 전송 (HTTP 트리거)
 exports.sendPosterToGroup = functions.https.onRequest(async (req, res) => {
+    // 관리자 API 키 검증
+    const adminKey = process.env.ADMIN_API_KEY;
+    if (adminKey) {
+        if (req.get('X-Admin-Key') !== adminKey) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+    } else {
+        functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for sendPosterToGroup');
+    }
+
     try {
         const posterUrl = 'https://siminbupjung-blog.web.app/%EC%B0%B8%EC%8B%AC%EC%A0%9C%ED%8F%AC%EC%8A%A4%ED%84%B01.png';
         const caption = '⚖️ <b>시민법관 참심제 - 온라인 준비위원 참여</b>\n\n직업법관 소수가 아닌, 주권자인 국민이 직접 판결을 결정하는 참심제!\n지금, 사법개혁추진준비위원으로 연대해주십시오!\n\n👇 아래 버튼을 눌러 참여하세요';
@@ -921,6 +974,16 @@ exports.sendPosterToGroup = functions.https.onRequest(async (req, res) => {
 
 // Webhook 정보 확인
 exports.getWebhookInfo = functions.https.onRequest(async (req, res) => {
+    // 관리자 API 키 검증
+    const adminKey = process.env.ADMIN_API_KEY;
+    if (adminKey) {
+        if (req.get('X-Admin-Key') !== adminKey) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+    } else {
+        functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for getWebhookInfo');
+    }
+
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/getWebhookInfo`;
 
     try {
@@ -937,7 +1000,7 @@ exports.getWebhookInfo = functions.https.onRequest(async (req, res) => {
 // ============================================
 
 exports.checkExpiredPolls = functions.pubsub.schedule('every 5 minutes').onRun(async (context) => {
-    console.log('Checking for expired polls...');
+    functions.logger.info('Checking for expired polls...');
 
     const now = new Date();
     const proposalsRef = db.collection('telegram_proposals');
@@ -946,7 +1009,6 @@ exports.checkExpiredPolls = functions.pubsub.schedule('every 5 minutes').onRun(a
     const snapshot = await proposalsRef.where('status', '==', 'voting').get();
 
     if (snapshot.empty) {
-        console.log('No active polls found');
         return null;
     }
 
@@ -958,7 +1020,7 @@ exports.checkExpiredPolls = functions.pubsub.schedule('every 5 minutes').onRun(a
 
         // 마감 시간이 지났는지 확인
         if (now >= expiresAt) {
-            console.log(`Poll expired: ${doc.id}`);
+            functions.logger.info(`Poll expired: ${doc.id}`);
 
             // 텔레그램에서 투표 결과 가져오기
             if (proposal.pollMessageId) {
@@ -1085,7 +1147,7 @@ ${status === 'passed' ? '🎉 제안이 통과되었습니다! 커뮤니티 규�
                         }
 
                         await sendTelegramMessage(proposal.chatId, resultMsg);
-                        console.log(`Poll result sent: ${doc.id}`);
+                        functions.logger.info(`Poll result sent: ${doc.id}`);
                     }
                 } catch (error) {
                     console.error(`Error processing poll ${doc.id}:`, error);
@@ -1111,7 +1173,7 @@ const DAILY_LIMIT = 1000; // 하루 최대 등록 수
 
 exports.checkDailyLimit = functions.https.onRequest(async (req, res) => {
     // CORS 설정
-    res.set('Access-Control-Allow-Origin', '*');
+    setCorsHeaders(req, res);
     res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -1156,7 +1218,7 @@ exports.checkDailyLimit = functions.https.onRequest(async (req, res) => {
 
 exports.registerSignature = functions.https.onRequest(async (req, res) => {
     // CORS 설정
-    res.set('Access-Control-Allow-Origin', '*');
+    setCorsHeaders(req, res);
     res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -1289,7 +1351,7 @@ exports.onNewSignature = functions.firestore
 
         try {
             await sendTelegramMessage(GROUP_CHAT_ID, adminMessage);
-            console.log('Admin notification sent for signature:', signatureId);
+            functions.logger.info('Admin notification sent for signature:', signatureId);
         } catch (error) {
             console.error('Failed to send admin notification:', error);
         }
@@ -1303,7 +1365,7 @@ exports.onNewSignature = functions.firestore
 
 exports.sendBlogNotification = functions.https.onRequest(async (req, res) => {
     // CORS 설정
-    res.set('Access-Control-Allow-Origin', '*');
+    setCorsHeaders(req, res);
     res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -1315,6 +1377,16 @@ exports.sendBlogNotification = functions.https.onRequest(async (req, res) => {
     if (req.method !== 'POST') {
         res.status(405).json({ error: 'Method not allowed' });
         return;
+    }
+
+    // 관리자 API 키 검증
+    const adminKey = process.env.ADMIN_API_KEY;
+    if (adminKey) {
+        if (req.get('X-Admin-Key') !== adminKey) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+    } else {
+        functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for sendBlogNotification');
     }
 
     try {
@@ -1369,11 +1441,12 @@ exports.blog = functions.https.onRequest(async (req, res) => {
         if (!isCrawler) {
             const pathParts = req.path.split('/');
             const blogId = pathParts[pathParts.length - 1];
-            const redirectUrl = blogId && blogId !== 'blog' ? `/?r=/blog/${blogId}` : '/';
+            const safeBlogId = encodeURIComponent(blogId || '');
+            const redirectUrl = safeBlogId && safeBlogId !== 'blog' ? `/?r=/blog/${safeBlogId}` : '/';
 
             return res.send(`<!DOCTYPE html>
 <html>
-<head><meta http-equiv="refresh" content="0;url=${redirectUrl}"><script>window.location.replace("${redirectUrl}")</script></head>
+<head><meta http-equiv="refresh" content="0;url=${escapeHtml(redirectUrl)}"><script>window.location.replace("${escapeHtml(redirectUrl)}")</script></head>
 <body>Loading...</body>
 </html>`);
         }
@@ -1441,19 +1514,19 @@ exports.blog = functions.https.onRequest(async (req, res) => {
 
     <!-- 구조화 데이터 (JSON-LD) - 블로그 글 -->
     <script type="application/ld+json">
-    {
+    ${JSON.stringify({
       "@context": "https://schema.org",
       "@type": "BlogPosting",
-      "headline": "${title}",
-      "description": "${description}",
-      "image": "${imageUrl}",
-      "url": "${postUrl}",
+      "headline": title,
+      "description": description,
+      "image": imageUrl,
+      "url": postUrl,
       "publisher": {
         "@type": "Organization",
         "name": "시민법정",
         "url": "https://xn--lg3b0kt4n41f.kr"
       }
-    }
+    }).replace(/</g, '\\u003c')}
     </script>
   </head>
   <body>
@@ -1479,7 +1552,7 @@ const KAKAO_APP_KEY = '83e843186c1251b9b5a8013fd5f29798';
 
 exports.kakaoToken = functions.https.onRequest(async (req, res) => {
     // CORS 설정
-    res.set('Access-Control-Allow-Origin', '*');
+    setCorsHeaders(req, res);
     res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -1517,7 +1590,7 @@ exports.kakaoToken = functions.https.onRequest(async (req, res) => {
 
         const tokenData = await tokenResponse.json();
 
-        console.log('Kakao token response:', tokenData.error ? tokenData : 'success');
+        functions.logger.info('Kakao token response:', tokenData.error ? tokenData.error : 'success');
 
         res.json(tokenData);
     } catch (error) {
@@ -1547,7 +1620,7 @@ const RSS2JSON_API = 'https://api.rss2json.com/v1/api.json';
 
 // 대법원 보도자료 페이지 크롤링
 const crawlSupremeCourtPressReleases = async (maxItems = 10) => {
-    console.log('Crawling Supreme Court press releases...');
+    functions.logger.info('Crawling Supreme Court press releases...');
 
     try {
         const url = 'https://www.scourt.go.kr/supreme/news/NewsListAction.work?gubun=702';
@@ -1612,7 +1685,6 @@ const crawlSupremeCourtPressReleases = async (maxItems = 10) => {
 
         // 방법 2: 폴백 - 싱글쿼트/더블쿼트 모두 처리
         if (pressReleases.length === 0) {
-            console.log('Trying fallback regex for Supreme Court...');
             const linkRegex = /href=['"]([^'"]*\/news\/NewsViewAction2\.work[^'"]*seqnum=(\d+)[^'"]*)['"]\s*>([\s\S]*?)<\/a>/gi;
 
             while ((match = linkRegex.exec(html)) !== null && pressReleases.length < maxItems) {
@@ -1637,7 +1709,7 @@ const crawlSupremeCourtPressReleases = async (maxItems = 10) => {
             }
         }
 
-        console.log(`Found ${pressReleases.length} Supreme Court press releases`);
+        functions.logger.info(`Found ${pressReleases.length} Supreme Court press releases`);
         return pressReleases;
     } catch (error) {
         console.error('Supreme Court crawl error:', error);
@@ -1647,7 +1719,7 @@ const crawlSupremeCourtPressReleases = async (maxItems = 10) => {
 
 // 대법원 인사발령 크롤링 (사법정보공개포털)
 const crawlJudgePersonnelChanges = async () => {
-    console.log('Crawling judge personnel changes...');
+    functions.logger.info('Crawling judge personnel changes...');
 
     try {
         // 사법정보공개포털 인사정보 페이지
@@ -1661,7 +1733,7 @@ const crawlJudgePersonnelChanges = async () => {
         });
 
         if (!response.ok) {
-            console.log('Personnel portal fetch failed:', response.status);
+            console.error('Personnel portal fetch failed:', response.status);
             return [];
         }
 
@@ -1684,7 +1756,7 @@ const crawlJudgePersonnelChanges = async () => {
             });
         }
 
-        console.log(`Found ${personnelNews.length} personnel items`);
+        functions.logger.info(`Found ${personnelNews.length} personnel items`);
         return personnelNews;
     } catch (error) {
         console.error('Personnel crawl error:', error);
@@ -1749,7 +1821,6 @@ const deduplicateNews = (newsItems) => {
 const summarizeNewsWithAI = async (newsItems) => {
     // genAI가 없으면 기본 요약 방식 사용
     if (!genAI) {
-        console.log('Google AI not configured, using default summary');
         const grouped = {};
         newsItems.forEach(news => {
             if (!grouped[news.keyword]) {
@@ -1772,7 +1843,6 @@ const summarizeNewsWithAI = async (newsItems) => {
         const response = result.response;
         const summary = response.text();
 
-        console.log('AI summary generated:', summary);
         return summary.trim();
     } catch (error) {
         console.error('AI summarization error:', error);
@@ -1803,7 +1873,7 @@ const filterRecentNews = (newsItems) => {
 
 // 뉴스 수집 및 블로그 포스트 생성 (공통 로직)
 const collectAndPostNews = async (force = false) => {
-    console.log('Starting news collection...');
+    functions.logger.info('Starting news collection...');
 
     // 오늘 이미 수집했는지 확인 (최근 포스트 중 자동뉴스 확인)
     const now = new Date();
@@ -1824,7 +1894,6 @@ const collectAndPostNews = async (force = false) => {
     });
 
     if (alreadyCollected && !force) {
-        console.log('News already collected today, skipping');
         return { skipped: true, message: '오늘 이미 뉴스가 수집되었습니다.' };
     }
 
@@ -1842,7 +1911,6 @@ const collectAndPostNews = async (force = false) => {
     try {
         const supremeCourtNews = await crawlSupremeCourtPressReleases(5);
         if (supremeCourtNews.length > 0) {
-            console.log(`Adding ${supremeCourtNews.length} Supreme Court press releases`);
             allNews = allNews.concat(supremeCourtNews);
         }
     } catch (error) {
@@ -1854,10 +1922,9 @@ const collectAndPostNews = async (force = false) => {
 
     // 최근 24시간 내 뉴스만 필터링
     allNews = filterRecentNews(allNews);
-    console.log(`Filtered to ${allNews.length} news items from last 24 hours`);
+    functions.logger.info(`Filtered to ${allNews.length} news items from last 24 hours`);
 
     if (allNews.length === 0) {
-        console.log('No news found in last 24 hours');
         return { skipped: true, message: '최근 24시간 내 수집된 뉴스가 없습니다.' };
     }
 
@@ -1902,7 +1969,7 @@ const collectAndPostNews = async (force = false) => {
     };
 
     const postRef = await db.collection('posts').add(postData);
-    console.log(`News post created: ${postRef.id} with ${allNews.length} articles`);
+    functions.logger.info(`News post created: ${postRef.id} with ${allNews.length} articles`);
 
     // 텔레그램 알림
     try {
@@ -1933,13 +2000,23 @@ exports.autoCollectNews = functions
 exports.collectNewsManual = functions
     .runWith({ timeoutSeconds: 540, memory: '512MB' })
     .https.onRequest(async (req, res) => {
-    res.set('Access-Control-Allow-Origin', '*');
+    setCorsHeaders(req, res);
     res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') {
         res.status(204).send('');
         return;
+    }
+
+    // 관리자 API 키 검증
+    const adminKey = process.env.ADMIN_API_KEY;
+    if (adminKey) {
+        if (req.get('X-Admin-Key') !== adminKey) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+    } else {
+        functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for collectNewsManual');
     }
 
     try {
@@ -1954,7 +2031,7 @@ exports.collectNewsManual = functions
 
 // 대법원 보도자료 수동 수집 (테스트용)
 exports.collectSupremeCourtNews = functions.https.onRequest(async (req, res) => {
-    res.set('Access-Control-Allow-Origin', '*');
+    setCorsHeaders(req, res);
     res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -1963,8 +2040,18 @@ exports.collectSupremeCourtNews = functions.https.onRequest(async (req, res) => 
         return;
     }
 
+    // 관리자 API 키 검증
+    const adminKey = process.env.ADMIN_API_KEY;
+    if (adminKey) {
+        if (req.get('X-Admin-Key') !== adminKey) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+    } else {
+        functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for collectSupremeCourtNews');
+    }
+
     try {
-        console.log('Manual Supreme Court news collection started');
+        functions.logger.info('Manual Supreme Court news collection started');
 
         // 대법원 보도자료 크롤링
         const pressReleases = await crawlSupremeCourtPressReleases(10);
@@ -2175,7 +2262,6 @@ const searchNews = async (query, display = 10) => {
     try {
         // Bing 뉴스 RSS (한국어)
         const bingNewsUrl = `https://www.bing.com/news/search?q=${encodeURIComponent(query)}&format=RSS&mkt=ko-KR`;
-        console.log('Fetching Bing News RSS:', bingNewsUrl);
 
         const response = await fetch(bingNewsUrl, {
             headers: {
@@ -2191,7 +2277,6 @@ const searchNews = async (query, display = 10) => {
         }
 
         const xmlText = await response.text();
-        console.log('Bing News RSS response length:', xmlText.length);
 
         // XML 파싱: <item>...</item> 추출
         const itemRegex = /<item>([\s\S]*?)<\/item>/g;
@@ -2217,7 +2302,6 @@ const searchNews = async (query, display = 10) => {
             }
         }
 
-        console.log('Parsed news items count:', items.length);
         return items;
     } catch (error) {
         console.error('Bing News RSS search error:', error);
@@ -2241,7 +2325,6 @@ const fetchArticleContent = async (url) => {
     try {
         // Bing 리다이렉트 URL에서 실제 URL 추출
         const actualUrl = extractRealUrl(url);
-        console.log('Fetching article from:', actualUrl);
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -2259,12 +2342,10 @@ const fetchArticleContent = async (url) => {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-            console.log('Article fetch failed:', response.status);
             return null;
         }
 
         const html = await response.text();
-        console.log('HTML fetched, length:', html.length);
 
         // 1. JSON-LD 구조화 데이터에서 기사 본문 추출 (가장 정확)
         let content = '';
@@ -2277,7 +2358,6 @@ const fetchArticleContent = async (url) => {
                 const articleData = Array.isArray(jsonData) ? jsonData.find(d => d['@type'] && d['@type'].includes('Article')) : jsonData;
                 if (articleData && articleData.articleBody) {
                     content = articleData.articleBody;
-                    console.log('Extracted from JSON-LD articleBody');
                     break;
                 }
             } catch (e) {
@@ -2291,7 +2371,6 @@ const fetchArticleContent = async (url) => {
                                 html.match(/<meta[^>]*content="([^"]*)"[^>]*property="og:description"[^>]*>/i);
             if (ogDescMatch && ogDescMatch[1].length > 50) {
                 content = ogDescMatch[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
-                console.log('Extracted from og:description');
             }
         }
 
@@ -2300,7 +2379,6 @@ const fetchArticleContent = async (url) => {
             const articleMatch = html.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
             if (articleMatch) {
                 content = articleMatch[1];
-                console.log('Extracted from <article> tag');
             }
         }
 
@@ -2322,7 +2400,6 @@ const fetchArticleContent = async (url) => {
                 const match = html.match(pattern);
                 if (match && match[1].length > 200) {
                     content = match[1];
-                    console.log('Extracted from body div pattern');
                     break;
                 }
             }
@@ -2337,7 +2414,6 @@ const fetchArticleContent = async (url) => {
             });
             if (meaningfulPs.length > 0) {
                 content = meaningfulPs.slice(0, 20).join(' ');
-                console.log('Extracted from <p> tags');
             }
         }
 
@@ -2357,11 +2433,9 @@ const fetchArticleContent = async (url) => {
 
         // 최소 100자 이상인 경우만 반환, 최대 5000자
         if (content.length > 100) {
-            console.log(`Article content: ${content.length} chars from ${actualUrl}`);
             return content.substring(0, 5000);
         }
 
-        console.log(`Article content too short (${content.length} chars) from ${actualUrl}`);
         return null;
     } catch (error) {
         console.error('Article fetch error:', error.message);
@@ -2398,7 +2472,6 @@ const extractVerdictInfo = async (personName, newsItems) => {
             newsText = articleContents.map(item =>
                 `제목: ${item.title}\n본문: ${item.content}`
             ).join('\n\n---\n\n');
-            console.log(`Using ${articleContents.length} article contents for AI analysis`);
         } else {
             // 폴백: RSS의 제목과 설명 사용
             newsText = newsItems.map(item => {
@@ -2406,7 +2479,6 @@ const extractVerdictInfo = async (personName, newsItems) => {
                 const desc = item.description.replace(/<[^>]*>/g, '');
                 return `제목: ${title}\n내용: ${desc}`;
             }).join('\n\n');
-            console.log('Fallback: Using RSS title/description only');
         }
 
         const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
@@ -2455,24 +2527,20 @@ ${newsText}
 
 // 단일 인물 데이터 크롤링 및 저장
 const crawlPersonSentencing = async (person) => {
-    console.log(`Crawling sentencing data for: ${person.name}`);
+    functions.logger.info(`Crawling sentencing data for: ${person.name}`);
 
     // 뉴스 검색 (판결, 선고 관련)
     const newsItems = await searchNews(`${person.name} 판결 선고 재판`, 15);
 
     if (newsItems.length === 0) {
-        console.log(`No news found for ${person.name}`);
         return null;
     }
-
-    console.log(`Found ${newsItems.length} news items for ${person.name}`);
 
     // AI로 정보 추출 시도
     let verdictInfo = await extractVerdictInfo(person.name, newsItems);
 
     // AI 추출 실패 시 기본 데이터로 저장
     if (!verdictInfo) {
-        console.log(`AI extraction failed for ${person.name}, saving basic news data`);
 
         // 뉴스 제목에서 판결 관련 키워드 확인
         const titles = newsItems.map(n => n.title).join(' ');
@@ -2506,7 +2574,7 @@ const crawlPersonSentencing = async (person) => {
     };
 
     await docRef.set(data, { merge: true });
-    console.log(`Saved sentencing data for ${person.name}`);
+    functions.logger.info(`Saved sentencing data for ${person.name}`);
 
     return data;
 };
@@ -2518,7 +2586,7 @@ exports.crawlAllSentencingData = functions
     .pubsub.schedule('0 6,18 * * *') // 매일 오전 6시, 오후 6시
     .timeZone('Asia/Seoul')
     .onRun(async (context) => {
-        console.log('Starting scheduled sentencing data crawl...');
+        functions.logger.info('Starting scheduled sentencing data crawl...');
 
         const results = [];
         for (const person of SENTENCING_PERSONS) {
@@ -2537,7 +2605,7 @@ exports.crawlAllSentencingData = functions
             }
         }
 
-        console.log('Sentencing data crawl completed:', results);
+        functions.logger.info('Sentencing data crawl completed:', results);
 
         // 텔레그램 알림
         try {
@@ -2705,15 +2773,18 @@ exports.judgeDetailPage = functions.https.onRequest(async (req, res) => {
     const judgeName = decodeURIComponent(req.path.split('/').pop() || '');
 
     if (!isCrawler) {
+        const safeJudgeName = encodeURIComponent(judgeName);
+        const redirectUrl = `/?r=/judge/${safeJudgeName}`;
         return res.send(`<!DOCTYPE html>
 <html>
-<head><meta http-equiv="refresh" content="0;url=/?r=/judge/${encodeURIComponent(judgeName)}"><script>window.location.replace("/?r=/judge/${encodeURIComponent(judgeName)}")</script></head>
+<head><meta http-equiv="refresh" content="0;url=${escapeHtml(redirectUrl)}"><script>window.location.replace("${escapeHtml(redirectUrl)}")</script></head>
 <body>Loading...</body>
 </html>`);
     }
 
-    const title = `${judgeName} 판사 평가 - 시민법정`;
-    const description = `${judgeName} 판사의 판결 성향 및 시민 평가 - 시민법정`;
+    const safeJudgeName = escapeHtml(judgeName);
+    const title = `${safeJudgeName} 판사 평가 - 시민법정`;
+    const description = `${safeJudgeName} 판사의 판결 성향 및 시민 평가 - 시민법정`;
     const imageUrl = 'https://siminbupjung-blog.web.app/og-image.png';
     const pageUrl = `https://siminbupjung-blog.web.app/judge/${encodeURIComponent(judgeName)}`;
 
@@ -2751,12 +2822,22 @@ exports.triggerSentencingCrawl = functions
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
     .https.onRequest(async (req, res) => {
         // CORS 설정
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Methods', 'GET, POST');
             res.set('Access-Control-Allow-Headers', 'Content-Type');
             res.status(204).send('');
             return;
+        }
+
+        // 관리자 API 키 검증
+        const adminKey = process.env.ADMIN_API_KEY;
+        if (adminKey) {
+            if (req.get('X-Admin-Key') !== adminKey) {
+                return res.status(403).json({ error: 'Forbidden' });
+            }
+        } else {
+            functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for triggerSentencingCrawl');
         }
 
         const personName = req.query.person;
@@ -2795,7 +2876,7 @@ exports.triggerSentencingCrawl = functions
 exports.getSentencingData = functions
     .region('asia-northeast3')
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Methods', 'GET');
             res.set('Access-Control-Allow-Headers', 'Content-Type');
@@ -2865,7 +2946,7 @@ const REFORM_AREA_KEYWORDS = {
 };
 
 const collectReformAreaNews = async (areaId, areaConfig) => {
-    console.log(`Collecting reform news for: ${areaConfig.title}`);
+    functions.logger.info(`Collecting reform news for: ${areaConfig.title}`);
 
     let allNews = [];
 
@@ -2892,7 +2973,6 @@ const collectReformAreaNews = async (areaId, areaConfig) => {
     });
 
     if (allNews.length === 0) {
-        console.log(`No news found for ${areaConfig.title}`);
         return null;
     }
 
@@ -2932,7 +3012,7 @@ const collectReformAreaNews = async (areaId, areaConfig) => {
     };
 
     await docRef.set(data, { merge: true });
-    console.log(`Saved ${topNews.length} news for ${areaConfig.title} (total found: ${allNews.length})`);
+    functions.logger.info(`Saved ${topNews.length} news for ${areaConfig.title} (total found: ${allNews.length})`);
 
     return data;
 };
@@ -2943,7 +3023,7 @@ exports.collectReformNews = functions
     .pubsub.schedule('10 6,18 * * *')
     .timeZone('Asia/Seoul')
     .onRun(async (context) => {
-        console.log('Starting reform news collection...');
+        functions.logger.info('Starting reform news collection...');
 
         const results = [];
         for (const [areaId, config] of Object.entries(REFORM_AREA_KEYWORDS)) {
@@ -2957,7 +3037,7 @@ exports.collectReformNews = functions
             }
         }
 
-        console.log('Reform news collection completed:', results);
+        functions.logger.info('Reform news collection completed:', results);
 
         try {
             const successCount = results.filter(r => r.success).length;
@@ -2977,13 +3057,23 @@ exports.collectReformNews = functions
 exports.collectReformNewsManual = functions
     .runWith({ timeoutSeconds: 120, memory: '256MB' })
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.set('Access-Control-Allow-Headers', 'Content-Type');
+        res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
 
         if (req.method === 'OPTIONS') {
             res.status(204).send('');
             return;
+        }
+
+        // 관리자 API 키 검증
+        const adminKey = process.env.ADMIN_API_KEY;
+        if (adminKey) {
+            if (req.get('X-Admin-Key') !== adminKey) {
+                return res.status(403).json({ error: 'Forbidden' });
+            }
+        } else {
+            functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for collectReformNewsManual');
         }
 
         const areaId = req.query.area;
@@ -3089,7 +3179,7 @@ ${newsText}
 
 // 판사 뉴스 크롤링
 const crawlJudgeNews = async (judge) => {
-    console.log(`Crawling judge data for: ${judge.name}`);
+    functions.logger.info(`Crawling judge data for: ${judge.name}`);
 
     const queries = [
         `${judge.name} 판사 판결`,
@@ -3113,7 +3203,7 @@ const crawlJudgeNews = async (judge) => {
         return true;
     });
 
-    console.log(`Found ${allNewsItems.length} unique news items for judge ${judge.name}`);
+    functions.logger.info(`Found ${allNewsItems.length} unique news items for judge ${judge.name}`);
 
     if (allNewsItems.length === 0) return null;
 
@@ -3134,7 +3224,7 @@ const crawlJudgeNews = async (judge) => {
     };
 
     await docRef.set(data, { merge: true });
-    console.log(`Saved judge data for ${judge.name}`);
+    functions.logger.info(`Saved judge data for ${judge.name}`);
     return data;
 };
 
@@ -3171,7 +3261,7 @@ const searchYouTubeVideos = async (query, maxResults = 5) => {
                     }
                 }
             } catch (e) {
-                console.log('ytInitialData parse error:', e.message);
+                // ytInitialData JSON 파싱 실패 무시
             }
         }
 
@@ -3184,7 +3274,7 @@ const searchYouTubeVideos = async (query, maxResults = 5) => {
             }
         }
 
-        console.log(`Found ${videoIds.size} YouTube videos for: ${query}`);
+        functions.logger.info(`Found ${videoIds.size} YouTube videos for: ${query}`);
         return Array.from(videoIds);
     } catch (error) {
         console.error('YouTube search error:', error);
@@ -3211,7 +3301,7 @@ const fetchYouTubeVideoInfo = async (videoId) => {
                 channelName = oembedData.author_name || '';
             }
         } catch (e) {
-            console.log(`oEmbed failed for ${videoId}:`, e.message);
+            // oEmbed 요청 실패 무시
         }
 
         // 2. 영상 페이지에서 설명 추출 (og:description 메타 태그)
@@ -3259,17 +3349,12 @@ const fetchYouTubeVideoInfo = async (videoId) => {
                 }
             }
         } catch (e) {
-            if (e.name !== 'AbortError') {
-                console.log(`Page fetch failed for ${videoId}:`, e.message);
-            }
+            // 페이지 fetch 실패 (AbortError 포함) 무시
         }
 
         if (!title) {
-            console.log(`No info found for video: ${videoId}`);
             return null;
         }
-
-        console.log(`Video info: ${videoId} - ${title} (${channelName})`);
 
         return {
             videoId,
@@ -3289,7 +3374,7 @@ const fetchYouTubeVideoInfo = async (videoId) => {
 
 // YouTube에서 판사 관련 정보 크롤링
 const crawlYouTubeForJudge = async (judgeName) => {
-    console.log(`Crawling YouTube for judge: ${judgeName}`);
+    functions.logger.info(`Crawling YouTube for judge: ${judgeName}`);
 
     const queries = [
         `${judgeName} 판사`,
@@ -3304,7 +3389,7 @@ const crawlYouTubeForJudge = async (judgeName) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
-    console.log(`Total unique YouTube videos found: ${allVideoIds.size}`);
+    functions.logger.info(`Total unique YouTube videos found: ${allVideoIds.size}`);
 
     const videoInfos = [];
     for (const videoId of allVideoIds) {
@@ -3315,7 +3400,7 @@ const crawlYouTubeForJudge = async (judgeName) => {
         await new Promise(resolve => setTimeout(resolve, 500));
     }
 
-    console.log(`Got ${videoInfos.length} video infos out of ${allVideoIds.size} videos`);
+    functions.logger.info(`Got ${videoInfos.length} video infos out of ${allVideoIds.size} videos`);
 
     if (videoInfos.length === 0) return null;
 
@@ -3370,7 +3455,7 @@ ${videoText}
                 lastUpdated: admin.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
 
-            console.log(`Saved YouTube data for judge ${judgeName}`);
+            functions.logger.info(`Saved YouTube data for judge ${judgeName}`);
             return youtubeData;
         }
     } catch (error) {
@@ -3385,15 +3470,13 @@ ${videoText}
 // ============================================
 
 const crawlCourtCases = async (judgeName) => {
-    console.log(`Crawling court cases for judge: ${judgeName}`);
+    functions.logger.info(`Crawling court cases for judge: ${judgeName}`);
 
     try {
         // 국가법령정보 판례 검색 API
         // API 키가 없으면 스킵
         const courtApiKey = process.env.COURT_API_KEY;
         if (!courtApiKey) {
-            console.log('Court API key not configured, skipping court case crawl');
-            console.log('Register at https://open.law.go.kr to get an API key');
             return null;
         }
 
@@ -3413,7 +3496,6 @@ const crawlCourtCases = async (judgeName) => {
         const data = await response.json();
 
         if (!data.PrecSearch || !data.PrecSearch.prec) {
-            console.log(`No court cases found for ${judgeName}`);
             return null;
         }
 
@@ -3438,7 +3520,7 @@ const crawlCourtCases = async (judgeName) => {
             lastUpdated: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        console.log(`Saved ${parsedCases.length} court cases for judge ${judgeName}`);
+        functions.logger.info(`Saved ${parsedCases.length} court cases for judge ${judgeName}`);
         return parsedCases;
     } catch (error) {
         console.error('Court API error:', error);
@@ -3457,20 +3539,17 @@ exports.crawlAllJudgeData = functions
     .pubsub.schedule('0 3 * * *')
     .timeZone('Asia/Seoul')
     .onRun(async (context) => {
-        console.log('Starting scheduled judge data crawl...');
+        functions.logger.info('Starting scheduled judge data crawl...');
 
         for (const judge of JUDGES_TO_CRAWL) {
             try {
                 // 1. 뉴스 크롤링
-                console.log(`[1/3] Crawling news for ${judge.name}...`);
                 await crawlJudgeNews(judge);
 
                 // 2. YouTube 크롤링
-                console.log(`[2/3] Crawling YouTube for ${judge.name}...`);
                 await crawlYouTubeForJudge(judge.name);
 
                 // 3. 법원 판결문 크롤링
-                console.log(`[3/3] Crawling court cases for ${judge.name}...`);
                 await crawlCourtCases(judge.name);
 
                 await new Promise(resolve => setTimeout(resolve, 3000));
@@ -3479,7 +3558,7 @@ exports.crawlAllJudgeData = functions
             }
         }
 
-        console.log('Judge data crawl completed');
+        functions.logger.info('Judge data crawl completed');
         return null;
     });
 
@@ -3488,12 +3567,22 @@ exports.triggerJudgeCrawl = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Methods', 'GET, POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
             res.status(204).send('');
             return;
+        }
+
+        // 관리자 API 키 검증
+        const adminKey = process.env.ADMIN_API_KEY;
+        if (adminKey) {
+            if (req.get('X-Admin-Key') !== adminKey) {
+                return res.status(403).json({ error: 'Forbidden' });
+            }
+        } else {
+            functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for triggerJudgeCrawl');
         }
 
         const judgeName = req.query.judge || '우인성';
@@ -3504,17 +3593,14 @@ exports.triggerJudgeCrawl = functions
             const judge = JUDGES_TO_CRAWL.find(j => j.name === judgeName) || { name: judgeName, position: '' };
 
             if (!source || source === 'news') {
-                console.log('Crawling news...');
                 results.news = await crawlJudgeNews(judge);
             }
 
             if (!source || source === 'youtube') {
-                console.log('Crawling YouTube...');
                 results.youtube = await crawlYouTubeForJudge(judgeName);
             }
 
             if (!source || source === 'court') {
-                console.log('Crawling court cases...');
                 results.court = await crawlCourtCases(judgeName);
             }
 
@@ -3529,7 +3615,7 @@ exports.triggerJudgeCrawl = functions
 exports.getJudgeData = functions
     .region('asia-northeast3')
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Methods', 'GET');
             res.set('Access-Control-Allow-Headers', 'Content-Type');
@@ -3566,7 +3652,7 @@ exports.getJudgeData = functions
 // ============================================
 
 exports.lawApi = functions.https.onRequest(async (req, res) => {
-    res.set('Access-Control-Allow-Origin', '*');
+    setCorsHeaders(req, res);
     res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -3619,7 +3705,7 @@ exports.lawApi = functions.https.onRequest(async (req, res) => {
 
 exports.searchNaverNews = functions.https.onRequest(async (req, res) => {
     // CORS 설정
-    res.set('Access-Control-Allow-Origin', '*');
+    setCorsHeaders(req, res);
     res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -3751,7 +3837,7 @@ exports.crawlVerdictData = functions
     .pubsub.schedule('0 6,12,18 * * *')
     .timeZone('Asia/Seoul')
     .onRun(async (context) => {
-        console.log('Starting scheduled verdict data crawl...');
+        functions.logger.info('Starting scheduled verdict data crawl...');
 
         const allNewsItems = [];
         for (const keyword of VERDICT_KEYWORDS) {
@@ -3773,16 +3859,15 @@ exports.crawlVerdictData = functions
             return true;
         });
 
-        console.log(`Found ${uniqueNews.length} unique news items`);
+        functions.logger.info(`Found ${uniqueNews.length} unique news items`);
 
         if (uniqueNews.length === 0) {
-            console.log('No verdict news found');
             return null;
         }
 
         // AI로 구조화된 판결 데이터 추출
         const verdicts = await extractStructuredVerdict(uniqueNews);
-        console.log(`Extracted ${verdicts.length} verdicts`);
+        functions.logger.info(`Extracted ${verdicts.length} verdicts`);
 
         let savedCount = 0;
         for (const verdict of verdicts) {
@@ -3802,9 +3887,7 @@ exports.crawlVerdictData = functions
                     updatedAt: admin.firestore.FieldValue.serverTimestamp()
                 });
                 savedCount++;
-                console.log(`Saved new verdict: ${verdict.defendant} ${verdict.date}`);
-            } else {
-                console.log(`Skipped duplicate: ${verdict.defendant} ${verdict.date}`);
+                functions.logger.info(`Saved new verdict: ${verdict.defendant} ${verdict.date}`);
             }
         }
 
@@ -3821,7 +3904,7 @@ exports.crawlVerdictData = functions
             }
         }
 
-        console.log(`Verdict crawl completed. Saved ${savedCount} new verdicts.`);
+        functions.logger.info(`Verdict crawl completed. Saved ${savedCount} new verdicts.`);
         return null;
     });
 
@@ -3830,12 +3913,22 @@ exports.triggerVerdictCrawl = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Methods', 'GET, POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
             res.status(204).send('');
             return;
+        }
+
+        // 관리자 API 키 검증
+        const adminKey = process.env.ADMIN_API_KEY;
+        if (adminKey) {
+            if (req.get('X-Admin-Key') !== adminKey) {
+                return res.status(403).json({ error: 'Forbidden' });
+            }
+        } else {
+            functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for triggerVerdictCrawl');
         }
 
         try {
@@ -3894,12 +3987,22 @@ exports.analyzeVerdictWithAI = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 300, memory: '1GB' })
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Methods', 'POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
             res.status(204).send('');
             return;
+        }
+
+        // 관리자 API 키 검증
+        const adminKey = process.env.ADMIN_API_KEY;
+        if (adminKey) {
+            if (req.get('X-Admin-Key') !== adminKey) {
+                return res.status(403).json({ error: 'Forbidden' });
+            }
+        } else {
+            functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for analyzeVerdictWithAI');
         }
 
         const { defendant } = req.query;
@@ -4372,11 +4475,21 @@ exports.predictSentencingWithAI = functions
     .runWith({ timeoutSeconds: 300, memory: '1GB' })
     .https.onRequest(async (req, res) => {
         // CORS 헤더
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.set('Access-Control-Allow-Headers', 'Content-Type');
+        res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
         if (req.method === 'OPTIONS') {
             return res.status(204).send('');
+        }
+
+        // 관리자 API 키 검증
+        const adminKey = process.env.ADMIN_API_KEY;
+        if (adminKey) {
+            if (req.get('X-Admin-Key') !== adminKey) {
+                return res.status(403).json({ error: 'Forbidden' });
+            }
+        } else {
+            functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for predictSentencingWithAI');
         }
 
         const defendant = req.query.defendant || req.body?.defendant;
@@ -4756,12 +4869,22 @@ exports.crawlCourtComposition = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 300, memory: '1GB' })
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Methods', 'GET, POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
             res.status(204).send('');
             return;
+        }
+
+        // 관리자 API 키 검증
+        const adminKey = process.env.ADMIN_API_KEY;
+        if (adminKey) {
+            if (req.get('X-Admin-Key') !== adminKey) {
+                return res.status(403).json({ error: 'Forbidden' });
+            }
+        } else {
+            functions.logger.warn('ADMIN_API_KEY not configured - admin verification disabled for crawlCourtComposition');
         }
 
         try {
@@ -4853,3 +4976,164 @@ JSON 형식:
             res.status(500).json({ error: error.message });
         }
     });
+
+// ============================================
+// RAG 챗봇 API (참심제 전문 AI 상담)
+// ============================================
+const ragSearch = require('./shared/ragSearch');
+
+exports.ragChat = functions.runWith({ memory: '1GB', timeoutSeconds: 60 }).https.onRequest(async (req, res) => {
+    setCorsHeaders(req, res);
+    if (req.method === 'OPTIONS') {
+        return res.status(204).send('');
+    }
+
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+        const { question, context: clientContext, conversationHistory } = req.body;
+
+        if (!question || typeof question !== 'string') {
+            return res.status(400).json({ error: 'question is required' });
+        }
+
+        // Rate limiting (simple IP-based)
+        // (skip for now, can add later with Firestore)
+
+        // 1. 시맨틱 검색 우선, BM25 폴백
+        let searchResults = [];
+        let searchMode = 'bm25';
+
+        // 1a. Gemini Embedding으로 시맨틱 검색 시도
+        if (genAI) {
+            try {
+                const embModel = genAI.getGenerativeModel({ model: 'gemini-embedding-001' });
+                const embResult = await embModel.embedContent(question);
+                const queryEmbedding = embResult.embedding.values;
+                searchResults = ragSearch.semanticSearch(queryEmbedding, 5);
+                if (searchResults.length > 0) {
+                    searchMode = 'semantic';
+                }
+            } catch (embError) {
+                console.error('Semantic search failed, falling back to BM25:', embError.message);
+            }
+        }
+
+        // 1b. 시맨틱 검색 실패 시 BM25 폴백
+        if (searchResults.length === 0) {
+            searchResults = ragSearch.search(question, 5);
+            searchMode = 'bm25';
+        }
+
+        // 2. Build context from search results (or use client-provided context)
+        let ragContext = '';
+        let sources = [];
+
+        if (searchResults.length > 0) {
+            ragContext = searchResults.map((r, idx) =>
+                `[참고자료 ${idx + 1}: ${r.sourceLabel}]\n${r.text}`
+            ).join('\n\n---\n\n');
+
+            sources = searchResults.map(r => ({
+                name: r.source,
+                label: r.sourceLabel,
+                score: Math.round(r.score * 1000) / 1000
+            }));
+        } else if (clientContext) {
+            ragContext = clientContext;
+        }
+
+        // 3. If no Gemini API key, return search results as fallback
+        if (!genAI) {
+            if (searchResults.length > 0) {
+                return res.json({
+                    answer: `관련 자료를 찾았습니다:\n\n${ragContext}`,
+                    sources,
+                    mode: 'search-only'
+                });
+            }
+            return res.status(503).json({ error: 'AI 서비스를 사용할 수 없습니다.' });
+        }
+
+        // 4. Build conversation history context (last 3 turns)
+        let historyText = '';
+        if (conversationHistory && Array.isArray(conversationHistory)) {
+            const recentHistory = conversationHistory.slice(-6); // 3 turns = 6 messages
+            historyText = recentHistory
+                .filter(m => m.role && m.content)
+                .map(m => `${m.role === 'user' ? '사용자' : 'AI'}: ${m.content}`)
+                .join('\n');
+        }
+
+        // 5. Generate answer with Gemini
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+        const systemPrompt = `당신은 대한민국 시민법관 참심제 전문 AI 상담사입니다.
+
+## 역할
+- 시민법관 참심제(혼합형 배심제)에 대한 전문적이고 정확한 답변을 제공합니다.
+- 제공된 참고자료를 기반으로만 답변하며, 자료에 없는 내용은 추측하지 않습니다.
+- 각국의 참심제도(독일, 핀란드, 스웨덴, 프랑스 등)를 비교 분석할 수 있습니다.
+
+## 답변 규칙
+1. **출처 인용 필수**: 답변에 사용한 참고자료의 출처를 반드시 명시하세요. 예: "(EU 사법제도 자료 참조)"
+2. **환각 금지**: 참고자료에 없는 정보는 "제공된 자료에서는 해당 내용을 찾을 수 없습니다"라고 답하세요.
+3. **구조화된 답변**: 복잡한 주제는 번호 목록이나 소제목으로 구분하여 읽기 쉽게 작성하세요.
+4. **비교 질문 시**: 표 형식이나 국가별 구분으로 명확하게 비교하세요.
+5. **한국어**: 반드시 한국어로 답변하세요.
+6. **간결하되 충분히**: 핵심을 놓치지 않되, 불필요한 반복은 피하세요.
+
+## 금지사항
+- 정치적 의견이나 편향된 주장 금지
+- 법률 자문 제공 금지 (일반적인 제도 설명만 가능)
+- 참고자료에 없는 통계나 수치 인용 금지`;
+
+        let userPrompt = '';
+
+        if (ragContext) {
+            userPrompt = `## 참고자료\n${ragContext}\n\n`;
+        }
+
+        if (historyText) {
+            userPrompt += `## 이전 대화\n${historyText}\n\n`;
+        }
+
+        userPrompt += `## 질문\n${question}\n\n위 참고자료를 기반으로 정확하고 구조화된 답변을 작성해주세요. 반드시 출처를 인용하세요.`;
+
+        const result = await model.generateContent(systemPrompt + '\n\n' + userPrompt);
+
+        const answer = result.response.text();
+
+        return res.json({
+            answer,
+            sources,
+            mode: ragContext ? 'rag' : 'general',
+            searchMode
+        });
+
+    } catch (error) {
+        console.error('RAG Chat error:', error);
+
+        // Gemini failure fallback: return search results directly
+        try {
+            const searchResults = ragSearch.search(req.body?.question || '', 3);
+            if (searchResults.length > 0) {
+                const fallbackAnswer = searchResults.map((r, idx) =>
+                    `**[${r.sourceLabel}]**\n${r.text}`
+                ).join('\n\n---\n\n');
+
+                return res.json({
+                    answer: `AI 요약 생성에 실패했지만, 관련 자료를 찾았습니다:\n\n${fallbackAnswer}`,
+                    sources: searchResults.map(r => ({ name: r.source, label: r.sourceLabel })),
+                    mode: 'fallback'
+                });
+            }
+        } catch (fallbackError) {
+            console.error('Fallback search also failed:', fallbackError);
+        }
+
+        return res.status(500).json({ error: '답변 생성에 실패했습니다. 잠시 후 다시 시도해주세요.' });
+    }
+});
