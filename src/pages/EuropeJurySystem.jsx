@@ -12,7 +12,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Schöffengericht',
         description: '일반 시민이 참심원(Schöffen)으로 직업법관과 함께 재판에 참여. 형사재판에서 2명의 참심원이 1명의 직업법관과 합의체 구성.',
         features: ['참심원 임기 5년', '형사사건 중심', '유무죄와 양형 모두 결정'],
-        established: '1877년'
+        established: '1877년',
+        website: 'https://www.bundesgerichtshof.de/EN/Home/homeBGH_node.html'
     },
     {
         country: '프랑스',
@@ -22,7 +23,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Cour d\'assises',
         description: '중죄법원(Cour d\'assises)에서 시민배심원 6명이 3명의 직업법관과 함께 재판. 2심에서는 배심원 9명.',
         features: ['중죄사건 전담', '배심원과 법관 합의체', '2000년 항소심 도입'],
-        established: '1791년 (대혁명 이후)'
+        established: '1791년 (대혁명 이후)',
+        website: 'https://www.justice.gouv.fr/'
     },
     {
         country: '이탈리아',
@@ -32,7 +34,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Corte d\'Assise',
         description: '중죄재판소에서 6명의 시민참심원이 2명의 직업법관과 함께 재판. 항소심도 동일 구조.',
         features: ['중죄사건 전담', '참심원 6명 + 법관 2명', '만장일치 불요'],
-        established: '1931년'
+        established: '1931년',
+        website: 'https://www.giustizia.it/'
     },
     {
         country: '스웨덴',
@@ -42,7 +45,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Nämndemän',
         description: '지방법원에서 3명의 참심원(Nämndemän)이 1명의 직업법관과 함께 재판. 정당 추천으로 선출.',
         features: ['정당 추천제', '형사·민사 모두 적용', '참심원 다수결 가능'],
-        established: '중세시대부터'
+        established: '중세시대부터',
+        website: 'https://www.domstol.se/en/'
     },
     {
         country: '노르웨이',
@@ -52,7 +56,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Lagmannsrett',
         description: '지방법원은 참심제, 항소법원은 배심제(10명) 운영. 2018년 배심제 폐지 후 참심제로 통일.',
         features: ['2018년 배심제 폐지', '참심원 2명 + 법관 1명', '형사사건 중심'],
-        established: '1887년 배심제 도입, 2018년 폐지'
+        established: '1887년 배심제 도입, 2018년 폐지',
+        website: 'https://www.domstol.no/en/'
     },
     {
         country: '덴마크',
@@ -62,7 +67,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Nævningeting',
         description: '경미한 형사사건은 참심제, 중대 형사사건(4년 이상)은 배심제 적용.',
         features: ['이원화 시스템', '배심원 6명 + 법관 3명', '참심원 2명 + 법관 1명'],
-        established: '1919년'
+        established: '1919년',
+        website: 'https://www.domstol.dk/om-os/english/'
     },
     {
         country: '핀란드',
@@ -72,7 +78,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Lautamiehet',
         description: '지방법원에서 3명의 참심원이 1명의 직업법관과 함께 재판. 지방의회에서 선출.',
         features: ['지방의회 선출', '형사·민사 적용', '참심원 개별 투표권'],
-        established: '1734년'
+        established: '1734년',
+        website: 'https://tuomioistuimet.fi/en/'
     },
     {
         country: '오스트리아',
@@ -82,7 +89,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Geschworenengerichte',
         description: '중죄(5년 이상)는 배심제(8명), 경죄는 참심제(2명) 적용.',
         features: ['이원화 시스템', '배심원 8명 (중죄)', '참심원 2명 (경죄)'],
-        established: '1873년'
+        established: '1873년',
+        website: 'https://www.justiz.gv.at/'
     },
     {
         country: '벨기에',
@@ -92,7 +100,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Cour d\'assises',
         description: '중죄법원에서 12명의 배심원이 유무죄 판단. 양형은 배심원과 법관이 함께 결정.',
         features: ['중죄사건 전담', '배심원 12명', '2016년 개혁'],
-        established: '1831년'
+        established: '1831년',
+        website: 'https://www.belgium.be/en/justice/organisation'
     },
     {
         country: '스페인',
@@ -102,7 +111,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Tribunal del Jurado',
         description: '특정 범죄(살인, 뇌물 등)에 대해 9명의 배심원이 유무죄 판단.',
         features: ['1995년 재도입', '배심원 9명', '특정 범죄 한정'],
-        established: '1995년 (재도입)'
+        established: '1995년 (재도입)',
+        website: 'https://www.poderjudicial.es/'
     },
     {
         country: '포르투갈',
@@ -112,7 +122,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Tribunal de Júri',
         description: '중대 범죄에 대해 배심재판 가능. 피고인 또는 검찰의 청구로 구성.',
         features: ['청구에 의한 구성', '배심원 4명 + 법관 3명', '헌법상 보장'],
-        established: '1976년 (민주화 이후)'
+        established: '1976년 (민주화 이후)',
+        website: 'https://dgaj.justica.gov.pt/English'
     },
     {
         country: '그리스',
@@ -122,7 +133,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Μικτό Ορκωτό Δικαστήριο',
         description: '중죄재판소에서 4명의 시민참심원이 3명의 직업법관과 함께 재판.',
         features: ['중죄사건 전담', '참심원 4명 + 법관 3명', '2022년 개혁'],
-        established: '1834년'
+        established: '1834년',
+        website: 'https://www.areiospagos.gr/en/'
     },
     {
         country: '폴란드',
@@ -132,7 +144,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Ławnicy',
         description: '지방법원 형사부에서 2명의 참심원이 1명의 직업법관과 함께 재판.',
         features: ['형사 1심 적용', '참심원 2명', '지방의회 선출'],
-        established: '1950년대'
+        established: '1950년대',
+        website: 'https://www.gov.pl/web/justice'
     },
     {
         country: '체코',
@@ -142,7 +155,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Přísedící',
         description: '지방법원에서 2명의 참심원이 1명의 직업법관과 함께 재판.',
         features: ['형사사건 중심', '참심원 2명', '지방의회 선출'],
-        established: '1948년'
+        established: '1948년',
+        website: 'https://www.nsoud.cz/en/'
     },
     {
         country: '헝가리',
@@ -152,7 +166,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Ülnök',
         description: '1심 형사재판에서 2명의 참심원이 1명의 직업법관과 함께 재판.',
         features: ['형사 1심 적용', '참심원 2명', '지방의회 선출'],
-        established: '1949년'
+        established: '1949년',
+        website: 'https://birosag.hu/en'
     },
     {
         country: '슬로바키아',
@@ -162,7 +177,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Prísediaci',
         description: '지방법원 형사부에서 2명의 참심원이 1명의 직업법관과 함께 재판.',
         features: ['형사사건 중심', '참심원 2명', '2005년 축소'],
-        established: '1948년'
+        established: '1948년',
+        website: 'https://www.justice.gov.sk/'
     },
     {
         country: '슬로베니아',
@@ -172,7 +188,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Sodniki porotniki',
         description: '지방법원에서 2명의 참심원이 1명의 직업법관과 함께 형사재판.',
         features: ['형사사건 중심', '참심원 2명', '헌법상 보장'],
-        established: '1991년'
+        established: '1991년',
+        website: 'https://nasodiscu.si/en'
     },
     {
         country: '크로아티아',
@@ -182,7 +199,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Suci porotnici',
         description: '지방법원에서 2명의 참심원이 1명의 직업법관과 함께 재판.',
         features: ['형사·민사 적용', '참심원 2명', '헌법상 보장'],
-        established: '1991년'
+        established: '1991년',
+        website: 'https://www.vsrh.hr/en/'
     },
     {
         country: '불가리아',
@@ -192,7 +210,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Съдебни заседатели',
         description: '형사재판에서 2명의 참심원이 1명의 직업법관과 함께 재판.',
         features: ['형사사건 중심', '참심원 2명', '지방의회 선출'],
-        established: '1991년'
+        established: '1991년',
+        website: 'https://vss.justice.bg/en/'
     },
     {
         country: '루마니아',
@@ -202,7 +221,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Judecători neprofesioniști',
         description: '과거 참심제 운영, 현재는 직업법관 중심 체제로 전환.',
         features: ['2003년 폐지', '현재 직업법관제', '노동법원에 일부 잔존'],
-        established: '폐지됨 (2003년)'
+        established: '폐지됨 (2003년)',
+        website: 'https://www.iccj.ro/en/home/'
     },
     {
         country: '아일랜드',
@@ -212,7 +232,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Jury Trial',
         description: '형사재판에서 12명의 배심원이 유무죄 판단. 영미법 전통 계승.',
         features: ['배심원 12명', '만장일치 원칙', '형사사건 중심'],
-        established: '영국 통치시대부터'
+        established: '영국 통치시대부터',
+        website: 'https://www.courts.ie/'
     },
     {
         country: '몰타',
@@ -222,7 +243,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Ġuri',
         description: '형사법원에서 9명의 배심원이 유무죄 판단.',
         features: ['배심원 9명', '중죄사건 전담', '영국법 영향'],
-        established: '영국 통치시대부터'
+        established: '영국 통치시대부터',
+        website: 'https://judiciary.mt/en/'
     },
     {
         country: '키프로스',
@@ -232,7 +254,8 @@ const EUROPE_JURY_DATA = [
         localName: '-',
         description: '1960년 독립 후 배심제 폐지. 현재 직업법관 단독재판.',
         features: ['1960년 폐지', '직업법관제', '영국법 영향 잔존'],
-        established: '폐지됨 (1960년)'
+        established: '폐지됨 (1960년)',
+        website: 'https://www.supremecourt.gov.cy/'
     },
     {
         country: '에스토니아',
@@ -242,7 +265,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Rahvakohtunikud',
         description: '지방법원에서 2명의 참심원이 1명의 직업법관과 함께 재판.',
         features: ['형사·민사 적용', '참심원 2명', '지방의회 선출'],
-        established: '1992년'
+        established: '1992년',
+        website: 'https://www.riigikohus.ee/en'
     },
     {
         country: '라트비아',
@@ -252,7 +276,8 @@ const EUROPE_JURY_DATA = [
         localName: '-',
         description: '2009년 참심제 폐지. 현재 직업법관 단독재판.',
         features: ['2009년 폐지', '직업법관제', '예산 문제로 폐지'],
-        established: '폐지됨 (2009년)'
+        established: '폐지됨 (2009년)',
+        website: 'https://www.tiesas.lv/en'
     },
     {
         country: '리투아니아',
@@ -262,7 +287,8 @@ const EUROPE_JURY_DATA = [
         localName: '-',
         description: '2002년 참심제 폐지. 현재 직업법관 단독재판.',
         features: ['2002년 폐지', '직업법관제', '효율성 문제로 폐지'],
-        established: '폐지됨 (2002년)'
+        established: '폐지됨 (2002년)',
+        website: 'https://www.teismai.lt/en'
     },
     {
         country: '룩셈부르크',
@@ -272,7 +298,8 @@ const EUROPE_JURY_DATA = [
         localName: 'Cour d\'assises',
         description: '중죄법원에서 배심원이 유무죄 판단.',
         features: ['중죄사건 전담', '프랑스법 영향', '드물게 사용'],
-        established: '19세기'
+        established: '19세기',
+        website: 'https://mj.gouvernement.lu/en.html'
     },
 ];
 
@@ -430,16 +457,13 @@ export default function EuropeJurySystem() {
                                             개혁안 비교
                                         </Link>
                                         <Link to="/judge-evaluation" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
-                                            판사평가
+                                            AI의 판사평
                                         </Link>
                                         <Link to="/law-database" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
                                             법령DB
                                         </Link>
                                         <Link to="/judicial-network" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
                                             관계도
-                                        </Link>
-                                        <Link to="/case-search" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">
-                                            법률정보 검색
                                         </Link>
                                     </div>
                                 </div>
@@ -491,10 +515,9 @@ export default function EuropeJurySystem() {
                                     <Link to="/videos" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
                                     <Link to="/sentencing-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>내란재판분석</Link>
                                     <Link to="/reform-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>개혁안 비교</Link>
-                                    <Link to="/judge-evaluation" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>판사평가</Link>
+                                    <Link to="/judge-evaluation" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>AI의 판사평</Link>
                                     <Link to="/law-database" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>법령DB</Link>
                                     <Link to="/judicial-network" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>관계도</Link>
-                                    <Link to="/case-search" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>법률정보 검색</Link>
                                 </div>
                                 <a href="/#signature" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg text-center">
                                     참여하기
@@ -642,6 +665,24 @@ export default function EuropeJurySystem() {
                                                     ))}
                                                 </ul>
                                             </div>
+
+                                            {item.website && (
+                                                <div className="mt-3 pt-3 border-t">
+                                                    <a
+                                                        href={item.website}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                                                    >
+                                                        <span>🔗</span>
+                                                        <span>공식 사법기관 사이트</span>
+                                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                        </svg>
+                                                    </a>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
 

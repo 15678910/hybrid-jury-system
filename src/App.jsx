@@ -171,8 +171,12 @@ export default function App() {
         // Redirect 파라미터 체크 (우선순위 높음)
         const redirectPath = params.get('r');
         if (redirectPath) {
-            // URL에서 r 파라미터 제거하고 해당 경로로 이동
-            navigate(redirectPath, { replace: true });
+            // r 파라미터 외의 query params를 타겟 경로에 전달 (person, tab 등)
+            const forwardParams = new URLSearchParams(params);
+            forwardParams.delete('r');
+            const forwardQuery = forwardParams.toString();
+            const fullPath = forwardQuery ? `${redirectPath}?${forwardQuery}` : redirectPath;
+            navigate(fullPath, { replace: true });
             return; // 다른 로직 실행하지 않음
         }
 
@@ -193,10 +197,7 @@ export default function App() {
             return; // 해시가 있으면 포스터/로그인 모달 열지 않음
         }
 
-        console.log('Admin key:', adminParam); // 디버깅용
-
         if (adminParam === 'admin999') {
-            console.log('Opening admin login modal'); // 디버깅용
             setShowAdminLogin(true);
         }
         // 포스터 모달은 initAuth에서 로그인 상태 확인 후 표시
@@ -205,17 +206,13 @@ export default function App() {
     // 로그인 모달 표시 (로그인 안 된 경우)
     useEffect(() => {
         const initAuth = async () => {
-            console.log('[App] initAuth 시작');
-
             // 해시 링크로 진입한 경우 (예: /#necessity) 포스터 표시 안 함
             if (window.location.hash) {
-                console.log('[App] 해시 링크 진입 - 포스터 표시 안 함');
                 return;
             }
 
             // 블로그/동영상 페이지에서는 로그인 모달 표시 안 함 (로그인 없이 열람 가능)
             // 로그인 기능 비활성화 - 로그인 없이 모든 기능 사용 가능
-            console.log('[App] 로그인 기능 비활성화됨 - 로그인 모달 표시 안 함');
             if (shouldShowPoster()) {
                 setShowPosterModal(true);
             }
@@ -225,22 +222,17 @@ export default function App() {
 
             const path = window.location.pathname;
             if (path.startsWith('/blog') || path.startsWith('/videos')) {
-                console.log('[App] 콘텐츠 페이지 - 로그인 모달 표시 안 함');
                 return;
             }
 
             // Google 리다이렉트 결과 확인 (먼저 처리해야 함 - URL 해시에 id_token이 있을 수 있음)
             const googleRedirectResult = await checkGoogleRedirectResult();
-            console.log('[App] googleRedirectResult:', googleRedirectResult);
 
             if (googleRedirectResult && googleRedirectResult.success && googleRedirectResult.user) {
-                console.log('[App] Google 리다이렉트 성공');
-                console.log('[App] returnUrl:', googleRedirectResult.returnUrl);
 
                 // 블로그 페이지에서 로그인 시도한 경우, 해당 페이지로 리다이렉트
                 const returnUrl = googleRedirectResult.returnUrl;
                 if (returnUrl && returnUrl !== '/' && returnUrl.startsWith('/blog')) {
-                    console.log('[App] 블로그 페이지로 즉시 리다이렉트:', returnUrl);
                     // 사용자 정보를 세션에 저장하고 블로그 페이지로 이동
                     sessionStorage.setItem('googleUser', JSON.stringify(googleRedirectResult.user));
                     sessionStorage.removeItem('pendingGoogleUser');
@@ -260,16 +252,12 @@ export default function App() {
 
             // 카카오 리다이렉트 결과 확인 (URL 해시에 access_token이 있을 수 있음)
             const kakaoRedirectResult = await checkKakaoRedirectResult();
-            console.log('[App] kakaoRedirectResult:', kakaoRedirectResult);
 
             if (kakaoRedirectResult && kakaoRedirectResult.success && kakaoRedirectResult.user) {
-                console.log('[App] 카카오 리다이렉트 성공');
-                console.log('[App] returnUrl:', kakaoRedirectResult.returnUrl);
 
                 // 블로그 페이지에서 로그인 시도한 경우, 해당 페이지로 리다이렉트
                 const returnUrl = kakaoRedirectResult.returnUrl;
                 if (returnUrl && returnUrl !== '/' && returnUrl.startsWith('/blog')) {
-                    console.log('[App] 블로그 페이지로 즉시 리다이렉트:', returnUrl);
                     // 사용자 정보를 세션에 저장하고 블로그 페이지로 이동
                     sessionStorage.setItem('kakaoUser', JSON.stringify(kakaoRedirectResult.user));
                     sessionStorage.removeItem('pendingKakaoUser');
@@ -290,16 +278,13 @@ export default function App() {
             // URL 해시가 있으면 모달 표시 안 함 (스크롤 링크로 접속한 경우)
             // 단, id_token/access_token 해시는 이미 위에서 처리됨
             const hash = window.location.hash;
-            console.log('[App] hash:', hash);
             if (hash && !hash.includes('id_token') && !hash.includes('access_token')) {
-                console.log('[App] 해시 있음 - 모달 표시 안 함');
                 return;
             }
 
             // 카카오 로그인 확인 (sessionStorage만 - 브라우저 닫으면 로그아웃)
             const kakaoUser = sessionStorage.getItem('kakaoUser');
             if (kakaoUser) {
-                console.log('[App] 카카오 로그인 상태 확인됨');
                 // 이미 로그인됨 - 포스터 팝업 표시 (오늘 보지 않기 체크 확인)
                 if (shouldShowPoster()) {
                     setShowPosterModal(true);
@@ -310,7 +295,6 @@ export default function App() {
             // Google 세션 로그인 확인 (Firebase 실패해도 세션에 저장됨)
             const googleUser = sessionStorage.getItem('googleUser');
             if (googleUser) {
-                console.log('[App] Google 세션 로그인 상태 확인됨');
                 try {
                     const parsedUser = JSON.parse(googleUser);
                     setUser(parsedUser);
@@ -334,11 +318,8 @@ export default function App() {
                 setTimeout(() => resolve(null), 1000);
             });
 
-            console.log('[App] Firebase currentUser:', currentUser?.email || 'null');
-
             if (currentUser) {
                 // 이미 로그인됨 - 포스터 팝업 표시 (오늘 보지 않기 체크)
-                console.log('[App] 이미 로그인됨 - 포스터 팝업 표시');
                 if (shouldShowPoster()) {
                     setShowPosterModal(true);
                 }
@@ -346,7 +327,6 @@ export default function App() {
             }
 
             // 로그인 안 되어 있으면 로그인 모달 표시
-            console.log('[App] 로그인 안됨 - 로그인 모달 표시');
             setShowPosterModal(false);
             setShowLoginModal(true);
         };
@@ -359,13 +339,9 @@ export default function App() {
     // 로그인 상태 감지
     useEffect(() => {
         const unsubscribe = onAuthChange((authUser) => {
-            console.log('Auth 상태 변경:', authUser ? authUser.email || authUser.displayName : 'null');
-            console.log('[App] googleLoginInProgress:', googleLoginInProgress.current);
-
             // Google 로그인 진행 중일 때는 user 상태 업데이트를 스킵
             // LoginModal에서 로그인 완료 처리를 직접 함
             if (googleLoginInProgress.current) {
-                console.log('[App] Google 로그인 진행 중 - user 업데이트 스킵');
                 return;
             }
 
@@ -427,11 +403,8 @@ export default function App() {
 
     // 사용자 로그인 성공 핸들러
     const handleLoginSuccess = (loggedInUser) => {
-        console.log('로그인 성공:', loggedInUser);
-
         // 로그인 완료 후 플래그 해제
         googleLoginInProgress.current = false;
-        console.log('[App] 로그인 완료 - googleLoginInProgress = false');
 
         // user 상태 업데이트
         setUser(loggedInUser);
@@ -520,7 +493,7 @@ export default function App() {
             try {
                 recaptchaVerifierRef.current.clear();
             } catch (e) {
-                console.log('reCAPTCHA clear error:', e);
+                console.warn('reCAPTCHA clear error:', e);
             }
             recaptchaVerifierRef.current = null;
         }
@@ -533,11 +506,8 @@ export default function App() {
 
             recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
                 size: 'invisible',
-                callback: () => {
-                    console.log('reCAPTCHA solved');
-                },
+                callback: () => {},
                 'expired-callback': () => {
-                    console.log('reCAPTCHA expired');
                     recaptchaVerifierRef.current = null;
                 }
             });
@@ -553,7 +523,6 @@ export default function App() {
         }
 
         const phoneClean = formData.phone.replace(/[\s-]/g, '');
-        console.log('전화번호 검증:', phoneClean, '길이:', phoneClean.length);
 
         // 전화번호 형식 검증 (010으로 시작, 정확히 11자리)
         if (!/^010[0-9]{8}$/.test(phoneClean)) {
@@ -947,7 +916,7 @@ export default function App() {
                                             to="/judge-evaluation"
                                             className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                         >
-                                            판사평가
+                                            AI의 판사평
                                         </Link>
                                         <Link
                                             to="/law-database"
@@ -960,12 +929,6 @@ export default function App() {
                                             className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                         >
                                             관계도
-                                        </Link>
-                                        <Link
-                                            to="/case-search"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                        >
-                                            법률정보 검색
                                         </Link>
                                     </div>
                                 </div>
@@ -1097,7 +1060,7 @@ export default function App() {
                                     onClick={() => setMobileMenuOpen(false)}
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
                                 >
-                                    판사평가
+                                    AI의 판사평
                                 </Link>
                                 <Link
                                     to="/law-database"
@@ -1112,13 +1075,6 @@ export default function App() {
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
                                 >
                                     관계도
-                                </Link>
-                                <Link
-                                    to="/case-search"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    법률정보 검색
                                 </Link>
                             </div>
 
