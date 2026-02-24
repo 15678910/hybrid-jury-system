@@ -9,8 +9,7 @@
             "type": "command",
             "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const i=JSON.parse(d);const cmd=i.tool_input?.command||'';if(/git push/.test(cmd)){console.error('[Hook] 푸시 전 확인: 변경사항을 검토하세요');console.error('[Hook] git diff --stat 으로 변경 파일 확인')}}catch{}console.log(d)})\""
           }
-        ],
-        "description": "Git push 전 확인 알림"
+        ]
       },
       {
         "matcher": "Bash",
@@ -19,8 +18,7 @@
             "type": "command",
             "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const i=JSON.parse(d);const cmd=i.tool_input?.command||'';if(/deleteDoc|delete.*firestore|firebase.*delete/i.test(cmd)){console.error('[Hook] 경고: Firestore 삭제 작업 감지!');console.error('[Hook] 반드시 먼저 백업을 실행하세요:');console.error('[Hook] cd functions && node backup_firestore.js')}}catch{}console.log(d)})\""
           }
-        ],
-        "description": "Firestore 삭제 전 백업 알림"
+        ]
       }
     ],
     "PostToolUse": [
@@ -31,8 +29,7 @@
             "type": "command",
             "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const i=JSON.parse(d);const ns=i.tool_input?.new_string||'';const fp=i.tool_input?.file_path||'';if(/\\.(jsx?|tsx?)$/.test(fp)&&/console\\.log/.test(ns)){console.error('[Hook] 경고: console.log 감지됨');console.error('[Hook] 프로덕션 코드에서는 console.log 사용을 피하세요')}}catch{}console.log(d)})\""
           }
-        ],
-        "description": "console.log 사용 경고"
+        ]
       },
       {
         "matcher": "Write",
@@ -41,8 +38,7 @@
             "type": "command",
             "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const i=JSON.parse(d);const ct=i.tool_input?.content||'';const fp=i.tool_input?.file_path||'';if(/\\.(jsx?|tsx?)$/.test(fp)&&/console\\.log/.test(ct)){console.error('[Hook] 경고: console.log 감지됨');console.error('[Hook] 프로덕션 코드에서는 console.log 사용을 피하세요')}}catch{}console.log(d)})\""
           }
-        ],
-        "description": "새 파일 작성 시 console.log 경고"
+        ]
       },
       {
         "matcher": "Bash",
@@ -52,8 +48,7 @@
             "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const i=JSON.parse(d);const cmd=i.tool_input?.command||'';if(/(npm run build|firebase deploy)/.test(cmd)){const out=i.tool_output?.stdout||i.tool_output?.output||'';if(/Deploy complete|built in/.test(out)){console.error('[Hook] 빌드/배포 완료!')}else if(/error|failed/i.test(out)){console.error('[Hook] 오류 발생 - 로그를 확인하세요')}}}catch{}console.log(d)})\"",
             "timeout": 10
           }
-        ],
-        "description": "빌드/배포 완료 알림"
+        ]
       },
       {
         "matcher": "Bash",
@@ -62,9 +57,13 @@
             "type": "command",
             "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const i=JSON.parse(d);const cmd=i.tool_input?.command||'';if(/gh pr create/.test(cmd)){const out=i.tool_output?.output||'';const m=out.match(/https:\\/\\/github.com\\/[^/]+\\/[^/]+\\/pull\\/\\d+/);if(m){console.error('[Hook] PR 생성됨: '+m[0])}}}catch{}console.log(d)})\""
           }
-        ],
-        "description": "PR 생성 후 URL 표시"
+        ]
       }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(firebase functions:config:get:*)"
     ]
   }
 }

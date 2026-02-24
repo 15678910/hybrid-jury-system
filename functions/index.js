@@ -1305,7 +1305,7 @@ exports.sendBlogNotification = functions.https.onRequest(async (req, res) => {
     // CORS 설정
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
 
     if (req.method === 'OPTIONS') {
         res.status(204).send('');
@@ -1935,7 +1935,7 @@ exports.collectNewsManual = functions
     .https.onRequest(async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
 
     if (req.method === 'OPTIONS') {
         res.status(204).send('');
@@ -1956,7 +1956,7 @@ exports.collectNewsManual = functions
 exports.collectSupremeCourtNews = functions.https.onRequest(async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
 
     if (req.method === 'OPTIONS') {
         res.status(204).send('');
@@ -2754,7 +2754,7 @@ exports.triggerSentencingCrawl = functions
         res.set('Access-Control-Allow-Origin', '*');
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Methods', 'GET, POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
             res.status(204).send('');
             return;
         }
@@ -2979,7 +2979,7 @@ exports.collectReformNewsManual = functions
     .https.onRequest(async (req, res) => {
         res.set('Access-Control-Allow-Origin', '*');
         res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.set('Access-Control-Allow-Headers', 'Content-Type');
+        res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
 
         if (req.method === 'OPTIONS') {
             res.status(204).send('');
@@ -3491,7 +3491,7 @@ exports.triggerJudgeCrawl = functions
         res.set('Access-Control-Allow-Origin', '*');
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Methods', 'GET, POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
             res.status(204).send('');
             return;
         }
@@ -3897,7 +3897,7 @@ exports.analyzeVerdictWithAI = functions
         res.set('Access-Control-Allow-Origin', '*');
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Methods', 'POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
             res.status(204).send('');
             return;
         }
@@ -4374,7 +4374,7 @@ exports.predictSentencingWithAI = functions
         // CORS 헤더
         res.set('Access-Control-Allow-Origin', '*');
         res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.set('Access-Control-Allow-Headers', 'Content-Type');
+        res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
         if (req.method === 'OPTIONS') {
             return res.status(204).send('');
         }
@@ -4759,7 +4759,7 @@ exports.crawlCourtComposition = functions
         res.set('Access-Control-Allow-Origin', '*');
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Methods', 'GET, POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
             res.status(204).send('');
             return;
         }
