@@ -1,7 +1,0 @@
-# 시민법정 robots.txt
-User-agent: *
-Allow: /
-
-# Sitemap
-Sitemap: https://xn--lg3b0kt4n41f.kr/sitemap.xml
-Sitemap: https://시민법정.kr/sitemap.xml
