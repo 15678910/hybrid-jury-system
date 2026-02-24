@@ -128,13 +128,6 @@ export default function JudgeEvaluation() {
                                                         )}
                                                     </div>
                                                 )}
-                                                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100">
-                                                    <div className="flex items-center gap-1 text-yellow-500">
-                                                        <span className="text-lg">⭐</span>
-                                                        <span className="font-medium text-gray-700">{judge.rating > 0 ? judge.rating.toFixed(1) : '평가없음'}</span>
-                                                    </div>
-                                                    <span className="text-gray-400 text-sm">({judge.reviewCount}개 평가)</span>
-                                                </div>
                                             </div>
                                             <div className="mt-4 text-blue-600 text-sm font-medium flex items-center gap-1">
                                                 상세보기
@@ -185,13 +178,6 @@ export default function JudgeEvaluation() {
                                                         )}
                                                     </div>
                                                 )}
-                                                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100">
-                                                    <div className="flex items-center gap-1 text-yellow-500">
-                                                        <span className="text-lg">⭐</span>
-                                                        <span className="font-medium text-gray-700">{judge.rating > 0 ? judge.rating.toFixed(1) : '평가없음'}</span>
-                                                    </div>
-                                                    <span className="text-gray-400 text-sm">({judge.reviewCount}개 평가)</span>
-                                                </div>
                                             </div>
                                             <div className="mt-4 text-blue-600 text-sm font-medium flex items-center gap-1">
                                                 상세보기
@@ -254,18 +240,6 @@ export default function JudgeEvaluation() {
                                             </div>
                                         )}
 
-                                        {/* 평점 (향후 기능) */}
-                                        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100">
-                                            <div className="flex items-center gap-1 text-yellow-500">
-                                                <span className="text-lg">⭐</span>
-                                                <span className="font-medium text-gray-700">
-                                                    {judge.rating > 0 ? judge.rating.toFixed(1) : '평가없음'}
-                                                </span>
-                                            </div>
-                                            <span className="text-gray-400 text-sm">
-                                                ({judge.reviewCount}개 평가)
-                                            </span>
-                                        </div>
                                     </div>
 
                                     {/* 호버 효과 */}

@@ -4869,3 +4869,899 @@ JSON 형식:
             res.status(500).json({ error: error.message });
         }
     });
+
+// ============================================
+// 증거 기반 사법 정의 평가 시스템
+// Evidence-Based Judicial Evaluation System
+// ============================================
+
+// 증거 유형 분류
+const EVIDENCE_TYPES = {
+    LEGAL_PRECEDENT: 'legal_precedent',
+    NEWS_ARTICLE: 'news_article',
+    SEARCH_TREND: 'search_trend',
+    OPINION_POLL: 'opinion_poll'
+};
+
+// 내란 사건 피고인 목록 (24명)
+const INSURRECTION_DEFENDANTS = [
+    '윤석열', '한덕수', '김용현', '조지호', '노상원',
+    '이상민', '김봉식', '목현태', '윤승영', '김건희',
+    '곽종근', '박안수', '여인형', '이진우', '문상호',
+    '김태효', '조태용', '박종준', '심우정', '이완규',
+    '박성재', '최상목', '추경호', '김주현', '김용군'
+];
+
+// 관련 판례 수집 헬퍼
+const collectLegalPrecedentsHelper = async (defendant) => {
+    try {
+        const OC = process.env.LAWAPI_OC || 'lacoiffure828';
+        const queries = [
+            `${defendant} 내란`,
+            '내란죄 형법 87조',
+            '전두환 내란',
+            '노태우 내란'
+        ];
+
+        const allPrecedents = [];
+
+        for (const query of queries) {
+            try {
+                const apiUrl = `https://www.law.go.kr/DRF/lawSearch.do?OC=${OC}&target=prec&type=JSON&query=${encodeURIComponent(query)}&display=10`;
+                console.log('Fetching law precedents:', apiUrl);
+
+                const response = await fetch(apiUrl, {
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    console.error('Law API response not OK:', response.status);
+                    continue;
+                }
+
+                const contentType = response.headers.get('content-type') || '';
+                let data;
+                if (contentType.includes('json')) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    try {
+                        data = JSON.parse(text);
+                    } catch (e) {
+                        console.error('Law API response not JSON:', text.substring(0, 200));
+                        continue;
+                    }
+                }
+
+                // 판례 목록 추출
+                const precList = data.PrecSearch?.prec || data.prec || [];
+                const items = Array.isArray(precList) ? precList : [precList];
+
+                for (const item of items) {
+                    if (!item || !item['판례일련번호']) continue;
+                    allPrecedents.push({
+                        caseId: item['판례일련번호'],
+                        caseName: item['사건명'] || '',
+                        court: item['법원명'] || '',
+                        date: item['선고일자'] || '',
+                        summary: (item['판시사항'] || item['판결요지'] || '').substring(0, 500),
+                        url: `https://www.law.go.kr/판례/${item['판례일련번호']}`,
+                        type: EVIDENCE_TYPES.LEGAL_PRECEDENT
+                    });
+                }
+            } catch (queryError) {
+                console.error(`Law API query error (${query}):`, queryError.message);
+            }
+
+            // API 제한 방지 딜레이
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        // 중복 제거 (판례일련번호 기준)
+        const seen = new Set();
+        const uniquePrecedents = allPrecedents.filter(p => {
+            if (seen.has(p.caseId)) return false;
+            seen.add(p.caseId);
+            return true;
+        });
+
+        console.log(`Collected ${uniquePrecedents.length} unique legal precedents for ${defendant}`);
+        return uniquePrecedents;
+    } catch (error) {
+        console.error('collectLegalPrecedentsHelper error:', error);
+        return [];
+    }
+};
+
+// 뉴스 증거 수집 헬퍼
+const collectNewsEvidenceHelper = async (defendant) => {
+    try {
+        // 1. Bing RSS 뉴스 검색
+        const bingQueries = [
+            `${defendant} 판결 반응`,
+            `${defendant} 양형 비판`,
+            `${defendant} 재판 공정성`
+        ];
+
+        let allNewsItems = [];
+
+        for (const query of bingQueries) {
+            try {
+                const bingResults = await searchNews(query, 10);
+                allNewsItems = allNewsItems.concat(bingResults.map(item => ({
+                    title: item.title,
+                    url: extractRealUrl(item.link || ''),
+                    source: 'bing',
+                    date: item.pubDate || '',
+                    description: item.description || ''
+                })));
+            } catch (e) {
+                console.error(`Bing news search error (${query}):`, e.message);
+            }
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        // 2. 네이버 뉴스 API 검색
+        const naverClientId = process.env.NAVER_CLIENT_ID;
+        const naverClientSecret = process.env.NAVER_CLIENT_SECRET;
+
+        if (naverClientId && naverClientSecret) {
+            const naverQueries = [
+                `${defendant} 판결 반응`,
+                `${defendant} 양형 비판`,
+                `${defendant} 재판 공정성`
+            ];
+
+            for (const query of naverQueries) {
+                try {
+                    const naverRes = await fetch(
+                        `https://openapi.naver.com/v1/search/news.json?query=${encodeURIComponent(query)}&display=10&sort=date`,
+                        {
+                            headers: {
+                                'X-Naver-Client-Id': naverClientId,
+                                'X-Naver-Client-Secret': naverClientSecret
+                            }
+                        }
+                    );
+
+                    if (naverRes.ok) {
+                        const naverData = await naverRes.json();
+                        const naverItems = naverData.items || [];
+                        allNewsItems = allNewsItems.concat(naverItems.map(item => ({
+                            title: (item.title || '').replace(/<[^>]*>/g, ''),
+                            url: item.originallink || item.link || '',
+                            source: 'naver',
+                            date: item.pubDate || '',
+                            description: (item.description || '').replace(/<[^>]*>/g, '')
+                        })));
+                    }
+                } catch (e) {
+                    console.error(`Naver news search error (${query}):`, e.message);
+                }
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        // 3. URL 기준 중복 제거
+        const seenUrls = new Set();
+        const uniqueNews = allNewsItems.filter(item => {
+            const url = item.url.replace(/\/$/, '').replace(/^https?:\/\//, '');
+            if (!url || seenUrls.has(url)) return false;
+            seenUrls.add(url);
+            return true;
+        });
+
+        // MSN 필터링
+        const filteredNews = uniqueNews.filter(item => !item.url.includes('msn.com'));
+
+        // 상위 8개 기사 본문 추출 + 감정 분석
+        const topArticles = filteredNews.slice(0, 8);
+        const enrichedArticles = [];
+
+        for (const article of topArticles) {
+            try {
+                const content = await fetchArticleContent(article.url);
+                const articleContent = content ? content.substring(0, 2000) : article.description;
+
+                // Gemini 감정 분석
+                let sentiment = 'neutral';
+                let relevance = '';
+
+                if (genAI && articleContent) {
+                    try {
+                        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+                        const analysisPrompt = `다음 뉴스 기사의 감정(positive/negative/neutral)과 관련 이슈를 분석하세요.
+기사 제목: ${article.title}
+기사 내용: ${articleContent.substring(0, 2000)}
+
+JSON 형식으로 응답:
+{"sentiment": "positive|negative|neutral", "relevance": "관련 이슈 한줄 설명"}`;
+
+                        const result = await model.generateContent(analysisPrompt);
+                        const analysisText = result.response.text();
+                        const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+                        if (jsonMatch) {
+                            const parsed = JSON.parse(jsonMatch[0]);
+                            sentiment = parsed.sentiment || 'neutral';
+                            relevance = parsed.relevance || '';
+                        }
+                    } catch (aiError) {
+                        console.error('Gemini sentiment analysis error:', aiError.message);
+                    }
+                }
+
+                enrichedArticles.push({
+                    title: article.title,
+                    url: article.url,
+                    source: article.source,
+                    date: article.date,
+                    content: (content || article.description || '').substring(0, 500),
+                    sentiment,
+                    relevance,
+                    type: EVIDENCE_TYPES.NEWS_ARTICLE
+                });
+            } catch (articleError) {
+                console.error(`Article enrichment error (${article.title}):`, articleError.message);
+                enrichedArticles.push({
+                    title: article.title,
+                    url: article.url,
+                    source: article.source,
+                    date: article.date,
+                    content: (article.description || '').substring(0, 500),
+                    sentiment: 'neutral',
+                    relevance: '',
+                    type: EVIDENCE_TYPES.NEWS_ARTICLE
+                });
+            }
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        console.log(`Collected ${enrichedArticles.length} enriched news articles for ${defendant}`);
+        return enrichedArticles;
+    } catch (error) {
+        console.error('collectNewsEvidenceHelper error:', error);
+        return [];
+    }
+};
+
+// 검색 트렌드 수집 헬퍼
+const collectSearchTrendsHelper = async (defendant) => {
+    try {
+        const naverClientId = process.env.NAVER_CLIENT_ID;
+        const naverClientSecret = process.env.NAVER_CLIENT_SECRET;
+
+        if (!naverClientId || !naverClientSecret) {
+            console.log('Naver API credentials not available for DataLab');
+            return [];
+        }
+
+        const endDate = new Date().toISOString().split('T')[0];
+        const response = await fetch('https://openapi.naver.com/v1/datalab/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Naver-Client-Id': naverClientId,
+                'X-Naver-Client-Secret': naverClientSecret
+            },
+            body: JSON.stringify({
+                startDate: '2024-12-01',
+                endDate: endDate,
+                timeUnit: 'week',
+                keywordGroups: [
+                    { groupName: defendant, keywords: [defendant, `${defendant} 재판`] },
+                    { groupName: '내란 재판', keywords: ['내란 재판', '내란 판결'] }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            console.error('Naver DataLab API error:', response.status);
+            return [];
+        }
+
+        const data = await response.json();
+        const results = data.results || [];
+        const trends = [];
+
+        for (const group of results) {
+            const dataPoints = (group.data || []).map(d => ({
+                date: d.period,
+                ratio: d.ratio
+            }));
+
+            // 피크 날짜와 평균 비율 계산
+            let peakDate = '';
+            let peakRatio = 0;
+            let totalRatio = 0;
+
+            for (const point of dataPoints) {
+                totalRatio += point.ratio;
+                if (point.ratio > peakRatio) {
+                    peakRatio = point.ratio;
+                    peakDate = point.date;
+                }
+            }
+
+            const avgRatio = dataPoints.length > 0 ? Math.round((totalRatio / dataPoints.length) * 100) / 100 : 0;
+
+            // 트렌드 방향 계산
+            let trendDirection = 'stable';
+            if (dataPoints.length >= 4) {
+                const recentAvg = dataPoints.slice(-2).reduce((s, d) => s + d.ratio, 0) / 2;
+                const olderAvg = dataPoints.slice(-4, -2).reduce((s, d) => s + d.ratio, 0) / 2;
+                if (recentAvg > olderAvg * 1.2) trendDirection = 'rising';
+                else if (recentAvg < olderAvg * 0.8) trendDirection = 'declining';
+            }
+
+            trends.push({
+                keyword: group.title,
+                period: `2024-12-01 ~ ${endDate}`,
+                data: dataPoints,
+                avgRatio,
+                peakDate,
+                trendDirection,
+                type: EVIDENCE_TYPES.SEARCH_TREND
+            });
+        }
+
+        console.log(`Collected ${trends.length} search trends for ${defendant}`);
+        return trends;
+    } catch (error) {
+        console.error('collectSearchTrendsHelper error:', error);
+        return [];
+    }
+};
+
+// 사법 증거 수집 (HTTP)
+exports.collectJudicialEvidence = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 540, memory: '1GB' })
+    .https.onRequest(async (req, res) => {
+        // CORS 헤더
+        res.set('Access-Control-Allow-Origin', '*');
+        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.set('Access-Control-Allow-Headers', 'Content-Type');
+        if (req.method === 'OPTIONS') {
+            return res.status(204).send('');
+        }
+
+        const defendant = req.query.defendant || req.body?.defendant;
+        if (!defendant) {
+            return res.status(400).json({ error: '피고인 이름(defendant)을 지정해주세요.' });
+        }
+
+        try {
+            console.log(`Collecting judicial evidence for ${defendant}...`);
+
+            // 3개 헬퍼 병렬 실행
+            const [legalResult, newsResult, trendsResult] = await Promise.allSettled([
+                collectLegalPrecedentsHelper(defendant),
+                collectNewsEvidenceHelper(defendant),
+                collectSearchTrendsHelper(defendant)
+            ]);
+
+            const legalPrecedents = legalResult.status === 'fulfilled' ? legalResult.value : [];
+            const newsArticles = newsResult.status === 'fulfilled' ? newsResult.value : [];
+            const searchTrends = trendsResult.status === 'fulfilled' ? trendsResult.value : [];
+
+            const totalEvidenceCount = legalPrecedents.length + newsArticles.length + searchTrends.length;
+
+            const evidence = {
+                legalPrecedents,
+                newsArticles,
+                searchTrends,
+                collectedAt: admin.firestore.FieldValue.serverTimestamp(),
+                summary: {
+                    totalEvidenceCount,
+                    byType: {
+                        [EVIDENCE_TYPES.LEGAL_PRECEDENT]: legalPrecedents.length,
+                        [EVIDENCE_TYPES.NEWS_ARTICLE]: newsArticles.length,
+                        [EVIDENCE_TYPES.SEARCH_TREND]: searchTrends.length
+                    },
+                    lastCollectionStatus: {
+                        legalPrecedents: legalResult.status,
+                        newsArticles: newsResult.status,
+                        searchTrends: trendsResult.status
+                    }
+                }
+            };
+
+            // Firestore 저장
+            await db.collection('judicialEvidence').doc(defendant).set(evidence, { merge: true });
+
+            console.log(`Evidence collection complete for ${defendant}: ${totalEvidenceCount} items`);
+            return res.json({
+                success: true,
+                defendant,
+                evidence,
+                summary: evidence.summary
+            });
+        } catch (error) {
+            console.error('collectJudicialEvidence error:', error);
+            return res.status(500).json({ error: error.message });
+        }
+    });
+
+// 여론조사 관리 (HTTP)
+exports.manageOpinionPolls = functions
+    .region('asia-northeast3')
+    .https.onRequest(async (req, res) => {
+        // CORS 헤더
+        res.set('Access-Control-Allow-Origin', '*');
+        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.set('Access-Control-Allow-Headers', 'Content-Type');
+        if (req.method === 'OPTIONS') {
+            return res.status(204).send('');
+        }
+
+        const defendant = req.query.defendant || req.body?.defendant;
+        if (!defendant) {
+            return res.status(400).json({ error: '피고인 이름(defendant)을 지정해주세요.' });
+        }
+
+        try {
+            if (req.method === 'GET') {
+                // 저장된 여론조사 조회
+                const doc = await db.collection('judicialEvidence').doc(defendant).get();
+                const data = doc.exists ? doc.data() : {};
+                const opinionPolls = data.evidence?.opinionPolls || data.opinionPolls || [];
+                return res.json({ defendant, opinionPolls });
+            }
+
+            if (req.method === 'POST') {
+                // 여론조사 데이터 추가
+                const { pollster, date, question, result, url } = req.body || {};
+                if (!pollster || !question || !result) {
+                    return res.status(400).json({ error: 'pollster, question, result 필드가 필요합니다.' });
+                }
+
+                const pollData = {
+                    pollster,
+                    date: date || new Date().toISOString().split('T')[0],
+                    question,
+                    result,
+                    url: url || '',
+                    addedAt: new Date().toISOString(),
+                    type: EVIDENCE_TYPES.OPINION_POLL
+                };
+
+                await db.collection('judicialEvidence').doc(defendant).set({
+                    opinionPolls: admin.firestore.FieldValue.arrayUnion(pollData)
+                }, { merge: true });
+
+                return res.json({ success: true, defendant, poll: pollData });
+            }
+
+            return res.status(405).json({ error: '허용되지 않는 메서드입니다.' });
+        } catch (error) {
+            console.error('manageOpinionPolls error:', error);
+            return res.status(500).json({ error: error.message });
+        }
+    });
+
+// 사법 공정성 평가 (HTTP)
+exports.evaluateJudicialIntegrity = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 540, memory: '1GB' })
+    .https.onRequest(async (req, res) => {
+        // CORS 헤더
+        res.set('Access-Control-Allow-Origin', '*');
+        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.set('Access-Control-Allow-Headers', 'Content-Type');
+        if (req.method === 'OPTIONS') {
+            return res.status(204).send('');
+        }
+
+        const defendant = req.query.defendant || req.body?.defendant;
+        if (!defendant) {
+            return res.status(400).json({ error: '피고인 이름(defendant)을 지정해주세요.' });
+        }
+
+        const collectFirst = req.query.collectFirst === 'true' || req.body?.collectFirst === true;
+
+        try {
+            // 필요 시 증거 수집 먼저 수행
+            if (collectFirst) {
+                console.log(`Collecting evidence first for ${defendant}...`);
+                const [legalResult, newsResult, trendsResult] = await Promise.allSettled([
+                    collectLegalPrecedentsHelper(defendant),
+                    collectNewsEvidenceHelper(defendant),
+                    collectSearchTrendsHelper(defendant)
+                ]);
+
+                const legalPrecedents = legalResult.status === 'fulfilled' ? legalResult.value : [];
+                const newsArticles = newsResult.status === 'fulfilled' ? newsResult.value : [];
+                const searchTrends = trendsResult.status === 'fulfilled' ? trendsResult.value : [];
+
+                await db.collection('judicialEvidence').doc(defendant).set({
+                    legalPrecedents,
+                    newsArticles,
+                    searchTrends,
+                    collectedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    summary: {
+                        totalEvidenceCount: legalPrecedents.length + newsArticles.length + searchTrends.length,
+                        byType: {
+                            [EVIDENCE_TYPES.LEGAL_PRECEDENT]: legalPrecedents.length,
+                            [EVIDENCE_TYPES.NEWS_ARTICLE]: newsArticles.length,
+                            [EVIDENCE_TYPES.SEARCH_TREND]: searchTrends.length
+                        }
+                    }
+                }, { merge: true });
+            }
+
+            // Firestore에서 증거 로드
+            const evidenceDoc = await db.collection('judicialEvidence').doc(defendant).get();
+            if (!evidenceDoc.exists) {
+                return res.status(404).json({ error: `${defendant}의 증거 데이터가 없습니다. collectFirst=true로 먼저 수집하세요.` });
+            }
+            const evidenceData = evidenceDoc.data();
+
+            // 기존 양형 데이터 로드
+            const sentencingDoc = await db.collection('sentencingData').doc(defendant).get();
+            const sentencingData = sentencingDoc.exists ? sentencingDoc.data() : {};
+
+            const legalPrecedents = evidenceData.legalPrecedents || [];
+            const newsArticles = evidenceData.newsArticles || [];
+            const searchTrends = evidenceData.searchTrends || [];
+            const opinionPolls = evidenceData.opinionPolls || [];
+
+            // 뉴스 감정 통계
+            const sentimentStats = { positive: 0, negative: 0, neutral: 0 };
+            for (const article of newsArticles) {
+                if (article.sentiment === 'positive') sentimentStats.positive++;
+                else if (article.sentiment === 'negative') sentimentStats.negative++;
+                else sentimentStats.neutral++;
+            }
+
+            // 판례 포맷팅
+            const formattedPrecedents = legalPrecedents.map((p, i) =>
+                `${i + 1}. [${p.caseName}] (${p.court}, ${p.date})\n   요지: ${p.summary}\n   출처: ${p.url}`
+            ).join('\n\n');
+
+            // 뉴스 포맷팅
+            const formattedNews = newsArticles.map((n, i) =>
+                `${i + 1}. [${n.title}] (${n.source}, ${n.date})\n   감정: ${n.sentiment} | ${n.relevance}\n   내용: ${n.content}\n   출처: ${n.url}`
+            ).join('\n\n');
+
+            // 트렌드 포맷팅
+            const formattedTrends = searchTrends.map(t =>
+                `- ${t.keyword}: 평균 ${t.avgRatio}, 피크 ${t.peakDate}, 방향 ${t.trendDirection}`
+            ).join('\n');
+
+            // 여론조사 포맷팅
+            const formattedPolls = opinionPolls.length > 0
+                ? opinionPolls.map((p, i) =>
+                    `${i + 1}. [${p.pollster}] (${p.date})\n   질문: ${p.question}\n   결과: ${p.result}\n   출처: ${p.url}`
+                ).join('\n\n')
+                : '수집된 여론조사 없음';
+
+            // 피고인 정보
+            const charges = sentencingData.charges
+                ? sentencingData.charges.map(c => `${c.name} (${c.law})`).join(', ')
+                : sentencingData.summary?.mainCharge || '내란 관련 혐의';
+            const verdict = sentencingData.summary?.verdict || sentencingData.verdict || '미선고';
+
+            // Gemini 2-Step Pipeline
+            if (!genAI) {
+                return res.status(500).json({ error: 'Gemini AI가 설정되지 않았습니다.' });
+            }
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+            // === Step A: 이슈 분석 ===
+            const stepAPrompt = `당신은 대한민국 사법 절차 분석 전문가입니다.
+다음 증거 자료를 분석하여 ${defendant}의 재판에 대한 사법 정의 평가를 수행하세요.
+
+## 피고인 정보
+이름: ${defendant}
+혐의: ${charges}
+판결: ${verdict}
+
+## 수집된 증거 자료
+
+### 1. 관련 판례 (${legalPrecedents.length}건)
+${formattedPrecedents || '수집된 판례 없음'}
+
+### 2. 뉴스 보도 (${newsArticles.length}건)
+${formattedNews || '수집된 뉴스 없음'}
+
+### 3. 검색 트렌드
+${formattedTrends || '수집된 트렌드 없음'}
+
+### 4. 여론조사
+${formattedPolls}
+
+## 평가 지침
+- 모든 주장에는 반드시 근거 자료의 출처를 sources 배열에 포함하세요
+- 출처가 없는 주장은 포함하지 마세요
+- severity는 critical/major/minor 중 선택
+
+다음 JSON 형식으로 응답:
+{
+    "prosecutorialIssues": [{
+        "title": "이슈 제목",
+        "description": "구체적 설명 (증거 기반)",
+        "severity": "critical|major|minor",
+        "impact": "양형/재판에 미친 영향",
+        "sources": [{"title": "출처 제목", "url": "URL", "date": "날짜", "type": "news_article|legal_precedent|opinion_poll|search_trend"}]
+    }],
+    "judicialIssues": [{
+        "title": "이슈 제목",
+        "description": "구체적 설명 (증거 기반)",
+        "severity": "critical|major|minor",
+        "impact": "양형/재판에 미친 영향",
+        "sources": [{"title": "출처 제목", "url": "URL", "date": "날짜", "type": "news_article|legal_precedent|opinion_poll|search_trend"}]
+    }],
+    "omittedEvidence": [{"title": "누락된 증거", "description": "설명", "status": "미반영|일부반영|배척", "sources": [{"title": "출처 제목", "url": "URL", "date": "날짜", "type": "news_article|legal_precedent|opinion_poll|search_trend"}]}]
+}`;
+
+            console.log(`Running Step A analysis for ${defendant}...`);
+            const stepAResult = await model.generateContent(stepAPrompt);
+            const stepAText = stepAResult.response.text();
+            let stepAData;
+            try {
+                const jsonA = stepAText.match(/\{[\s\S]*\}/);
+                stepAData = jsonA ? JSON.parse(jsonA[0]) : JSON.parse(stepAText);
+            } catch (e) {
+                console.error('Step A JSON parse error:', e.message);
+                stepAData = { prosecutorialIssues: [], judicialIssues: [], omittedEvidence: [] };
+            }
+
+            // === Step B: 정량 평가 ===
+            const totalCount = legalPrecedents.length + newsArticles.length + searchTrends.length + opinionPolls.length;
+            const stepBPrompt = `Step A의 분석 결과를 바탕으로 정량적 점수를 산출하세요.
+
+## Step A 분석 결과
+${JSON.stringify(stepAData, null, 2)}
+
+## 증거 통계
+- 총 수집 증거: ${totalCount}건
+- 판례: ${legalPrecedents.length}건, 뉴스: ${newsArticles.length}건, 트렌드: ${searchTrends.length}건, 여론: ${opinionPolls.length}건
+- 뉴스 감정 분석: 긍정 ${sentimentStats.positive}, 부정 ${sentimentStats.negative}, 중립 ${sentimentStats.neutral}
+
+## 점수 산출 기준
+- 검찰 공정성 (0-100): 기소 완결성, 증거 확보, 구형 적정성, 법리 적용
+- 재판부 공정성 (0-100): 판례 일관성, 양형 기준 준수, 증거 판단, 법리 해석
+- 종합 평가 (0-100): 가중 평균 (검찰 40%, 재판부 40%, 여론·공적 관심 20%)
+
+다음 JSON 형식으로 응답:
+{
+    "integrityScore": {
+        "prosecution": 0,
+        "judiciary": 0,
+        "overall": 0,
+        "reasoning": "4-6문장의 종합 평가 (모든 주장에 증거 출처 포함)",
+        "methodology": "점수 산출 방법론 설명"
+    },
+    "evidenceSummary": {
+        "totalCount": 0,
+        "byType": {"legal_precedent": 0, "news_article": 0, "search_trend": 0, "opinion_poll": 0},
+        "keyFindings": ["핵심 발견사항 3-5개 (각각 1문장)"]
+    },
+    "trendInsight": "검색 트렌드 기반 공적 관심도 분석 (2-3문장)"
+}`;
+
+            console.log(`Running Step B scoring for ${defendant}...`);
+            const stepBResult = await model.generateContent(stepBPrompt);
+            const stepBText = stepBResult.response.text();
+            let stepBData;
+            try {
+                const jsonB = stepBText.match(/\{[\s\S]*\}/);
+                stepBData = jsonB ? JSON.parse(jsonB[0]) : JSON.parse(stepBText);
+            } catch (e) {
+                console.error('Step B JSON parse error:', e.message);
+                stepBData = {
+                    integrityScore: { prosecution: 0, judiciary: 0, overall: 0, reasoning: '분석 실패', methodology: '' },
+                    evidenceSummary: { totalCount, byType: {}, keyFindings: [] },
+                    trendInsight: ''
+                };
+            }
+
+            // 결과 병합
+            const judicialIntegrity = {
+                ...stepAData,
+                ...stepBData,
+                evaluatedAt: new Date().toISOString(),
+                defendant,
+                evidenceSnapshot: {
+                    legalPrecedentsCount: legalPrecedents.length,
+                    newsArticlesCount: newsArticles.length,
+                    searchTrendsCount: searchTrends.length,
+                    opinionPollsCount: opinionPolls.length,
+                    sentimentStats
+                }
+            };
+
+            // Firestore 업데이트 (기존 claudePrediction 필드 보존)
+            await db.collection('sentencingData').doc(defendant).set({
+                claudePrediction: {
+                    judicialIntegrity
+                }
+            }, { merge: true });
+
+            console.log(`Judicial integrity evaluation complete for ${defendant}`);
+            return res.json({
+                success: true,
+                defendant,
+                judicialIntegrity
+            });
+        } catch (error) {
+            console.error('evaluateJudicialIntegrity error:', error);
+            return res.status(500).json({ error: error.message });
+        }
+    });
+
+// 전체 피고인 자동 평가 (매주 월요일 새벽 3시)
+exports.evaluateAllDefendants = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 540, memory: '1GB' })
+    .pubsub.schedule('0 3 * * 1')
+    .timeZone('Asia/Seoul')
+    .onRun(async (context) => {
+        console.log('Starting scheduled judicial evaluation for all defendants...');
+
+        const results = [];
+        for (const defendant of INSURRECTION_DEFENDANTS) {
+            try {
+                console.log(`Processing ${defendant}...`);
+
+                // 1. 증거 수집
+                const [legalResult, newsResult, trendsResult] = await Promise.allSettled([
+                    collectLegalPrecedentsHelper(defendant),
+                    collectNewsEvidenceHelper(defendant),
+                    collectSearchTrendsHelper(defendant)
+                ]);
+
+                const legalPrecedents = legalResult.status === 'fulfilled' ? legalResult.value : [];
+                const newsArticles = newsResult.status === 'fulfilled' ? newsResult.value : [];
+                const searchTrends = trendsResult.status === 'fulfilled' ? trendsResult.value : [];
+
+                await db.collection('judicialEvidence').doc(defendant).set({
+                    legalPrecedents,
+                    newsArticles,
+                    searchTrends,
+                    collectedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    summary: {
+                        totalEvidenceCount: legalPrecedents.length + newsArticles.length + searchTrends.length,
+                        byType: {
+                            [EVIDENCE_TYPES.LEGAL_PRECEDENT]: legalPrecedents.length,
+                            [EVIDENCE_TYPES.NEWS_ARTICLE]: newsArticles.length,
+                            [EVIDENCE_TYPES.SEARCH_TREND]: searchTrends.length
+                        }
+                    }
+                }, { merge: true });
+
+                // 2. 평가 수행
+                const evidenceDoc = await db.collection('judicialEvidence').doc(defendant).get();
+                const evidenceData = evidenceDoc.exists ? evidenceDoc.data() : {};
+                const sentencingDoc = await db.collection('sentencingData').doc(defendant).get();
+                const sentencingData = sentencingDoc.exists ? sentencingDoc.data() : {};
+
+                const opinionPolls = evidenceData.opinionPolls || [];
+                const sentimentStats = { positive: 0, negative: 0, neutral: 0 };
+                for (const article of newsArticles) {
+                    if (article.sentiment === 'positive') sentimentStats.positive++;
+                    else if (article.sentiment === 'negative') sentimentStats.negative++;
+                    else sentimentStats.neutral++;
+                }
+
+                if (genAI) {
+                    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+                    const charges = sentencingData.charges
+                        ? sentencingData.charges.map(c => `${c.name} (${c.law})`).join(', ')
+                        : sentencingData.summary?.mainCharge || '내란 관련 혐의';
+                    const verdict = sentencingData.summary?.verdict || sentencingData.verdict || '미선고';
+
+                    // Step A (간소화 버전)
+                    const stepAPrompt = `대한민국 사법 절차 분석 전문가로서 ${defendant}의 재판에 대한 사법 정의 평가를 수행하세요.
+
+피고인: ${defendant}, 혐의: ${charges}, 판결: ${verdict}
+판례: ${legalPrecedents.length}건, 뉴스: ${newsArticles.length}건 (긍정${sentimentStats.positive}/부정${sentimentStats.negative}/중립${sentimentStats.neutral}), 트렌드: ${searchTrends.length}건, 여론: ${opinionPolls.length}건
+
+주요 판례: ${legalPrecedents.slice(0, 3).map(p => p.caseName).join(', ') || '없음'}
+주요 뉴스: ${newsArticles.slice(0, 3).map(n => `${n.title}(${n.sentiment})`).join(', ') || '없음'}
+
+다음 JSON 형식으로 응답:
+{
+    "prosecutorialIssues": [{"title": "string", "description": "string", "severity": "critical|major|minor", "impact": "string", "sources": [{"title": "string", "url": "string", "date": "string", "type": "string"}]}],
+    "judicialIssues": [{"title": "string", "description": "string", "severity": "critical|major|minor", "impact": "string", "sources": [{"title": "string", "url": "string", "date": "string", "type": "string"}]}],
+    "omittedEvidence": [{"title": "string", "description": "string", "status": "string", "sources": [{"title": "string", "url": "string", "date": "string", "type": "string"}]}]
+}`;
+
+                    const stepAResult = await model.generateContent(stepAPrompt);
+                    const stepAText = stepAResult.response.text();
+                    let stepAData;
+                    try {
+                        const jsonA = stepAText.match(/\{[\s\S]*\}/);
+                        stepAData = jsonA ? JSON.parse(jsonA[0]) : JSON.parse(stepAText);
+                    } catch (e) {
+                        stepAData = { prosecutorialIssues: [], judicialIssues: [], omittedEvidence: [] };
+                    }
+
+                    // Step B
+                    const totalCount = legalPrecedents.length + newsArticles.length + searchTrends.length + opinionPolls.length;
+                    const stepBPrompt = `Step A 결과를 바탕으로 정량적 점수를 산출하세요.
+
+Step A: ${JSON.stringify(stepAData)}
+증거: 총 ${totalCount}건 (판례${legalPrecedents.length}, 뉴스${newsArticles.length}, 트렌드${searchTrends.length}, 여론${opinionPolls.length})
+감정: 긍정${sentimentStats.positive}, 부정${sentimentStats.negative}, 중립${sentimentStats.neutral}
+
+점수 기준: 검찰 공정성(0-100), 재판부 공정성(0-100), 종합(검찰40%+재판부40%+여론20%)
+
+다음 JSON 형식으로 응답:
+{
+    "integrityScore": {"prosecution": 0, "judiciary": 0, "overall": 0, "reasoning": "종합평가", "methodology": "방법론"},
+    "evidenceSummary": {"totalCount": 0, "byType": {}, "keyFindings": ["발견1", "발견2"]},
+    "trendInsight": "트렌드 분석"
+}`;
+
+                    const stepBResult = await model.generateContent(stepBPrompt);
+                    const stepBText = stepBResult.response.text();
+                    let stepBData;
+                    try {
+                        const jsonB = stepBText.match(/\{[\s\S]*\}/);
+                        stepBData = jsonB ? JSON.parse(jsonB[0]) : JSON.parse(stepBText);
+                    } catch (e) {
+                        stepBData = {
+                            integrityScore: { prosecution: 0, judiciary: 0, overall: 0, reasoning: '분석 실패', methodology: '' },
+                            evidenceSummary: { totalCount, byType: {}, keyFindings: [] },
+                            trendInsight: ''
+                        };
+                    }
+
+                    const judicialIntegrity = {
+                        ...stepAData,
+                        ...stepBData,
+                        evaluatedAt: new Date().toISOString(),
+                        defendant,
+                        evidenceSnapshot: {
+                            legalPrecedentsCount: legalPrecedents.length,
+                            newsArticlesCount: newsArticles.length,
+                            searchTrendsCount: searchTrends.length,
+                            opinionPollsCount: opinionPolls.length,
+                            sentimentStats
+                        }
+                    };
+
+                    await db.collection('sentencingData').doc(defendant).set({
+                        claudePrediction: { judicialIntegrity }
+                    }, { merge: true });
+                }
+
+                results.push({ defendant, success: true });
+            } catch (error) {
+                console.error(`Error evaluating ${defendant}:`, error);
+                results.push({ defendant, success: false, error: error.message });
+            }
+
+            // 피고인 간 30초 딜레이
+            await new Promise(resolve => setTimeout(resolve, 30000));
+        }
+
+        // 메타 데이터 저장
+        const successCount = results.filter(r => r.success).length;
+        const failCount = results.filter(r => !r.success).length;
+
+        await db.collection('judicialEvidence').doc('_meta').set({
+            lastRun: {
+                timestamp: admin.firestore.FieldValue.serverTimestamp(),
+                totalProcessed: results.length,
+                successCount,
+                failCount,
+                results
+            }
+        }, { merge: true });
+
+        // 텔레그램 알림
+        try {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
+            const telegramMsg = `⚖️ <b>[사법평가] ${dateStr} 주간 자동 평가 완료</b>\n\n✅ 성공: ${successCount}명\n❌ 실패: ${failCount}명\n📊 총 ${results.length}명 피고인 처리\n\n👉 https://siminbupjung-blog.web.app/sentencing-analysis`;
+            await sendTelegramMessage(GROUP_CHAT_ID, telegramMsg);
+        } catch (e) {
+            console.error('Telegram notification failed:', e);
+        }
+
+        console.log(`Scheduled evaluation completed: ${successCount}/${results.length} successful`);
+        return null;
+    });

@@ -2232,7 +2232,7 @@ export default function SentencingAnalysis() {
             return staticData;
         }
 
-        // Firestore 데이터가 있으면 병합 (Firestore 데이터 우선)
+        // Firestore 데이터가 있으면 병합
         // Firestore에서 "null" 문자열로 저장된 값 필터링
         const clean = (v) => (v && v !== 'null' && v !== 'undefined') ? v : null;
         // 크롤러 기본값('재판 진행 중')은 의미있는 데이터가 아니므로 정적 데이터를 덮어쓰지 않도록 필터링
@@ -2242,14 +2242,46 @@ export default function SentencingAnalysis() {
             if (cleaned === '재판 진행 중' || cleaned === '최근 재판 관련 뉴스 있음') return null;
             return cleaned;
         };
+
+        // [방어 로직] 정적 데이터에 확정 판결이 있으면 Firestore 데이터의 신뢰성 검증
+        // 크롤러가 공동피고인 기사에서 다른 사람의 판결을 잘못 수집하는 경우 방지
+        const staticVerdict = staticData.summary?.verdictTotal;
+        const firestoreVerdict = cleanVerdict(dynamicData.verdict);
+        const hasConfirmedStaticVerdict = staticVerdict && staticVerdict !== '재판 진행 중' && staticVerdict !== '수사 중';
+
+        // 정적 데이터에 확정 판결이 있고, Firestore verdict가 이와 다르면 Firestore 데이터를 오염된 것으로 간주
+        const isFirestoreVerdictContaminated = hasConfirmedStaticVerdict && firestoreVerdict
+            && !staticVerdict.includes(firestoreVerdict) && firestoreVerdict !== staticVerdict;
+
+        // keyFacts 오염 검사: 해당 인물의 이름이 아닌 다른 주요 피고인 이름이 첫 항목에 포함된 경우
+        const mainDefendants = ['윤석열', '한덕수', '김용현', '조지호', '노상원', '이상민', '김건희'];
+        const isKeyFactsContaminated = dynamicData.keyFacts?.length > 0 && dynamicData.keyFacts.some(fact => {
+            return mainDefendants.some(d => d !== name && fact.includes(d) && !fact.includes(name));
+        });
+
+        // charges 오염 검사: 정적 데이터가 더 상세하면(더 많은 건수) 정적 데이터 우선
+        const isChargesLessDetailed = dynamicData.charges?.length > 0
+            && staticData.charges?.length > 0
+            && dynamicData.charges.length < staticData.charges.length;
+
+        // 오염 감지 시 콘솔 경고 (개발 모드)
+        if (import.meta.env.DEV && (isFirestoreVerdictContaminated || isKeyFactsContaminated)) {
+            console.warn(`[데이터 오염 감지] ${name}: Firestore 데이터가 다른 피고인의 정보로 오염됨.`,
+                { staticVerdict, firestoreVerdict, isKeyFactsContaminated });
+        }
+
         const mergedStatus = clean(dynamicData.status) || staticData.status;
-        return {
-            ...staticData,
-            status: mergedStatus,
-            statusColor: (mergedStatus === '구속' || mergedStatus === '법정구속') ? 'red' : mergedStatus === '보석' ? 'orange' : (mergedStatus === '불구속' ? 'green' : staticData.statusColor),
-            verdictDate: clean(dynamicData.verdictDate) || staticData.verdictDate,
-            trialStatus: cleanVerdict(dynamicData.trialStatus) || staticData.trialStatus,
-            charges: dynamicData.charges?.length > 0 ? dynamicData.charges.map((c, idx) => {
+
+        // verdict 결정: 오염된 경우 정적 데이터 우선
+        const mergedVerdictTotal = isFirestoreVerdictContaminated
+            ? staticVerdict
+            : (firestoreVerdict || staticVerdict || '재판 진행 중');
+
+        // charges 결정: 오염되었거나 정적이 더 상세하면 정적 데이터 우선
+        const useStaticCharges = isFirestoreVerdictContaminated || isChargesLessDetailed;
+        const mergedCharges = useStaticCharges
+            ? staticData.charges
+            : (dynamicData.charges?.length > 0 ? dynamicData.charges.map((c, idx) => {
                 const staticCharge = staticData.charges?.find(sc => sc.name === c.name) || staticData.charges?.[idx] || {};
                 return {
                     ...staticCharge,
@@ -2260,12 +2292,25 @@ export default function SentencingAnalysis() {
                     prosecutionRequest: clean(c.sentence) || clean(c.prosecutionRequest) || staticCharge.prosecutionRequest || '조사 중',
                     reason: staticCharge.reason || '-'
                 };
-            }) : staticData.charges,
+            }) : staticData.charges);
+
+        // keyFacts 결정: 오염된 경우 정적 데이터 우선
+        const mergedKeyFacts = (isKeyFactsContaminated || isFirestoreVerdictContaminated)
+            ? staticData.keyFacts
+            : (dynamicData.keyFacts?.length > 0 ? dynamicData.keyFacts : staticData.keyFacts);
+
+        return {
+            ...staticData,
+            status: mergedStatus,
+            statusColor: (mergedStatus === '구속' || mergedStatus === '법정구속') ? 'red' : mergedStatus === '보석' ? 'orange' : (mergedStatus === '불구속' ? 'green' : staticData.statusColor),
+            verdictDate: clean(dynamicData.verdictDate) || staticData.verdictDate,
+            trialStatus: cleanVerdict(dynamicData.trialStatus) || staticData.trialStatus,
+            charges: mergedCharges,
             summary: {
                 ...staticData.summary,
-                verdictTotal: cleanVerdict(dynamicData.verdict) || staticData.summary?.verdictTotal || '재판 진행 중'
+                verdictTotal: mergedVerdictTotal
             },
-            keyFacts: dynamicData.keyFacts?.length > 0 ? dynamicData.keyFacts : staticData.keyFacts,
+            keyFacts: mergedKeyFacts,
             // Firestore 데이터가 있으면 우선 사용, 없으면 static fallback
             sentencingGuidelines: dynamicData.sentencingGuidelines?.length > 0
                 ? dynamicData.sentencingGuidelines
@@ -2279,14 +2324,20 @@ export default function SentencingAnalysis() {
             aiPrediction: dynamicData.aiPrediction || null,
             claudePrediction: dynamicData.claudePrediction ? {
                 ...dynamicData.claudePrediction,
-                judicialIntegrity: dynamicData.claudePrediction.judicialIntegrity || null,
+                judicialIntegrity: dynamicData.claudePrediction.judicialIntegrity ? {
+                    ...dynamicData.claudePrediction.judicialIntegrity,
+                    evidenceSummary: dynamicData.claudePrediction.judicialIntegrity.evidenceSummary || null,
+                    trendInsight: dynamicData.claudePrediction.judicialIntegrity.trendInsight || null,
+                } : null,
                 aiJudgeComparison: dynamicData.claudePrediction.aiJudgeComparison || null,
             } : null,
             sources: dynamicData.sources || staticData.sources || [],
             // 동적 데이터 메타정보
             _lastUpdated: dynamicData.lastUpdated,
             _hasLiveData: !!dynamicData,
-            _recentNews: dynamicData.recentNews || []
+            _recentNews: dynamicData.recentNews || [],
+            // 오염 감지 플래그
+            _dataContaminated: isFirestoreVerdictContaminated || isKeyFactsContaminated
         };
     };
 
@@ -3327,8 +3378,13 @@ export default function SentencingAnalysis() {
                                                 <div className="p-4 bg-red-50 border-b border-red-100">
                                                     <h3 className="font-bold text-gray-900 flex items-center gap-2">
                                                         <span>🔍</span> 사법 정의 평가
+                                                        {pred.judicialIntegrity.evidenceSummary && (
+                                                            <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-normal">
+                                                                근거자료 {pred.judicialIntegrity.evidenceSummary.totalCount}건
+                                                            </span>
+                                                        )}
                                                     </h3>
-                                                    <p className="text-xs text-gray-500 mt-1">AI가 공개된 판례·보도를 기반으로 사법 절차의 공정성을 평가한 결과입니다</p>
+                                                    <p className="text-xs text-gray-500 mt-1">AI가 판례·보도·검색트렌드·여론조사 등 객관적 자료를 수집·분석하여 평가한 결과입니다</p>
                                                 </div>
                                                 <div className="p-4 space-y-5">
                                                     {/* 공정성 점수 */}
@@ -3382,6 +3438,22 @@ export default function SentencingAnalysis() {
                                                                         </div>
                                                                         <p className="text-xs text-gray-600 ml-4">{issue.description}</p>
                                                                         {issue.impact && <p className="text-xs text-red-600 ml-4 mt-1 font-medium">→ {issue.impact}</p>}
+                                                                        {issue.sources?.length > 0 && (
+                                                                            <div className="mt-2 flex flex-wrap gap-1">
+                                                                                {issue.sources.map((src, si) => (
+                                                                                    <a key={si}
+                                                                                       href={src.url}
+                                                                                       target="_blank"
+                                                                                       rel="noopener noreferrer"
+                                                                                       className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full hover:bg-blue-100 transition-colors border border-blue-200"
+                                                                                       title={`${src.title} (${src.date || ''})`}
+                                                                                    >
+                                                                                        <span>{src.type === 'legal_precedent' ? '📜' : src.type === 'news_article' ? '📰' : src.type === 'opinion_poll' ? '📋' : '📊'}</span>
+                                                                                        <span className="truncate max-w-[150px]">{src.title}</span>
+                                                                                    </a>
+                                                                                ))}
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                 ))}
                                                             </div>
@@ -3410,6 +3482,22 @@ export default function SentencingAnalysis() {
                                                                         </div>
                                                                         <p className="text-xs text-gray-600 ml-4">{issue.description}</p>
                                                                         {issue.impact && <p className="text-xs text-red-600 ml-4 mt-1 font-medium">→ {issue.impact}</p>}
+                                                                        {issue.sources?.length > 0 && (
+                                                                            <div className="mt-2 flex flex-wrap gap-1">
+                                                                                {issue.sources.map((src, si) => (
+                                                                                    <a key={si}
+                                                                                       href={src.url}
+                                                                                       target="_blank"
+                                                                                       rel="noopener noreferrer"
+                                                                                       className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full hover:bg-blue-100 transition-colors border border-blue-200"
+                                                                                       title={`${src.title} (${src.date || ''})`}
+                                                                                    >
+                                                                                        <span>{src.type === 'legal_precedent' ? '📜' : src.type === 'news_article' ? '📰' : src.type === 'opinion_poll' ? '📋' : '📊'}</span>
+                                                                                        <span className="truncate max-w-[150px]">{src.title}</span>
+                                                                                    </a>
+                                                                                ))}
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                 ))}
                                                             </div>
@@ -3432,6 +3520,22 @@ export default function SentencingAnalysis() {
                                                                             )}
                                                                         </div>
                                                                         <p className="text-xs text-gray-600 mt-1">{ev.description}</p>
+                                                                        {ev.sources?.length > 0 && (
+                                                                            <div className="mt-2 flex flex-wrap gap-1">
+                                                                                {ev.sources.map((src, si) => (
+                                                                                    <a key={si}
+                                                                                       href={src.url}
+                                                                                       target="_blank"
+                                                                                       rel="noopener noreferrer"
+                                                                                       className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full hover:bg-blue-100 transition-colors border border-blue-200"
+                                                                                       title={`${src.title} (${src.date || ''})`}
+                                                                                    >
+                                                                                        <span>{src.type === 'legal_precedent' ? '📜' : src.type === 'news_article' ? '📰' : src.type === 'opinion_poll' ? '📋' : '📊'}</span>
+                                                                                        <span className="truncate max-w-[150px]">{src.title}</span>
+                                                                                    </a>
+                                                                                ))}
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                 ))}
                                                             </div>
@@ -3441,12 +3545,80 @@ export default function SentencingAnalysis() {
                                             </div>
                                         )}
 
-                                        {/* ── AI 판사 vs 인간 판사 비교 ── */}
+                                        {/* ── 평가 근거 자료 ── */}
+                                        {pred.judicialIntegrity?.evidenceSummary && (
+                                            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                                                <div className="p-4 bg-blue-50 border-b border-blue-100">
+                                                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                                                        <span>📚</span> 평가 근거 자료
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        이 평가는 {pred.judicialIntegrity.evidenceSummary.totalCount}건의 객관적 자료를 수집·분석하여 생성되었습니다
+                                                    </p>
+                                                </div>
+                                                <div className="p-4 space-y-4">
+                                                    {/* 증거 유형별 건수 */}
+                                                    <div className="grid grid-cols-4 gap-2">
+                                                        {[
+                                                            { label: '판례', count: pred.judicialIntegrity.evidenceSummary.byType?.legal_precedent, icon: '📜', color: 'bg-amber-50 text-amber-700' },
+                                                            { label: '뉴스', count: pred.judicialIntegrity.evidenceSummary.byType?.news_article, icon: '📰', color: 'bg-sky-50 text-sky-700' },
+                                                            { label: '트렌드', count: pred.judicialIntegrity.evidenceSummary.byType?.search_trend, icon: '📊', color: 'bg-green-50 text-green-700' },
+                                                            { label: '여론', count: pred.judicialIntegrity.evidenceSummary.byType?.opinion_poll, icon: '📋', color: 'bg-purple-50 text-purple-700' }
+                                                        ].map((item, i) => (
+                                                            <div key={i} className={`text-center p-3 rounded-lg ${item.color}`}>
+                                                                <p className="text-lg mb-1">{item.icon}</p>
+                                                                <p className="text-xl font-bold">{item.count || 0}</p>
+                                                                <p className="text-xs mt-0.5">{item.label}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+
+                                                    {/* 검색 트렌드 분석 */}
+                                                    {pred.judicialIntegrity.trendInsight && (
+                                                        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-3 border border-green-100">
+                                                            <h4 className="text-sm font-bold text-gray-800 mb-1 flex items-center gap-1">
+                                                                <span>📈</span> 검색 트렌드 분석
+                                                            </h4>
+                                                            <p className="text-xs text-gray-600 leading-relaxed">{pred.judicialIntegrity.trendInsight}</p>
+                                                        </div>
+                                                    )}
+
+                                                    {/* 점수 산출 방법론 */}
+                                                    {pred.judicialIntegrity.integrityScore?.methodology && (
+                                                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                                            <h4 className="text-sm font-bold text-gray-800 mb-1 flex items-center gap-1">
+                                                                <span>🔬</span> 평가 방법론
+                                                            </h4>
+                                                            <p className="text-xs text-gray-600 leading-relaxed">{pred.judicialIntegrity.integrityScore.methodology}</p>
+                                                        </div>
+                                                    )}
+
+                                                    {/* 핵심 발견사항 */}
+                                                    {pred.judicialIntegrity.evidenceSummary.keyFindings?.length > 0 && (
+                                                        <div>
+                                                            <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1">
+                                                                <span>💡</span> 핵심 발견사항
+                                                            </h4>
+                                                            <ul className="space-y-1.5">
+                                                                {pred.judicialIntegrity.evidenceSummary.keyFindings.map((finding, i) => (
+                                                                    <li key={i} className="text-xs text-gray-600 flex items-start gap-2 bg-yellow-50 rounded-lg px-3 py-2 border border-yellow-100">
+                                                                        <span className="text-yellow-500 font-bold mt-0.5">•</span>
+                                                                        <span>{finding}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* ── AI 판사 vs 직업 판사 비교 ── */}
                                         {pred.aiJudgeComparison && (
                                             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                                                 <div className="p-4 bg-indigo-50 border-b border-indigo-100">
                                                     <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                                                        <span>🤖</span> AI 판사 vs 인간 판사 비교
+                                                        <span>🤖</span> AI 판사 vs 직업 판사 비교
                                                     </h3>
                                                     <p className="text-xs text-gray-500 mt-1">AI 사법 시스템이 적용되었다면 달라졌을 판단을 비교합니다</p>
                                                 </div>
@@ -3459,7 +3631,7 @@ export default function SentencingAnalysis() {
                                                                 <p className="text-lg font-bold text-indigo-900">{pred.aiJudgeComparison.aiPredictedOutcome}</p>
                                                             </div>
                                                             <div className="bg-gray-50 rounded-lg p-4 text-center">
-                                                                <p className="text-xs text-gray-500 mb-1">👨‍⚖️ 인간 판사 선고</p>
+                                                                <p className="text-xs text-gray-500 mb-1">👨‍⚖️ 직업 판사 선고</p>
                                                                 <p className="text-lg font-bold text-gray-900">{person.summary?.verdictTotal || '재판 진행 중'}</p>
                                                             </div>
                                                         </div>
@@ -3472,7 +3644,7 @@ export default function SentencingAnalysis() {
                                                                 <thead>
                                                                     <tr className="bg-gray-100">
                                                                         <th className="p-2 text-left text-gray-700 font-bold rounded-tl-lg">판단 항목</th>
-                                                                        <th className="p-2 text-left text-gray-700 font-bold">👨‍⚖️ 인간 판사</th>
+                                                                        <th className="p-2 text-left text-gray-700 font-bold">👨‍⚖️ 직업 판사</th>
                                                                         <th className="p-2 text-left text-gray-700 font-bold">🤖 AI 판사</th>
                                                                         <th className="p-2 text-left text-gray-700 font-bold rounded-tr-lg">AI 장점</th>
                                                                     </tr>
