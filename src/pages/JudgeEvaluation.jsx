@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
-import { KakaoIcon, FacebookIcon, TelegramIcon } from '../components/icons';
 import { JUDGES_DATA } from '../data/judges';
 
 // 카테고리 정의
@@ -23,76 +22,9 @@ export default function JudgeEvaluation() {
     const [searchParams] = useSearchParams();
     const categoryFromUrl = searchParams.get('category');
     const [judges] = useState(JUDGES_DATA);
-    const [kakaoReady, setKakaoReady] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(
         categoryFromUrl?.startsWith('내란전담재판부') ? '내란전담재판부' : (categoryFromUrl || '헌법재판소')
     );
-
-    // Kakao SDK 초기화
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (window.Kakao && !window.Kakao.isInitialized()) {
-                try {
-                    window.Kakao.init('83e843186c1251b9b5a8013fd5f29798');
-                    setKakaoReady(true);
-                } catch (e) {
-                    console.error('Kakao init error:', e);
-                }
-            } else if (window.Kakao?.isInitialized()) {
-                setKakaoReady(true);
-            }
-        }, 500);
-        return () => clearTimeout(timer);
-    }, []);
-
-    // 카카오톡 공유
-    const shareToKakao = () => {
-        const pageUrl = 'https://xn--lg3b0kt4n41f.kr/judge-evaluation';
-
-        if (kakaoReady && window.Kakao?.isInitialized()) {
-            try {
-                window.Kakao.Share.sendScrap({
-                    requestUrl: pageUrl,
-                    templateId: 0,
-                    templateArgs: {}
-                });
-            } catch (e) {
-                console.error('Kakao share error:', e);
-                fallbackShare(pageUrl);
-            }
-        } else {
-            fallbackShare(pageUrl);
-        }
-    };
-
-    // 텔레그램 공유
-    const shareToTelegram = () => {
-        const pageUrl = `https://xn--lg3b0kt4n41f.kr/judge-evaluation?t=${Date.now()}`;
-        const text = '판사 평가 | 시민법정';
-        const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(text)}`;
-        window.open(telegramUrl, '_blank', 'width=600,height=400');
-    };
-
-    // 페이스북 공유 (클립보드 복사)
-    const shareToFacebook = async () => {
-        const pageUrl = 'https://xn--lg3b0kt4n41f.kr/judge-evaluation';
-        try {
-            await navigator.clipboard.writeText(pageUrl);
-            alert('링크가 복사되었습니다!\n페이스북에 붙여넣기 하세요.');
-        } catch (err) {
-            alert('링크: ' + pageUrl);
-        }
-    };
-
-    // 폴백 공유 (클립보드 복사)
-    const fallbackShare = async (url) => {
-        try {
-            await navigator.clipboard.writeText(url);
-            alert('링크가 복사되었습니다!');
-        } catch (err) {
-            alert('링크: ' + url);
-        }
-    };
 
     // 필터링된 판사 목록
     const filteredJudges = selectedCategory
@@ -109,36 +41,11 @@ export default function JudgeEvaluation() {
                     {/* 헤더 */}
                     <div className="text-center mb-12">
                         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                            ⚖️ 판사 평가
+                            ⚖️ AI의 판사평
                         </h1>
                         <p className="text-gray-300 text-lg mb-6">
-                            내란 재판 담당 판사들의 판결을 평가하고 의견을 공유하세요
+                            AI가 공개된 판례·보도를 기반으로 판사들의 사법 정의를 분석합니다
                         </p>
-
-                        {/* SNS 공유 버튼 */}
-                        <div className="flex justify-center gap-4 mb-8">
-                            <button
-                                onClick={shareToKakao}
-                                className="flex items-center gap-2 bg-yellow-400 text-gray-900 px-4 py-2 rounded-lg hover:bg-yellow-500 transition font-medium"
-                            >
-                                <KakaoIcon className="w-5 h-5" />
-                                카카오톡
-                            </button>
-                            <button
-                                onClick={shareToTelegram}
-                                className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition font-medium"
-                            >
-                                <TelegramIcon className="w-5 h-5" />
-                                텔레그램
-                            </button>
-                            <button
-                                onClick={shareToFacebook}
-                                className="flex items-center gap-2 bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition font-medium"
-                            >
-                                <FacebookIcon className="w-5 h-5" />
-                                페이스북
-                            </button>
-                        </div>
 
                         {/* 카테고리 필터 탭 */}
                         <div className="flex flex-wrap justify-center gap-2 mb-8">
