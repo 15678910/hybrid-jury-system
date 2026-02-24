@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>소개 - 사법개혁추진준비위원회 | 시민법정</title>
+    <meta name="description" content="사법개혁추진준비위원회 소개. 시민이 재판에 직접 참여하는 참심제 도입을 통해 사법 민주화를 실현하고자 하는 주권자 주도의 사법개혁 운동체입니다.">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #1e40af 50%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .title {
+            color: #1e40af;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .title:hover {
+            color: #1d4ed8;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-item {
+            color: #374151;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-item:hover {
+            color: #3b82f6;
+        }
+
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 120px;
+            padding-top: 8px;
+            z-index: 1000;
+        }
+
+        .dropdown-content-inner {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 8px 0;
+        }
+
+        .nav-dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            display: block;
+            padding: 8px 16px;
+            color: #374151;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-content a:hover {
+            background: #f3f4f6;
+            color: #3b82f6;
+        }
+
+        .nav-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn.purple {
+            background: #9333ea;
+            color: white;
+        }
+
+        .nav-btn.blue {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #374151;
+        }
+
+        .mobile-menu {
+            display: none;
+            padding: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .mobile-menu a {
+            display: block;
+            padding: 10px 16px;
+            color: #374151;
+            text-decoration: none;
+        }
+
+        .mobile-menu a:hover {
+            background: #f3f4f6;
+        }
+
+        .mobile-menu-section {
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+        }
+
+        .mobile-menu-title {
+            padding: 8px 16px;
+            color: #9ca3af;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .mobile-cta {
+            background: #3b82f6;
+            color: white !important;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .content-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .content-box h1 {
+            color: #1e40af;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .content-box h2 {
+            color: #1e40af;
+            font-size: 1.4rem;
+            margin: 35px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .content-box p {
+            color: #374151;
+            line-height: 1.9;
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+        }
+
+        .content-box ul {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .content-box li {
+            color: #374151;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .quote-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid #0284c7;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 0 12px 12px 0;
+            font-style: italic;
+        }
+
+        .quote-box p {
+            margin: 0;
+            color: #0369a1;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .highlight-box p {
+            margin: 0;
+            color: #1e40af;
+            font-weight: 500;
+        }
+
+        .goal-list {
+            background: #f8fafc;
+            padding: 25px 25px 25px 45px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .goal-list li {
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .goal-list li::marker {
+            color: #3b82f6;
+            font-weight: bold;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            color: white;
+        }
+
+        .cta-section h2 {
+            color: white;
+            border: none;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .cta-section p {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 25px;
+        }
+
+        .cta-section .btn {
+            display: inline-block;
+            background: white;
+            color: #3b82f6;
+            font-size: 1.1rem;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .cta-section .btn:hover {
+            background: #f8fafc;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        footer a {
+            color: #93c5fd;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 1024px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .header-content {
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 1.2rem;
+            }
+
+            .content-box {
+                padding: 25px;
+            }
+
+            .content-box h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <a href="/" class="title">⚖️ 사법개혁</a>
+            <nav class="nav-menu">
+                <a href="/intro.html" class="nav-item">소개</a>
+                <div class="nav-dropdown">
+                    <span class="nav-item">소통방 <svg style="width:12px;height:12px;vertical-align:middle;display:inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></span>
+                    <div class="dropdown-content">
+                        <div class="dropdown-content-inner">
+                            <a href="/governance">의사결정</a>
+                        </div>
+                    </div>
+                </div>
+                <a href="/#necessity" class="nav-item">도입 필요성</a>
+                <div class="nav-dropdown">
+                    <span class="nav-item">해외사례 <svg style="width:12px;height:12px;vertical-align:middle;display:inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></span>
+                    <div class="dropdown-content">
+                        <div class="dropdown-content-inner">
+                            <a href="/#cases">해외사례</a>
+                            <a href="/europe-jury">유럽</a>
+                        </div>
+                    </div>
+                </div>
+                <a href="/#constitution" class="nav-item">헌법적 근거</a>
+                <a href="/#bill" class="nav-item">법안 제안</a>
+                <div class="nav-dropdown">
+                    <span class="nav-item">미디어 <svg style="width:12px;height:12px;vertical-align:middle;display:inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></span>
+                    <div class="dropdown-content">
+                        <div class="dropdown-content-inner">
+                            <a href="/news">사법뉴스</a>
+                            <a href="/blog">블로그</a>
+                            <a href="/videos">동영상</a>
+                            <a href="/sentencing-analysis">내란재판분석</a>
+                            <a href="/reform-analysis">개혁안 비교</a>
+                            <a href="/judge-evaluation">판사평가</a>
+                            <a href="/law-database">법령DB</a>
+                            <a href="/judicial-network">관계도</a>
+                            <a href="/case-search">법률정보 검색</a>
+                        </div>
+                    </div>
+                </div>
+                <a href="/#signature" class="nav-btn blue">참여하기</a>
+            </nav>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+        <!-- 모바일 메뉴 -->
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="/intro.html">소개</a>
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">소통방</div>
+                <a href="/governance">의사결정</a>
+            </div>
+            <a href="/#necessity">도입 필요성</a>
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">해외사례</div>
+                <a href="/#cases">해외사례</a>
+                <a href="/europe-jury">유럽</a>
+            </div>
+            <a href="/#constitution">헌법적 근거</a>
+            <a href="/#bill">법안 제안</a>
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">미디어</div>
+                <a href="/news">사법뉴스</a>
+                <a href="/blog">블로그</a>
+                <a href="/videos">동영상</a>
+                <a href="/sentencing-analysis">내란재판분석</a>
+                <a href="/reform-analysis">개혁안 비교</a>
+                <a href="/judge-evaluation">판사평가</a>
+                <a href="/law-database">법령DB</a>
+                <a href="/judicial-network">관계도</a>
+                <a href="/case-search">법률정보 검색</a>
+            </div>
+            <a href="/#signature" class="mobile-cta">참여하기</a>
+        </div>
+    </div>
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
+
+    <!-- Container -->
+    <div class="container">
+        <!-- 메인 콘텐츠 -->
+        <div class="content-box">
+            <h1>사법개혁추진준비위원회</h1>
+
+            <div class="quote-box">
+                <p>"대한민국의 주권은 국민에게 있고, 모든 권력은 국민으로부터 나온다."</p>
+            </div>
+
+            <p>
+                헌법 제1조 제2항이 선언하는 이 원칙이 사법부에서도 실현되어야 한다는 믿음으로,
+                사법개혁추진준비위원회가 온라인 준비위원 1만 명으로 광장에서 주권자 세상을 시작하려 합니다.
+            </p>
+
+            <h2>우리는 누구인가</h2>
+            <p>
+                사법개혁추진준비위원회는 시민이 재판에 직접 참여하는 참심제 도입을 통해 사법 민주화를
+                실현하고자 하는 주권자 주도의 사법개혁 운동체입니다. 링컨이 게티즈버그에서 선언한
+                "국민에 의한(by the people) 통치"가 입법부와 행정부뿐 아니라 사법부에서도 구현되어야 한다는
+                신념 아래 활동합니다.
+            </p>
+
+            <h2>왜 참심제인가</h2>
+            <p>
+                사법부에 의한 현대판 봉건제를 목도하면서도 대응할 수 없는 현 체제와 한국의 법정에서 주권자인 국민은 방청석에 앉아 높은 법대를 바라볼 뿐, 자신의 삶을
+                좌우할 판결에 어떤 결정권도 갖지 못합니다. 독일, 프랑스, 일본을 비롯한 민주주의 선진국들은
+                이미 시민의 사법 참여를 통해 민주적 정당성을 확보하고 있습니다.
+            </p>
+            <p>
+                직업 법관과 시민법관 참심원이 동등한 권한으로 유무죄와 양형을 결정하는 참심제는,
+                사법 권력을 국민이 직접 행사하는 유일한 통로입니다.
+            </p>
+
+            <h2>우리의 목표</h2>
+            <ul class="goal-list">
+                <li>혼합형 참심제 도입을 위한 법원조직법 개정 추진</li>
+                <li>사법 권력의 민주적 정당성 확보</li>
+                <li>제헌헌법의 정신—"공무원은 주권을 가진 국민의 수임자"—의 실질적 복원</li>
+                <li>시민 참여를 통한 사법부 신뢰 회복</li>
+            </ul>
+
+            <h2>함께해 주십시오</h2>
+            <p>
+                민주주의는 국민이 권력을 위임하는 제도가 아니라, 국민이 권력을 직접 행사하는 제도입니다.
+                참심제는 그 원리를 사법 영역에 구현하는, 민주주의 완성을 위한 시작입니다.
+            </p>
+            <p>
+                사법개혁추진준비위원회와 함께 주권자가 법정의 주인이 되는 그날까지,
+                여러분의 관심과 참여를 기다립니다.
+            </p>
+        </div>
+
+        <!-- CTA 섹션 -->
+        <div class="cta-section">
+            <h2>함께 만들어가는 사법개혁</h2>
+            <p>
+                시민법관 참심제 도입을 위한 준비위원으로 참여해주세요.<br>
+                온라인 준비위원으로 1만명이 참여하면 광장에서 주권자 세상 시작합니다.
+            </p>
+            <a href="/#signature" class="btn">준비위원으로 참여하기</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>주권자사법개혁추진준비위원회</p>
+        <p style="margin-top: 10px;">
+            <a href="/">www.시민법정.kr</a>
+        </p>
+    </footer>
+
+    <!-- 플로팅 챗봇 버튼 -->
+    <a href="/" id="floatingChatBtn" style="
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 64px;
+        height: 64px;
+        cursor: pointer;
+        z-index: 1000;
+        text-decoration: none;
+        transition: transform 0.3s;
+    " title="AI 상담사와 대화하기">
+        <img src="/Chatbot_Message_Bubble__1.png" alt="챗봇" style="width: 100%; height: 100%; object-fit: contain;">
+    </a>
+    <script>
+        document.getElementById('floatingChatBtn').addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+        });
+        document.getElementById('floatingChatBtn').addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    </script>
+</body>
+</html>
