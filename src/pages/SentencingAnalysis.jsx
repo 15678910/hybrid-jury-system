@@ -1492,13 +1492,61 @@ const personsData = {
             '2026.2.19 1심 선고: 무죄 (내란죄 불성립)'
         ],
         verdictDate: '2026년 2월 19일',
-        trialStatus: '1심 선고: 무죄 (2026.2.19, 내란죄 불성립)'
+        trialStatus: '1심 선고: 무죄 (2026.2.19, 내란죄 불성립)',
+        sentencingGuidelines: [
+            {
+                crime: '내란중요임무종사 (형법 제87조)',
+                standardRange: '5년~무기징역 (유죄 시)',
+                aggravating: ['비상계엄 당시 헌병대 병력 동원 관련 혐의', '군 명령체계 내 실행 역할'],
+                mitigating: ['국헌문란 목적 인식·공유 증거 부족', '상급자 지시에 따른 군 지휘체계 내 행위', '내란 사전 모의 참여 증거 없음', '헌병대 동원이 국회 진입이 아닌 경계 업무'],
+                verdict: '무죄',
+                analysis: '재판부는 "피고인이 국헌문란의 목적을 인식하거나 공유했다는 증거가 불충분"하다고 판단. 군 지휘체계 내에서 상급자 지시에 따른 행위로, 내란의 고의를 인정하기 어려움'
+            }
+        ],
+        judgeHistory: {
+            judgeName: '지귀연',
+            position: '서울중앙지방법원 형사합의25부 부장판사',
+            recentCases: [
+                {
+                    caseName: '윤석열 외 7인 내란 사건',
+                    year: '2026',
+                    verdict: '김용군 무죄 (내란중요임무종사 불성립)',
+                    detail: '국헌문란 목적 인식·공유 증거 부족으로 무죄'
+                }
+            ],
+            profile: '사법연수원 25기. 서울중앙지법 형사합의25부 부장판사. 내란 사건 1심 전담 재판장. 2026.2.19 윤석열 무기징역 등 8명 선고.'
+        },
+        keyIssues: [
+            {
+                title: '국헌문란 목적의 인식·공유 여부',
+                description: '재판부는 내란죄 공범 성립 요건으로 "국헌문란 목적의 미필적 인식·공유"를 필요로 함. 김용군은 헌병대장으로서 병력을 동원했으나, 그것이 국헌문란 목적임을 인식했다는 증거가 불충분',
+                opinion: {
+                    prosecution: '헌병대 병력 동원은 비상계엄의 일환으로 국회 기능 마비에 기여한 것',
+                    defense: '군 지휘체계 내 상급자 지시에 따른 정당한 군사 임무 수행이며, 내란 목적 인식 없음',
+                    court: '국헌문란 목적을 인식·공유했다는 증거 불충분하여 무죄'
+                }
+            },
+            {
+                title: '군 지휘체계 내 하급자의 범의 인정 기준',
+                description: '동일 지휘체계 내에서 상위자(김용현 30년, 박안수 재판 중)는 유죄이나 하급 실행자인 김용군은 무죄로, 명령 체계에서의 범의 인식 경계선이 쟁점',
+                opinion: {
+                    prosecution: '군 명령체계 내에서도 위법한 명령임을 인식할 수 있었음',
+                    defense: '군인으로서 상급자 명령에 복종할 의무가 있으며, 명령의 위법성을 판단할 위치가 아님',
+                    court: '하급 실행자의 경우 내란 목적 인식 입증 책임이 검찰에 있으며, 이를 충족하지 못함'
+                }
+            }
+        ],
+        sources: [
+            { label: '경향신문', title: '내란 공범 성립 여부 가른 국헌문란 목적 인식', url: 'https://www.khan.co.kr/article/202602191845001', date: '2026.2.19' },
+            { label: '조세금융신문', title: '내란 1심 김용군·윤승영 무죄', url: 'https://www.tfmedia.co.kr/news/article.html?no=201681', date: '2026.2.19' },
+            { label: 'YTN', title: '내란 1심 선고 - 김용군·윤승영 무죄', url: 'https://m.ytn.co.kr/news_view.amp.php?version=1&param=0103_202602200022476461', date: '2026.2.20' }
+        ]
     },
     '김봉식': {
         id: 'kimbongsik',
         name: '김봉식',
         position: '전 서울경찰청장',
-        status: '구속',
+        status: '법정구속',
         statusColor: 'red',
         court: '서울중앙지방법원 형사합의25부',
         judge: '지귀연 부장판사',
@@ -1531,7 +1579,7 @@ const personsData = {
             '12.3 비상계엄 당시 서울경찰청장으로 국회 봉쇄 가담',
             '김용현 당시 국방장관으로부터 안가회동 문건 수령',
             '비화폰 원격삭제 의혹 (2024.12.6)',
-            '2025.1.8 구속기소 → 2025.6.26 보석 허가'
+            '2025.1.8 구속기소 → 2025.6.26 보석 허가 → 2026.2.19 보석 취소, 법정구속'
         ],
         verdictDate: '2026년 2월 19일',
         trialStatus: '1심 선고: 징역 10년 (2026.2.19)',
@@ -1568,6 +1616,11 @@ const personsData = {
                     court: '포고령 위법성 미검토, 군 국회 진입 조력으로 비난 가능성 높음'
                 }
             }
+        ],
+        sources: [
+            { label: '오마이뉴스', title: '김봉식 전 서울경찰청장 징역 10년 선고', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003208296', date: '2026.2.19' },
+            { label: 'YTN', title: '조지호 전 경찰청장 1심 징역 12년...김봉식 징역 10년', url: 'https://m.ytn.co.kr/news_view.amp.php?version=1&param=0103_202602200022476461', date: '2026.2.20' },
+            { label: '헤럴드경제', title: '1심 선고 하루 만에 김봉식·목현태 징계 의결', url: 'https://biz.heraldcorp.com/article/10678952', date: '2026.2.20' }
         ]
     },
     '노상원': {
@@ -1681,8 +1734,8 @@ const personsData = {
         id: 'mokhyuntae',
         name: '목현태',
         position: '전 서울경찰청 국회경비대장',
-        status: '불구속',
-        statusColor: 'green',
+        status: '법정구속',
+        statusColor: 'red',
         court: '서울중앙지방법원 형사합의25부',
         judge: '지귀연 부장판사',
         charges: [
@@ -1714,7 +1767,8 @@ const personsData = {
             '국회경비대장으로서 국회 출입구 차단 지시',
             '국회의원 출입 차단으로 계엄해제 의결 방해',
             '국회의장 찾을 것을 4번 지시한 사실 확인',
-            '"국헌 문란의 목적이 없었다"며 내란 혐의 부인'
+            '"국헌 문란의 목적이 없었다"며 내란 혐의 부인',
+            '2026.2.19 1심 징역 3년 선고, 법정구속 (2026.2.23 항소)'
         ],
         verdictDate: '2026년 2월 19일',
         trialStatus: '1심 선고: 징역 3년 (2026.2.19)',
@@ -1737,6 +1791,34 @@ const personsData = {
                     court: '하급자로서 독자적 판단 여지 제한적, 미필적 고의 수준으로 비난 가능성 상대적으로 낮음'
                 }
             }
+        ],
+        sentencingGuidelines: [
+            {
+                crime: '내란중요임무종사 (형법 제87조)',
+                standardRange: '5년~무기징역',
+                aggravating: ['국회경비대장으로서 국회의원 출입 차단 직접 지시', '국회의장 소재 파악 4회 지시', '군 국회 진입 목격 후에도 계속 가담'],
+                mitigating: ['하급자로서 독자적 판단 여지 제한', '상급자(조지호·김봉식) 지시 이행', '처음부터 국헌문란 목적 인식하지 않음 (미필적 고의)'],
+                verdict: '징역 3년',
+                analysis: '재판부는 미필적 고의에 의한 내란 가담을 인정하되, 하급자로서 독자적 판단 여지가 제한적이었음을 반영하여 구형 12년의 25%인 3년 선고'
+            }
+        ],
+        judgeHistory: {
+            judgeName: '지귀연',
+            position: '서울중앙지방법원 형사합의25부 부장판사',
+            recentCases: [
+                {
+                    caseName: '윤석열 외 7인 내란 사건',
+                    year: '2026',
+                    verdict: '목현태 징역 3년 (내란중요임무종사 유죄, 미필적 고의)',
+                    detail: '구형 12년의 25% 선고, 법정구속'
+                }
+            ],
+            profile: '사법연수원 25기. 서울중앙지법 형사합의25부 부장판사. 내란 사건 1심 전담 재판장. 2026.2.19 윤석열 무기징역 등 8명 선고.'
+        },
+        sources: [
+            { label: 'SBS뉴스', title: '목현태 내란 가담 인정, 징역 3년 법정구속', url: 'https://news.sbs.co.kr/amp/news.amp?news_id=N1008447866', date: '2026.2.19' },
+            { label: '헤럴드경제', title: '1심 선고 하루 만에 김봉식·목현태 징계 의결', url: 'https://biz.heraldcorp.com/article/10678952', date: '2026.2.20' },
+            { label: '조세금융신문', title: '내란 1심 목현태 징역 3년', url: 'https://www.tfmedia.co.kr/news/article.html?no=201681', date: '2026.2.19' }
         ]
     },
     '윤승영': {
@@ -1935,6 +2017,11 @@ const personsData = {
                     court: '포고령 위법성 미검토, 군 국회 진입 조력, 의원 출입 차단으로 비난 가능성 높음'
                 }
             }
+        ],
+        sources: [
+            { label: '시사저널', title: '조지호 1심 불복 항소', url: 'https://www.sisajournal.com/news/articleView.html?idxno=363402', date: '2026.2.20' },
+            { label: 'YTN', title: '조지호 전 경찰청장 1심 징역 12년', url: 'https://m.ytn.co.kr/news_view.amp.php?version=1&param=0103_202602200022476461', date: '2026.2.20' },
+            { label: '경향신문', title: '조지호 보석 석방 (혈액암 2기)', url: 'https://www.khan.co.kr/article/202501231427011', date: '2025.1.23' }
         ]
     }
 };
@@ -1952,6 +2039,7 @@ export default function SentencingAnalysis() {
     const [judgeCourtData, setJudgeCourtData] = useState({});
     const [loading, setLoading] = useState(true);
     const [kakaoReady, setKakaoReady] = useState(false);
+    const [selectedAiModel, setSelectedAiModel] = useState('claude');
 
     // URL 파라미터에서 person 읽어서 선택
     useEffect(() => {
@@ -1986,7 +2074,11 @@ export default function SentencingAnalysis() {
                     initKakao();
                 }
             }, 100);
-            setTimeout(() => clearInterval(checkKakao), 5000);
+            const timeoutId = setTimeout(() => clearInterval(checkKakao), 5000);
+            return () => {
+                clearInterval(checkKakao);
+                clearTimeout(timeoutId);
+            };
         }
     }, []);
 
@@ -2143,11 +2235,10 @@ export default function SentencingAnalysis() {
         // Firestore 데이터가 있으면 병합 (Firestore 데이터 우선)
         // Firestore에서 "null" 문자열로 저장된 값 필터링
         const clean = (v) => (v && v !== 'null' && v !== 'undefined') ? v : null;
-        // 크롤러 기본값('재판 진행 중')은 의미있는 데이터가 아니므로 추가 필터링
+        // 크롤러 기본값('재판 진행 중')은 의미있는 데이터가 아니므로 정적 데이터를 덮어쓰지 않도록 필터링
         const cleanVerdict = (v) => {
             const cleaned = clean(v);
             if (!cleaned) return null;
-            // 크롤러 fallback 값들은 정적 데이터를 덮어쓰지 않도록 무시
             if (cleaned === '재판 진행 중' || cleaned === '최근 재판 관련 뉴스 있음') return null;
             return cleaned;
         };
@@ -2155,7 +2246,7 @@ export default function SentencingAnalysis() {
         return {
             ...staticData,
             status: mergedStatus,
-            statusColor: mergedStatus === '구속' ? 'red' : mergedStatus === '보석' ? 'orange' : (mergedStatus === '불구속' ? 'green' : staticData.statusColor),
+            statusColor: (mergedStatus === '구속' || mergedStatus === '법정구속') ? 'red' : mergedStatus === '보석' ? 'orange' : (mergedStatus === '불구속' ? 'green' : staticData.statusColor),
             verdictDate: clean(dynamicData.verdictDate) || staticData.verdictDate,
             trialStatus: cleanVerdict(dynamicData.trialStatus) || staticData.trialStatus,
             charges: dynamicData.charges?.length > 0 ? dynamicData.charges.map((c, idx) => {
@@ -2186,6 +2277,12 @@ export default function SentencingAnalysis() {
                 ? dynamicData.keyIssues
                 : staticData.keyIssues,
             aiPrediction: dynamicData.aiPrediction || null,
+            claudePrediction: dynamicData.claudePrediction ? {
+                ...dynamicData.claudePrediction,
+                judicialIntegrity: dynamicData.claudePrediction.judicialIntegrity || null,
+                aiJudgeComparison: dynamicData.claudePrediction.aiJudgeComparison || null,
+            } : null,
+            sources: dynamicData.sources || staticData.sources || [],
             // 동적 데이터 메타정보
             _lastUpdated: dynamicData.lastUpdated,
             _hasLiveData: !!dynamicData,
@@ -2194,6 +2291,31 @@ export default function SentencingAnalysis() {
     };
 
     const person = selectedPerson ? getMergedPersonData(selectedPerson) : null;
+
+    // [개발 모드 전용] 피고인 데이터 완전성 검증
+    // 누락된 필수 필드를 콘솔 경고로 출력하여 데이터 미비 방지
+    useEffect(() => {
+        if (!import.meta.env.DEV) return;
+        const REQUIRED_FIELDS = ['sentencingGuidelines', 'judgeHistory', 'keyIssues', 'sources'];
+        const missing = [];
+        sortedPersons.forEach(name => {
+            const merged = getMergedPersonData(name);
+            const lacks = REQUIRED_FIELDS.filter(f => {
+                const v = merged[f];
+                if (!v) return true;
+                if (Array.isArray(v) && v.length === 0) return true;
+                if (f === 'judgeHistory' && !v.judgeName) return true;
+                return false;
+            });
+            if (lacks.length > 0) missing.push({ name, lacks });
+        });
+        if (missing.length > 0) {
+            console.warn(
+                `[데이터 완전성 경고] ${missing.length}명 피고인 필수 필드 누락:\n` +
+                missing.map(m => `  ❌ ${m.name}: ${m.lacks.join(', ')}`).join('\n')
+            );
+        }
+    }, [firestoreData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // 인물 목록 화면
     if (!selectedPerson) {
@@ -2231,7 +2353,7 @@ export default function SentencingAnalysis() {
                             </div>
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-red-600">
-                                    {sortedPersons.filter(name => personsData[name].status === '구속').length}
+                                    {sortedPersons.filter(name => personsData[name].status === '구속' || personsData[name].status === '법정구속').length}
                                 </p>
                                 <p className="text-sm text-gray-500">구속</p>
                             </div>
@@ -2292,7 +2414,7 @@ export default function SentencingAnalysis() {
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                                    p.status === '구속'
+                                                    (p.status === '구속' || p.status === '법정구속')
                                                         ? 'bg-red-100 text-red-700'
                                                         : p.status === '보석'
                                                             ? 'bg-orange-100 text-orange-700'
@@ -2387,7 +2509,7 @@ export default function SentencingAnalysis() {
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 mb-4">
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                person.status === '구속'
+                                (person.status === '구속' || person.status === '법정구속')
                                     ? 'bg-red-100 text-red-700'
                                     : person.status === '보석'
                                         ? 'bg-orange-100 text-orange-700'
@@ -2955,15 +3077,40 @@ export default function SentencingAnalysis() {
 
                     {activeTab === 'aiPrediction' && (
                         <div className="space-y-6">
+                            {/* AI 모델 선택 */}
+                            <div className="flex items-center justify-center gap-2 bg-white rounded-xl shadow-sm p-3">
+                                <span className="text-sm text-gray-500 mr-2">AI 모델:</span>
+                                <button
+                                    onClick={() => setSelectedAiModel('gemini')}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                        selectedAiModel === 'gemini'
+                                            ? 'bg-blue-600 text-white shadow-sm'
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                    }`}
+                                >
+                                    Gemini AI
+                                </button>
+                                <button
+                                    onClick={() => setSelectedAiModel('claude')}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                        selectedAiModel === 'claude'
+                                            ? 'bg-orange-600 text-white shadow-sm'
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                    }`}
+                                >
+                                    Claude AI
+                                </button>
+                            </div>
+
                             {/* 면책 고지 */}
                             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                                 <p className="text-amber-800 text-sm">
-                                    ⚠️ 이 분석은 Gemini AI가 공개된 뉴스 보도와 역사적 선례를 기반으로 예측한 것이며, 실제 법원 판결과 다를 수 있습니다. 법적 조언이 아닌 참고 자료로만 활용하시기 바랍니다.
+                                    ⚠️ 이 분석은 {selectedAiModel === 'gemini' ? 'Google Gemini AI' : 'Anthropic Claude AI'}가 공개된 뉴스 보도와 역사적 선례를 기반으로 예측한 것이며, 실제 법원 판결과 다를 수 있습니다. 법적 조언이 아닌 참고 자료로만 활용하시기 바랍니다.
                                 </p>
                             </div>
 
-                            {person.aiPrediction ? (() => {
-                                const pred = person.aiPrediction;
+                            {(selectedAiModel === 'gemini' ? person.aiPrediction : person.claudePrediction) ? (() => {
+                                const pred = selectedAiModel === 'gemini' ? person.aiPrediction : person.claudePrediction;
                                 return (
                                     <>
                                         {/* 예측 결과 요약 */}
@@ -3174,22 +3321,253 @@ export default function SentencingAnalysis() {
                                             </div>
                                         )}
 
+                                        {/* ── 사법 정의 평가 ── */}
+                                        {pred.judicialIntegrity && (
+                                            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                                                <div className="p-4 bg-red-50 border-b border-red-100">
+                                                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                                                        <span>🔍</span> 사법 정의 평가
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500 mt-1">AI가 공개된 판례·보도를 기반으로 사법 절차의 공정성을 평가한 결과입니다</p>
+                                                </div>
+                                                <div className="p-4 space-y-5">
+                                                    {/* 공정성 점수 */}
+                                                    {pred.judicialIntegrity.integrityScore && (
+                                                        <div className="grid grid-cols-3 gap-3">
+                                                            {[
+                                                                { label: '검찰 공정성', score: pred.judicialIntegrity.integrityScore.prosecution, color: 'blue' },
+                                                                { label: '재판부 공정성', score: pred.judicialIntegrity.integrityScore.judiciary, color: 'purple' },
+                                                                { label: '종합 평가', score: pred.judicialIntegrity.integrityScore.overall, color: 'red' }
+                                                            ].map((item, i) => (
+                                                                <div key={i} className="bg-gray-50 rounded-lg p-3 text-center">
+                                                                    <p className="text-xs text-gray-500 mb-1">{item.label}</p>
+                                                                    <p className={`text-2xl font-bold ${item.score <= 30 ? 'text-red-600' : item.score <= 60 ? 'text-yellow-600' : 'text-green-600'}`}>
+                                                                        {item.score}<span className="text-sm font-normal text-gray-400">/100</span>
+                                                                    </p>
+                                                                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                                                        <div
+                                                                            className={`h-2 rounded-full ${item.score <= 30 ? 'bg-red-500' : item.score <= 60 ? 'bg-yellow-500' : 'bg-green-500'}`}
+                                                                            style={{ width: `${item.score}%` }}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                    {pred.judicialIntegrity.integrityScore?.reasoning && (
+                                                        <p className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3 leading-relaxed">
+                                                            {pred.judicialIntegrity.integrityScore.reasoning}
+                                                        </p>
+                                                    )}
+
+                                                    {/* 특검·검찰 문제점 */}
+                                                    {pred.judicialIntegrity.prosecutorialIssues?.length > 0 && (
+                                                        <div>
+                                                            <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1">
+                                                                <span>📋</span> 특검·검찰 문제점
+                                                            </h4>
+                                                            <div className="space-y-2">
+                                                                {pred.judicialIntegrity.prosecutorialIssues.map((issue, i) => (
+                                                                    <div key={i} className={`p-3 rounded-lg border-l-4 ${
+                                                                        issue.severity === 'critical' ? 'bg-red-50 border-red-500' :
+                                                                        issue.severity === 'major' ? 'bg-yellow-50 border-yellow-500' :
+                                                                        'bg-gray-50 border-gray-300'
+                                                                    }`}>
+                                                                        <div className="flex items-center gap-2 mb-1">
+                                                                            <span className={`w-2 h-2 rounded-full ${
+                                                                                issue.severity === 'critical' ? 'bg-red-500' :
+                                                                                issue.severity === 'major' ? 'bg-yellow-500' : 'bg-gray-400'
+                                                                            }`} />
+                                                                            <span className="text-sm font-bold text-gray-900">{issue.title}</span>
+                                                                        </div>
+                                                                        <p className="text-xs text-gray-600 ml-4">{issue.description}</p>
+                                                                        {issue.impact && <p className="text-xs text-red-600 ml-4 mt-1 font-medium">→ {issue.impact}</p>}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* 재판부 문제점 */}
+                                                    {pred.judicialIntegrity.judicialIssues?.length > 0 && (
+                                                        <div>
+                                                            <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1">
+                                                                <span>⚖️</span> 재판부 문제점
+                                                            </h4>
+                                                            <div className="space-y-2">
+                                                                {pred.judicialIntegrity.judicialIssues.map((issue, i) => (
+                                                                    <div key={i} className={`p-3 rounded-lg border-l-4 ${
+                                                                        issue.severity === 'critical' ? 'bg-red-50 border-red-500' :
+                                                                        issue.severity === 'major' ? 'bg-yellow-50 border-yellow-500' :
+                                                                        'bg-gray-50 border-gray-300'
+                                                                    }`}>
+                                                                        <div className="flex items-center gap-2 mb-1">
+                                                                            <span className={`w-2 h-2 rounded-full ${
+                                                                                issue.severity === 'critical' ? 'bg-red-500' :
+                                                                                issue.severity === 'major' ? 'bg-yellow-500' : 'bg-gray-400'
+                                                                            }`} />
+                                                                            <span className="text-sm font-bold text-gray-900">{issue.title}</span>
+                                                                        </div>
+                                                                        <p className="text-xs text-gray-600 ml-4">{issue.description}</p>
+                                                                        {issue.impact && <p className="text-xs text-red-600 ml-4 mt-1 font-medium">→ {issue.impact}</p>}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* 미처리·누락 증거 */}
+                                                    {pred.judicialIntegrity.omittedEvidence?.length > 0 && (
+                                                        <div>
+                                                            <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1">
+                                                                <span>📎</span> 미처리·누락 증거
+                                                            </h4>
+                                                            <div className="space-y-2">
+                                                                {pred.judicialIntegrity.omittedEvidence.map((ev, i) => (
+                                                                    <div key={i} className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                                                                        <div className="flex items-center justify-between">
+                                                                            <span className="text-sm font-medium text-gray-900">{ev.title}</span>
+                                                                            {ev.status && (
+                                                                                <span className="text-xs px-2 py-0.5 bg-amber-200 text-amber-800 rounded-full">{ev.status}</span>
+                                                                            )}
+                                                                        </div>
+                                                                        <p className="text-xs text-gray-600 mt-1">{ev.description}</p>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* ── AI 판사 vs 인간 판사 비교 ── */}
+                                        {pred.aiJudgeComparison && (
+                                            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                                                <div className="p-4 bg-indigo-50 border-b border-indigo-100">
+                                                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                                                        <span>🤖</span> AI 판사 vs 인간 판사 비교
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500 mt-1">AI 사법 시스템이 적용되었다면 달라졌을 판단을 비교합니다</p>
+                                                </div>
+                                                <div className="p-4 space-y-4">
+                                                    {/* AI vs 인간 예측 결과 */}
+                                                    {pred.aiJudgeComparison.aiPredictedOutcome && (
+                                                        <div className="grid md:grid-cols-2 gap-3">
+                                                            <div className="bg-indigo-50 rounded-lg p-4 text-center">
+                                                                <p className="text-xs text-indigo-600 mb-1">🤖 AI 판사 예측</p>
+                                                                <p className="text-lg font-bold text-indigo-900">{pred.aiJudgeComparison.aiPredictedOutcome}</p>
+                                                            </div>
+                                                            <div className="bg-gray-50 rounded-lg p-4 text-center">
+                                                                <p className="text-xs text-gray-500 mb-1">👨‍⚖️ 인간 판사 선고</p>
+                                                                <p className="text-lg font-bold text-gray-900">{person.summary?.verdictTotal || '재판 진행 중'}</p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* 비교 테이블 */}
+                                                    {pred.aiJudgeComparison.differences?.length > 0 && (
+                                                        <div className="overflow-x-auto">
+                                                            <table className="w-full text-sm">
+                                                                <thead>
+                                                                    <tr className="bg-gray-100">
+                                                                        <th className="p-2 text-left text-gray-700 font-bold rounded-tl-lg">판단 항목</th>
+                                                                        <th className="p-2 text-left text-gray-700 font-bold">👨‍⚖️ 인간 판사</th>
+                                                                        <th className="p-2 text-left text-gray-700 font-bold">🤖 AI 판사</th>
+                                                                        <th className="p-2 text-left text-gray-700 font-bold rounded-tr-lg">AI 장점</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {pred.aiJudgeComparison.differences.map((diff, i) => (
+                                                                        <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                                                            <td className="p-2 font-medium text-gray-900">{diff.aspect}</td>
+                                                                            <td className="p-2 text-red-700">{diff.humanJudge}</td>
+                                                                            <td className="p-2 text-indigo-700">{diff.aiJudge}</td>
+                                                                            <td className="p-2 text-green-700 text-xs">{diff.advantage}</td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    )}
+
+                                                    {/* 필요성 요약 */}
+                                                    {pred.aiJudgeComparison.necessityReasoning && (
+                                                        <div className="bg-indigo-50 rounded-lg p-3">
+                                                            <p className="text-sm text-indigo-800 leading-relaxed">
+                                                                💡 {pred.aiJudgeComparison.necessityReasoning}
+                                                            </p>
+                                                        </div>
+                                                    )}
+
+                                                    {/* AI 사법 시스템 도입 현황 */}
+                                                    {pred.aiJudgeComparison.aiJudgeStatus && (
+                                                        <div className="border-t pt-4">
+                                                            <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-1">
+                                                                <span>🌍</span> AI 사법 시스템 도입 현황
+                                                            </h4>
+                                                            <div className="grid md:grid-cols-2 gap-3">
+                                                                <div className="bg-blue-50 rounded-lg p-3">
+                                                                    <p className="text-xs font-bold text-blue-800 mb-1">🇰🇷 한국</p>
+                                                                    <p className="text-xs text-blue-700 leading-relaxed">{pred.aiJudgeComparison.aiJudgeStatus.korea}</p>
+                                                                </div>
+                                                                <div className="bg-green-50 rounded-lg p-3">
+                                                                    <p className="text-xs font-bold text-green-800 mb-1">🌐 해외</p>
+                                                                    <p className="text-xs text-green-700 leading-relaxed">{pred.aiJudgeComparison.aiJudgeStatus.global}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
                                         {/* 생성 시간 */}
                                         <p className="text-xs text-gray-400 text-center">
-                                            AI 모델: {pred.model || 'Gemini'} | 참조 뉴스: {pred.newsSourceCount || 0}건
-                                            {pred.generatedAt && ` | 생성: ${pred.generatedAt.toDate ? pred.generatedAt.toDate().toLocaleDateString('ko-KR') : new Date(pred.generatedAt).toLocaleDateString('ko-KR')}`}
+                                            AI 모델: {pred.model || (selectedAiModel === 'gemini' ? 'Gemini' : 'Claude')} |
+                                            {pred.newsSourceCount ? ` 참조 뉴스: ${pred.newsSourceCount}건 |` : ''}
+                                            {pred.generatedAt && ` 생성: ${pred.generatedAt.toDate ? pred.generatedAt.toDate().toLocaleDateString('ko-KR') : new Date(pred.generatedAt).toLocaleDateString('ko-KR')}`}
                                         </p>
                                     </>
                                 );
                             })() : (
                                 <div className="bg-white rounded-xl shadow-sm p-8 text-center">
                                     <div className="text-4xl mb-3">🔮</div>
-                                    <h3 className="text-lg font-bold text-gray-700 mb-2">AI 양형 예측이 아직 생성되지 않았습니다</h3>
+                                    <h3 className="text-lg font-bold text-gray-700 mb-2">
+                                        {selectedAiModel === 'gemini' ? 'Gemini' : 'Claude'} AI 양형 예측이 아직 생성되지 않았습니다
+                                    </h3>
                                     <p className="text-sm text-gray-500">
-                                        관리자 페이지에서 AI 양형 예측을 실행하면 이 탭에 결과가 표시됩니다.
+                                        {person.aiPrediction || person.claudePrediction ? (
+                                            <>다른 AI 모델의 예측을 확인하려면 위 버튼을 전환해보세요.</>
+                                        ) : (
+                                            <>관리자 페이지에서 AI 양형 예측을 실행하면 이 탭에 결과가 표시됩니다.</>
+                                        )}
                                     </p>
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {/* 자료 출처 */}
+                    {person.sources && person.sources.length > 0 && (
+                        <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
+                            <h3 className="text-lg font-bold mb-4">자료 출처</h3>
+                            <div className="space-y-3">
+                                {person.sources.map((src, idx) => (
+                                    <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                                        <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full whitespace-nowrap">{src.label}</span>
+                                        <div className="flex-1">
+                                            <a href={src.url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:text-blue-800 hover:underline font-medium">
+                                                {src.title}
+                                            </a>
+                                            <p className="text-xs text-gray-400 mt-1">{src.date}</p>
+                                        </div>
+                                        <svg className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
 
