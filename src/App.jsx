@@ -916,7 +916,7 @@ export default function App() {
                                             to="/judge-evaluation"
                                             className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                         >
-                                            AI의 판사평
+                                            AI의 심사평가
                                         </Link>
                                         <Link
                                             to="/law-database"
@@ -1060,7 +1060,7 @@ export default function App() {
                                     onClick={() => setMobileMenuOpen(false)}
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
                                 >
-                                    AI의 판사평
+                                    AI의 심사평가
                                 </Link>
                                 <Link
                                     to="/law-database"

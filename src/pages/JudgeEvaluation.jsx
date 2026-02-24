@@ -41,7 +41,7 @@ export default function JudgeEvaluation() {
                     {/* 헤더 */}
                     <div className="text-center mb-12">
                         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                            ⚖️ AI의 판사평
+                            ⚖️ AI의 심사평가
                         </h1>
                         <p className="text-gray-300 text-lg mb-6">
                             AI가 공개된 판례·보도를 기반으로 판사들의 사법 정의를 분석합니다
