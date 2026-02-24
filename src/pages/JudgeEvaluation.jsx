@@ -41,7 +41,7 @@ export default function JudgeEvaluation() {
                     {/* 헤더 */}
                     <div className="text-center mb-12">
                         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                            ⚖️ AI의 심사평가
+                            ⚖️ AI의 판사평가
                         </h1>
                         <p className="text-gray-300 text-lg mb-6">
                             AI가 공개된 판례·보도를 기반으로 판사들의 사법 정의를 분석합니다
@@ -70,12 +70,11 @@ export default function JudgeEvaluation() {
                         </div>
 
                         {/* 면책 문구 */}
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-w-3xl mx-auto">
-                            <p className="text-yellow-800 text-sm">
-                                ⚠️ <strong>면책 고지:</strong> 본 평가는 개인의 의견을 자유롭게 표현하는 공간입니다.
-                                모든 평가는 주관적 견해이며, 법적 판단이나 공식적인 평가가 아닙니다.
-                                판사에 대한 명예훼손, 모욕, 허위사실 유포는 법적 책임을 질 수 있으니
-                                사실에 근거한 건설적인 의견을 부탁드립니다.
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-3xl mx-auto">
+                            <p className="text-blue-800 text-sm">
+                                📊 <strong>AI 평가 기준 안내:</strong> 본 평가는 AI가 각 판사의 공개된 판결문, 언론 보도, 법원 공식 기록 등
+                                객관적 자료를 기반으로 분석한 결과입니다. 양형 일관성, 판례 준수율, 심리 충실도 등의
+                                정량적 지표와 주요 판결 이력을 종합하여 평가하였습니다.
                             </p>
                         </div>
                     </div>
