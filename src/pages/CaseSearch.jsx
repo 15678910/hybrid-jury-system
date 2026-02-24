@@ -6,13 +6,13 @@ import { searchPrecedents, searchLaws } from '../lib/lawApi';
 
 // 인물 데이터 (SentencingAnalysis에서 가져옴)
 const PERSONS = {
-    '윤석열': { position: '전 대통령', status: '구속', court: '서울중앙지방법원', charges: ['내란수괴', '내란목적살인미수'], trialStatus: '2026.2.19 선고 예정' },
-    '한덕수': { position: '전 국무총리', status: '구속', court: '서울중앙지방법원', charges: ['내란중요임무종사', '위증'], trialStatus: '1심 징역 23년 선고' },
-    '이상민': { position: '전 행정안전부 장관', status: '구속', court: '서울중앙지방법원', charges: ['내란중요임무종사', '위증', '직권남용'], trialStatus: '1심 징역 7년 선고' },
-    '김용현': { position: '전 국방부 장관', status: '구속', court: '서울중앙지방법원', charges: ['내란중요임무종사', '직권남용'], trialStatus: '1심 재판 진행 중' },
+    '윤석열': { position: '전 대통령', status: '구속', court: '서울중앙지방법원', charges: ['내란수괴', '내란목적살인미수'], trialStatus: '1심 무기징역 선고 (2026.2.19)' },
+    '한덕수': { position: '전 국무총리', status: '구속', court: '서울중앙지방법원', charges: ['내란중요임무종사', '위증'], trialStatus: '1심 징역 23년 선고 (2026.1.21)' },
+    '이상민': { position: '전 행정안전부 장관', status: '구속', court: '서울중앙지방법원', charges: ['내란중요임무종사', '위증', '직권남용'], trialStatus: '1심 징역 7년 선고 (2026.2.12)' },
+    '김용현': { position: '전 국방부 장관', status: '구속', court: '서울중앙지방법원', charges: ['내란중요임무종사', '직권남용'], trialStatus: '1심 징역 30년 선고 (2026.2.19)' },
     '조태용': { position: '전 국정원장', status: '구속', court: '서울중앙지방법원', charges: ['국가정보원법 위반'], trialStatus: '1심 재판 진행 중' },
-    '김건희': { position: '대통령 배우자', status: '불구속', court: '서울중앙지방법원', charges: ['주가조작', '명품백 수수'], trialStatus: '1심 재판 종료' },
-    '여인형': { position: '전 특수전사령관', status: '구속', court: '서울중앙지방법원', charges: ['내란중요임무종사'], trialStatus: '1심 재판 진행 중' },
+    '김건희': { position: '대통령 배우자', status: '구속', court: '서울중앙지방법원', charges: ['주가조작', '명품백 수수'], trialStatus: '1심 징역 1년 8개월 선고 (2026.1.28)' },
+    '여인형': { position: '전 방첩사령관', status: '구속', court: '서울중앙지방법원', charges: ['내란중요임무종사'], trialStatus: '1심 재판 진행 중' },
     '이진우': { position: '전 수도방위사령관', status: '구속', court: '서울중앙지방법원', charges: ['내란중요임무종사'], trialStatus: '1심 재판 진행 중' },
     '곽종근': { position: '전 특수전사령부 부사령관', status: '구속', court: '서울중앙지방법원', charges: ['내란중요임무종사'], trialStatus: '1심 재판 진행 중' },
 };

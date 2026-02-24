@@ -2143,13 +2143,21 @@ export default function SentencingAnalysis() {
         // Firestore 데이터가 있으면 병합 (Firestore 데이터 우선)
         // Firestore에서 "null" 문자열로 저장된 값 필터링
         const clean = (v) => (v && v !== 'null' && v !== 'undefined') ? v : null;
+        // 크롤러 기본값('재판 진행 중')은 의미있는 데이터가 아니므로 추가 필터링
+        const cleanVerdict = (v) => {
+            const cleaned = clean(v);
+            if (!cleaned) return null;
+            // 크롤러 fallback 값들은 정적 데이터를 덮어쓰지 않도록 무시
+            if (cleaned === '재판 진행 중' || cleaned === '최근 재판 관련 뉴스 있음') return null;
+            return cleaned;
+        };
         const mergedStatus = clean(dynamicData.status) || staticData.status;
         return {
             ...staticData,
             status: mergedStatus,
             statusColor: mergedStatus === '구속' ? 'red' : mergedStatus === '보석' ? 'orange' : (mergedStatus === '불구속' ? 'green' : staticData.statusColor),
             verdictDate: clean(dynamicData.verdictDate) || staticData.verdictDate,
-            trialStatus: clean(dynamicData.trialStatus) || staticData.trialStatus,
+            trialStatus: cleanVerdict(dynamicData.trialStatus) || staticData.trialStatus,
             charges: dynamicData.charges?.length > 0 ? dynamicData.charges.map((c, idx) => {
                 const staticCharge = staticData.charges?.find(sc => sc.name === c.name) || staticData.charges?.[idx] || {};
                 return {
@@ -2157,14 +2165,14 @@ export default function SentencingAnalysis() {
                     id: idx + 1,
                     name: clean(c.name) || staticCharge.name,
                     law: clean(c.law) || staticCharge.law,
-                    verdict: clean(c.verdict) || staticCharge.verdict || '재판 진행 중',
+                    verdict: cleanVerdict(c.verdict) || staticCharge.verdict || '재판 진행 중',
                     prosecutionRequest: clean(c.sentence) || clean(c.prosecutionRequest) || staticCharge.prosecutionRequest || '조사 중',
                     reason: staticCharge.reason || '-'
                 };
             }) : staticData.charges,
             summary: {
                 ...staticData.summary,
-                verdictTotal: dynamicData.verdict || staticData.summary?.verdictTotal || '재판 진행 중'
+                verdictTotal: cleanVerdict(dynamicData.verdict) || staticData.summary?.verdictTotal || '재판 진행 중'
             },
             keyFacts: dynamicData.keyFacts?.length > 0 ? dynamicData.keyFacts : staticData.keyFacts,
             // Firestore 데이터가 있으면 우선 사용, 없으면 static fallback

@@ -2482,16 +2482,32 @@ const crawlPersonSentencing = async (person) => {
             hasVerdict: hasVerdictKeyword,
             verdictDate: null,
             status: null,
-            verdict: '재판 진행 중',
+            verdict: null,
             charges: [],
             summary: newsItems.slice(0, 3).map(n => n.title).join(' | '),
             keyFacts: newsItems.slice(0, 5).map(n => n.title),
-            trialStatus: hasVerdictKeyword ? '최근 재판 관련 뉴스 있음' : '재판 진행 중'
+            trialStatus: null
         };
     }
 
-    // Firestore에 저장
+    // Firestore에 저장 (기존 판결 데이터를 보호)
     const docRef = db.collection('sentencingData').doc(person.name);
+
+    // 기존 문서 확인 — 이미 판결 데이터가 있으면 verdict/trialStatus/verdictDate를 null로 덮어쓰지 않음
+    const existingDoc = await docRef.get();
+    if (existingDoc.exists) {
+        const existing = existingDoc.data();
+        if (existing.verdictDate && !verdictInfo.verdictDate) {
+            verdictInfo.verdictDate = existing.verdictDate;
+        }
+        if (existing.verdict && existing.verdict !== '재판 진행 중' && !verdictInfo.verdict) {
+            verdictInfo.verdict = existing.verdict;
+        }
+        if (existing.trialStatus && existing.trialStatus !== '재판 진행 중' && !verdictInfo.trialStatus) {
+            verdictInfo.trialStatus = existing.trialStatus;
+        }
+    }
+
     const data = {
         name: person.name,
         position: person.position,
