@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { collection, getDocs, query, orderBy, limit, startAfter } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 import { KakaoIcon, FacebookIcon, XIcon, TelegramIcon, InstagramIcon, LinkIcon, ShareIcon } from '../components/icons';
 
 // 로컬 스토리지 캐시 키
@@ -158,21 +159,17 @@ export default function Videos() {
         alert('링크가 복사되었습니다!\n카카오톡에 붙여넣기 해주세요.');
     };
 
-    // Facebook 공유 - 클립보드 복사 방식
+    // Facebook 공유
     const shareToFacebook = (video, videoId) => {
         const videoUrl = `https://youtu.be/${videoId}`;
-        const shareText = `${video.title}\n${videoUrl}`;
-        navigator.clipboard.writeText(shareText);
-        alert('링크가 복사되었습니다!\n페이스북에 붙여넣기 해주세요.');
-        window.open('https://www.facebook.com/', '_blank');
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(videoUrl)}`, '_blank', 'width=600,height=400');
     };
 
+    // X (Twitter) 공유
     const shareToTwitter = (video, videoId) => {
         const videoUrl = `https://youtu.be/${videoId}`;
-        const tweetText = `${video.title}\n\n${videoUrl}\n\n#시민법정 #참심제 #사법개혁`;
-        navigator.clipboard.writeText(tweetText);
-        alert('텍스트가 복사되었습니다!\nX에서 붙여넣기 해주세요.');
-        window.open('https://x.com/', '_blank');
+        const tweetText = `${video.title} #시민법정 #참심제 #사법개혁`;
+        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(videoUrl)}`, '_blank', 'width=600,height=400');
     };
 
     const copyLink = (video, videoId) => {
@@ -256,6 +253,7 @@ export default function Videos() {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            <SEOHead title="동영상" description="시민법정 동영상 - 참심제와 사법개혁 관련 영상 모음" path="/videos" />
             <Header />
 
             {/* 공유된 동영상 모달 */}

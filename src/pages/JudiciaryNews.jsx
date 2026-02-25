@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 
 const CACHE_KEY = 'judiciary_news_cache';
 const CACHE_DURATION = 30 * 60 * 1000;
@@ -150,6 +151,7 @@ export default function JudiciaryNews() {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            <SEOHead title="사법뉴스" description="최신 사법 뉴스 - 법원, 판결, 사법개혁 관련 뉴스 모음" path="/news" />
             <Header />
 
             <main className="pt-24 pb-16 px-4">

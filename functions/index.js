@@ -4379,6 +4379,30 @@ const FRONTEND_SENTENCING_DATA = {
             aggravating: ['방첩사 체포조 편성 시 경찰 인력 지원 중간 보고·조정', '조지호 청장에게 보고 후 승인 받아 체포조 지원 가담'],
             mitigating: ['비상계엄 매뉴얼에 따른 합동수사단 지원으로 오인 — 재판부 수용', '체포 대상을 정치인이 아닌 포고령 위반 사범으로 인식', '국회 활동 저지·마비 목적 공유 증거 부족', '명령 전달자(중간 실무급)로서 범의 불인정']
         }
+    },
+    '전성배': {
+        position: '건진법사 (승려)',
+        charges: '알선수재 (특정범죄가중처벌법), 정치자금법 위반',
+        prosecutionRequest: '징역 5년, 추징금 1억 8,079만원',
+        verdict: '징역 6년, 추징금 1억 8,079만원, 그라프 목걸이 몰수 (2026.2.24)',
+        ratio: '구형 120% (구형 초과 선고)',
+        sentencingGuidelines: {
+            aggravating: ['김건희와의 공모로 대통령 배우자 영향력 이용한 알선', '반복적·상습적 알선수재 약 3년간', '수수 금품 약 2억 8천만원 상당 (특가법)', '정교유착 초래 — 헌법상 정교분리 원칙 위반', '고가 명품으로 수수하여 뇌물 은폐 의도'],
+            mitigating: ['내란 직접 가담 아님 (알선수재 별건)', '정치자금법 위반 혐의 1심 무죄', '통일교 측의 적극적 로비가 범행 유발']
+        },
+        isInsurrection: false
+    },
+    '정진석': {
+        position: '전 대통령비서실장',
+        charges: '증거인멸 (형법 제155조), 대통령기록물관리법 위반, 직권남용 (형법 제123조)',
+        prosecutionRequest: '미정 (수사 및 기소 단계)',
+        verdict: '재판 진행 중',
+        ratio: '미정',
+        sentencingGuidelines: {
+            aggravating: ['대통령비서실장으로서 헌정질서 수호 의무 위반', 'PC 약 1000대 초기화 지시 대규모 증거인멸', '대통령기록물 무단 반출', '헌법재판관 졸속 지명 과정 주도', '비상계엄 직후 핵심 참모로서 사후 수습 관여'],
+            mitigating: ['불구속 상태 도주 우려 낮음', '직접적 내란 실행행위 아닌 사후 증거인멸 혐의', '대통령 지시에 따른 업무 수행 주장']
+        },
+        isInsurrection: false
     }
 };
 
@@ -4413,11 +4437,19 @@ exports.predictSentencingWithAI = functions
                 .map(v => `${v.defendant}: ${v.charge} → ${v.sentence} (${v.court}, ${v.date})`)
                 .join('\n');
 
+            // 2.5. 정적 양형 데이터 조회 (뉴스 검색 조건 분기에 필요)
+            const staticData = FRONTEND_SENTENCING_DATA[defendant];
+
             // 3. 최신 뉴스 수집
-            const newsQueries = [
+            const isInsurrectionCase = staticData ? (staticData.isInsurrection !== false) : true;
+            const newsQueries = isInsurrectionCase ? [
                 `${defendant} 내란 재판 양형`,
                 `${defendant} 내란 구형 판결`,
                 `${defendant} 내란 선고`
+            ] : [
+                `${defendant} 재판 양형 선고`,
+                `${defendant} 구형 판결`,
+                `${defendant} ${existingData.position || staticData?.position || ''} 재판`
             ];
 
             let allNews = [];
@@ -4478,16 +4510,13 @@ exports.predictSentencingWithAI = functions
 
             const prosecutionTotal = existingData.summary?.prosecutionTotal || '미정';
 
-            // 6. 정적 양형 데이터 조회
-            const staticData = FRONTEND_SENTENCING_DATA[defendant];
+            // 6. (staticData already loaded in step 2.5)
 
             // 7. 3단계 AI 분석 파이프라인
             const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
             // === Step 1: 법률 분석 (Legal Framework) ===
-            const step1Prompt = `당신은 대한민국 형사법 전문가입니다. 다음 피고인에 대한 법률 분석을 수행하세요.
-
-## ⚖️ 내란죄 관련 법정형 체계 (반드시 준수)
+            const legalFramework = isInsurrectionCase ? `## ⚖️ 내란죄 관련 법정형 체계 (반드시 준수)
 
 ### 형법 제87조 (내란) - 국헌문란 목적 폭동
 1호. **내란수괴**: 사형·무기징역·무기금고 → 법정 최고형: 사형, 법정 최저형: 무기징역/무기금고 (유기징역 선택지 없음)
@@ -4518,7 +4547,22 @@ exports.predictSentencingWithAI = functions
 - 내란수괴(제87조 1호)는 사형·무기징역·무기금고만 선택 가능하며, 유기징역 선고가 법률상 불가능
 - 내란중요임무종사(제87조 2호)는 사형부터 징역 5년까지 폭넓은 범위
 - 경합범 가중(형법 제37조, 제38조): 동시 판결 시 가장 중한 죄의 장기에 1/2 가중
-- 내란죄 + 외환죄(일반이적) 경합 시 양형에 중대한 영향
+- 내란죄 + 외환죄(일반이적) 경합 시 양형에 중대한 영향` : `## ⚖️ 해당 피고인 적용 법정형 체계
+
+### 피고인 혐의: ${staticData?.charges || existingData.charges?.map(c => c.name).join(', ') || '미상'}
+
+이 피고인은 내란 사건이 아닌 별도 형사사건 피고인입니다.
+해당 혐의에 적용되는 법조항의 법정형(최고형·최저형)을 정확히 분석하세요.
+특정범죄가중처벌법, 형법 각 조항의 법정형을 기준으로 분석합니다.
+
+### 핵심 양형 원칙
+- 경합범 가중(형법 제37조, 제38조): 동시 판결 시 가장 중한 죄의 장기에 1/2 가중
+- 특가법 적용 시 가중된 법정형 범위 적용
+- 양형기준에 따른 권고형 범위 확인`;
+
+            const step1Prompt = `당신은 대한민국 형사법 전문가입니다. 다음 피고인에 대한 법률 분석을 수행하세요.
+
+${legalFramework}
 
 ## 피고인 정보
 - 이름: ${defendant}
@@ -4552,7 +4596,7 @@ ${Object.entries(FRONTEND_SENTENCING_DATA).filter(([name]) => name !== defendant
 다음 JSON 형식으로만 응답하세요:
 {
     "applicableLaws": ["적용 법조항과 각 법조항의 법정형(최고형·최저형 명시) 상세 설명 (최소 5개)"],
-    "statutoryRange": "이 피고인에게 적용되는 법정형의 정확한 범위 (예: 내란수괴 제87조 1호 → 사형/무기징역/무기금고만 가능, 유기징역 불가). 반드시 해당 조항의 최고형과 최저형을 명시할 것 (3-5문장)",
+    "statutoryRange": "이 피고인에게 적용되는 법정형의 정확한 범위. 반드시 해당 조항의 최고형과 최저형을 명시할 것 (3-5문장)",
     "aggravatingFactors": ["가중 사유 - 각 항목을 2-3문장으로 구체적 근거와 함께 서술 (최소 5개)"],
     "mitigatingFactors": ["감경 사유 - 각 항목을 2-3문장으로 구체적 근거와 함께 서술 (최소 3개)"],
     "keyLegalIssues": ["핵심 법적 쟁점 - 각 쟁점의 법리적 논쟁을 3-4문장으로 상세 서술 (최소 4개)"],

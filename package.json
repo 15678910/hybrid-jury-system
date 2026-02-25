@@ -23,6 +23,7 @@
     "react-dom": "^18.2.0",
     "react-force-graph": "^1.48.2",
     "react-force-graph-2d": "^1.29.1",
+    "react-helmet-async": "^2.0.5",
     "react-quill": "^2.0.0",
     "react-router-dom": "^7.9.6"
   },

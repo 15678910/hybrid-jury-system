@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { collection, query, orderBy, getDocs, limit, startAfter } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 
 // 로컬 스토리지 캐시 키
 const CACHE_KEY = 'blog_posts_cache';
@@ -200,6 +201,7 @@ export default function Blog() {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            <SEOHead title="블로그" description="시민법정 블로그 - 사법개혁, 참심제 관련 최신 소식과 분석 글" path="/blog" />
             <Header />
 
             {/* 메인 콘텐츠 */}

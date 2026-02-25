@@ -241,19 +241,15 @@ export default function BlogPost() {
         alert('링크가 복사되었습니다!\n카카오톡에 붙여넣기 해주세요.');
     };
 
-    // Facebook 공유 - 클립보드 복사 방식
+    // Facebook 공유
     const shareToFacebook = () => {
-        const shareText = `${post.title}\n${postUrl}`;
-        navigator.clipboard.writeText(shareText);
-        alert('링크가 복사되었습니다!\n페이스북에 붙여넣기 해주세요.');
-        window.open('https://www.facebook.com/', '_blank');
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`, '_blank', 'width=600,height=400');
     };
 
+    // X (Twitter) 공유
     const shareToTwitter = () => {
-        const tweetText = `${postText}\n\n${postUrl}\n\n#시민법정 #참심제 #사법개혁`;
-        navigator.clipboard.writeText(tweetText);
-        alert('텍스트가 복사되었습니다!\nX에서 붙여넣기 해주세요.');
-        window.open('https://x.com/', '_blank');
+        const tweetText = `${post.title} #시민법정 #참심제 #사법개혁`;
+        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(postUrl)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTelegram = () => {

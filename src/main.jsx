@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HelmetProvider } from 'react-helmet-async'
 import './index.css'
 
 // 홈페이지는 즉시 로드 (사용자가 가장 먼저 보는 페이지)
@@ -49,6 +50,7 @@ const PageLoader = () => (
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
+    <HelmetProvider>
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
         <Routes>
@@ -87,5 +89,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <FloatingChat />
       </Suspense>
     </BrowserRouter>
+    </HelmetProvider>
   </React.StrictMode>,
 )

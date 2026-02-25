@@ -2,6 +2,7 @@ import { useState, useEffect, Fragment } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 
 // 판결 데이터 (기본 fallback)
 const DEFAULT_VERDICTS = [
@@ -365,6 +366,7 @@ export default function InsurrectionTrialAnalysis() {
 
     return (
         <>
+            <SEOHead title="내란재판 분석" description="12.3 내란사건 재판 일정 및 진행 상황 분석" path="/trial-analysis" />
             <Header />
             <div className="bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen pt-24">
                 <div className="container mx-auto px-4 py-8 max-w-6xl">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import SEOHead from '../components/SEOHead';
 
 // 유럽 27개국 + 주요국 참심제/배심제 정보
 const EUROPE_JURY_DATA = [
@@ -303,6 +304,93 @@ const EUROPE_JURY_DATA = [
     },
 ];
 
+// 국가별 판결문 공개 사이트 (공식 사법기관 사이트 하위에 표시)
+const COURT_DECISION_SITES = {
+    '독일': [
+        { name: 'Rechtsprechung im Internet (연방 판례 데이터베이스)', url: 'https://www.rechtsprechung-im-internet.de', fee: '무료' },
+        { name: 'Bundesverfassungsgericht (연방헌법재판소 판결)', url: 'https://www.bundesverfassungsgericht.de/EN/Decisions/decisions_node.html', fee: '무료' },
+    ],
+    '프랑스': [
+        { name: 'Légifrance Jurisprudence (정부 공식 판례)', url: 'https://www.legifrance.gouv.fr/search/juri', fee: '일부무료', feeNote: '최고법원 무료 · 하급심 유료' },
+    ],
+    '이탈리아': [
+        { name: 'Italgiure Web (대법원 판례 검색)', url: 'https://www.italgiure.giustizia.it/sncass/', fee: '일부무료', feeNote: '사법부 직원 무료 · 일반 구독 필요' },
+    ],
+    '스웨덴': [
+        { name: 'Högsta domstolen Precedents (대법원 선례)', url: 'https://www.domstol.se/en/supreme-court/precedents/', fee: '일부무료', feeNote: '선례만 무료' },
+        { name: 'Högsta förvaltningsdomstolen (최고행정법원 판결)', url: 'https://www.domstol.se/en/supreme-administrative-court/rulings/', fee: '일부무료', feeNote: '선례만 무료' },
+    ],
+    '노르웨이': [
+        { name: 'Lovdata (법률·판례 공개 포털)', url: 'https://lovdata.no/info/information-in-english', fee: '일부무료', feeNote: '2008년 이후만 무료' },
+    ],
+    '덴마크': [
+        { name: 'Domsdatabasen (판결 데이터베이스)', url: 'https://domsdatabasen.dk/', fee: '무료' },
+    ],
+    '핀란드': [
+        { name: 'Finlex Oikeuskäytäntö (판례 검색)', url: 'https://finlex.fi/fi/oikeus/', fee: '무료' },
+    ],
+    '오스트리아': [
+        { name: 'RIS Judikatur (법률정보시스템 판례)', url: 'https://www.ris.bka.gv.at/Jus/', fee: '무료' },
+    ],
+    '벨기에': [
+        { name: 'Juportal (사법 포털 판례 검색)', url: 'https://juportal.be/', fee: '무료' },
+    ],
+    '스페인': [
+        { name: 'CENDOJ (사법문서센터 판례 검색)', url: 'https://www.poderjudicial.es/search/indexAN.jsp', fee: '무료' },
+    ],
+    '포르투갈': [
+        { name: 'DGSI (사법총국 판례 데이터베이스)', url: 'http://www.dgsi.pt/', fee: '무료' },
+    ],
+    '그리스': [
+        { name: 'Areios Pagos (대법원 판결)', url: 'https://www.areiospagos.gr/', fee: '무료' },
+    ],
+    '폴란드': [
+        { name: 'Portal Orzeczeń (법원 판결 포털)', url: 'https://orzeczenia.ms.gov.pl/', fee: '무료' },
+    ],
+    '체코': [
+        { name: 'Nejvyšší soud Judikatura (대법원 판례)', url: 'https://nsoud.cz/Judikatura/judikatura_ns.nsf/', fee: '무료' },
+    ],
+    '헝가리': [
+        { name: 'Bírósági Határozatok (법원 판결 모음)', url: 'https://birosag.hu/birosagi-hatarozatok-gyujtemenye', fee: '무료' },
+    ],
+    '슬로바키아': [
+        { name: 'Otvorené Súdy (공개 법원 판결)', url: 'https://otvorenesudy.sk/', fee: '무료' },
+    ],
+    '슬로베니아': [
+        { name: 'Sodna Praksa (판례 데이터베이스)', url: 'https://www.sodnapraksa.si/', fee: '무료' },
+    ],
+    '크로아티아': [
+        { name: 'SuPra (대법원 판례 검색)', url: 'https://sudskapraksa.csp.vsrh.hr/', fee: '무료' },
+    ],
+    '불가리아': [
+        { name: 'VKS Практика (대법원 판례)', url: 'https://www.vks.bg/praktikata-na-vks.html', fee: '무료' },
+    ],
+    '루마니아': [
+        { name: 'ICCJ Jurisprudență (고등사법원 판례)', url: 'https://www.scj.ro/', fee: '무료' },
+    ],
+    '아일랜드': [
+        { name: 'Courts.ie Judgments (법원 판결 검색)', url: 'https://www.courts.ie/judgments', fee: '무료' },
+    ],
+    '몰타': [
+        { name: 'eCourts (전자법원 판결 검색)', url: 'https://ecourts.gov.mt/onlineservices/', fee: '무료' },
+    ],
+    '키프로스': [
+        { name: 'CyLaw (키프로스 법률·판례)', url: 'http://www.cylaw.org/', fee: '무료' },
+    ],
+    '에스토니아': [
+        { name: 'Riigi Teataja Kohtulahendid (판례 검색)', url: 'https://www.riigiteataja.ee/kohtulahendid/kohtulahendid.html', fee: '무료' },
+    ],
+    '라트비아': [
+        { name: 'Tiesas.lv Nolēmumi (법원 판결)', url: 'https://www.tiesas.lv/nolemumi', fee: '무료' },
+    ],
+    '리투아니아': [
+        { name: 'LITEKO (법원 판결 검색 시스템)', url: 'https://liteko.teismai.lt/viesasprendimupaieska/detalipaieska.aspx', fee: '무료' },
+    ],
+    '룩셈부르크': [
+        { name: 'Legilux Jurisprudence (법률·판례 포털)', url: 'https://legilux.public.lu/', fee: '무료' },
+    ],
+};
+
 // 시스템 타입별 색상
 const getSystemColor = (systemType) => {
     switch (systemType) {
@@ -365,6 +453,7 @@ export default function EuropeJurySystem() {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            <SEOHead title="유럽 참심제" description="독일, 프랑스, 핀란드, 스웨덴 등 유럽 각국의 참심제 운영 사례와 비교 분석" path="/europe-jury" />
             {/* 네비게이션 헤더 */}
             <header className="bg-white shadow-md fixed top-0 w-full z-50">
                 <div className="container mx-auto px-4">
@@ -667,7 +756,7 @@ export default function EuropeJurySystem() {
                                             </div>
 
                                             {item.website && (
-                                                <div className="mt-3 pt-3 border-t">
+                                                <div className="mt-3 pt-3 border-t space-y-2">
                                                     <a
                                                         href={item.website}
                                                         target="_blank"
@@ -681,6 +770,34 @@ export default function EuropeJurySystem() {
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                                         </svg>
                                                     </a>
+                                                    {/* 판결문 공개 사이트 */}
+                                                    {COURT_DECISION_SITES[item.country]?.map((site, si) => (
+                                                        <div key={si} className="flex items-center gap-2">
+                                                            <a
+                                                                href={site.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                onClick={(e) => e.stopPropagation()}
+                                                                className="flex items-center gap-2 text-sm text-emerald-600 hover:text-emerald-800 font-medium"
+                                                            >
+                                                                <span>📄</span>
+                                                                <span>{site.name}</span>
+                                                                <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                                </svg>
+                                                            </a>
+                                                            <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
+                                                                site.fee === '무료' ? 'bg-green-100 text-green-700' :
+                                                                site.fee === '일부무료' ? 'bg-yellow-100 text-yellow-700' :
+                                                                'bg-red-100 text-red-700'
+                                                            }`}>
+                                                                {site.fee}
+                                                            </span>
+                                                            {site.feeNote && (
+                                                                <span className="text-xs text-gray-400">({site.feeNote})</span>
+                                                            )}
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             )}
                                         </div>
@@ -722,6 +839,117 @@ export default function EuropeJurySystem() {
                                 <li>• 주로 영미법 국가에서 채택</li>
                                 <li>• 미국, 영국, 아일랜드 등</li>
                             </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* 판결문 공개와 시민의 알 권리 */}
+            <section className="py-14 bg-white">
+                <div className="container mx-auto px-4 max-w-5xl">
+                    <h2 className="text-2xl font-bold mb-2 text-center">📄 판결문 공개와 시민의 알 권리</h2>
+                    <p className="text-center text-gray-500 mb-10 text-sm">왜 판결문은 무료로 공개되어야 하는가?</p>
+
+                    <div className="grid md:grid-cols-3 gap-6 mb-10">
+                        {/* 카드 1: 알 권리 */}
+                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100 shadow-sm">
+                            <div className="text-3xl mb-3">🔍</div>
+                            <h3 className="text-lg font-bold text-blue-800 mb-3">시민의 알 권리</h3>
+                            <p className="text-sm text-gray-700 leading-relaxed">
+                                판결문은 <strong>국민의 이름으로</strong> 선고됩니다. 재판 결과를 시민이 자유롭게 열람할 수 있는 것은 민주주의의 기본 원칙이며,
+                                <strong>사법부에 대한 민주적 통제</strong>의 전제 조건입니다.
+                            </p>
+                            <div className="mt-4 pt-3 border-t border-blue-100">
+                                <p className="text-xs text-blue-600 font-semibold">유럽인권재판소 판례</p>
+                                <p className="text-xs text-gray-500 mt-1">"사법 정의는 공개적으로 행해져야 할 뿐 아니라, 공개적으로 행해지는 것이 보여야 한다"</p>
+                            </div>
+                        </div>
+
+                        {/* 카드 2: 사법 투명성 */}
+                        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-xl border border-emerald-100 shadow-sm">
+                            <div className="text-3xl mb-3">⚖️</div>
+                            <h3 className="text-lg font-bold text-emerald-800 mb-3">사법 투명성</h3>
+                            <p className="text-sm text-gray-700 leading-relaxed">
+                                판결문 공개는 판사의 <strong>양형 일관성</strong>을 검증하고, 유사 사건 간 <strong>형평성</strong>을 확인하는 유일한 수단입니다.
+                                비공개 사법은 권력 남용과 부패의 온상이 됩니다.
+                            </p>
+                            <div className="mt-4 pt-3 border-t border-emerald-100">
+                                <p className="text-xs text-emerald-600 font-semibold">EU 사법위원회 권고</p>
+                                <p className="text-xs text-gray-500 mt-1">"판결문 전면 공개는 사법 신뢰의 핵심 인프라이며, 모든 회원국의 의무"</p>
+                            </div>
+                        </div>
+
+                        {/* 카드 3: 법적 평등 */}
+                        <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-xl border border-amber-100 shadow-sm">
+                            <div className="text-3xl mb-3">👥</div>
+                            <h3 className="text-lg font-bold text-amber-800 mb-3">법적 평등과 접근성</h3>
+                            <p className="text-sm text-gray-700 leading-relaxed">
+                                판결문이 <strong>유료</strong>이면 경제력에 따라 법적 정보 접근이 달라집니다.
+                                무료 공개는 <strong>법 앞의 평등</strong>을 실현하고, 시민이 자신의 권리를 스스로 확인할 수 있게 합니다.
+                            </p>
+                            <div className="mt-4 pt-3 border-t border-amber-100">
+                                <p className="text-xs text-amber-600 font-semibold">독일 연방사법부</p>
+                                <p className="text-xs text-gray-500 mt-1">"모든 연방법원 판결을 인터넷에서 무료로 제공하는 것은 법치국가의 당연한 의무"</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 한국 vs 유럽 비교 */}
+                    <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200">
+                        <h3 className="text-lg font-bold text-center mb-6">🇰🇷 한국 vs 🇪🇺 유럽 — 판결문 공개 비교</h3>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div className="bg-white rounded-xl p-5 border-l-4 border-red-400">
+                                <h4 className="font-bold text-red-700 mb-3 flex items-center gap-2">
+                                    <span className="text-lg">🇰🇷</span> 대한민국 현황
+                                </h4>
+                                <ul className="space-y-2 text-sm text-gray-700">
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-red-400 mt-0.5">✕</span>
+                                        <span>대법원 판결만 선별 공개 (전체의 <strong>약 5%</strong>)</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-red-400 mt-0.5">✕</span>
+                                        <span>1·2심 판결문은 <strong>당사자만</strong> 열람 가능</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-red-400 mt-0.5">✕</span>
+                                        <span>판결문 검색 시스템 <strong>미비</strong></span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-red-400 mt-0.5">✕</span>
+                                        <span>양형 편차 검증 <strong>불가능</strong></span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div className="bg-white rounded-xl p-5 border-l-4 border-green-400">
+                                <h4 className="font-bold text-green-700 mb-3 flex items-center gap-2">
+                                    <span className="text-lg">🇪🇺</span> 유럽 주요국
+                                </h4>
+                                <ul className="space-y-2 text-sm text-gray-700">
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-green-500 mt-0.5">✓</span>
+                                        <span>독일 · 핀란드 · 오스트리아 등 <strong>전면 무료 공개</strong></span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-green-500 mt-0.5">✓</span>
+                                        <span>1심부터 대법원까지 <strong>모든 심급</strong> 검색 가능</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-green-500 mt-0.5">✓</span>
+                                        <span><strong>통합 검색 시스템</strong>으로 누구나 접근</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-green-500 mt-0.5">✓</span>
+                                        <span>판사별 양형 패턴 <strong>시민 검증</strong> 가능</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div className="mt-6 text-center">
+                            <p className="text-sm text-gray-500">
+                                유럽 27개국 중 <strong className="text-green-600">22개국</strong>이 판결문을 완전 무료로 공개하고 있습니다.
+                                한국은 OECD 국가 중 판결문 공개율이 <strong className="text-red-500">최하위 수준</strong>입니다.
+                            </p>
                         </div>
                     </div>
                 </div>

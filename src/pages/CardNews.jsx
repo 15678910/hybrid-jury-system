@@ -111,18 +111,13 @@ export default function CardNews() {
 
     const shareToFacebook = (card) => {
         const cardUrl = `https://xn--lg3b0kt4n41f.kr/cardnews?id=${card.id}`;
-        const shareText = `${card.title}\n${cardUrl}`;
-        navigator.clipboard.writeText(shareText);
-        alert('링크가 복사되었습니다!\n페이스북에 붙여넣기 해주세요.');
-        window.open('https://www.facebook.com/', '_blank');
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(cardUrl)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTwitter = (card) => {
         const cardUrl = `https://xn--lg3b0kt4n41f.kr/cardnews?id=${card.id}`;
-        const tweetText = `${card.title}\n\n${cardUrl}\n\n#시민법정 #참심제 #사법개혁`;
-        navigator.clipboard.writeText(tweetText);
-        alert('텍스트가 복사되었습니다!\nX에서 붙여넣기 해주세요.');
-        window.open('https://x.com/', '_blank');
+        const tweetText = `${card.title} #시민법정 #참심제 #사법개혁`;
+        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(cardUrl)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToInstagram = (card) => {

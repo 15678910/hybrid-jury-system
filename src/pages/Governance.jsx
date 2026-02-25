@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { collection, addDoc, getDocs, query, orderBy, doc, updateDoc, increment, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { onAuthChange } from '../lib/auth';
+import SEOHead from '../components/SEOHead';
 
 // 관리자 작성자 코드 (환경변수에서 가져옴)
 const getAdminWriterCodes = () => {
@@ -799,6 +800,7 @@ export default function Governance() {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
+            <SEOHead title="시민 의사결정" description="시민법정 거버넌스 - 시민 제안, 투표, 의사결정 참여" path="/governance" />
             {/* 헤더 - App.jsx와 동일한 스타일 */}
             <header className="bg-white shadow-md fixed top-0 w-full z-50">
                 <div className="container mx-auto px-4">

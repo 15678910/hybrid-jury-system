@@ -338,14 +338,11 @@ export default function LawDatabase() {
         alert('링크가 복사되었습니다!');
     };
     const shareToFacebook = () => {
-        navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-        alert('링크가 복사되었습니다!\n페이스북에 붙여넣기 해주세요.');
-        window.open('https://www.facebook.com/', '_blank');
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank', 'width=600,height=400');
     };
     const shareToTwitter = () => {
-        navigator.clipboard.writeText(`${shareText}\n\n${shareUrl}\n\n#시민법정 #내란죄 #사법개혁`);
-        alert('텍스트가 복사되었습니다!\nX에서 붙여넣기 해주세요.');
-        window.open('https://x.com/', '_blank');
+        const text = shareText + ' #시민법정 #내란죄 #사법개혁';
+        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`, '_blank', 'width=600,height=400');
     };
     const shareToTelegram = () => {
         const urlWithCache = `${shareUrl}?t=${Date.now()}`;

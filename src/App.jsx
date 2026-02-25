@@ -8,6 +8,8 @@ import LoginModal from './components/LoginModal';
 import { onAuthChange, signOut as authSignOut, getUserInfo, checkUserSignature, checkGoogleRedirectResult, checkKakaoRedirectResult } from './lib/auth';
 import { fetchAllNews, cleanTitle, formatDate } from './lib/news';
 import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, LinkedInIcon } from './components/icons';
+import { trackSignatureComplete, trackShare, trackTelegramJoin } from './lib/analytics';
+import { requestPushPermission, isPushSupported, getPushPermissionStatus } from './lib/pushNotification';
 
 // 이름 표시 함수 (전체 이름 공개)
 const maskName = (name) => {
@@ -43,6 +45,7 @@ export default function App() {
         address: '',
         talent: '',
         phone: '',
+        email: '',
         sns: [],
         addressVerified: false // Daum API로 입력된 주소인지 확인
     });
@@ -61,6 +64,19 @@ export default function App() {
     const [mediaDropdownOpen, setMediaDropdownOpen] = useState(false);
     const [introDropdownOpen, setIntroDropdownOpen] = useState(false);
     const [casesDropdownOpen, setCasesDropdownOpen] = useState(false);
+
+    // 푸시 알림 상태
+    const [isPushAvailable] = useState(() => isPushSupported());
+    const [pushPermission, setPushPermission] = useState(() => getPushPermissionStatus());
+
+    const handlePushSubscribe = async () => {
+        const token = await requestPushPermission();
+        if (token) {
+            setPushPermission('granted');
+        } else {
+            setPushPermission(getPushPermissionStatus());
+        }
+    };
 
     // 최신 블로그 글 상태
     const [latestPosts, setLatestPosts] = useState([]);
@@ -690,6 +706,7 @@ export default function App() {
             const newSignature = {
                 ...dataToSave,
                 phone: phoneClean, // 정규화된 전화번호 저장
+                email: formData.email?.trim() || null, // 뉴스레터용 이메일 (선택)
                 timestamp: new Date().toISOString(),
                 // 로그인 정보 추가
                 userId: user?.uid || null,
@@ -723,6 +740,7 @@ export default function App() {
                 address: '',
                 talent: '',
                 phone: '',
+                email: '',
                 sns: [],
                 addressVerified: false
             });
@@ -754,6 +772,13 @@ export default function App() {
                 selectedSns: savedSignature.sns
             });
             setShowSuccessModal(true);
+
+            // GA4 전환 이벤트 추적
+            trackSignatureComplete({
+                type: savedSignature.type,
+                sns: savedSignature.sns,
+                total: newTotal
+            });
         } catch (error) {
             console.error('Error saving signature:', error);
             alert('서명 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
@@ -770,23 +795,26 @@ export default function App() {
         const url = 'https://시민법정.kr';
         const text = '주권자에 의한 시민법관 참심제! 함께해주세요.';
         window.open('https://story.kakao.com/share?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text), '_blank', 'width=600,height=400');
+        trackShare('kakao', 'homepage', '시민법정 홈');
     };
 
     const shareToFacebook = () => {
         const url = 'https://시민법정.kr';
         window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank', 'width=600,height=400');
+        trackShare('facebook', 'homepage', '시민법정 홈');
     };
 
     const shareToTwitter = () => {
-        const text = '주권자에 의한 시민법관 참심제! 함께해주세요.\n\nhttps://시민법정.kr\n\n#시민법정 #참심제 #사법개혁';
-        navigator.clipboard.writeText(text);
-        alert('텍스트가 복사되었습니다!\nX에서 붙여넣기 해주세요.');
-        window.open('https://x.com/', '_blank');
+        const url = 'https://시민법정.kr';
+        const text = '주권자에 의한 시민법관 참심제! 함께해주세요. #시민법정 #참심제 #사법개혁';
+        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
+        trackShare('x', 'homepage', '시민법정 홈');
     };
 
     const shareToInstagram = () => {
         navigator.clipboard.writeText('주권자에 의한 시민법관 참심제! https://시민법정.kr');
         alert('텍스트가 복사되었습니다! 인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
+        trackShare('instagram', 'homepage', '시민법정 홈');
     };
 
     return (
@@ -1190,6 +1218,58 @@ export default function App() {
                                 </div>
                             </div>
 
+                            {/* 친구 초대 */}
+                            <div className="mb-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+                                <h3 className="text-base font-bold text-green-800 mb-2 text-center">
+                                    친구에게도 알려주세요!
+                                </h3>
+                                <p className="text-xs text-green-600 text-center mb-3">
+                                    더 많은 시민이 함께할수록 사법개혁이 빨라집니다
+                                </p>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => {
+                                            const text = `시민법관 참심제 도입에 ${successData.total.toLocaleString()}명이 참여했습니다! 함께해주세요.\nhttps://시민법정.kr?ref=invite`;
+                                            window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'width=600,height=400');
+                                            trackShare('x', 'referral', '친구초대');
+                                        }}
+                                        className="flex-1 py-2.5 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition flex items-center justify-center gap-1"
+                                    >
+                                        <XIcon className="w-4 h-4" /> X 공유
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const url = 'https://시민법정.kr?ref=invite';
+                                            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
+                                            trackShare('facebook', 'referral', '친구초대');
+                                        }}
+                                        className="flex-1 py-2.5 bg-[#1877F2] text-white rounded-lg text-sm font-medium hover:bg-[#166FE5] transition flex items-center justify-center gap-1"
+                                    >
+                                        <FacebookIcon className="w-4 h-4" /> 페이스북
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const text = `시민법관 참심제 도입에 ${successData.total.toLocaleString()}명이 참여했습니다! 함께해주세요.\nhttps://시민법정.kr?ref=invite`;
+                                            window.open(`https://t.me/share/url?url=${encodeURIComponent('https://시민법정.kr?ref=invite')}&text=${encodeURIComponent(text)}`, '_blank', 'width=600,height=400');
+                                            trackShare('telegram', 'referral', '친구초대');
+                                        }}
+                                        className="flex-1 py-2.5 bg-[#0088cc] text-white rounded-lg text-sm font-medium hover:bg-[#0077b5] transition flex items-center justify-center gap-1"
+                                    >
+                                        <TelegramIcon className="w-4 h-4" /> 텔레그램
+                                    </button>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(`시민법관 참심제 도입에 함께해주세요! https://시민법정.kr?ref=invite`);
+                                        alert('초대 링크가 복사되었습니다! 친구에게 공유해주세요.');
+                                        trackShare('copy_link', 'referral', '친구초대');
+                                    }}
+                                    className="w-full mt-2 py-2 bg-white border border-green-300 text-green-700 rounded-lg text-sm hover:bg-green-50 transition"
+                                >
+                                    📋 초대 링크 복사
+                                </button>
+                            </div>
+
                             {/* 닫기 버튼 */}
                             <button
                                 onClick={() => setShowSuccessModal(false)}
@@ -1453,6 +1533,25 @@ export default function App() {
                                         <div className="text-gray-700">재판부 구성원 3분의 2 이상의 다수결로 결정. 직업법관만으로는 유죄 판결이 불가능한 구조.</div>
                                     </div>
                                 </div>
+                                <div className="mt-6 pt-4 border-t border-gray-200">
+                                    <p className="text-xs font-bold text-gray-500 mb-2">📄 판결문 공개 사이트</p>
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center gap-1.5">
+                                            <a href="https://www.rechtsprechung-im-internet.de" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-800">
+                                                📄 Rechtsprechung im Internet (연방 판례 데이터베이스)
+                                                <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                            </a>
+                                            <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-green-100 text-green-700">무료</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <a href="https://www.bundesverfassungsgericht.de/EN/Decisions/decisions_node.html" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-800">
+                                                📄 Bundesverfassungsgericht (연방헌법재판소 판결)
+                                                <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                            </a>
+                                            <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-green-100 text-green-700">무료</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
@@ -1479,7 +1578,19 @@ export default function App() {
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">평결:</div>
                                         <div className="text-gray-700">1심: 단순 다수결, 참심원 우위 가능</div>
                                     </div>
-
+                                </div>
+                                <div className="mt-6 pt-4 border-t border-gray-200">
+                                    <p className="text-xs font-bold text-gray-500 mb-2">📄 판결문 공개 사이트</p>
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center gap-1.5">
+                                            <a href="https://www.domstol.se/en/supreme-court/precedents/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-800">
+                                                📄 Högsta domstolen Precedents (대법원 선례)
+                                                <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                            </a>
+                                            <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">일부무료</span>
+                                            <span className="text-xs text-gray-400">(선례만 무료)</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -1506,6 +1617,18 @@ export default function App() {
                                     <div className="flex">
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">평결:</div>
                                         <div className="text-gray-700">단순 다수결 (참심원이 다수를 이루어 시민 우위 가능)</div>
+                                    </div>
+                                </div>
+                                <div className="mt-6 pt-4 border-t border-gray-200">
+                                    <p className="text-xs font-bold text-gray-500 mb-2">📄 판결문 공개 사이트</p>
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center gap-1.5">
+                                            <a href="https://finlex.fi/fi/oikeus/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-800">
+                                                📄 Finlex Oikeuskäytäntö (판례 검색)
+                                                <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                            </a>
+                                            <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-green-100 text-green-700">무료</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1535,6 +1658,19 @@ export default function App() {
                                         <div className="text-gray-700">사건 유형에 따라 다수결 또는 특별다수결</div>
                                     </div>
                                 </div>
+                                <div className="mt-6 pt-4 border-t border-gray-200">
+                                    <p className="text-xs font-bold text-gray-500 mb-2">📄 판결문 공개 사이트</p>
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center gap-1.5">
+                                            <a href="https://lovdata.no/info/information-in-english" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-800">
+                                                📄 Lovdata (법률·판례 공개 포털)
+                                                <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                            </a>
+                                            <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">일부무료</span>
+                                            <span className="text-xs text-gray-400">(2008년 이후만 무료)</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
@@ -1561,7 +1697,19 @@ export default function App() {
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">평결:</div>
                                         <div className="text-gray-700">특별다수결 (유죄 판결에 높은 합의 요구)</div>
                                     </div>
-
+                                </div>
+                                <div className="mt-6 pt-4 border-t border-gray-200">
+                                    <p className="text-xs font-bold text-gray-500 mb-2">📄 판결문 공개 사이트</p>
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center gap-1.5">
+                                            <a href="https://www.legifrance.gouv.fr/search/juri" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-800">
+                                                📄 Légifrance Jurisprudence (정부 공식 판례)
+                                                <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                            </a>
+                                            <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">일부무료</span>
+                                            <span className="text-xs text-gray-400">(최고법원 무료 · 하급심 유료)</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -1590,6 +1738,18 @@ export default function App() {
                                         <div className="text-gray-700">배심: 특별다수결(8+), 참심: 다수결</div>
                                     </div>
                                 </div>
+                                <div className="mt-6 pt-4 border-t border-gray-200">
+                                    <p className="text-xs font-bold text-gray-500 mb-2">📄 판결문 공개 사이트</p>
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center gap-1.5">
+                                            <a href="https://domsdatabasen.dk/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-800">
+                                                📄 Domsdatabasen (판결 데이터베이스)
+                                                <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                            </a>
+                                            <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-green-100 text-green-700">무료</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
@@ -1616,7 +1776,25 @@ export default function App() {
                                         <div className="font-bold text-gray-800 w-24 flex-shrink-0">평결:</div>
                                         <div className="text-gray-700">다수결 (단, 각 그룹에서 최소 1인 이상 찬성 필요)</div>
                                     </div>
-
+                                </div>
+                                <div className="mt-6 pt-4 border-t border-gray-200">
+                                    <p className="text-xs font-bold text-gray-500 mb-2">📄 판결문 공개 사이트</p>
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center gap-1.5">
+                                            <a href="https://www.courts.go.jp/app/hanrei_jp/search1" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-800">
+                                                📄 裁判所 判例検索 (재판소 판례 검색)
+                                                <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                            </a>
+                                            <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-green-100 text-green-700">무료</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <a href="https://www.courts.go.jp/english/Judgments/search/index.html" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-800">
+                                                📄 Courts.go.jp English Judgments (영문 판결)
+                                                <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                            </a>
+                                            <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-green-100 text-green-700">무료</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -1996,6 +2174,23 @@ export default function App() {
                                 <div ref={recaptchaContainerRef} id="recaptcha-container"></div>
                             </div>
 
+                            {/* 이메일 (선택) - 뉴스레터 수신용 */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    이메일 <span className="text-gray-400 font-normal">(선택 - 소식 수신용)</span>
+                                </label>
+                                <input
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                                    placeholder="example@email.com"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    판결 속보, 활동 소식 등을 이메일로 받아보실 수 있습니다.
+                                </p>
+                            </div>
+
                             {/* 하루 등록 한도 안내 */}
                             {isDailyLimitReached && (
                                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
@@ -2122,6 +2317,32 @@ export default function App() {
                                     <LinkedInIcon className="w-6 h-6 text-white" />
                                 </a>
                             </div>
+
+                            {/* 푸시 알림 구독 배너 */}
+                            {isPushAvailable && pushPermission !== 'granted' && pushPermission !== 'denied' && (
+                                <div className="mt-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-4 border border-indigo-200">
+                                    <div className="flex items-start gap-3">
+                                        <span className="text-2xl">🔔</span>
+                                        <div className="flex-1">
+                                            <h4 className="text-sm font-bold text-indigo-800 mb-1">판결 속보 알림 받기</h4>
+                                            <p className="text-xs text-indigo-600 mb-2">
+                                                내란재판 판결, 사법개혁 소식을 실시간으로 알려드립니다
+                                            </p>
+                                            <button
+                                                onClick={handlePushSubscribe}
+                                                className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition font-medium"
+                                            >
+                                                알림 받기
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            {pushPermission === 'granted' && (
+                                <div className="mt-6 bg-green-50 rounded-xl p-3 border border-green-200 text-center">
+                                    <span className="text-sm text-green-700">✅ 알림이 활성화되었습니다. 새 소식이 있으면 알려드릴게요!</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

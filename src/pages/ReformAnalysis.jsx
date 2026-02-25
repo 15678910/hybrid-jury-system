@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, LinkedInIcon } from '../components/icons';
 
 // 개혁안 뉴스 캐시 설정
@@ -1121,18 +1122,13 @@ export default function ReformAnalysis() {
 
     const shareToFacebook = () => {
         const url = getShareUrl();
-        const text = getShareText();
-        navigator.clipboard.writeText(`${text}\n${url}`);
-        alert('링크가 복사되었습니다!\n페이스북에 붙여넣기 해주세요.');
-        window.open('https://www.facebook.com/', '_blank');
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTwitter = () => {
         const url = getShareUrl();
-        const text = getShareText();
-        navigator.clipboard.writeText(`${text}\n\n${url}\n\n#시민법정 #참심제 #사법개혁`);
-        alert('텍스트가 복사되었습니다!\nX에서 붙여넣기 해주세요.');
-        window.open('https://x.com/', '_blank');
+        const text = getShareText() + ' #시민법정 #참심제 #사법개혁';
+        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTelegram = () => {
@@ -1176,6 +1172,7 @@ export default function ReformAnalysis() {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            <SEOHead title="사법개혁 분석" description="한국 사법제도 개혁 분석 - 참심제, 배심제, 국민참여재판 비교 분석" path="/reform-analysis" />
             <Header />
             <main className="pt-24 pb-16 px-4">
                 <div className="container mx-auto max-w-5xl">

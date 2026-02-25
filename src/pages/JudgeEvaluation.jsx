@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 import { JUDGES_DATA } from '../data/judges';
 
 // 카테고리 정의
@@ -25,6 +28,43 @@ export default function JudgeEvaluation() {
     const [selectedCategory, setSelectedCategory] = useState(
         categoryFromUrl?.startsWith('내란전담재판부') ? '내란전담재판부' : (categoryFromUrl || '헌법재판소')
     );
+    const [judgeScores, setJudgeScores] = useState({});
+
+    // Firestore에서 sentencingData 로드 → 판사별 동적 점수 집계
+    useEffect(() => {
+        const loadDynamicScores = async () => {
+            try {
+                const snapshot = await getDocs(collection(db, 'sentencingData'));
+                const scoreMap = {};
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const judgeName = data.judgeHistory?.judgeName;
+                    const integrity = data.claudePrediction?.judicialIntegrity?.integrityScore;
+                    if (judgeName && integrity) {
+                        if (!scoreMap[judgeName]) {
+                            scoreMap[judgeName] = { scores: [], defendantCount: 0 };
+                        }
+                        scoreMap[judgeName].scores.push(integrity);
+                        scoreMap[judgeName].defendantCount += 1;
+                    }
+                });
+                // 판사별 평균 점수 계산
+                const avgMap = {};
+                Object.entries(scoreMap).forEach(([name, { scores, defendantCount }]) => {
+                    avgMap[name] = {
+                        prosecution: Math.round(scores.reduce((s, v) => s + (v.prosecution || 0), 0) / scores.length),
+                        judiciary: Math.round(scores.reduce((s, v) => s + (v.judiciary || 0), 0) / scores.length),
+                        overall: Math.round(scores.reduce((s, v) => s + (v.overall || 0), 0) / scores.length),
+                        defendantCount,
+                    };
+                });
+                setJudgeScores(avgMap);
+            } catch (err) {
+                console.error('동적 점수 로드 에러:', err);
+            }
+        };
+        loadDynamicScores();
+    }, []);
 
     // 필터링된 판사 목록
     const filteredJudges = selectedCategory
@@ -35,6 +75,7 @@ export default function JudgeEvaluation() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900">
+            <SEOHead title="AI의 판사평가" description="AI가 평가하는 내란사건 재판부별 사법정의 평가 - 헌법재판소, 대법원, 내란전담재판부" path="/judge-evaluation" />
             <Header />
             <div className="pt-20 pb-12">
                 <div className="container mx-auto px-4 max-w-7xl">
@@ -110,6 +151,31 @@ export default function JudgeEvaluation() {
                                                 <div className="flex-1">
                                                     <h3 className="font-bold text-xl text-gray-900">{judge.name}</h3>
                                                     <p className="text-gray-500 text-sm">{judge.court}</p>
+                                                    {judge.justiceEvaluation && (
+                                                        <div className="flex items-center gap-1 mt-1">
+                                                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                                                                judge.justiceEvaluation.overallScore >= 70 ? 'bg-green-100 text-green-700' :
+                                                                judge.justiceEvaluation.overallScore >= 50 ? 'bg-yellow-100 text-yellow-700' :
+                                                                'bg-red-100 text-red-700'
+                                                            }`}>
+                                                                AI 종합 {judge.justiceEvaluation.overallScore}점
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    {judgeScores[judge.name] && (
+                                                        <div className="flex items-center gap-1 mt-1">
+                                                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
+                                                                judgeScores[judge.name].overall >= 70 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                                                judgeScores[judge.name].overall >= 50 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                                                'bg-rose-50 text-rose-700 border-rose-200'
+                                                            }`}>
+                                                                🔥 동적평가 {judgeScores[judge.name].overall}점
+                                                            </span>
+                                                            <span className="text-xs text-gray-400">
+                                                                (피고인 {judgeScores[judge.name].defendantCount}명)
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="space-y-2">
@@ -160,6 +226,31 @@ export default function JudgeEvaluation() {
                                                 <div className="flex-1">
                                                     <h3 className="font-bold text-xl text-gray-900">{judge.name}</h3>
                                                     <p className="text-gray-500 text-sm">{judge.court}</p>
+                                                    {judge.justiceEvaluation && (
+                                                        <div className="flex items-center gap-1 mt-1">
+                                                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                                                                judge.justiceEvaluation.overallScore >= 70 ? 'bg-green-100 text-green-700' :
+                                                                judge.justiceEvaluation.overallScore >= 50 ? 'bg-yellow-100 text-yellow-700' :
+                                                                'bg-red-100 text-red-700'
+                                                            }`}>
+                                                                AI 종합 {judge.justiceEvaluation.overallScore}점
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    {judgeScores[judge.name] && (
+                                                        <div className="flex items-center gap-1 mt-1">
+                                                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
+                                                                judgeScores[judge.name].overall >= 70 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                                                judgeScores[judge.name].overall >= 50 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                                                'bg-rose-50 text-rose-700 border-rose-200'
+                                                            }`}>
+                                                                🔥 동적평가 {judgeScores[judge.name].overall}점
+                                                            </span>
+                                                            <span className="text-xs text-gray-400">
+                                                                (피고인 {judgeScores[judge.name].defendantCount}명)
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="space-y-2">
@@ -218,6 +309,17 @@ export default function JudgeEvaluation() {
                                         <div className="flex-1">
                                             <h3 className="font-bold text-xl text-gray-900">{judge.name}</h3>
                                             <p className="text-gray-500 text-sm">{judge.court}</p>
+                                            {judge.justiceEvaluation && (
+                                                <div className="flex items-center gap-1 mt-1">
+                                                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                                                        judge.justiceEvaluation.overallScore >= 70 ? 'bg-green-100 text-green-700' :
+                                                        judge.justiceEvaluation.overallScore >= 50 ? 'bg-yellow-100 text-yellow-700' :
+                                                        'bg-red-100 text-red-700'
+                                                    }`}>
+                                                        AI 종합 {judge.justiceEvaluation.overallScore}점
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 

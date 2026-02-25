@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, LinkedInIcon } from '../components/icons';
 import { JUDGES_DATA } from '../data/judges';
 
@@ -28,6 +29,8 @@ const PERSON_PHOTOS = {
     '이상민': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/%EC%9D%B4%EC%83%81%EB%AF%BC_20220128.jpg/200px-%EC%9D%B4%EC%83%81%EB%AF%BC_20220128.jpg',
     '이완규': '/이완규.png',
     '이진우': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Lieutenant_General_Lee_Jin-woo.png/200px-Lieutenant_General_Lee_Jin-woo.png',
+    '전성배': '/전성배.png',
+    '정진석': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/%EC%A0%95%EC%A7%84%EC%84%9D_%EA%B5%AD%ED%9A%8C%EB%B6%80%EC%9D%98%EC%9E%A5%2C_%EA%B5%90%EC%9C%A1%EC%A0%95%EC%83%81%ED%99%94%ED%8A%B9%EC%9C%84%C2%B7%EC%B6%A9%EC%B2%AD%EB%B0%9C%EC%A0%84%ED%8A%B9%EC%9C%84_%EB%B0%9C%EB%8C%80%EC%8B%9D_%EC%B0%B8%EC%84%9D_3_%28cropped%29.jpg/200px-%EC%A0%95%EC%A7%84%EC%84%9D_%EA%B5%AD%ED%9A%8C%EB%B6%80%EC%9D%98%EC%9E%A5%2C_%EA%B5%90%EC%9C%A1%EC%A0%95%EC%83%81%ED%99%94%ED%8A%B9%EC%9C%84%C2%B7%EC%B6%A9%EC%B2%AD%EB%B0%9C%EC%A0%84%ED%8A%B9%EC%9C%84_%EB%B0%9C%EB%8C%80%EC%8B%9D_%EC%B0%B8%EC%84%9D_3_%28cropped%29.jpg',
     '조지호': '/조지호.png',
     '조태용': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Cho_Taeyong_in_2022_%28cropped%29.jpg/200px-Cho_Taeyong_in_2022_%28cropped%29.jpg',
     '최상목': '/최상목.png',
@@ -1943,6 +1946,261 @@ const personsData = {
             }
         ]
     },
+    '전성배': {
+        id: 'jeonseongbae',
+        name: '전성배',
+        position: '승려 (건진법사)',
+        status: '구속',
+        statusColor: 'red',
+        court: '서울중앙지방법원 형사합의33부',
+        judge: '이진관 부장판사',
+        verdictDate: '2026년 2월 24일',
+        charges: [
+            {
+                id: 1,
+                name: '알선수재',
+                law: '특정범죄가중처벌법',
+                description: '통일교 윤영호 세계본부장으로부터 샤넬백, 그라프 다이아몬드 목걸이 등 금품 수수 알선',
+                period: '2022.4 ~ 2022.7',
+                amount: '약 8,000만원 상당',
+                prosecutionRequest: '징역 5년',
+                verdict: '유죄 - 징역 6년 (구형 초과)',
+                reason: '윤석열 부부와 통일교 간 정교유착 초래, 헌법상 정교분리 원칙 위반'
+            },
+            {
+                id: 2,
+                name: '알선수재 (통일그룹 고문)',
+                law: '특정범죄가중처벌법',
+                description: '통일교로부터 "통일그룹 고문" 명목으로 금품 수수',
+                amount: '3,000만원',
+                prosecutionRequest: '징역 5년 (병합)',
+                verdict: '유죄 - 징역 6년 (병합)',
+                reason: '대통령 부부 지인 지위를 이용한 알선 행위'
+            },
+            {
+                id: 3,
+                name: '알선수재 (각종 기업 청탁)',
+                law: '특정범죄가중처벌법',
+                description: '각종 기업들로부터 청탁 대가로 금품 수수',
+                period: '2022.7 ~ 2025.1',
+                amount: '약 2억원 상당',
+                prosecutionRequest: '징역 5년 (병합)',
+                verdict: '유죄 - 징역 6년 (병합)',
+                reason: '반복적·상습적 알선수재 행위'
+            },
+            {
+                id: 4,
+                name: '정치자금법 위반',
+                law: '정치자금법',
+                description: '박창욱 경북도의원 후보 공천 청탁 대가 금품 수수',
+                amount: '1억원',
+                prosecutionRequest: '조사 중',
+                verdict: '무죄',
+                reason: '정치자금법 위반 혐의 불인정'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '징역 5년',
+            verdictTotal: '징역 6년 (구형 초과), 추징금 1억 8,079만원, 그라프 목걸이 몰수',
+            ratio: '구형 120% (구형 초과 선고)'
+        },
+        keyFacts: [
+            '윤석열 대통령 부부의 측근 승려 — "건진법사"로 알려진 인물',
+            '김건희와 공모하여 통일교로부터 샤넬백·다이아몬드 목걸이 등 수수',
+            '특검 구형 5년보다 1년 높은 징역 6년 선고 (이진관 재판부)',
+            '재판부: "윤석열 부부와 통일교 간 정교유착 결과 발생" 판시',
+            '김건희 재판에서 무죄 인정된 샤넬백 수수 건을 이 재판에서는 유죄 판단',
+            '서울중앙지법 형사합의33부 이진관 부장판사'
+        ],
+        sentencingGuidelines: [
+            {
+                crime: '알선수재 (특정범죄가중처벌법 위반)',
+                standardRange: '징역 5년~10년 (알선수재 5억 미만)',
+                aggravating: [
+                    '김건희와의 공모 — 대통령 배우자의 영향력을 직접 이용한 알선',
+                    '반복적·상습적 알선수재 (2022.4~2025.1, 약 3년간)',
+                    '수수 금품 규모 약 2억 8,000만원 상당 (특가법 적용)',
+                    '정교유착 초래 — 헌법상 정교분리 원칙 심대한 위반',
+                    '샤넬백·그라프 다이아몬드 등 고가 명품으로 수수 (뇌물 은폐 의도)'
+                ],
+                mitigating: [
+                    '내란 직접 가담 혐의 아님 (알선수재 별건)',
+                    '정치자금법 위반 혐의는 1심 무죄',
+                    '통일교 측의 적극적 로비가 범행 유발 요인'
+                ],
+                verdict: '유죄 — 징역 6년, 추징금 1억 8,079만원',
+                analysis: '특검 구형 5년을 초과하는 징역 6년 선고. 재판부는 정교유착의 중대성과 대통령 배우자 영향력 남용을 엄중히 판단'
+            },
+            {
+                crime: '정치자금법 위반',
+                standardRange: '징역 1년~3년 또는 벌금',
+                aggravating: [
+                    '통일교로부터 불법 정치자금 수수 의혹'
+                ],
+                mitigating: [
+                    '수수 경위에 대한 양측 진술 불일치',
+                    '직접적 대가관계 입증 미흡'
+                ],
+                verdict: '무죄',
+                analysis: '정치자금법 위반 혐의는 증거 부족으로 무죄 선고'
+            }
+        ],
+        judgeHistory: {
+            judgeName: '이진관',
+            court: '서울중앙지법 형사합의33부',
+            position: '부장판사',
+            notableRulings: [
+                '전성배 알선수재 징역 6년 선고 (구형 5년 초과)',
+                '엔시트론 대표 배임 사건 유죄 선고',
+                '건설사 횡령 사건 실형 선고'
+            ]
+        },
+        keyIssues: [
+            {
+                title: '구형 초과 선고의 의미',
+                description: '재판부가 특검 구형 5년보다 1년 높은 6년을 선고한 것은 범죄의 중대성을 검찰보다 더 엄중하게 본 것으로, 사법부의 독립적 양형 판단을 보여줌',
+                category: 'sentencing'
+            },
+            {
+                title: '김건희 재판과의 판단 차이',
+                description: '김건희 재판에서 무죄로 인정된 샤넬백 수수 건이 이 재판에서는 유죄로 판단되어, 같은 사실관계에 대한 재판부 간 판단 차이가 쟁점',
+                category: 'legal'
+            },
+            {
+                title: '정교유착과 헌법적 쟁점',
+                description: '재판부가 "윤석열 부부와 통일교 간 정교유착"을 명시적으로 인정한 것은 헌법 제20조 정교분리 원칙 위반의 사법적 확인이라는 의미',
+                category: 'constitutional'
+            },
+            {
+                title: '대통령 측근의 권력형 비리',
+                description: '대통령 부부의 사적 인맥이 공적 권력과 결합하여 부패를 초래한 전형적인 권력형 비리 사건으로, 향후 유사 사건의 양형 기준이 될 전망',
+                category: 'precedent'
+            }
+        ],
+        trialStatus: '1심 선고 완료 (2026.2.24), 항소 예정'
+    },
+    '정진석': {
+        id: 'jungjinseok',
+        name: '정진석',
+        position: '전 대통령비서실장',
+        status: '불구속',
+        statusColor: 'green',
+        court: '서울중앙지방법원',
+        charges: [
+            {
+                id: 1,
+                name: '직권남용',
+                law: '형법 제123조',
+                description: '헌법재판관 지명 과정에서 인사 검증 절차 무시, 졸속 지명',
+                prosecutionRequest: '조사 중',
+                verdict: '재판 진행 중',
+                reason: '-'
+            },
+            {
+                id: 2,
+                name: '공용전자기록 등 손상',
+                law: '형법 제141조',
+                description: '윤석열 파면 전후 대통령실 PC 약 1,000대 초기화 지시',
+                prosecutionRequest: '조사 중',
+                verdict: '재판 진행 중',
+                reason: '-'
+            },
+            {
+                id: 3,
+                name: '대통령기록물관리법 위반',
+                law: '대통령기록물관리법',
+                description: 'PC를 "제철소 용광로에 넣어 폐기하라" 지시 의혹',
+                prosecutionRequest: '조사 중',
+                verdict: '재판 진행 중',
+                reason: '-'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '재판 진행 중',
+            verdictTotal: '재판 진행 중',
+            ratio: '-'
+        },
+        keyFacts: [
+            '12.3 비상계엄 당일 국무회의에 국무위원 아닌 비서실장 신분으로 참석',
+            '윤석열에게 "계엄을 발동하시면 안 됩니다" 만류했으나 "이미 결심 섰다" 거절당함',
+            '이상민 재판에 증인 출석 — 계엄 전후 상황 증언',
+            '2025.12.11 내란특검, 한덕수·최상목 등과 함께 직권남용 혐의 기소',
+            '대통령실 PC 약 1,000대 초기화 지시 — "용광로 폐기" 진술 확보',
+            '2026.2.24 경찰 특수본, 증거인멸 혐의로 불구속 송치 (서울중앙지검)'
+        ],
+        sentencingGuidelines: [
+            {
+                crime: '증거인멸 (형법 제155조)',
+                standardRange: '징역 3년~7년 (직무 관련 증거인멸)',
+                aggravating: [
+                    '대통령비서실장 — 대통령실 최고위직으로서 헌정질서 수호 의무 위반',
+                    'PC 약 1,000대 초기화 지시 — 대규모 증거인멸 시도',
+                    '비상계엄 직후 대통령실 핵심 참모로서 사후 수습 관여'
+                ],
+                mitigating: [
+                    '불구속 상태 — 도주 우려 낮음',
+                    '직접적 내란 실행행위 아닌 사후 증거인멸 혐의',
+                    '대통령의 지시에 따른 업무 수행 주장'
+                ],
+                verdict: '재판 진행 중',
+                analysis: '대통령실 PC 약 1,000대 초기화가 의도적 증거인멸인지, 일상적 보안 절차인지가 핵심 쟁점'
+            },
+            {
+                crime: '대통령기록물관리법 위반',
+                standardRange: '징역 1년~5년',
+                aggravating: [
+                    '대통령기록물 무단 반출 — 국가기록 관리체계 파괴',
+                    '파면 전후 시점에 기록물 반출 시도'
+                ],
+                mitigating: [
+                    '비서실장 직위상 접근 권한 내 행위 주장'
+                ],
+                verdict: '재판 진행 중',
+                analysis: '대통령기록물의 범위와 반출 행위의 법적 정의가 쟁점'
+            },
+            {
+                crime: '직권남용 (형법 제123조)',
+                standardRange: '징역 2년~5년',
+                aggravating: [
+                    '헌법재판관 졸속 지명 과정 주도 — 탄핵심판에 영향 미칠 목적'
+                ],
+                mitigating: [
+                    '대통령의 헌법상 임명권 행사 보좌 주장'
+                ],
+                verdict: '재판 진행 중',
+                analysis: '비상계엄 상황에서 헌법재판관 졸속 지명이 직권남용에 해당하는지가 쟁점'
+            }
+        ],
+        judgeHistory: {
+            judgeName: '미정',
+            court: '서울중앙지방법원',
+            position: '미배당',
+            notableRulings: []
+        },
+        keyIssues: [
+            {
+                title: 'PC 1,000대 초기화의 증거인멸 해당 여부',
+                description: '대통령실 PC 대규모 초기화가 일상적 보안 절차인지, 의도적 증거인멸인지가 핵심 쟁점. 초기화 시점이 파면 전후라는 점이 불리하게 작용할 전망',
+                category: 'legal'
+            },
+            {
+                title: '대통령기록물관리법의 적용 범위',
+                description: '대통령기록물의 범위와 반출 행위의 법적 정의가 쟁점. 비서실장이 접근 권한 내에서 한 행위인지, 불법 반출인지 다투어질 것',
+                category: 'legal'
+            },
+            {
+                title: '헌법재판관 지명과 직권남용',
+                description: '비상계엄 상황에서 헌법재판관을 졸속 지명한 것이 직권남용에 해당하는지, 대통령의 헌법상 임명권 행사의 일환인지가 쟁점',
+                category: 'constitutional'
+            },
+            {
+                title: '한덕수·이상민 판결과의 연관성',
+                description: '한덕수 징역 23년, 이상민 징역 7년 등 내란 관련자 판결이 정진석의 양형에 미칠 영향. 비서실장 직위의 책임 수준이 국무총리와 장관 사이 어디에 위치하는지',
+                category: 'sentencing'
+            }
+        ],
+        trialStatus: '수사 및 기소 단계 (본격 공판 미개시)'
+    },
     '조지호': {
         id: 'jojiho',
         name: '조지호',
@@ -2172,18 +2430,13 @@ export default function SentencingAnalysis() {
 
     const shareToFacebook = () => {
         const url = getShareUrl(selectedPerson);
-        const text = getShareText(selectedPerson);
-        navigator.clipboard.writeText(`${text}\n${url}`);
-        alert('링크가 복사되었습니다!\n페이스북에 붙여넣기 해주세요.');
-        window.open('https://www.facebook.com/', '_blank');
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTwitter = () => {
         const url = getShareUrl(selectedPerson);
-        const text = getShareText(selectedPerson);
-        navigator.clipboard.writeText(`${text}\n\n${url}\n\n#시민법정 #참심제 #사법개혁 #내란`);
-        alert('텍스트가 복사되었습니다!\nX에서 붙여넣기 해주세요.');
-        window.open('https://x.com/', '_blank');
+        const text = getShareText(selectedPerson) + ' #시민법정 #내란재판 #양형분석';
+        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTelegram = () => {
@@ -2372,6 +2625,7 @@ export default function SentencingAnalysis() {
     if (!selectedPerson) {
         return (
             <div className="min-h-screen bg-gray-50">
+                <SEOHead title="내란재판 AI 양형분석" description="AI가 분석하는 내란사건 피고인별 양형 예측과 판결 분석 - 윤석열, 한덕수, 이상민 등 25명" path="/sentencing-analysis" />
                 <Header />
                 <main className="pt-24 pb-16 px-4">
                     <div className="container mx-auto max-w-4xl">
@@ -2848,6 +3102,12 @@ export default function SentencingAnalysis() {
                                             <p className="text-xl font-bold text-gray-900">{person.judgeHistory.judgeName} 부장판사</p>
                                             <p className="text-gray-500">{judgeFromDB?.position || person.judgeHistory.position}</p>
                                             {judgeFromDB?.court && <p className="text-sm text-gray-400">{judgeFromDB.court}</p>}
+                                            {judgeFromDB?.id && (
+                                                <Link to={`/judge/${judgeFromDB.id}`} className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-medium hover:bg-indigo-100 transition">
+                                                    AI 판사 평가 보기
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                                                </Link>
+                                            )}
                                         </div>
                                     </div>
                                     {/* 경력사항 */}
@@ -2867,6 +3127,68 @@ export default function SentencingAnalysis() {
                                     <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">{person.judgeHistory.profile}</p>
                                 </div>
                             </div>
+
+                            {/* AI 사법정의 평가 점수 */}
+                            {judgeFromDB?.justiceEvaluation && (
+                                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                                    <div className="p-4 bg-purple-50 border-b">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="font-bold text-gray-900">🔍 AI 사법정의 평가</h3>
+                                            <span className="text-xs text-purple-500">판사평가 연동</span>
+                                        </div>
+                                    </div>
+                                    <div className="p-4">
+                                        {/* 점수 카드 */}
+                                        <div className="grid grid-cols-3 gap-3 mb-4">
+                                            {[
+                                                { label: '검찰 공정성', score: judgeFromDB.justiceEvaluation.prosecutionScore },
+                                                { label: '재판부 공정성', score: judgeFromDB.justiceEvaluation.courtScore },
+                                                { label: '종합 평가', score: judgeFromDB.justiceEvaluation.overallScore }
+                                            ].map((item, idx) => (
+                                                <div key={idx} className="text-center p-3 bg-gray-50 rounded-lg">
+                                                    <p className="text-xs text-gray-500 mb-1">{item.label}</p>
+                                                    <p className={`text-2xl font-bold ${
+                                                        item.score >= 70 ? 'text-green-600' :
+                                                        item.score >= 50 ? 'text-yellow-600' :
+                                                        'text-red-600'
+                                                    }`}>
+                                                        {item.score}<span className="text-xs text-gray-400">/100</span>
+                                                    </p>
+                                                    <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                                        <div
+                                                            className={`h-1.5 rounded-full ${
+                                                                item.score >= 70 ? 'bg-green-500' :
+                                                                item.score >= 50 ? 'bg-yellow-500' :
+                                                                'bg-red-500'
+                                                            }`}
+                                                            style={{ width: `${item.score}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {/* 평가 요약 */}
+                                        <p className="text-sm text-gray-700 leading-relaxed mb-3">{judgeFromDB.justiceEvaluation.summary}</p>
+                                        {/* 주요 이슈 미리보기 (최대 3건) */}
+                                        {judgeFromDB.justiceEvaluation.issues?.slice(0, 3).map((issue, idx) => (
+                                            <div key={idx} className={`text-sm p-2 rounded mb-1 ${
+                                                issue.category === '검찰' ? 'bg-red-50 text-red-800' : 'bg-yellow-50 text-yellow-800'
+                                            }`}>
+                                                <span className="font-medium">{issue.category === '검찰' ? '📋' : '⚖️'} {issue.title}</span>
+                                            </div>
+                                        ))}
+                                        {/* 상세보기 링크 */}
+                                        {judgeFromDB.id && (
+                                            <Link
+                                                to={`/judge/${judgeFromDB.id}`}
+                                                className="mt-3 inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                                            >
+                                                판사 상세 평가 전체보기 →
+                                            </Link>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* 주요 판결 이력 - judges.js 데이터 우선 */}
                             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -3128,7 +3450,7 @@ export default function SentencingAnalysis() {
 
                     {activeTab === 'aiPrediction' && (
                         <div className="space-y-6">
-                            {/* AI 모델 선택 */}
+                            {/* AI 모델 선택 — 데이터 있는 모델만 활성화 */}
                             <div className="flex items-center justify-center gap-2 bg-white rounded-xl shadow-sm p-3">
                                 <span className="text-sm text-gray-500 mr-2">AI 모델:</span>
                                 <button
