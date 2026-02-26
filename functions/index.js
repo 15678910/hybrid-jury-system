@@ -2576,19 +2576,29 @@ exports.sentencingAnalysisPage = functions.https.onRequest(async (req, res) => {
     const isCrawler = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
 
     if (!isCrawler) {
+        // query params 전달 (tab, person 등 상태 유지)
+        const queryString = req.url.includes('?') ? '&' + req.url.split('?')[1] : '';
+        const redirectUrl = `/?r=/sentencing-analysis${queryString}`;
         return res.send(`<!DOCTYPE html>
 <html>
-<head><meta http-equiv="refresh" content="0;url=/?r=/sentencing-analysis"><script>window.location.replace("/?r=/sentencing-analysis")</script></head>
+<head><meta http-equiv="refresh" content="0;url=${redirectUrl}"><script>window.location.replace("${redirectUrl}")</script></head>
 <body>Loading...</body>
 </html>`);
     }
 
     const now = new Date();
     const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
-    const title = `[내란재판분석] ${dateStr} 소식`;
-    const description = '내란 관련 인물 재판 현황 및 판결 분석 - 시민법정';
+    const person = req.query.person ? decodeURIComponent(req.query.person) : null;
+    const title = person
+        ? `[재판분석] ${person} - ${dateStr}`
+        : `[내란재판분석] ${dateStr} 소식`;
+    const description = person
+        ? `${person} 내란 재판 현황 및 AI 양형 예측 분석 - 시민법정`
+        : '내란 관련 인물 재판 현황 및 판결 분석 - 시민법정';
     const imageUrl = 'https://siminbupjung-blog.web.app/%EB%82%B4%EB%9E%80%EC%9E%AC%ED%8C%90%EB%B6%84%EC%84%9D.png?v=3';
-    const pageUrl = 'https://siminbupjung-blog.web.app/sentencing-analysis';
+    const pageUrl = person
+        ? `https://siminbupjung-blog.web.app/sentencing-analysis?person=${encodeURIComponent(person)}`
+        : 'https://siminbupjung-blog.web.app/sentencing-analysis';
 
     const html = `<!doctype html>
 <html lang="ko">
@@ -2624,9 +2634,12 @@ exports.reformAnalysisPage = functions.https.onRequest(async (req, res) => {
     const isCrawler = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
 
     if (!isCrawler) {
+        // query params 전달 (tab 등 상태 유지)
+        const queryString = req.url.includes('?') ? '&' + req.url.split('?')[1] : '';
+        const redirectUrl = `/?r=/reform-analysis${queryString}`;
         return res.send(`<!DOCTYPE html>
 <html>
-<head><meta http-equiv="refresh" content="0;url=/?r=/reform-analysis"><script>window.location.replace("/?r=/reform-analysis")</script></head>
+<head><meta http-equiv="refresh" content="0;url=${redirectUrl}"><script>window.location.replace("${redirectUrl}")</script></head>
 <body>Loading...</body>
 </html>`);
     }
@@ -2666,22 +2679,90 @@ exports.reformAnalysisPage = functions.https.onRequest(async (req, res) => {
     res.send(html);
 });
 
+// 내란재판종합분석 페이지 SSR (OG 태그 - 텔레그램/카카오/페이스북 미리보기)
+exports.trialAnalysisPage = functions.https.onRequest(async (req, res) => {
+    const userAgent = req.get('User-Agent') || '';
+    const isCrawler = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
+
+    if (!isCrawler) {
+        // query params 전달 (tab 등 상태 유지)
+        const queryString = req.url.includes('?') ? '&' + req.url.split('?')[1] : '';
+        const redirectUrl = `/?r=/trial-analysis${queryString}`;
+        return res.send(`<!DOCTYPE html>
+<html>
+<head><meta http-equiv="refresh" content="0;url=${redirectUrl}"><script>window.location.replace("${redirectUrl}")</script></head>
+<body>Loading...</body>
+</html>`);
+    }
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
+    const tab = req.query.tab || null;
+    const TAB_TITLES = {
+        simulation: '참심제 시뮬레이션',
+        courts: '재판부별 분석',
+        timeline: '타임라인',
+        classAnalysis: '계급별 분석',
+        legal: '법적 쟁점'
+    };
+    const tabTitle = tab && TAB_TITLES[tab] ? TAB_TITLES[tab] : null;
+    const title = tabTitle
+        ? `[내란재판종합분석] ${tabTitle} - ${dateStr}`
+        : `[내란재판종합분석] 12.3 내란사건 참심제 시뮬레이션 - ${dateStr}`;
+    const description = tabTitle
+        ? `내란재판 ${tabTitle} - 내란 27명 피고인 판결 분석, AI 양형 예측 vs 참심제 시뮬레이션 비교 - 시민법정`
+        : '내란 27명 피고인 판결 분석, AI 양형 예측 vs 참심제 시뮬레이션 비교, 사법살인 70년 역사와 참심제 도입 당위성 - 시민법정';
+    const imageUrl = 'https://siminbupjung-blog.web.app/og-image.jpg';
+    const pageUrl = tab
+        ? `https://siminbupjung-blog.web.app/trial-analysis?tab=${tab}`
+        : 'https://siminbupjung-blog.web.app/trial-analysis';
+
+    const html = `<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${title} - 시민법정</title>
+    <meta name="description" content="${description}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:url" content="${pageUrl}" />
+    <meta property="og:site_name" content="시민법정" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${imageUrl}" />
+  </head>
+  <body>
+    <h1>${title}</h1>
+    <p>${description}</p>
+  </body>
+</html>`;
+
+    res.send(html);
+});
+
 // 판사평가 페이지 SSR (OG 태그 - 텔레그램/카카오/페이스북 미리보기)
 exports.judgeEvaluationPage = functions.https.onRequest(async (req, res) => {
     const userAgent = req.get('User-Agent') || '';
     const isCrawler = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
 
     if (!isCrawler) {
+        const queryString = req.url.includes('?') ? '&' + req.url.split('?')[1] : '';
+        const redirectUrl = `/?r=/judge-evaluation${queryString}`;
         return res.send(`<!DOCTYPE html>
 <html>
-<head><meta http-equiv="refresh" content="0;url=/?r=/judge-evaluation"><script>window.location.replace("/?r=/judge-evaluation")</script></head>
+<head><meta http-equiv="refresh" content="0;url=${redirectUrl}"><script>window.location.replace("${redirectUrl}")</script></head>
 <body>Loading...</body>
 </html>`);
     }
 
     const title = '판사 평가 - 시민법정';
-    const description = '내란 재판 담당 판사들의 판결 성향 및 시민 평가 - 시민법정';
-    const imageUrl = 'https://siminbupjung-blog.web.app/og-image.png';
+    const description = '내란 재판 담당 판사들의 판결 성향 - 사법정의평가';
+    const imageUrl = 'https://siminbupjung-blog.web.app/%EB%82%B4%EB%9E%80%EC%9E%AC%ED%8C%90%EB%B6%84%EC%84%9D.png?v=3';
     const pageUrl = 'https://siminbupjung-blog.web.app/judge-evaluation';
 
     const html = `<!doctype html>
@@ -2712,26 +2793,47 @@ exports.judgeEvaluationPage = functions.https.onRequest(async (req, res) => {
     res.send(html);
 });
 
+// 판사 slug → 한글명 매핑
+const JUDGE_NAME_MAP = {
+    'moon-hyungbae': '문형배', 'lee-misun': '이미선', 'jung-jeongmi': '정정미',
+    'kim-hyungdu': '김형두', 'jung-gyeseon': '정계선', 'jung-hyungsik': '정형식',
+    'cho-hanchang': '조한창', 'kim-sanghwan': '김상환', 'oh-youngjun': '오영준',
+    'ma-eunhyuk': '마은혁', 'cho-heedae': '조희대', 'noh-taeark': '노태악',
+    'lee-heunggu': '이흥구', 'cheon-daeyeop': '천대엽', 'oh-kyungmi': '오경미',
+    'oh-sukjun': '오석준', 'seo-kyunghwan': '서경환', 'kwon-youngjun': '권영준',
+    'eom-sangpil': '엄상필', 'shin-sukhee': '신숙희', 'noh-kyungpil': '노경필',
+    'park-youngjae': '박영재', 'lee-sukyeon': '이숙연', 'ma-yongju': '마용주',
+    'kim-bokhyung': '김복형', 'ji-gwiyeon': '지귀연', 'woo-insung': '우인성',
+    'lee-jingwan': '이진관', 'ryu-kyungjin': '류경진', 'yoon-sungsik': '윤성식',
+    'min-sungchul': '민성철', 'lee-donghyun': '이동현', 'lee-seungchul': '이승철',
+    'cho-jingu': '조진구', 'kim-mina': '김민아', 'ma-sungyoung': '마성영',
+    'park-wonjung': '박원정', 'myung-jaekwon': '명재권', 'jung-jaewook': '정재욱',
+    'park-jungho': '박정호', 'lee-jungjae': '이정재', 'nam-sejin': '남세진',
+};
+
 // 개별 판사 페이지 SSR (OG 태그)
 exports.judgeDetailPage = functions.https.onRequest(async (req, res) => {
     const userAgent = req.get('User-Agent') || '';
     const isCrawler = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
 
-    // URL에서 판사 이름 추출 (/judge/홍길동 -> 홍길동)
-    const judgeName = decodeURIComponent(req.path.split('/').pop() || '');
+    // URL에서 판사 slug 추출 (/judge/woo-insung -> woo-insung)
+    const judgeSlug = decodeURIComponent(req.path.split('/').pop() || '');
+    const judgeName = JUDGE_NAME_MAP[judgeSlug] || judgeSlug;
 
     if (!isCrawler) {
+        const queryString = req.url.includes('?') ? '&' + req.url.split('?')[1] : '';
+        const redirectUrl = `/?r=/judge/${encodeURIComponent(judgeSlug)}${queryString}`;
         return res.send(`<!DOCTYPE html>
 <html>
-<head><meta http-equiv="refresh" content="0;url=/?r=/judge/${encodeURIComponent(judgeName)}"><script>window.location.replace("/?r=/judge/${encodeURIComponent(judgeName)}")</script></head>
+<head><meta http-equiv="refresh" content="0;url=${redirectUrl}"><script>window.location.replace("${redirectUrl}")</script></head>
 <body>Loading...</body>
 </html>`);
     }
 
     const title = `${judgeName} 판사 평가 - 시민법정`;
-    const description = `${judgeName} 판사의 판결 성향 및 시민 평가 - 시민법정`;
-    const imageUrl = 'https://siminbupjung-blog.web.app/og-image.png';
-    const pageUrl = `https://siminbupjung-blog.web.app/judge/${encodeURIComponent(judgeName)}`;
+    const description = `${judgeName} 판사의 판결 성향 - 사법정의평가`;
+    const imageUrl = 'https://siminbupjung-blog.web.app/%EB%82%B4%EB%9E%80%EC%9E%AC%ED%8C%90%EB%B6%84%EC%84%9D.png?v=3';
+    const pageUrl = `https://siminbupjung-blog.web.app/judge/${encodeURIComponent(judgeSlug)}`;
 
     const html = `<!doctype html>
 <html lang="ko">
@@ -2760,6 +2862,70 @@ exports.judgeDetailPage = functions.https.onRequest(async (req, res) => {
 
     res.send(html);
 });
+
+// 피고인-판사 judgeHistory 매핑 업데이트 유틸리티
+const DEFENDANT_JUDGE_MAP = {
+    '윤석열': { judgeName: '지귀연', position: '서울중앙지방법원 형사합의34부 부장판사', court: '서울중앙지방법원' },
+    '김용현': { judgeName: '지귀연', position: '서울중앙지방법원 형사합의34부 부장판사', court: '서울중앙지방법원' },
+    '조지호': { judgeName: '지귀연', position: '서울중앙지방법원 형사합의34부 부장판사', court: '서울중앙지방법원' },
+    '이진우': { judgeName: '지귀연', position: '서울중앙지방법원 형사합의34부 부장판사', court: '서울중앙지방법원' },
+    '곽종근': { judgeName: '지귀연', position: '서울중앙지방법원 형사합의34부 부장판사', court: '서울중앙지방법원' },
+    '여인형': { judgeName: '지귀연', position: '서울중앙지방법원 형사합의34부 부장판사', court: '서울중앙지방법원' },
+    '노상원': { judgeName: '지귀연', position: '서울중앙지방법원 형사합의34부 부장판사', court: '서울중앙지방법원' },
+    '이관섭': { judgeName: '지귀연', position: '서울중앙지방법원 형사합의34부 부장판사', court: '서울중앙지방법원' },
+    '김성훈': { judgeName: '지귀연', position: '서울중앙지방법원 형사합의34부 부장판사', court: '서울중앙지방법원' },
+    '한덕수': { judgeName: '이진관', position: '서울중앙지방법원 형사합의33부 부장판사', court: '서울중앙지방법원' },
+    '전성배': { judgeName: '이진관', position: '서울중앙지방법원 형사합의33부 부장판사', court: '서울중앙지방법원' },
+    '김건희': { judgeName: '우인성', position: '서울중앙지방법원 형사합의27부 부장판사', court: '서울중앙지방법원' },
+    '이상민': { judgeName: '류경진', position: '서울중앙지방법원 형사합의32부 부장판사', court: '서울중앙지방법원' },
+};
+
+exports.updateJudgeHistory = functions
+    .region('asia-northeast3')
+    .https.onRequest(async (req, res) => {
+        res.set('Access-Control-Allow-Origin', '*');
+        if (req.method === 'OPTIONS') {
+            res.set('Access-Control-Allow-Methods', 'GET, POST');
+            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.status(204).send('');
+            return;
+        }
+
+        const defendant = req.query.defendant;
+        const updateAll = req.query.all === 'true';
+
+        try {
+            const results = [];
+            const targets = updateAll ? Object.keys(DEFENDANT_JUDGE_MAP) : (defendant ? [defendant] : []);
+
+            if (targets.length === 0) {
+                return res.status(400).json({ error: 'defendant 또는 all=true 파라미터 필요' });
+            }
+
+            for (const name of targets) {
+                const judgeInfo = DEFENDANT_JUDGE_MAP[name];
+                if (!judgeInfo) {
+                    results.push({ name, status: 'skipped', reason: '매핑 없음' });
+                    continue;
+                }
+
+                await db.collection('sentencingData').doc(name).set({
+                    judgeHistory: {
+                        judgeName: judgeInfo.judgeName,
+                        position: judgeInfo.position,
+                        court: judgeInfo.court,
+                    }
+                }, { merge: true });
+
+                results.push({ name, status: 'updated', judge: judgeInfo.judgeName });
+            }
+
+            res.json({ success: true, results });
+        } catch (error) {
+            console.error('updateJudgeHistory error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });
 
 // 수동 트리거 (HTTP)
 exports.triggerSentencingCrawl = functions
@@ -5615,10 +5781,63 @@ ${JSON.stringify(stepAData, null, 2)}
                 }
             };
 
-            // Firestore 업데이트 (기존 claudePrediction 필드 보존)
+            // === Step C: 양형 예측 (predictedSentence, legalAnalysis 등) ===
+            const staticData = FRONTEND_SENTENCING_DATA[defendant];
+            let sentencingPred = {};
+            try {
+                const stepCPrompt = `당신은 대한민국 형사법 양형 전문가입니다.
+다음 피고인에 대해 Claude AI 관점의 양형 예측을 수행하세요.
+
+## 피고인 정보
+이름: ${defendant}
+혐의: ${charges}
+실제 판결: ${verdict}
+${staticData ? `구형: ${staticData.prosecutionRequest}
+실제 선고: ${staticData.verdict}
+비율: ${staticData.ratio}` : ''}
+
+## 사법 정의 평가 결과
+${JSON.stringify(stepAData, null, 2)}
+
+## 공범 선고 현황
+${Object.entries(FRONTEND_SENTENCING_DATA).filter(([name]) => name !== defendant && FRONTEND_SENTENCING_DATA[name].verdict && !FRONTEND_SENTENCING_DATA[name].verdict.includes('진행')).map(([name, data]) => `- ${name} (${data.position}): ${data.charges} → 구형: ${data.prosecutionRequest} → 판결: ${data.verdict}`).join('\n')}
+
+다음 JSON 형식으로 응답:
+{
+    "predictedSentence": {
+        "range": "예: 징역 5년 ~ 징역 8년",
+        "mostLikely": "예: 징역 6년",
+        "confidence": "high|medium|low"
+    },
+    "legalAnalysis": {
+        "applicableLaws": ["적용 법률 1", "적용 법률 2"],
+        "aggravatingFactors": ["가중 사유 1", "가중 사유 2"],
+        "mitigatingFactors": ["감경 사유 1", "감경 사유 2"]
+    },
+    "codefendantComparison": [
+        {"name": "공범명", "sentence": "선고형", "comparedToDefendant": "비교 분석"}
+    ],
+    "sentencingReasoning": "3-5문장의 양형 근거 분석"
+}`;
+
+                console.log(`Running Step C sentencing prediction for ${defendant}...`);
+                const stepCResult = await model.generateContent(stepCPrompt);
+                const stepCText = stepCResult.response.text();
+                const jsonC = stepCText.match(/\{[\s\S]*\}/);
+                sentencingPred = jsonC ? JSON.parse(jsonC[0]) : JSON.parse(stepCText);
+            } catch (e) {
+                console.error('Step C sentencing prediction error:', e.message);
+                sentencingPred = {};
+            }
+
+            // Firestore 업데이트 (judicialIntegrity + 양형예측 통합)
             await db.collection('sentencingData').doc(defendant).set({
                 claudePrediction: {
-                    judicialIntegrity
+                    judicialIntegrity,
+                    ...sentencingPred,
+                    generatedAt: new Date().toISOString(),
+                    model: 'gemini-2.5-flash (claude-evaluation)',
+                    version: 'v2.0'
                 }
             }, { merge: true });
 

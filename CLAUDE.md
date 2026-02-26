@@ -131,9 +131,12 @@ firebase deploy --only functions                  # 백엔드 함수
 - **교훈**: 어떤 데이터든 삭제/수정 전 반드시 `node backup_firestore.js` 실행
 
 ### 절대 수정 금지
+- `src/pages/SentencingAnalysis.jsx` — 사용자 명시 지시, 어떤 이유로든 수정 금지
+- AI 모델 기본값: `useState('claude')` — 임의 변경 금지 (2026-02-24 사건)
 - `functions/index.js`의 `isCrawler` 로직 → SNS 미리보기(카카오톡, 페이스북, 텔레그램) 깨짐
 - SNS 공유 URL의 도메인 `xn--lg3b0kt4n41f.kr` → 한글 도메인 인코딩이므로 변경 시 공유 링크 전체 실패
 - 카카오톡 SDK 키 변경 → SNS 공유 기능 중단
+- 사용자 명령 없이 임의로 설정/로직 변경 절대 금지
 
 ### 이미지/사진 관련
 - `public/` 폴더의 인물 사진(PNG)은 auto-crop 처리 완료 상태 → 재업로드 시 동일하게 crop 필요
@@ -169,13 +172,28 @@ firebase deploy --only functions                  # 백엔드 함수
 3. `SentencingAnalysis.jsx`의 `PERSON_PHOTOS` 객체에 경로 추가
 4. 빌드 후 배포
 
+## 배포 워크플로우 (2026-02-25 업데이트)
+**반드시 로컬 프리뷰 확인 후 사용자 승인을 받아 배포한다.**
+
+```
+코드 수정 → npm run build → 로컬 프리뷰(preview_start) → 스크린샷 공유 → 사용자 승인 → 배포
+```
+
+- 로컬 프리뷰 서버: `.claude/launch.json` → `npm run dev` (port 5173)
+- **사용자 승인 없이 `firebase deploy` 절대 금지**
+- 프리뷰 확인 도구: `preview_screenshot`, `preview_snapshot`, `preview_inspect` 활용
+
 ## 배포 전 체크리스트
 - [ ] `npm run build` 오류 없음
+- [ ] 로컬 프리뷰에서 변경사항 확인 완료
+- [ ] SentencingAnalysis.jsx 미수정 확인
+- [ ] AI 모델 기본값 `claude` 유지 확인
 - [ ] 메인 페이지(`/`) 정상 로딩
 - [ ] 블로그 목록/상세 페이지 정상
 - [ ] SNS 공유 버튼 동작 확인 (카카오톡, 텔레그램)
 - [ ] 모바일 반응형 확인
 - [ ] 관리자 페이지 접근 가능
+- [ ] **사용자 배포 승인 받음**
 
 ## 복잡한 작업 프로세스 (팁 #2)
 큰 기능 추가나 리팩토링 시 다음 순서를 따른다:

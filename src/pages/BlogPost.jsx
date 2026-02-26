@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { doc, getDoc, collection, query, orderBy, getDocs, updateDoc, increment, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
-import { KakaoIcon, FacebookIcon, XIcon, TelegramIcon, InstagramIcon, ThreadsIcon, LinkedInIcon } from '../components/icons';
 
 export default function BlogPost() {
     const { id } = useParams();
@@ -11,8 +10,6 @@ export default function BlogPost() {
     const [post, setPost] = useState(null);
     const [allPosts, setAllPosts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [kakaoReady, setKakaoReady] = useState(false);
-
     // 좋아요 상태
     const [likes, setLikes] = useState(0);
     const [hasLiked, setHasLiked] = useState(false);
@@ -21,39 +18,6 @@ export default function BlogPost() {
     const [comments, setComments] = useState([]);
     const [commentForm, setCommentForm] = useState({ nickname: '', content: '' });
     const [isSubmittingComment, setIsSubmittingComment] = useState(false);
-
-    // 카카오 SDK 초기화
-    useEffect(() => {
-        const initKakao = () => {
-            if (window.Kakao && !window.Kakao.isInitialized()) {
-                try {
-                    window.Kakao.init('83e843186c1251b9b5a8013fd5f29798');
-                    console.log('Kakao SDK initialized');
-                    setKakaoReady(true);
-                } catch (e) {
-                    console.error('Kakao init error:', e);
-                }
-            } else if (window.Kakao?.isInitialized()) {
-                setKakaoReady(true);
-            }
-        };
-
-        // SDK가 이미 로드되어 있으면 바로 초기화
-        if (window.Kakao) {
-            initKakao();
-        } else {
-            // SDK 로드 대기
-            const checkKakao = setInterval(() => {
-                if (window.Kakao) {
-                    clearInterval(checkKakao);
-                    initKakao();
-                }
-            }, 100);
-
-            // 5초 후 타임아웃
-            setTimeout(() => clearInterval(checkKakao), 5000);
-        }
-    }, []);
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -191,105 +155,6 @@ export default function BlogPost() {
         );
     }
 
-    // ⚠️ 수정금지: SNS 공유 URL - 영문 도메인 사용 (한글 도메인 인코딩 문제 방지)
-    const postUrl = `https://xn--lg3b0kt4n41f.kr/blog/${post.id}`;
-    const postText = `${post.title} - 시민법정`;
-
-    const shareToKakao = () => {
-        console.log('Kakao SDK ready:', kakaoReady);
-        console.log('Kakao object:', window.Kakao);
-
-        // 요약본 생성: summary가 있으면 사용, 없으면 본문 첫 100자
-        const description = post.summary || post.content.substring(0, 100).replace(/\n/g, ' ') + '...';
-
-        if (kakaoReady && window.Kakao?.isInitialized()) {
-            try {
-                window.Kakao.Share.sendDefault({
-                    objectType: 'feed',
-                    content: {
-                        title: post.title,
-                        description: description,
-                        imageUrl: post.imageUrl || 'https://xn--lg3b0kt4n41f.kr/og-image.jpg',
-                        link: {
-                            mobileWebUrl: postUrl,
-                            webUrl: postUrl,
-                        },
-                    },
-                    buttons: [
-                        {
-                            title: '더 보기',
-                            link: {
-                                mobileWebUrl: postUrl,
-                                webUrl: postUrl,
-                            },
-                        },
-                    ],
-                });
-            } catch (e) {
-                console.error('Kakao share error:', e);
-                fallbackShare();
-            }
-        } else {
-            console.log('Kakao SDK not ready, using fallback');
-            fallbackShare();
-        }
-    };
-
-    const fallbackShare = () => {
-        const shareText = `${postText}\n${postUrl}`;
-        navigator.clipboard.writeText(shareText);
-        alert('링크가 복사되었습니다!\n카카오톡에 붙여넣기 해주세요.');
-    };
-
-    // Facebook 공유
-    const shareToFacebook = () => {
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`, '_blank', 'width=600,height=400');
-    };
-
-    // X (Twitter) 공유
-    const shareToTwitter = () => {
-        const tweetText = `${post.title} #시민법정 #참심제 #사법개혁`;
-        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(postUrl)}`, '_blank', 'width=600,height=400');
-    };
-
-    const shareToTelegram = () => {
-        // 캐시 무효화를 위해 타임스탬프 추가
-        const urlWithCache = `${postUrl}?t=${Date.now()}`;
-        window.open(
-            `https://t.me/share/url?url=${encodeURIComponent(urlWithCache)}&text=${encodeURIComponent(postText)}`,
-            '_blank',
-            'width=600,height=400'
-        );
-    };
-
-    const shareToInstagram = async () => {
-        try {
-            await navigator.clipboard.writeText(`${postText} ${postUrl}`);
-            alert('텍스트가 복사되었습니다!\n인스타그램에서 스토리나 게시물에 붙여넣기 해주세요.');
-            window.open('https://www.instagram.com/', '_blank');
-        } catch (err) {
-            alert('복사에 실패했습니다. 직접 링크를 복사해주세요.');
-        }
-    };
-
-    const shareToThreads = async () => {
-        try {
-            await navigator.clipboard.writeText(`${postText}\n\n${postUrl}\n\n#시민법정 #참심제 #사법개혁`);
-            alert('텍스트가 복사되었습니다!\nThreads에서 붙여넣기 해주세요.');
-            window.open('https://www.threads.net/', '_blank');
-        } catch (err) {
-            alert('복사에 실패했습니다. 직접 링크를 복사해주세요.');
-        }
-    };
-
-    const shareToLinkedIn = () => {
-        window.open(
-            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`,
-            '_blank',
-            'width=600,height=400'
-        );
-    };
-
     // 이전/다음 글
     const currentIndex = allPosts.findIndex(p => p.id === post.id);
     const prevPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
@@ -393,62 +258,6 @@ export default function BlogPost() {
                         <p className="text-gray-700">
                             주권자에 의한 시민법관 참심제! <a href={post.musicUrl || "https://youtu.be/Qu3pn7OF9vw"} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline font-medium">음악 듣기</a>
                         </p>
-                    </div>
-
-                    {/* SNS 공유 */}
-                    <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6 mb-4">
-                        <p className="text-white text-center mb-4 font-medium">이 글을 공유해주세요</p>
-                        <div className="flex justify-center gap-4">
-                            <button
-                                onClick={shareToKakao}
-                                className="w-12 h-12 flex items-center justify-center bg-[#FEE500] rounded-full hover:scale-110 transition-transform"
-                                title="카카오톡"
-                            >
-                                <KakaoIcon className="w-6 h-6 text-[#391B1B]" />
-                            </button>
-                            <button
-                                onClick={shareToFacebook}
-                                className="w-12 h-12 flex items-center justify-center bg-[#1877F2] rounded-full hover:scale-110 transition-transform"
-                                title="페이스북"
-                            >
-                                <FacebookIcon className="w-6 h-6 text-white" />
-                            </button>
-                            <button
-                                onClick={shareToTwitter}
-                                className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform"
-                                title="X"
-                            >
-                                <XIcon className="w-5 h-5 text-white" />
-                            </button>
-                            <button
-                                onClick={shareToInstagram}
-                                className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#515BD4] rounded-full hover:scale-110 transition-transform"
-                                title="인스타그램"
-                            >
-                                <InstagramIcon className="w-6 h-6 text-white" />
-                            </button>
-                            <button
-                                onClick={shareToTelegram}
-                                className="w-12 h-12 flex items-center justify-center bg-[#0088cc] rounded-full hover:scale-110 transition-transform"
-                                title="텔레그램"
-                            >
-                                <TelegramIcon className="w-6 h-6 text-white" />
-                            </button>
-                            <button
-                                onClick={shareToThreads}
-                                className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform"
-                                title="Threads"
-                            >
-                                <ThreadsIcon className="w-6 h-6 text-white" />
-                            </button>
-                            <button
-                                onClick={shareToLinkedIn}
-                                className="w-12 h-12 flex items-center justify-center bg-[#0A66C2] rounded-full hover:scale-110 transition-transform"
-                                title="LinkedIn"
-                            >
-                                <LinkedInIcon className="w-6 h-6 text-white" />
-                            </button>
-                        </div>
                     </div>
 
                     {/* 좋아요 버튼 */}

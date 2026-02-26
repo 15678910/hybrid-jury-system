@@ -2288,25 +2288,45 @@ const personsData = {
 const sortedPersons = Object.keys(personsData).sort((a, b) => a.localeCompare(b, 'ko'));
 
 export default function SentencingAnalysis() {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [selectedPerson, setSelectedPerson] = useState(null);
-    const [activeTab, setActiveTab] = useState('overview');
+    const [activeTab, setActiveTab] = useState(() => {
+        const tabParam = searchParams.get('tab');
+        const validTabs = ['overview', 'verdict', 'charges', 'sentencing', 'judge', 'issues', 'aiPrediction'];
+        return validTabs.includes(tabParam) ? tabParam : 'overview';
+    });
     const [firestoreData, setFirestoreData] = useState({});
     const [judgeNewsData, setJudgeNewsData] = useState({});
     const [judgeYouTubeData, setJudgeYouTubeData] = useState({});
     const [judgeCourtData, setJudgeCourtData] = useState({});
     const [loading, setLoading] = useState(true);
     const [kakaoReady, setKakaoReady] = useState(false);
-    const [selectedAiModel, setSelectedAiModel] = useState('claude');
+    const [selectedAiModel, setSelectedAiModel] = useState(() => {
+        const modelParam = searchParams.get('model');
+        return (modelParam === 'gemini' || modelParam === 'claude') ? modelParam : 'claude';
+    });
 
-    // URL 파라미터에서 person 읽어서 선택
+    // URL 파라미터에서 person, tab 읽어서 선택
     useEffect(() => {
         const personParam = searchParams.get('person');
         if (personParam && personsData[personParam]) {
             setSelectedPerson(personParam);
             window.scrollTo(0, 0);
         }
-    }, [searchParams]);
+        const tabParam = searchParams.get('tab');
+        if (tabParam) {
+            setActiveTab(tabParam);
+        }
+    }, []);
+
+    // activeTab, selectedPerson, selectedAiModel 변경 시 URL 동기화
+    useEffect(() => {
+        const newParams = new URLSearchParams();
+        if (selectedPerson) newParams.set('person', selectedPerson);
+        if (activeTab && activeTab !== 'overview') newParams.set('tab', activeTab);
+        if (selectedAiModel && selectedAiModel !== 'claude') newParams.set('model', selectedAiModel);
+        setSearchParams(newParams, { replace: true });
+    }, [activeTab, selectedPerson, selectedAiModel]);
 
     // Kakao SDK 초기화
     useEffect(() => {
@@ -2385,7 +2405,12 @@ export default function SentencingAnalysis() {
 
     // SNS 공유 함수들
     const getShareUrl = (personName) => {
-        return `https://xn--lg3b0kt4n41f.kr/sentencing-analysis${personName ? `?person=${encodeURIComponent(personName)}` : ''}`;
+        const params = new URLSearchParams();
+        if (personName) params.set('person', personName);
+        if (activeTab && activeTab !== 'overview') params.set('tab', activeTab);
+        if (selectedAiModel && selectedAiModel !== 'claude') params.set('model', selectedAiModel);
+        const qs = params.toString();
+        return `https://xn--lg3b0kt4n41f.kr/sentencing-analysis${qs ? `?${qs}` : ''}`;
     };
 
     const getShareText = (personName) => {
@@ -2458,7 +2483,8 @@ export default function SentencingAnalysis() {
     };
 
     const shareToThreads = async () => {
-        const shareText = `${document.title}\n\n${window.location.href}\n\n#시민법정 #참심제 #사법개혁`;
+        const url = getShareUrl(selectedPerson);
+        const shareText = `${document.title}\n\n${url}\n\n#시민법정 #내란재판 #양형분석`;
         try {
             await navigator.clipboard.writeText(shareText);
             alert('텍스트가 복사되었습니다!\nThreads에서 붙여넣기 해주세요.');
@@ -2469,8 +2495,9 @@ export default function SentencingAnalysis() {
     };
 
     const shareToLinkedIn = () => {
+        const url = getShareUrl(selectedPerson);
         window.open(
-            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`,
+            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
             '_blank',
             'width=600,height=400'
         );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import { getPrecedentDetail } from '../lib/lawApi';
 
@@ -10,7 +10,24 @@ function PrecedentDetail() {
     const [precedent, setPrecedent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [activeTab, setActiveTab] = useState('summary'); // summary, reasons, reference, full
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [activeTab, setActiveTab] = useState(() => {
+        const tabParam = searchParams.get('tab');
+        const validTabs = ['summary', 'reasons', 'reference', 'full'];
+        return validTabs.includes(tabParam) ? tabParam : 'summary';
+    });
+
+    useEffect(() => {
+        if (activeTab === 'summary') {
+            if (searchParams.has('tab')) {
+                const newParams = new URLSearchParams(searchParams);
+                newParams.delete('tab');
+                setSearchParams(newParams, { replace: true });
+            }
+        } else {
+            setSearchParams({ tab: activeTab }, { replace: true });
+        }
+    }, [activeTab]);
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [copied, setCopied] = useState(false);
 

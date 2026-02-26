@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
-import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, LinkedInIcon } from '../components/icons';
 
 // 개혁안 뉴스 캐시 설정
 const REFORM_NEWS_CACHE_KEY = 'reform_news_cache';
@@ -1018,8 +1018,24 @@ const reformData = [
 ];
 
 export default function ReformAnalysis() {
-    const [activeTab, setActiveTab] = useState('prosecution');
-    const [kakaoReady, setKakaoReady] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [activeTab, setActiveTab] = useState(() => {
+        const tabParam = searchParams.get('tab');
+        const validTabs = ['prosecution', 'supreme-court', 'law-distortion', 'judicial-appeal', 'court-admin', 'judge-personnel', 'citizen-trial'];
+        return validTabs.includes(tabParam) ? tabParam : 'prosecution';
+    });
+
+    useEffect(() => {
+        if (activeTab === 'prosecution') {
+            if (searchParams.has('tab')) {
+                const newParams = new URLSearchParams(searchParams);
+                newParams.delete('tab');
+                setSearchParams(newParams, { replace: true });
+            }
+        } else {
+            setSearchParams({ tab: activeTab }, { replace: true });
+        }
+    }, [activeTab]);
     const [reformNews, setReformNews] = useState({});
     const [newsLoading, setNewsLoading] = useState(false);
 
@@ -1049,124 +1065,6 @@ export default function ReformAnalysis() {
         };
         fetchReformNews();
     }, []);
-
-    // Kakao SDK 초기화
-    useEffect(() => {
-        const initKakao = () => {
-            if (window.Kakao && !window.Kakao.isInitialized()) {
-                try {
-                    window.Kakao.init('83e843186c1251b9b5a8013fd5f29798');
-                    setKakaoReady(true);
-                } catch (e) {
-                    console.error('Kakao init error:', e);
-                }
-            } else if (window.Kakao?.isInitialized()) {
-                setKakaoReady(true);
-            }
-        };
-
-        if (window.Kakao) {
-            initKakao();
-        } else {
-            const checkKakao = setInterval(() => {
-                if (window.Kakao) {
-                    clearInterval(checkKakao);
-                    initKakao();
-                }
-            }, 100);
-            setTimeout(() => clearInterval(checkKakao), 5000);
-        }
-    }, []);
-
-    // SNS 공유 함수들
-    const getShareUrl = () => {
-        return 'https://xn--lg3b0kt4n41f.kr/reform-analysis';
-    };
-
-    const getShareText = () => {
-        const now = new Date();
-        return `[개혁안 비교] 법원·검찰 개혁안 비교 분석 - ${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 소식`;
-    };
-
-    const shareToKakao = () => {
-        const url = getShareUrl();
-        const text = getShareText();
-
-        if (kakaoReady && window.Kakao?.isInitialized()) {
-            try {
-                window.Kakao.Share.sendDefault({
-                    objectType: 'feed',
-                    content: {
-                        title: '법원·검찰 개혁안 비교',
-                        description: text,
-                        imageUrl: 'https://xn--lg3b0kt4n41f.kr/%EA%B0%9C%ED%98%81%EC%95%88%EB%B9%84%EA%B5%90.png',
-                        link: { mobileWebUrl: url, webUrl: url },
-                    },
-                    buttons: [{ title: '자세히 보기', link: { mobileWebUrl: url, webUrl: url } }],
-                });
-            } catch (e) {
-                console.error('Kakao share error:', e);
-                fallbackShare();
-            }
-        } else {
-            fallbackShare();
-        }
-    };
-
-    const fallbackShare = () => {
-        const url = getShareUrl();
-        const text = getShareText();
-        navigator.clipboard.writeText(`${text}\n${url}`);
-        alert('링크가 복사되었습니다!\n카카오톡에 붙여넣기 해주세요.');
-    };
-
-    const shareToFacebook = () => {
-        const url = getShareUrl();
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
-    };
-
-    const shareToTwitter = () => {
-        const url = getShareUrl();
-        const text = getShareText() + ' #시민법정 #참심제 #사법개혁';
-        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
-    };
-
-    const shareToTelegram = () => {
-        const url = getShareUrl();
-        const text = getShareText();
-        const urlWithCache = `${url}?t=${Date.now()}`;
-        window.open(
-            `https://t.me/share/url?url=${encodeURIComponent(urlWithCache)}&text=${encodeURIComponent(text)}`,
-            '_blank',
-            'width=600,height=400'
-        );
-    };
-
-    const shareToInstagram = () => {
-        const url = getShareUrl();
-        const text = getShareText();
-        navigator.clipboard.writeText(`${text} ${url}`);
-        alert('텍스트가 복사되었습니다! 인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
-    };
-
-    const shareToThreads = async () => {
-        const shareText = `${document.title}\n\n${window.location.href}\n\n#시민법정 #참심제 #사법개혁`;
-        try {
-            await navigator.clipboard.writeText(shareText);
-            alert('텍스트가 복사되었습니다!\nThreads에서 붙여넣기 해주세요.');
-            window.open('https://www.threads.net/', '_blank');
-        } catch (err) {
-            alert('복사에 실패했습니다.');
-        }
-    };
-
-    const shareToLinkedIn = () => {
-        window.open(
-            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`,
-            '_blank',
-            'width=600,height=400'
-        );
-    };
 
     const activeReform = reformData.find(r => r.id === activeTab);
 
@@ -1432,42 +1330,6 @@ export default function ReformAnalysis() {
                             )}
                         </div>
                     )}
-
-                    {/* SNS 공유 */}
-                    <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6 mb-4">
-                        <p className="text-white text-center mb-4 font-medium">이 페이지를 공유해주세요</p>
-                        <div className="flex justify-center gap-4">
-                            <button onClick={shareToKakao} className="w-12 h-12 flex items-center justify-center bg-[#FEE500] rounded-full hover:scale-110 transition-transform" title="카카오톡">
-                                <KakaoIcon className="w-6 h-6 text-[#391B1B]" />
-                            </button>
-                            <button onClick={shareToFacebook} className="w-12 h-12 flex items-center justify-center bg-[#1877F2] rounded-full hover:scale-110 transition-transform" title="페이스북">
-                                <FacebookIcon className="w-6 h-6 text-white" />
-                            </button>
-                            <button onClick={shareToTwitter} className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform" title="X">
-                                <XIcon className="w-5 h-5 text-white" />
-                            </button>
-                            <button onClick={shareToInstagram} className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#515BD4] rounded-full hover:scale-110 transition-transform" title="인스타그램">
-                                <InstagramIcon className="w-6 h-6 text-white" />
-                            </button>
-                            <button onClick={shareToTelegram} className="w-12 h-12 flex items-center justify-center bg-[#0088cc] rounded-full hover:scale-110 transition-transform" title="텔레그램">
-                                <TelegramIcon className="w-6 h-6 text-white" />
-                            </button>
-                            <button
-                                onClick={shareToThreads}
-                                className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform"
-                                title="Threads"
-                            >
-                                <ThreadsIcon className="w-6 h-6 text-white" />
-                            </button>
-                            <button
-                                onClick={shareToLinkedIn}
-                                className="w-12 h-12 flex items-center justify-center bg-[#0A66C2] rounded-full hover:scale-110 transition-transform"
-                                title="LinkedIn"
-                            >
-                                <LinkedInIcon className="w-6 h-6 text-white" />
-                            </button>
-                        </div>
-                    </div>
 
                     {/* 출처 안내 */}
                     <div className="p-4 bg-gray-100 rounded-xl text-center">

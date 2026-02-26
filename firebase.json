@@ -31,6 +31,18 @@
         "function": "reformAnalysisPage"
       },
       {
+        "source": "/trial-analysis",
+        "function": "trialAnalysisPage"
+      },
+      {
+        "source": "/judge-evaluation",
+        "function": "judgeEvaluationPage"
+      },
+      {
+        "source": "/judge/**",
+        "function": "judgeDetailPage"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

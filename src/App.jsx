@@ -64,6 +64,7 @@ export default function App() {
     const [mediaDropdownOpen, setMediaDropdownOpen] = useState(false);
     const [introDropdownOpen, setIntroDropdownOpen] = useState(false);
     const [casesDropdownOpen, setCasesDropdownOpen] = useState(false);
+    const [trialDropdownOpen, setTrialDropdownOpen] = useState(false);
 
     // 푸시 알림 상태
     const [isPushAvailable] = useState(() => isPushSupported());
@@ -790,33 +791,6 @@ export default function App() {
         document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    // SNS 공유 함수들
-    const shareToKakao = () => {
-        const url = 'https://시민법정.kr';
-        const text = '주권자에 의한 시민법관 참심제! 함께해주세요.';
-        window.open('https://story.kakao.com/share?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text), '_blank', 'width=600,height=400');
-        trackShare('kakao', 'homepage', '시민법정 홈');
-    };
-
-    const shareToFacebook = () => {
-        const url = 'https://시민법정.kr';
-        window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank', 'width=600,height=400');
-        trackShare('facebook', 'homepage', '시민법정 홈');
-    };
-
-    const shareToTwitter = () => {
-        const url = 'https://시민법정.kr';
-        const text = '주권자에 의한 시민법관 참심제! 함께해주세요. #시민법정 #참심제 #사법개혁';
-        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
-        trackShare('x', 'homepage', '시민법정 홈');
-    };
-
-    const shareToInstagram = () => {
-        navigator.clipboard.writeText('주권자에 의한 시민법관 참심제! https://시민법정.kr');
-        alert('텍스트가 복사되었습니다! 인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
-        trackShare('instagram', 'homepage', '시민법정 홈');
-    };
-
     return (
         <div className="min-h-screen bg-gray-50">
             {/* 헤더 */}
@@ -894,6 +868,32 @@ export default function App() {
                             <button onClick={() => scrollToSection('constitution')} className="hover:text-blue-600 transition font-medium">헌법적 근거</button>
                             <button onClick={() => scrollToSection('bill')} className="hover:text-blue-600 transition font-medium">법안 제안</button>
 
+                            {/* 내란재판분석 드롭다운 */}
+                            <div
+                                className="relative overflow-visible"
+                                onMouseEnter={() => setTrialDropdownOpen(true)}
+                                onMouseLeave={() => setTrialDropdownOpen(false)}
+                            >
+                                <button
+                                    className="hover:text-blue-600 transition font-medium flex items-center gap-1"
+                                >
+                                    내란재판분석
+                                    <svg className={`w-4 h-4 transition-transform ${trialDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                <div className={`absolute top-full left-0 mt-0 pt-2 z-[9999] ${trialDropdownOpen ? 'block' : 'hidden'}`}>
+                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[200px]">
+                                        <Link to="/sentencing-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">내란재판분석</Link>
+                                        <Link to="/trial-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600 whitespace-nowrap">내란재판종합분석</Link>
+                                        <Link to="/judge-evaluation" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">AI의 판사평가</Link>
+                                        <Link to="/reform-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">개혁안 비교</Link>
+                                        <Link to="/law-database" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">법령DB</Link>
+                                        <Link to="/judicial-network" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">관계도</Link>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* 미디어 드롭다운 */}
                             <div
                                 className="relative overflow-visible"
@@ -910,54 +910,9 @@ export default function App() {
                                 </button>
                                 <div className={`absolute top-full left-0 mt-0 pt-2 z-[9999] ${mediaDropdownOpen ? 'block' : 'hidden'}`}>
                                     <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[120px]">
-                                        <Link
-                                            to="/news"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                        >
-                                            사법뉴스
-                                        </Link>
-                                        <Link
-                                            to="/blog"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                        >
-                                            블로그
-                                        </Link>
-                                        <Link
-                                            to="/videos"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                        >
-                                            동영상
-                                        </Link>
-                                        <Link
-                                            to="/sentencing-analysis"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                        >
-                                            내란재판분석
-                                        </Link>
-                                        <Link
-                                            to="/reform-analysis"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                        >
-                                            개혁안 비교
-                                        </Link>
-                                        <Link
-                                            to="/judge-evaluation"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                        >
-                                            AI의 판사평가
-                                        </Link>
-                                        <Link
-                                            to="/law-database"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                        >
-                                            법령DB
-                                        </Link>
-                                        <Link
-                                            to="/judicial-network"
-                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                        >
-                                            관계도
-                                        </Link>
+                                        <Link to="/news" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">사법뉴스</Link>
+                                        <Link to="/blog" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">블로그</Link>
+                                        <Link to="/videos" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">동영상</Link>
                                     </div>
                                 </div>
                             </div>
@@ -1045,65 +1000,23 @@ export default function App() {
                                 법안 제안
                             </button>
 
+                            {/* 모바일 내란재판분석 서브메뉴 */}
+                            <div className="border-t border-gray-200 pt-2 mt-2">
+                                <div className="px-4 py-2 text-gray-500 text-sm font-medium">내란재판분석</div>
+                                <Link to="/sentencing-analysis" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">내란재판분석</Link>
+                                <Link to="/trial-analysis" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">내란재판종합분석</Link>
+                                <Link to="/judge-evaluation" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">AI의 판사평가</Link>
+                                <Link to="/reform-analysis" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">개혁안 비교</Link>
+                                <Link to="/law-database" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">법령DB</Link>
+                                <Link to="/judicial-network" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">관계도</Link>
+                            </div>
+
                             {/* 모바일 미디어 서브메뉴 */}
                             <div className="border-t border-gray-200 pt-2 mt-2">
                                 <div className="px-4 py-2 text-gray-500 text-sm font-medium">미디어</div>
-                                <Link
-                                    to="/news"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    사법뉴스
-                                </Link>
-                                <Link
-                                    to="/blog"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    블로그
-                                </Link>
-                                <Link
-                                    to="/videos"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    동영상
-                                </Link>
-                                <Link
-                                    to="/sentencing-analysis"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    내란재판분석
-                                </Link>
-                                <Link
-                                    to="/reform-analysis"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    개혁안 비교
-                                </Link>
-                                <Link
-                                    to="/judge-evaluation"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    AI의 판사평가
-                                </Link>
-                                <Link
-                                    to="/law-database"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    법령DB
-                                </Link>
-                                <Link
-                                    to="/judicial-network"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
-                                >
-                                    관계도
-                                </Link>
+                                <Link to="/news" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">사법뉴스</Link>
+                                <Link to="/blog" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">블로그</Link>
+                                <Link to="/videos" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">동영상</Link>
                             </div>
 
                             <button
