@@ -2422,8 +2422,20 @@ export default function SentencingAnalysis() {
     };
 
     const getOgDescription = () => {
-        const meta = document.querySelector('meta[property="og:description"]') || document.querySelector('meta[name="description"]');
-        return meta?.content || '내란 사건 재판 분석 - 참심제 시뮬레이션으로 시민이 직접 판결에 참여합니다';
+        const helmetMeta = document.querySelector('meta[property="og:description"][data-rh="true"]')
+            || document.querySelector('meta[name="description"][data-rh="true"]');
+        if (helmetMeta) return helmetMeta.content;
+        const allMetas = document.querySelectorAll('meta[property="og:description"]');
+        if (allMetas.length > 0) return allMetas[allMetas.length - 1].content;
+        return '내란 사건 재판 분석 - 참심제 시뮬레이션으로 시민이 직접 판결에 참여합니다';
+    };
+
+    const getOgImage = () => {
+        const helmetMeta = document.querySelector('meta[property="og:image"][data-rh="true"]');
+        if (helmetMeta) return helmetMeta.content;
+        const allMetas = document.querySelectorAll('meta[property="og:image"]');
+        if (allMetas.length > 0) return allMetas[allMetas.length - 1].content;
+        return 'https://xn--lg3b0kt4n41f.kr/%EB%82%B4%EB%9E%80%EC%9E%AC%ED%8C%90%EB%B6%84%EC%84%9D.png';
     };
 
     const getFullShareText = (personName) => {
@@ -2436,7 +2448,7 @@ export default function SentencingAnalysis() {
         const url = getShareUrl(selectedPerson);
         const text = getShareText(selectedPerson);
         const desc = getOgDescription();
-        const ogImage = document.querySelector('meta[property="og:image"]')?.content || 'https://xn--lg3b0kt4n41f.kr/%EB%82%B4%EB%9E%80%EC%9E%AC%ED%8C%90%EB%B6%84%EC%84%9D.png';
+        const ogImage = getOgImage();
 
         if (kakaoReady && window.Kakao?.isInitialized()) {
             try {

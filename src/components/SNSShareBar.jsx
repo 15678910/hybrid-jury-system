@@ -28,14 +28,22 @@ export default function SNSShareBar() {
     };
 
     // 페이지별 OG 메타 태그에서 동적으로 설명/이미지 가져오기
+    // react-helmet-async가 관리하는 태그(data-rh)를 우선 읽고, 없으면 마지막 매칭 태그 사용
     const getOgDescription = () => {
-        const meta = document.querySelector('meta[property="og:description"]') || document.querySelector('meta[name="description"]');
-        return meta?.content || '시민법정 - 참심제 도입으로 시민이 판사가 되는 사법개혁';
+        const helmetMeta = document.querySelector('meta[property="og:description"][data-rh="true"]')
+            || document.querySelector('meta[name="description"][data-rh="true"]');
+        if (helmetMeta) return helmetMeta.content;
+        const allMetas = document.querySelectorAll('meta[property="og:description"]');
+        if (allMetas.length > 0) return allMetas[allMetas.length - 1].content;
+        return '시민법정 - 참심제 도입으로 시민이 판사가 되는 사법개혁';
     };
 
     const getOgImage = () => {
-        const meta = document.querySelector('meta[property="og:image"]');
-        return meta?.content || 'https://xn--lg3b0kt4n41f.kr/og-image.jpg';
+        const helmetMeta = document.querySelector('meta[property="og:image"][data-rh="true"]');
+        if (helmetMeta) return helmetMeta.content;
+        const allMetas = document.querySelectorAll('meta[property="og:image"]');
+        if (allMetas.length > 0) return allMetas[allMetas.length - 1].content;
+        return 'https://xn--lg3b0kt4n41f.kr/og-image.jpg';
     };
 
     const shareToKakao = () => {
