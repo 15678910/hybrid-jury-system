@@ -78,8 +78,7 @@ export default function SNSShareBar() {
     };
 
     const shareToTwitter = () => {
-        const desc = getOgDescription();
-        const text = `${document.title}\n${desc}\n#시민법정 #참심제 #사법개혁`;
+        const text = `${document.title} #시민법정 #참심제 #사법개혁`;
         window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getShareUrl())}`, '_blank', 'width=600,height=400');
     };
 
@@ -117,7 +116,7 @@ export default function SNSShareBar() {
     };
 
     const shareToLinkedIn = () => {
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(getShareUrl())}&summary=${encodeURIComponent(getOgDescription())}`, '_blank', 'width=600,height=400');
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(getShareUrl())}`, '_blank', 'width=600,height=400');
     };
 
     return (

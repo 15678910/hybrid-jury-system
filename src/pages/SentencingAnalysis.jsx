@@ -2485,8 +2485,7 @@ export default function SentencingAnalysis() {
 
     const shareToTwitter = () => {
         const url = getShareUrl(selectedPerson);
-        const desc = getOgDescription();
-        const text = `${getShareText(selectedPerson)}\n${desc}\n#시민법정 #내란재판 #양형분석`;
+        const text = `${getShareText(selectedPerson)} #시민법정 #내란재판 #양형분석`;
         window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
     };
 
@@ -2522,9 +2521,8 @@ export default function SentencingAnalysis() {
 
     const shareToLinkedIn = () => {
         const url = getShareUrl(selectedPerson);
-        const desc = getOgDescription();
         window.open(
-            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(desc)}`,
+            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
             '_blank',
             'width=600,height=400'
         );
