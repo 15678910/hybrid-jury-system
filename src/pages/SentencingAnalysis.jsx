@@ -2480,9 +2480,7 @@ export default function SentencingAnalysis() {
 
     const shareToFacebook = () => {
         const url = getShareUrl(selectedPerson);
-        const desc = getOgDescription();
-        const quote = `${getShareText(selectedPerson)} - ${desc}`;
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(quote)}`, '_blank', 'width=600,height=400');
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTwitter = () => {
