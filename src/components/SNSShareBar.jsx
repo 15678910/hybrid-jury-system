@@ -73,8 +73,14 @@ export default function SNSShareBar() {
         alert('링크가 복사되었습니다!\n카카오톡에 붙여넣기 해주세요.');
     };
 
-    const shareToFacebook = () => {
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}`, '_blank', 'width=600,height=400');
+    const shareToFacebook = async () => {
+        try {
+            await navigator.clipboard.writeText(`${getFullShareText()}\n\n${getShareUrl()}`);
+            alert('텍스트가 복사되었습니다!\n페이스북에서 붙여넣기 해주세요.');
+            window.open('https://www.facebook.com/', '_blank');
+        } catch (err) {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}`, '_blank');
+        }
     };
 
     const shareToTwitter = () => {
@@ -90,9 +96,14 @@ export default function SNSShareBar() {
         window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank', 'width=600,height=400');
     };
 
-    const shareToInstagram = () => {
-        navigator.clipboard.writeText(`${getFullShareText()}\n\n${getShareUrl()}`);
-        alert('텍스트가 복사되었습니다! 인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
+    const shareToInstagram = async () => {
+        try {
+            await navigator.clipboard.writeText(`${getFullShareText()}\n\n${getShareUrl()}`);
+            alert('텍스트가 복사되었습니다!\n인스타그램에서 붙여넣기 해주세요.');
+            window.open('https://www.instagram.com/', '_blank');
+        } catch (err) {
+            alert('복사에 실패했습니다.');
+        }
     };
 
     const shareToThreads = async () => {
