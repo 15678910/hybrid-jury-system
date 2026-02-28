@@ -22,6 +22,10 @@ export default function SNSShareBar() {
 
     const getShareUrl = () => window.location.href;
     const getShareText = () => document.title + ' #시민법정 #참심제 #사법개혁';
+    const getFullShareText = () => {
+        const desc = getOgDescription();
+        return `${document.title}\n\n${desc}\n\n#시민법정 #참심제 #사법개혁`;
+    };
 
     // 페이지별 OG 메타 태그에서 동적으로 설명/이미지 가져오기
     const getOgDescription = () => {
@@ -62,28 +66,31 @@ export default function SNSShareBar() {
     };
 
     const shareToFacebook = () => {
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}`, '_blank', 'width=600,height=400');
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}&quote=${encodeURIComponent(getFullShareText())}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTwitter = () => {
-        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(getShareText())}&url=${encodeURIComponent(getShareUrl())}`, '_blank', 'width=600,height=400');
+        const desc = getOgDescription();
+        const text = `${document.title}\n${desc}\n#시민법정 #참심제 #사법개혁`;
+        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getShareUrl())}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTelegram = () => {
         const baseUrl = getShareUrl();
         const separator = baseUrl.includes('?') ? '&' : '?';
         const url = `${baseUrl}${separator}t=${Date.now()}`;
-        window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(getShareText())}`, '_blank', 'width=600,height=400');
+        const text = getFullShareText();
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToInstagram = () => {
-        navigator.clipboard.writeText(`${getShareText()} ${getShareUrl()}`);
+        navigator.clipboard.writeText(`${getFullShareText()}\n\n${getShareUrl()}`);
         alert('텍스트가 복사되었습니다! 인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
     };
 
     const shareToThreads = async () => {
         try {
-            await navigator.clipboard.writeText(`${document.title}\n\n${getShareUrl()}\n\n#시민법정 #참심제 #사법개혁`);
+            await navigator.clipboard.writeText(`${getFullShareText()}\n\n${getShareUrl()}`);
             alert('텍스트가 복사되었습니다!\nThreads에서 붙여넣기 해주세요.');
             window.open('https://www.threads.net/', '_blank');
         } catch (err) {
@@ -93,7 +100,7 @@ export default function SNSShareBar() {
 
     const shareToTikTok = async () => {
         try {
-            await navigator.clipboard.writeText(`${document.title}\n\n${getShareUrl()}\n\n#시민법정 #참심제 #사법개혁`);
+            await navigator.clipboard.writeText(`${getFullShareText()}\n\n${getShareUrl()}`);
             alert('텍스트가 복사되었습니다!\nTikTok에서 붙여넣기 해주세요.');
             window.open('https://www.tiktok.com/', '_blank');
         } catch (err) {
@@ -102,7 +109,7 @@ export default function SNSShareBar() {
     };
 
     const shareToLinkedIn = () => {
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(getShareUrl())}`, '_blank', 'width=600,height=400');
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(getShareUrl())}&summary=${encodeURIComponent(getOgDescription())}`, '_blank', 'width=600,height=400');
     };
 
     return (

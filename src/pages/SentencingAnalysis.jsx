@@ -2421,9 +2421,22 @@ export default function SentencingAnalysis() {
             : `[재판분석] 내란 사건 재판 현황 - ${dateStr} 소식`;
     };
 
+    const getOgDescription = () => {
+        const meta = document.querySelector('meta[property="og:description"]') || document.querySelector('meta[name="description"]');
+        return meta?.content || '내란 사건 재판 분석 - 참심제 시뮬레이션으로 시민이 직접 판결에 참여합니다';
+    };
+
+    const getFullShareText = (personName) => {
+        const title = getShareText(personName);
+        const desc = getOgDescription();
+        return `${title}\n\n${desc}\n\n#시민법정 #내란재판 #양형분석`;
+    };
+
     const shareToKakao = () => {
         const url = getShareUrl(selectedPerson);
         const text = getShareText(selectedPerson);
+        const desc = getOgDescription();
+        const ogImage = document.querySelector('meta[property="og:image"]')?.content || 'https://xn--lg3b0kt4n41f.kr/%EB%82%B4%EB%9E%80%EC%9E%AC%ED%8C%90%EB%B6%84%EC%84%9D.png';
 
         if (kakaoReady && window.Kakao?.isInitialized()) {
             try {
@@ -2431,8 +2444,8 @@ export default function SentencingAnalysis() {
                     objectType: 'feed',
                     content: {
                         title: selectedPerson ? `[재판분석] ${selectedPerson}` : '재판분석',
-                        description: text,
-                        imageUrl: 'https://xn--lg3b0kt4n41f.kr/%EB%82%B4%EB%9E%80%EC%9E%AC%ED%8C%90%EB%B6%84%EC%84%9D.png',
+                        description: `${text}\n${desc}`,
+                        imageUrl: ogImage,
                         link: { mobileWebUrl: url, webUrl: url },
                     },
                     buttons: [{ title: '자세히 보기', link: { mobileWebUrl: url, webUrl: url } }],
@@ -2455,18 +2468,20 @@ export default function SentencingAnalysis() {
 
     const shareToFacebook = () => {
         const url = getShareUrl(selectedPerson);
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
+        const text = getFullShareText(selectedPerson);
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTwitter = () => {
         const url = getShareUrl(selectedPerson);
-        const text = getShareText(selectedPerson) + ' #시민법정 #내란재판 #양형분석';
+        const desc = getOgDescription();
+        const text = `${getShareText(selectedPerson)}\n${desc}\n#시민법정 #내란재판 #양형분석`;
         window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTelegram = () => {
         const url = getShareUrl(selectedPerson);
-        const text = getShareText(selectedPerson);
+        const text = getFullShareText(selectedPerson);
         const urlWithCache = `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
         window.open(
             `https://t.me/share/url?url=${encodeURIComponent(urlWithCache)}&text=${encodeURIComponent(text)}`,
@@ -2477,16 +2492,16 @@ export default function SentencingAnalysis() {
 
     const shareToInstagram = () => {
         const url = getShareUrl(selectedPerson);
-        const text = getShareText(selectedPerson);
-        navigator.clipboard.writeText(`${text} ${url}`);
+        const text = getFullShareText(selectedPerson);
+        navigator.clipboard.writeText(`${text}\n\n${url}`);
         alert('텍스트가 복사되었습니다! 인스타그램 스토리나 게시물에 붙여넣기 해주세요.');
     };
 
     const shareToThreads = async () => {
         const url = getShareUrl(selectedPerson);
-        const shareText = `${document.title}\n\n${url}\n\n#시민법정 #내란재판 #양형분석`;
+        const text = getFullShareText(selectedPerson);
         try {
-            await navigator.clipboard.writeText(shareText);
+            await navigator.clipboard.writeText(`${text}\n\n${url}`);
             alert('텍스트가 복사되었습니다!\nThreads에서 붙여넣기 해주세요.');
             window.open('https://www.threads.net/', '_blank');
         } catch (err) {
@@ -2496,8 +2511,9 @@ export default function SentencingAnalysis() {
 
     const shareToLinkedIn = () => {
         const url = getShareUrl(selectedPerson);
+        const desc = getOgDescription();
         window.open(
-            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(desc)}`,
             '_blank',
             'width=600,height=400'
         );
@@ -2506,7 +2522,8 @@ export default function SentencingAnalysis() {
     const shareToTikTok = async () => {
         try {
             const url = getShareUrl(selectedPerson);
-            await navigator.clipboard.writeText(`${document.title}\n\n${url}\n\n#시민법정 #참심제 #사법개혁`);
+            const text = getFullShareText(selectedPerson);
+            await navigator.clipboard.writeText(`${text}\n\n${url}`);
             alert('텍스트가 복사되었습니다!\nTikTok에서 붙여넣기 해주세요.');
             window.open('https://www.tiktok.com/', '_blank');
         } catch (err) {
