@@ -1178,7 +1178,7 @@ export default function InsurrectionTrialAnalysis() {
 
     return (
         <>
-            <SEOHead title="내란재판 분석" description="12.3 내란사건 재판 일정 및 진행 상황 분석" path="/trial-analysis" />
+            <SEOHead title="내란재판종합분석" description={`참심제 시뮬레이션 - ${new Date().getFullYear()}년 ${new Date().getMonth() + 1}월 ${new Date().getDate()}일, 내란 27명 피고인 판결분석, AI 양형예측 vs 참심제 시뮬레이션 비교 - 시민법정`} path="/trial-analysis" />
             <Header />
             <div className="bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen pt-24">
                 <div className="container mx-auto px-4 py-8 max-w-6xl">
