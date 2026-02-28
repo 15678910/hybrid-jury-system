@@ -4,6 +4,7 @@ import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
+import SNSShareBar from '../components/SNSShareBar';
 
 const CACHE_KEY = 'judiciary_news_cache';
 const CACHE_DURATION = 30 * 60 * 1000;
@@ -231,9 +232,11 @@ export default function JudiciaryNews() {
                 </div>
             </main>
 
+            <SNSShareBar />
             <footer className="bg-gray-900 text-gray-400 py-6 px-4">
                 <div className="container mx-auto text-center">
                     <p>&copy; 주권자사법개혁추진준비위원회</p>
+                    <p className="mt-2 text-sm">문의: siminbupjung@gmail.com</p>
                 </div>
             </footer>
         </div>

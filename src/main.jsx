@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import './index.css'
-import SNSShareBar from './components/SNSShareBar'
 
 // 홈페이지는 즉시 로드 (사용자가 가장 먼저 보는 페이지)
 import App from './App.jsx'
@@ -86,8 +85,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/precedent/:id" element={<PrecedentDetail />} />
           <Route path="/legal-search" element={<Navigate to="/case-search" replace />} />
         </Routes>
-        {/* 모든 페이지에서 보이는 SNS 공유 바 */}
-        <SNSShareBar />
         {/* 모든 페이지에서 보이는 플로팅 챗봇 */}
         <FloatingChat />
       </Suspense>

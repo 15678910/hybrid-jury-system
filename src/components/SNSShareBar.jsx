@@ -1,16 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, LinkedInIcon } from './icons';
+import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, TikTokIcon, LinkedInIcon } from './icons';
 
 export default function SNSShareBar() {
-    const location = useLocation();
-
-    // 자체 공유 바가 있는 페이지에서는 글로벌 공유 바를 숨김
-    const PAGES_WITH_OWN_SHARE = ['/sentencing-analysis'];
-    if (PAGES_WITH_OWN_SHARE.some(path => location.pathname.startsWith(path))) {
-        return null;
-    }
-
     const [kakaoReady, setKakaoReady] = useState(false);
 
     useEffect(() => {
@@ -32,6 +23,17 @@ export default function SNSShareBar() {
     const getShareUrl = () => window.location.href;
     const getShareText = () => document.title + ' #시민법정 #참심제 #사법개혁';
 
+    // 페이지별 OG 메타 태그에서 동적으로 설명/이미지 가져오기
+    const getOgDescription = () => {
+        const meta = document.querySelector('meta[property="og:description"]') || document.querySelector('meta[name="description"]');
+        return meta?.content || '시민법정 - 참심제 도입으로 시민이 판사가 되는 사법개혁';
+    };
+
+    const getOgImage = () => {
+        const meta = document.querySelector('meta[property="og:image"]');
+        return meta?.content || 'https://xn--lg3b0kt4n41f.kr/og-image.jpg';
+    };
+
     const shareToKakao = () => {
         const url = getShareUrl();
         if (kakaoReady && window.Kakao?.isInitialized()) {
@@ -40,8 +42,8 @@ export default function SNSShareBar() {
                     objectType: 'feed',
                     content: {
                         title: document.title,
-                        description: '시민법정 - 참심제 도입으로 시민이 판사가 되는 사법개혁',
-                        imageUrl: 'https://xn--lg3b0kt4n41f.kr/og-image.jpg',
+                        description: getOgDescription(),
+                        imageUrl: getOgImage(),
                         link: { mobileWebUrl: url, webUrl: url },
                     },
                     buttons: [{ title: '자세히 보기', link: { mobileWebUrl: url, webUrl: url } }],
@@ -89,6 +91,16 @@ export default function SNSShareBar() {
         }
     };
 
+    const shareToTikTok = async () => {
+        try {
+            await navigator.clipboard.writeText(`${document.title}\n\n${getShareUrl()}\n\n#시민법정 #참심제 #사법개혁`);
+            alert('텍스트가 복사되었습니다!\nTikTok에서 붙여넣기 해주세요.');
+            window.open('https://www.tiktok.com/', '_blank');
+        } catch (err) {
+            alert('복사에 실패했습니다.');
+        }
+    };
+
     const shareToLinkedIn = () => {
         window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(getShareUrl())}`, '_blank', 'width=600,height=400');
     };
@@ -117,6 +129,9 @@ export default function SNSShareBar() {
                 </button>
                 <button onClick={shareToLinkedIn} className="w-12 h-12 flex items-center justify-center bg-[#0A66C2] rounded-full hover:scale-110 transition-transform" title="LinkedIn">
                     <LinkedInIcon className="w-6 h-6 text-white" />
+                </button>
+                <button onClick={shareToTikTok} className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform" title="TikTok">
+                    <TikTokIcon className="w-6 h-6 text-white" />
                 </button>
             </div>
         </div>

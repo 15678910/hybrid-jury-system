@@ -10,6 +10,7 @@ import { fetchAllNews, cleanTitle, formatDate } from './lib/news';
 import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, LinkedInIcon } from './components/icons';
 import { trackSignatureComplete, trackShare, trackTelegramJoin } from './lib/analytics';
 import { requestPushPermission, isPushSupported, getPushPermissionStatus } from './lib/pushNotification';
+import SNSShareBar from './components/SNSShareBar';
 
 // 이름 표시 함수 (전체 이름 공개)
 const maskName = (name) => {
@@ -2420,6 +2421,9 @@ export default function App() {
                 </div>
             </section>
 
+
+            {/* SNS 공유 바 */}
+            <SNSShareBar />
 
             {/* 푸터 */}
             <footer className="bg-gray-900 text-gray-400 py-6 px-4">

@@ -4,6 +4,7 @@ import { collection, getDocs, doc, setDoc, addDoc, query, where, orderBy, onSnap
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
+import SNSShareBar from '../components/SNSShareBar';
 
 // 판결 데이터 (기본 fallback)
 const DEFAULT_VERDICTS = [
@@ -966,7 +967,8 @@ export default function InsurrectionTrialAnalysis() {
     // === 시민 제보 팩트체크 알고리즘 ===
     const TRUSTED_DOMAINS = ['hankyoreh.com','khan.co.kr','kbs.co.kr','mbc.co.kr','sbs.co.kr','ytn.co.kr','yna.co.kr','hani.co.kr',
         'joins.com','donga.com','chosun.com','news1.kr','newsis.com','jtbc.co.kr','yonhapnews.co.kr','bbc.com','reuters.com',
-        'court.go.kr','law.go.kr','assembly.go.kr','moleg.go.kr','wikileaks.org','opennet.or.kr'];
+        'court.go.kr','law.go.kr','assembly.go.kr','moleg.go.kr','wikileaks.org','opennet.or.kr',
+        'youtube.com','youtu.be','m.youtube.com'];
 
     const RED_FLAG_KEYWORDS = ['확실히','무조건','100%','음모','비밀결사','외계','사탄','공산당 지령','간첩','빨갱이','주사파'];
 
@@ -983,7 +985,15 @@ export default function InsurrectionTrialAnalysis() {
                 const urlObj = new URL(sourceUrl.startsWith('http') ? sourceUrl : 'https://' + sourceUrl);
                 const domain = urlObj.hostname.replace('www.', '');
                 const isTrusted = TRUSTED_DOMAINS.some(d => domain.includes(d));
-                if (isTrusted) {
+                const isYoutube = domain.includes('youtube.com') || domain.includes('youtu.be');
+                if (isYoutube) {
+                    const hasTimestamp = /[?&]t=\d+|#t=\d+/i.test(sourceUrl);
+                    score += hasTimestamp ? 20 : 12;
+                    reasons.push({ type: hasTimestamp ? 'positive' : 'neutral',
+                        text: hasTimestamp
+                            ? `유튜브 출처 + 타임스탬프 포함 — 검증 용이`
+                            : `유튜브 출처 — 타임스탬프(?t=초) 추가 시 신뢰도 상승` });
+                } else if (isTrusted) {
                     score += 25;
                     reasons.push({ type: 'positive', text: `신뢰할 수 있는 출처 (${domain})` });
                 } else {
@@ -1002,6 +1012,7 @@ export default function InsurrectionTrialAnalysis() {
         // 2. Source type bonus
         if (sourceType === 'court') { score += 15; reasons.push({ type: 'positive', text: '법원/공식 문서 출처' }); }
         else if (sourceType === 'news') { score += 10; reasons.push({ type: 'positive', text: '언론 보도 기반' }); }
+        else if (sourceType === 'youtube') { score += 7; reasons.push({ type: 'neutral', text: '유튜브 영상 출처 — 영상 내 발언자·타임스탬프 명시 시 신뢰도 상승' }); }
         else if (sourceType === 'insider') { score += 5; reasons.push({ type: 'neutral', text: '내부 제보 — 교차검증 필요' }); }
         else { reasons.push({ type: 'neutral', text: '기타 출처 — 추가 검증 권장' }); }
 
@@ -1819,7 +1830,7 @@ export default function InsurrectionTrialAnalysis() {
 
                             {/* C. 피고인별 상세 분석 (아코디언) */}
                             <div className="bg-white rounded-xl shadow-lg p-6">
-                                <h2 className="text-xl font-bold text-gray-800 mb-4">피고인별 상세 분석</h2>
+                                <h2 className="text-xl font-bold text-gray-800 mb-4">피고인별 상세 분석 및 제보하기</h2>
                                 <div className="space-y-3">
                                     {SIMULATION_DATA.map((item, idx) => (
                                         <div key={idx} className="border border-gray-200 rounded-xl overflow-hidden">
@@ -2014,6 +2025,7 @@ export default function InsurrectionTrialAnalysis() {
                                                                             >
                                                                                 <option value="news">언론 보도</option>
                                                                                 <option value="court">법원/공식 문서</option>
+                                                                                <option value="youtube">유튜브 영상</option>
                                                                                 <option value="insider">내부 제보</option>
                                                                                 <option value="other">기타</option>
                                                                             </select>
@@ -2610,6 +2622,13 @@ export default function InsurrectionTrialAnalysis() {
                     </div>
                 </div>
             </div>
+            <SNSShareBar />
+            <footer className="bg-gray-900 text-gray-400 py-6 px-4">
+                <div className="container mx-auto text-center">
+                    <p>© 주권자사법개혁추진준비위원회</p>
+                    <p className="mt-2 text-sm">문의: siminbupjung@gmail.com</p>
+                </div>
+            </footer>
         </>
     );
 }

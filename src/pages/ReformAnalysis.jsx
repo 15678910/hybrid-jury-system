@@ -4,6 +4,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
+import SNSShareBar from '../components/SNSShareBar';
 
 // 개혁안 뉴스 캐시 설정
 const REFORM_NEWS_CACHE_KEY = 'reform_news_cache';
@@ -1202,7 +1203,7 @@ export default function ReformAnalysis() {
                     {/* 페이지 헤더 */}
                     <div className="text-center mb-8">
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                            법원·검찰 개혁안 비교
+                            사법 개혁안 비교
                         </h1>
                         <p className="text-gray-500 text-sm">
                             정부/여당, 야당, 시민사회의 사법개혁안을 한눈에 비교합니다
@@ -1583,9 +1584,11 @@ export default function ReformAnalysis() {
                 </div>
             </main>
 
+            <SNSShareBar />
             <footer className="bg-gray-900 text-gray-400 py-6 px-4">
                 <div className="container mx-auto text-center">
                     <p>&copy; 주권자사법개혁추진준비위원회</p>
+                    <p className="mt-2 text-sm">문의: siminbupjung@gmail.com</p>
                 </div>
             </footer>
         </div>

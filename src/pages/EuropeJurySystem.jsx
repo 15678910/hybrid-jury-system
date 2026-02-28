@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
 import Header from '../components/Header';
+import SNSShareBar from '../components/SNSShareBar';
 
 // 유럽 27개국 + 주요국 참심제/배심제 정보
 const EUROPE_JURY_DATA = [
@@ -790,15 +791,11 @@ export default function EuropeJurySystem() {
                 </div>
             </section>
 
-            {/* 푸터 */}
-            <footer className="bg-gray-800 text-white py-8">
-                <div className="container mx-auto px-4 text-center">
-                    <p className="text-gray-400">
-                        시민법관 참심제 준비위원회 | 유럽 시민참여재판 제도 정보
-                    </p>
-                    <Link to="/" className="text-blue-400 hover:text-blue-300 mt-2 inline-block">
-                        메인으로 돌아가기
-                    </Link>
+            <SNSShareBar />
+            <footer className="bg-gray-900 text-gray-400 py-6 px-4">
+                <div className="container mx-auto text-center">
+                    <p>© 주권자사법개혁추진준비위원회</p>
+                    <p className="mt-2 text-sm">문의: siminbupjung@gmail.com</p>
                 </div>
             </footer>
         </div>

@@ -4,7 +4,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
-import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, LinkedInIcon } from '../components/icons';
+import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, TikTokIcon, LinkedInIcon } from '../components/icons';
 import { JUDGES_DATA } from '../data/judges';
 
 // 위키백과 공개 이미지 URL (Wikimedia Commons) + 정부 정책브리핑(korea.kr) 공식 사진
@@ -2503,6 +2503,17 @@ export default function SentencingAnalysis() {
         );
     };
 
+    const shareToTikTok = async () => {
+        try {
+            const url = getShareUrl(selectedPerson);
+            await navigator.clipboard.writeText(`${document.title}\n\n${url}\n\n#시민법정 #참심제 #사법개혁`);
+            alert('텍스트가 복사되었습니다!\nTikTok에서 붙여넣기 해주세요.');
+            window.open('https://www.tiktok.com/', '_blank');
+        } catch (err) {
+            alert('복사에 실패했습니다.');
+        }
+    };
+
     // 정적 데이터와 Firestore 데이터 병합
     const getMergedPersonData = (name) => {
         const staticData = personsData[name];
@@ -2764,6 +2775,14 @@ export default function SentencingAnalysis() {
                             </div>
                         </div>
 
+                        {/* 출처 안내 */}
+                        <div className="mt-8 p-4 bg-gray-100 rounded-xl text-center">
+                            <p className="text-gray-600 text-sm">
+                                이 정보는 공개된 뉴스 보도를 바탕으로 작성되었습니다.<br />
+                                재판 진행 상황에 따라 내용이 변경될 수 있습니다.
+                            </p>
+                        </div>
+
                         {/* SNS 공유 */}
                         <div className="mt-8 bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6">
                             <p className="text-white text-center mb-4 font-medium">이 페이지를 공유해주세요</p>
@@ -2797,15 +2816,14 @@ export default function SentencingAnalysis() {
                                 >
                                     <LinkedInIcon className="w-6 h-6 text-white" />
                                 </button>
+                                <button
+                                    onClick={shareToTikTok}
+                                    className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform"
+                                    title="TikTok"
+                                >
+                                    <TikTokIcon className="w-6 h-6 text-white" />
+                                </button>
                             </div>
-                        </div>
-
-                        {/* 출처 안내 */}
-                        <div className="mt-8 p-4 bg-gray-100 rounded-xl text-center">
-                            <p className="text-gray-600 text-sm">
-                                이 정보는 공개된 뉴스 보도를 바탕으로 작성되었습니다.<br />
-                                재판 진행 상황에 따라 내용이 변경될 수 있습니다.
-                            </p>
                         </div>
                     </div>
                 </main>
@@ -2813,6 +2831,7 @@ export default function SentencingAnalysis() {
                 <footer className="bg-gray-900 text-gray-400 py-6 px-4">
                     <div className="container mx-auto text-center">
                         <p>&copy; 주권자사법개혁추진준비위원회</p>
+                        <p className="mt-2 text-sm">문의: siminbupjung@gmail.com</p>
                     </div>
                 </footer>
             </div>
@@ -4092,42 +4111,6 @@ export default function SentencingAnalysis() {
                         </div>
                     )}
 
-                    {/* SNS 공유 */}
-                    <div className="mt-8 bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6">
-                        <p className="text-white text-center mb-4 font-medium">이 페이지를 공유해주세요</p>
-                        <div className="flex justify-center gap-4">
-                            <button onClick={shareToKakao} className="w-12 h-12 flex items-center justify-center bg-[#FEE500] rounded-full hover:scale-110 transition-transform" title="카카오톡">
-                                <KakaoIcon className="w-6 h-6 text-[#391B1B]" />
-                            </button>
-                            <button onClick={shareToFacebook} className="w-12 h-12 flex items-center justify-center bg-[#1877F2] rounded-full hover:scale-110 transition-transform" title="페이스북">
-                                <FacebookIcon className="w-6 h-6 text-white" />
-                            </button>
-                            <button onClick={shareToTwitter} className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform" title="X">
-                                <XIcon className="w-5 h-5 text-white" />
-                            </button>
-                            <button onClick={shareToInstagram} className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#515BD4] rounded-full hover:scale-110 transition-transform" title="인스타그램">
-                                <InstagramIcon className="w-6 h-6 text-white" />
-                            </button>
-                            <button onClick={shareToTelegram} className="w-12 h-12 flex items-center justify-center bg-[#0088cc] rounded-full hover:scale-110 transition-transform" title="텔레그램">
-                                <TelegramIcon className="w-6 h-6 text-white" />
-                            </button>
-                            <button
-                                onClick={shareToThreads}
-                                className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform"
-                                title="Threads"
-                            >
-                                <ThreadsIcon className="w-6 h-6 text-white" />
-                            </button>
-                            <button
-                                onClick={shareToLinkedIn}
-                                className="w-12 h-12 flex items-center justify-center bg-[#0A66C2] rounded-full hover:scale-110 transition-transform"
-                                title="LinkedIn"
-                            >
-                                <LinkedInIcon className="w-6 h-6 text-white" />
-                            </button>
-                        </div>
-                    </div>
-
                     {/* 자동 수집 최신 뉴스 */}
                     {person._recentNews && person._recentNews.length > 0 && (
                         <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
@@ -4194,9 +4177,53 @@ export default function SentencingAnalysis() {
                 </div>
             </main>
 
+                    {/* SNS 공유 */}
+                    <div className="mt-8 bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6 mx-4 my-6 max-w-6xl lg:mx-auto">
+                        <p className="text-white text-center mb-4 font-medium">이 페이지를 공유해주세요</p>
+                        <div className="flex justify-center gap-4">
+                            <button onClick={shareToKakao} className="w-12 h-12 flex items-center justify-center bg-[#FEE500] rounded-full hover:scale-110 transition-transform" title="카카오톡">
+                                <KakaoIcon className="w-6 h-6 text-[#391B1B]" />
+                            </button>
+                            <button onClick={shareToFacebook} className="w-12 h-12 flex items-center justify-center bg-[#1877F2] rounded-full hover:scale-110 transition-transform" title="페이스북">
+                                <FacebookIcon className="w-6 h-6 text-white" />
+                            </button>
+                            <button onClick={shareToTwitter} className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform" title="X">
+                                <XIcon className="w-5 h-5 text-white" />
+                            </button>
+                            <button onClick={shareToInstagram} className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#515BD4] rounded-full hover:scale-110 transition-transform" title="인스타그램">
+                                <InstagramIcon className="w-6 h-6 text-white" />
+                            </button>
+                            <button onClick={shareToTelegram} className="w-12 h-12 flex items-center justify-center bg-[#0088cc] rounded-full hover:scale-110 transition-transform" title="텔레그램">
+                                <TelegramIcon className="w-6 h-6 text-white" />
+                            </button>
+                            <button
+                                onClick={shareToThreads}
+                                className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform"
+                                title="Threads"
+                            >
+                                <ThreadsIcon className="w-6 h-6 text-white" />
+                            </button>
+                            <button
+                                onClick={shareToLinkedIn}
+                                className="w-12 h-12 flex items-center justify-center bg-[#0A66C2] rounded-full hover:scale-110 transition-transform"
+                                title="LinkedIn"
+                            >
+                                <LinkedInIcon className="w-6 h-6 text-white" />
+                            </button>
+                            <button
+                                onClick={shareToTikTok}
+                                className="w-12 h-12 flex items-center justify-center bg-black rounded-full hover:scale-110 transition-transform"
+                                title="TikTok"
+                            >
+                                <TikTokIcon className="w-6 h-6 text-white" />
+                            </button>
+                        </div>
+                    </div>
+
             <footer className="bg-gray-900 text-gray-400 py-6 px-4">
                 <div className="container mx-auto text-center">
                     <p>&copy; 주권자사법개혁추진준비위원회</p>
+                    <p className="mt-2 text-sm">문의: siminbupjung@gmail.com</p>
                 </div>
             </footer>
         </div>

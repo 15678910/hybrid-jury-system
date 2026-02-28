@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import { getPrecedentDetail } from '../lib/lawApi';
+import SNSShareBar from '../components/SNSShareBar';
 
 function PrecedentDetail() {
     const { id } = useParams();
@@ -376,15 +377,11 @@ function PrecedentDetail() {
                 </div>
             </div>
 
-            {/* Footer */}
-            <footer className="bg-gray-900 text-white py-8">
-                <div className="max-w-4xl mx-auto px-4 text-center">
-                    <p className="text-gray-400 text-sm">
-                        시민법정 - 법률정보 검색 서비스
-                    </p>
-                    <p className="text-gray-500 text-xs mt-2">
-                        본 서비스는 공익 목적으로 제공되며, 법률 자문을 대체하지 않습니다.
-                    </p>
+            <SNSShareBar />
+            <footer className="bg-gray-900 text-gray-400 py-6 px-4">
+                <div className="container mx-auto text-center">
+                    <p>© 주권자사법개혁추진준비위원회</p>
+                    <p className="mt-2 text-sm">문의: siminbupjung@gmail.com</p>
                 </div>
             </footer>
         </div>
