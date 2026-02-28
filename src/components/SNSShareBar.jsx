@@ -74,7 +74,9 @@ export default function SNSShareBar() {
     };
 
     const shareToFacebook = () => {
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}&quote=${encodeURIComponent(getFullShareText())}`, '_blank', 'width=600,height=400');
+        const desc = getOgDescription();
+        const quote = `${document.title} - ${desc}`;
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}&quote=${encodeURIComponent(quote)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTwitter = () => {
