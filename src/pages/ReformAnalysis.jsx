@@ -1017,6 +1017,129 @@ const reformData = [
     }
 ];
 
+// AI 법안 위험도 분석 데이터
+const REFORM_RISK_ANALYSIS = {
+    prosecution: {
+        overallRisk: 'high',
+        overallScore: 8,
+        title: '검찰개혁',
+        clauses: [
+            {
+                clause: '검찰 기소독점주의 폐지',
+                risk: 'high', score: 9,
+                constitutionalIssues: ['헌법 제12조 적법절차 원칙과의 충돌 가능성', '검찰의 헌법상 지위(법률로 설치된 기관) 변경 시 개헌 필요 여부'],
+                implementationChallenges: ['대안 기소 기관 설립 및 인력 확보에 3~5년 소요', '기소 품질 저하 및 무혐의 기소 증가 우려'],
+                internationalPrecedents: ['일본: 검찰심사회(시민 기소 심사) 운영', '독일: 기소법정주의 채택, 검찰 재량 제한']
+            },
+            {
+                clause: '검찰 수사권 완전 분리',
+                risk: 'medium', score: 6,
+                constitutionalIssues: ['수사와 기소의 분리가 효율적 형사사법 운영에 미치는 영향'],
+                implementationChallenges: ['경찰-검찰 간 수사 지휘 체계 재정립 필요', '특수 범죄(부패, 경제) 수사 전문성 유지 방안'],
+                internationalPrecedents: ['영국: 경찰 수사 + CPS 기소 분리 모델', '프랑스: 예심판사 제도로 수사 감독']
+            }
+        ]
+    },
+    'supreme-court': {
+        overallRisk: 'high',
+        overallScore: 8,
+        title: '대법원 개혁',
+        clauses: [
+            {
+                clause: '대법관 임명 방식 변경',
+                risk: 'high', score: 8,
+                constitutionalIssues: ['헌법 제104조(대법관 임명) 개정 필요', '사법부 독립성과 민주적 정당성의 균형'],
+                implementationChallenges: ['국민 참여형 추천위원회 구성의 정치적 중립성 확보', '임명 절차 장기화로 대법관 공백 발생 우려'],
+                internationalPrecedents: ['미국: 대통령 지명 + 상원 인준', '독일: 연방의회·연방참사원 각 절반 선출']
+            },
+            {
+                clause: '대법원 상고 허가제 강화',
+                risk: 'medium', score: 5,
+                constitutionalIssues: ['재판받을 권리(헌법 제27조)와의 관계', '법률 해석 통일 기능 약화 우려'],
+                implementationChallenges: ['허가 기준의 명확화 필요', '고등법원 판결의 최종성 강화에 따른 항소심 부담 증가'],
+                internationalPrecedents: ['독일: 연방대법원 상고 허가제 운영', '일본: 상고수리제 도입']
+            }
+        ]
+    },
+    'law-distortion': {
+        overallRisk: 'high',
+        overallScore: 9,
+        title: '법왜곡죄 도입',
+        clauses: [
+            {
+                clause: '법관 법왜곡죄 신설',
+                risk: 'high', score: 9,
+                constitutionalIssues: ['사법부 독립(헌법 제103조)과의 충돌', '법관의 법률 해석 재량과 "왜곡" 구분 기준 모호'],
+                implementationChallenges: ['법왜곡 판단 주체 문제 (검찰이 법관을 수사하는 구조)', '"고의적 왜곡"의 입증 기준 설정 난이도 극히 높음'],
+                internationalPrecedents: ['독일: Rechtsbeugung(법왜곡죄) 형법 제339조 운영', '오스트리아: 유사 규정 존재하나 적용 사례 극히 드묾']
+            }
+        ]
+    },
+    'judicial-appeal': {
+        overallRisk: 'medium',
+        overallScore: 6,
+        title: '사법불복 절차 개선',
+        clauses: [
+            {
+                clause: '재판관할 변경 제도 강화',
+                risk: 'medium', score: 6,
+                constitutionalIssues: ['법관의 재판 독립성과 관할 변경의 남용 가능성'],
+                implementationChallenges: ['관할 변경 신청의 남용 방지 기준 마련', '소송 지연 효과 최소화 방안'],
+                internationalPrecedents: ['미국: venue change(재판장소 변경) 폭넓게 인정', '영국: 편견 없는 재판을 위한 이송 제도']
+            }
+        ]
+    },
+    'court-admin': {
+        overallRisk: 'medium',
+        overallScore: 7,
+        title: '법원행정 개혁',
+        clauses: [
+            {
+                clause: '사법행정권 분리',
+                risk: 'high', score: 7,
+                constitutionalIssues: ['대법원장의 사법행정 총괄권(헌법 제104조) 변경 문제', '법원행정처의 독립기관화 시 민주적 통제 방안'],
+                implementationChallenges: ['행정 인력 및 예산 이관 절차', '사법행정 전문성 유지와 재판 독립성 보장의 균형'],
+                internationalPrecedents: ['미국: 연방사법회의(Judicial Conference) 운영', '독일: 법무부가 법원 행정 담당']
+            }
+        ]
+    },
+    'judge-personnel': {
+        overallRisk: 'medium',
+        overallScore: 6,
+        title: '법관인사 개혁',
+        clauses: [
+            {
+                clause: '법관 성과평가 제도 도입',
+                risk: 'medium', score: 6,
+                constitutionalIssues: ['법관 독립성(헌법 제103조)과 성과평가의 긴장 관계', '평가 기준이 판결 내용에 영향을 미칠 우려'],
+                implementationChallenges: ['공정하고 객관적인 평가 기준 설정의 어려움', '평가 결과의 인사 반영 범위와 방법'],
+                internationalPrecedents: ['네덜란드: 법관 평가 시스템 운영', '호주: 법관 성과 프레임워크']
+            }
+        ]
+    },
+    'citizen-trial': {
+        overallRisk: 'medium',
+        overallScore: 5,
+        title: '시민재판 참여 확대',
+        clauses: [
+            {
+                clause: '국민참여재판 적용 범위 확대',
+                risk: 'low', score: 4,
+                constitutionalIssues: ['헌법재판소 결정(2009헌바17): 국민참여재판 권고적 효력 합헌', '구속력 부여 시 헌법 개정 필요 여부'],
+                implementationChallenges: ['배심원 확보 및 교육 인프라 구축', '재판 기간 연장에 따른 비용 증가'],
+                internationalPrecedents: ['미국: 배심제(구속력 있는 평결)', '독일: 참심제(시민판사+직업법관 합의체)', '프랑스: 중죄재판 배심제']
+            },
+            {
+                clause: '참심제 도입',
+                risk: 'medium', score: 5,
+                constitutionalIssues: ['헌법상 법관 자격 요건과 시민법관의 법적 지위', '위헌 여부에 대한 헌법재판소 판단 필요'],
+                implementationChallenges: ['시민법관 선발 기준 및 이해충돌 방지', '전문적 법률 판단에 대한 시민 참여의 한계'],
+                internationalPrecedents: ['독일: Schöffen(참심원) 제도 200년+ 운영', '스웨덴: nämndemän(참심원) 제도', '이탈리아: giudice popolare(인민판사) 제도']
+            }
+        ]
+    }
+};
+
 export default function ReformAnalysis() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [activeTab, setActiveTab] = useState(() => {
@@ -1038,6 +1161,8 @@ export default function ReformAnalysis() {
     }, [activeTab]);
     const [reformNews, setReformNews] = useState({});
     const [newsLoading, setNewsLoading] = useState(false);
+    const [showRiskAnalysis, setShowRiskAnalysis] = useState(false);
+    const [expandedRiskClause, setExpandedRiskClause] = useState(null);
 
     // Firestore에서 개혁안 뉴스 가져오기
     useEffect(() => {
@@ -1267,6 +1392,123 @@ export default function ReformAnalysis() {
                                 </div>
                             )}
                         </>
+                    )}
+
+                    {/* AI 법안 위험도 분석 */}
+                    {activeReform && REFORM_RISK_ANALYSIS[activeReform.id] && (
+                        <div className="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
+                            <button
+                                onClick={() => { setShowRiskAnalysis(!showRiskAnalysis); setExpandedRiskClause(null); }}
+                                className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <span className="text-lg">🤖</span>
+                                    <span className="font-bold text-gray-800">AI 법안 위험도 분석</span>
+                                    <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                                        REFORM_RISK_ANALYSIS[activeReform.id].overallRisk === 'high' ? 'bg-red-100 text-red-700' :
+                                        REFORM_RISK_ANALYSIS[activeReform.id].overallRisk === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                        'bg-green-100 text-green-700'
+                                    }`}>{REFORM_RISK_ANALYSIS[activeReform.id].overallRisk === 'high' ? '고위험' :
+                                        REFORM_RISK_ANALYSIS[activeReform.id].overallRisk === 'medium' ? '중위험' : '저위험'}</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-sm text-gray-500">{REFORM_RISK_ANALYSIS[activeReform.id].overallScore}/10</span>
+                                    <span className={`transform transition-transform ${showRiskAnalysis ? 'rotate-180' : ''}`}>▼</span>
+                                </div>
+                            </button>
+
+                            {showRiskAnalysis && (() => {
+                                const riskData = REFORM_RISK_ANALYSIS[activeReform.id];
+                                return (
+                                    <div className="px-6 pb-6 space-y-4">
+                                        {/* AI 면책 배너 */}
+                                        <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-3 text-center">
+                                            <p className="text-xs text-cyan-800">
+                                                ⚠️ AI가 사전 생성한 법안 위험도 분석입니다. 법적 조언이 아니며, 정확한 법률 자문은 전문가에게 문의하세요.
+                                            </p>
+                                        </div>
+
+                                        {/* 종합 위험도 진행바 */}
+                                        <div className="bg-gray-50 rounded-xl p-4">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-sm font-medium text-gray-700">종합 위험도 점수</span>
+                                                <span className="text-lg font-bold text-gray-800">{riskData.overallScore}/10</span>
+                                            </div>
+                                            <div className="w-full bg-gray-200 rounded-full h-3">
+                                                <div
+                                                    className={`h-3 rounded-full transition-all ${
+                                                        riskData.overallScore >= 8 ? 'bg-red-500' :
+                                                        riskData.overallScore >= 5 ? 'bg-yellow-500' : 'bg-green-500'
+                                                    }`}
+                                                    style={{ width: `${riskData.overallScore * 10}%` }}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* 조항별 위험도 카드 */}
+                                        {riskData.clauses.map((clause, cIdx) => (
+                                            <div key={cIdx} className="border rounded-xl overflow-hidden">
+                                                <button
+                                                    onClick={() => setExpandedRiskClause(expandedRiskClause === cIdx ? null : cIdx)}
+                                                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                                                            clause.risk === 'high' ? 'bg-red-100 text-red-700' :
+                                                            clause.risk === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                                            'bg-green-100 text-green-700'
+                                                        }`}>{clause.score}/10</span>
+                                                        <span className="font-medium text-sm text-gray-800">{clause.clause}</span>
+                                                    </div>
+                                                    <span className={`transform transition-transform text-sm ${expandedRiskClause === cIdx ? 'rotate-180' : ''}`}>▼</span>
+                                                </button>
+
+                                                {expandedRiskClause === cIdx && (
+                                                    <div className="px-4 pb-4 space-y-3">
+                                                        {/* 헌법적 쟁점 */}
+                                                        <div className="bg-red-50 rounded-lg p-3">
+                                                            <h5 className="font-bold text-red-800 text-xs mb-2">🏛️ 헌법적 쟁점</h5>
+                                                            <ul className="space-y-1">
+                                                                {clause.constitutionalIssues.map((issue, iIdx) => (
+                                                                    <li key={iIdx} className="text-xs text-gray-700 flex items-start gap-1.5">
+                                                                        <span className="text-red-400 mt-0.5 shrink-0">•</span>
+                                                                        <span>{issue}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                        {/* 이행 과제 */}
+                                                        <div className="bg-amber-50 rounded-lg p-3">
+                                                            <h5 className="font-bold text-amber-800 text-xs mb-2">⚙️ 이행 과제</h5>
+                                                            <ul className="space-y-1">
+                                                                {clause.implementationChallenges.map((ch, chIdx) => (
+                                                                    <li key={chIdx} className="text-xs text-gray-700 flex items-start gap-1.5">
+                                                                        <span className="text-amber-400 mt-0.5 shrink-0">•</span>
+                                                                        <span>{ch}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                        {/* 국제 사례 */}
+                                                        <div className="bg-blue-50 rounded-lg p-3">
+                                                            <h5 className="font-bold text-blue-800 text-xs mb-2">🌍 국제 사례</h5>
+                                                            <ul className="space-y-1">
+                                                                {clause.internationalPrecedents.map((prec, pIdx) => (
+                                                                    <li key={pIdx} className="text-xs text-gray-700 flex items-start gap-1.5">
+                                                                        <span className="text-blue-400 mt-0.5 shrink-0">•</span>
+                                                                        <span>{prec}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                );
+                            })()}
+                        </div>
                     )}
 
                     {/* 관련 최신 뉴스 */}

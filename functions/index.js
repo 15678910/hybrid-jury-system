@@ -1805,12 +1805,11 @@ const filterRecentNews = (newsItems) => {
 const collectAndPostNews = async (force = false) => {
     console.log('Starting news collection...');
 
-    // 오늘 이미 수집했는지 확인 (최근 포스트 중 자동뉴스 확인)
+    // 최근 6시간 이내 수집했는지 확인 (오전6시/오후6시 각각 수집되도록)
     const now = new Date();
     const koreaOffset = 9 * 60 * 60 * 1000;
     const koreaTime = new Date(now.getTime() + koreaOffset);
-    const todayStart = new Date(koreaTime.getFullYear(), koreaTime.getMonth(), koreaTime.getDate());
-    todayStart.setTime(todayStart.getTime() - koreaOffset);
+    const sixHoursAgo = new Date(now.getTime() - 6 * 60 * 60 * 1000);
 
     const recentPosts = await db.collection('posts')
         .orderBy('createdAt', 'desc')
@@ -1820,12 +1819,12 @@ const collectAndPostNews = async (force = false) => {
     const alreadyCollected = recentPosts.docs.some(doc => {
         const data = doc.data();
         const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : null;
-        return data.isAutoNews === true && createdAt && createdAt >= todayStart;
+        return data.isAutoNews === true && createdAt && createdAt >= sixHoursAgo;
     });
 
     if (alreadyCollected && !force) {
-        console.log('News already collected today, skipping');
-        return { skipped: true, message: '오늘 이미 뉴스가 수집되었습니다.' };
+        console.log('News already collected within last 6 hours, skipping');
+        return { skipped: true, message: '최근 6시간 이내 이미 뉴스가 수집되었습니다.' };
     }
 
     // 모든 키워드에 대해 뉴스 수집

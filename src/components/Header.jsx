@@ -126,7 +126,7 @@ export default function Header() {
                                         to="/reform-analysis"
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                     >
-                                        개혁안 비교
+                                        사법개혁안 비교
                                     </Link>
                                     <Link
                                         to="/law-database"
@@ -226,7 +226,7 @@ export default function Header() {
                                 <Link to="/sentencing-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>내란재판분석</Link>
                                 <Link to="/trial-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>내란재판종합분석</Link>
                                 <Link to="/judge-evaluation" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>AI의 판사평가</Link>
-                                <Link to="/reform-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>개혁안 비교</Link>
+                                <Link to="/reform-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>사법개혁안 비교</Link>
                                 <Link to="/law-database" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>법령DB</Link>
                                 <Link to="/judicial-network" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>관계도</Link>
                             </div>

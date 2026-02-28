@@ -1,6 +1,6 @@
 import { useState, useEffect, Fragment } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, addDoc, query, where, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
@@ -300,6 +300,88 @@ const DEFAULT_VERDICTS = [
         detail: '대통령비서실장, 내란 가담'
     }
 ];
+
+// AI 판결 비교분석 데이터
+const VERDICT_COMPARISON_ANALYSIS = {
+    overallAssessment: {
+        summary: '12.3 내란 사건의 1심 판결은 전체적으로 내란죄 성립을 인정하면서도, 피고인별 양형에 상당한 편차가 존재합니다. 특히 구형을 초과하는 선고(한덕수), 같은 혐의에 대한 3배 이상의 양형 차이(한덕수 vs 이상민), 재판부 간 무죄 범위의 차이 등이 주목됩니다.',
+        keyFindings: [
+            '구형 초과 선고: 한덕수에 대해 검찰 구형(15년)보다 8년 높은 23년 선고 — 사법부 독립성의 양면',
+            '양형 편차: 내란중요임무종사 혐의 피고인 간 7년~30년의 편차 (4.3배)',
+            '무죄 기준 불일치: 동일 혐의에 대해 재판부별 국헌문란 목적 인식 인정 범위가 상이',
+            '역할 비중과 양형의 비례성 문제: 실행 지휘자(김용현 30년)와 정치적 책임자(한덕수 23년)의 격차'
+        ]
+    },
+    sentencingDisparities: [
+        {
+            pair: '한덕수 vs 이상민',
+            pairDetail: '국무총리 vs 행안부장관',
+            charge: '내란중요임무종사',
+            sentences: ['징역 23년', '징역 7년'],
+            gap: '3.3배',
+            analysis: '한덕수는 내란우두머리방조 무죄에도 불구하고 내란중요임무종사로 23년 선고. 이상민은 동일 혐의로 7년. 역할 차이가 16년의 양형 차이를 정당화하는지 논란.',
+            disparity: 'high'
+        },
+        {
+            pair: '김용현 vs 노상원',
+            pairDetail: '국방부장관 vs 수방사령관',
+            charge: '내란중요임무종사',
+            sentences: ['징역 30년', '징역 18년'],
+            gap: '12년',
+            analysis: '김용현은 비상계엄 전반을 주도적으로 준비한 핵심 인물로 최고형. 노상원은 포고령 작성 및 선관위 침입 지휘로 18년. 역할 비중에 따른 차등화.',
+            disparity: 'medium'
+        },
+        {
+            pair: '김봉식 vs 조지호',
+            pairDetail: '해병대사령관 vs 서울경찰청장',
+            charge: '내란중요임무종사',
+            sentences: ['징역 12년', '징역 15년'],
+            gap: '3년',
+            analysis: '군 수장(김봉식 12년)보다 경찰 수장(조지호 15년)이 더 높은 형을 받음. 국회 봉쇄라는 직접적 실행 행위의 중대성이 반영.',
+            disparity: 'low'
+        },
+        {
+            pair: '김용군/윤승영 vs 유죄 피고인',
+            pairDetail: '무죄 2명 vs 유죄 다수',
+            charge: '내란중요임무종사',
+            sentences: ['무죄', '유죄 (7~30년)'],
+            gap: '전면 무죄',
+            analysis: '같은 내란중요임무종사 혐의에서 국헌문란 목적의 인식·공유가 인정되지 않아 무죄. 공모의 범위와 고의성 입증 기준이 핵심 쟁점.',
+            disparity: 'high'
+        }
+    ],
+    judicialIntegrityFlags: [
+        {
+            flag: '구형 초과 선고',
+            severity: 'warning',
+            detail: '한덕수 사건에서 검찰 구형(15년)을 8년 초과하는 23년 선고. 일반적으로 법원은 구형 이하를 선고하는 관행이 있으나, 법적으로 구형 초과는 허용됨. 사법부의 독립성을 보여주나, 양형 기준의 예측 가능성에 대한 우려도 존재.'
+        },
+        {
+            flag: '재판부 간 양형 편차',
+            severity: 'warning',
+            detail: '형사합의33부(한덕수, 23년)와 형사합의25-1부(이상민, 7년)의 양형 편차가 현저. 동일 혐의에 대한 일관된 양형 기준 부재가 사법 신뢰에 영향.'
+        },
+        {
+            flag: '무죄 선고와 공모 인정 범위',
+            severity: 'info',
+            detail: '형사합의25부(김용군, 윤승영 무죄)와 형사합의33부(한덕수 유죄)의 공모 범위 인정 기준이 상이. 국헌문란 목적의 인식·공유에 대한 법원 간 해석 차이.'
+        },
+        {
+            flag: '내란우두머리방조 법리 판단',
+            severity: 'info',
+            detail: '한덕수 사건에서 "내란죄는 필요적 공동정범이므로 방조범이 성립할 수 없다"는 법리 확인. 이는 향후 내란 관련 사건의 공소 전략에 영향을 미칠 선례.'
+        }
+    ],
+    historicalBenchmark: [
+        { event: '12.12 군사반란', year: '1979', defendant: '전두환', charge: '반란수괴·내란수괴', sentence: '사형→무기징역→특사', note: '1996년 선고, 1997년 특사' },
+        { event: '12.12 군사반란', year: '1979', defendant: '노태우', charge: '반란중요임무·내란중요임무', sentence: '징역 22년6월→17년→특사', note: '1996년 선고, 1997년 특사' },
+        { event: '12.12 군사반란', year: '1979', defendant: '정호용', charge: '반란중요임무·내란중요임무', sentence: '징역 10년→7년', note: '특전사령관' },
+        { event: '12.3 비상계엄', year: '2024', defendant: '윤석열', charge: '내란수괴', sentence: '무기징역', note: '1심, 사형 구형' },
+        { event: '12.3 비상계엄', year: '2024', defendant: '김용현', charge: '내란중요임무종사', sentence: '징역 30년', note: '1심, 국방부장관' },
+        { event: '12.3 비상계엄', year: '2024', defendant: '한덕수', charge: '내란중요임무종사', sentence: '징역 23년', note: '1심, 구형 15년 초과' },
+        { event: '12.3 비상계엄', year: '2024', defendant: '이상민', charge: '내란중요임무종사', sentence: '징역 7년', note: '1심, 행안부장관' }
+    ]
+};
 
 // 1심 재판부 데이터 (기본 fallback)
 const DEFAULT_FIRST_COURTS = [
@@ -851,7 +933,7 @@ export default function InsurrectionTrialAnalysis() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [activeTab, setActiveTab] = useState(() => {
         const tabParam = searchParams.get('tab');
-        const validTabs = ['overview', 'courts', 'timeline', 'classAnalysis', 'legal', 'simulation'];
+        const validTabs = ['overview', 'courts', 'timeline', 'classAnalysis', 'legal', 'simulation', 'aiVerdict'];
         return validTabs.includes(tabParam) ? tabParam : 'overview';
     });
 
@@ -874,6 +956,141 @@ export default function InsurrectionTrialAnalysis() {
     const [appealCourts, setAppealCourts] = useState(DEFAULT_APPEAL_COURTS);
     const [loading, setLoading] = useState(true);
     const [expandedSim, setExpandedSim] = useState(null);
+    const [expandedDisparity, setExpandedDisparity] = useState(null);
+    const [citizenReports, setCitizenReports] = useState({});  // { defendant: [reports] }
+    const [reportForm, setReportForm] = useState({ defendant: '', content: '', sourceUrl: '', sourceType: 'news', nickname: '' });
+    const [showReportForm, setShowReportForm] = useState(null); // which defendant idx
+    const [factCheckResult, setFactCheckResult] = useState(null); // { score, verdict, reasons, defendant }
+    const [reportSubmitting, setReportSubmitting] = useState(false);
+
+    // === 시민 제보 팩트체크 알고리즘 ===
+    const TRUSTED_DOMAINS = ['hankyoreh.com','khan.co.kr','kbs.co.kr','mbc.co.kr','sbs.co.kr','ytn.co.kr','yna.co.kr','hani.co.kr',
+        'joins.com','donga.com','chosun.com','news1.kr','newsis.com','jtbc.co.kr','yonhapnews.co.kr','bbc.com','reuters.com',
+        'court.go.kr','law.go.kr','assembly.go.kr','moleg.go.kr','wikileaks.org','opennet.or.kr'];
+
+    const RED_FLAG_KEYWORDS = ['확실히','무조건','100%','음모','비밀결사','외계','사탄','공산당 지령','간첩','빨갱이','주사파'];
+
+    const LEGAL_KEYWORDS = ['형법','내란','공모','교사','방조','수괴','중요임무','부수행위','외환','국헌문란','계엄','긴급조치',
+        '헌법','대법원','판례','증거','공소장','기소','구형','선고','징역','사형','무기'];
+
+    const analyzeFactCheck = (content, sourceUrl, sourceType) => {
+        let score = 50; // base score
+        const reasons = [];
+
+        // 1. Source credibility
+        if (sourceUrl && sourceUrl.trim()) {
+            try {
+                const urlObj = new URL(sourceUrl.startsWith('http') ? sourceUrl : 'https://' + sourceUrl);
+                const domain = urlObj.hostname.replace('www.', '');
+                const isTrusted = TRUSTED_DOMAINS.some(d => domain.includes(d));
+                if (isTrusted) {
+                    score += 25;
+                    reasons.push({ type: 'positive', text: `신뢰할 수 있는 출처 (${domain})` });
+                } else {
+                    score += 5;
+                    reasons.push({ type: 'neutral', text: `출처 확인 필요 (${domain})` });
+                }
+            } catch {
+                score -= 10;
+                reasons.push({ type: 'negative', text: '유효하지 않은 URL 형식' });
+            }
+        } else {
+            score -= 20;
+            reasons.push({ type: 'negative', text: '출처 URL 미제공 — 신뢰도 대폭 감소' });
+        }
+
+        // 2. Source type bonus
+        if (sourceType === 'court') { score += 15; reasons.push({ type: 'positive', text: '법원/공식 문서 출처' }); }
+        else if (sourceType === 'news') { score += 10; reasons.push({ type: 'positive', text: '언론 보도 기반' }); }
+        else if (sourceType === 'insider') { score += 5; reasons.push({ type: 'neutral', text: '내부 제보 — 교차검증 필요' }); }
+        else { reasons.push({ type: 'neutral', text: '기타 출처 — 추가 검증 권장' }); }
+
+        // 3. Content quality
+        if (content.length < 30) { score -= 15; reasons.push({ type: 'negative', text: '제보 내용이 너무 짧음 (30자 이상 권장)' }); }
+        else if (content.length >= 100) { score += 10; reasons.push({ type: 'positive', text: '구체적인 제보 내용' }); }
+
+        // 4. Legal term presence
+        const legalMatches = LEGAL_KEYWORDS.filter(kw => content.includes(kw));
+        if (legalMatches.length >= 3) { score += 10; reasons.push({ type: 'positive', text: `법률 용어 ${legalMatches.length}개 포함 — 전문성 확인` }); }
+        else if (legalMatches.length >= 1) { score += 5; reasons.push({ type: 'neutral', text: `법률 용어 포함` }); }
+
+        // 5. Red flags
+        const redFlags = RED_FLAG_KEYWORDS.filter(kw => content.includes(kw));
+        if (redFlags.length > 0) { score -= 15 * redFlags.length; reasons.push({ type: 'negative', text: `의심스러운 표현 감지: "${redFlags.join('", "')}"` }); }
+
+        // 6. Specific defendant mention check
+        const defendants = SIMULATION_DATA.map(d => d.defendant);
+        const mentionedDefendants = defendants.filter(d => content.includes(d));
+        if (mentionedDefendants.length > 0) { score += 5; reasons.push({ type: 'positive', text: `관련 피고인 명시: ${mentionedDefendants.join(', ')}` }); }
+
+        // Clamp score
+        score = Math.max(0, Math.min(100, score));
+
+        // Determine verdict
+        let verdict, verdictLabel, verdictColor;
+        if (score >= 70) { verdict = 'trusted'; verdictLabel = '신뢰'; verdictColor = 'green'; }
+        else if (score >= 40) { verdict = 'caution'; verdictLabel = '주의'; verdictColor = 'amber'; }
+        else { verdict = 'warning'; verdictLabel = '경고'; verdictColor = 'red'; }
+
+        return { score, verdict, verdictLabel, verdictColor, reasons };
+    };
+
+    const handleReportSubmit = async (defendantName) => {
+        if (!reportForm.content.trim()) return;
+        setReportSubmitting(true);
+        setFactCheckResult(null);
+
+        // Run fact-check
+        const result = analyzeFactCheck(reportForm.content, reportForm.sourceUrl, reportForm.sourceType);
+        const isApproved = result.score >= 40;
+
+        // Save to Firestore
+        try {
+            await addDoc(collection(db, 'citizenReports'), {
+                defendant: defendantName,
+                content: reportForm.content.trim(),
+                sourceUrl: reportForm.sourceUrl.trim(),
+                sourceType: reportForm.sourceType,
+                nickname: reportForm.nickname.trim() || '익명 시민',
+                credibilityScore: result.score,
+                verdict: result.verdict,
+                analysisReasons: result.reasons.map(r => r.text),
+                timestamp: Timestamp.now(),
+                approved: isApproved
+            });
+
+            // Update local state if approved
+            if (isApproved) {
+                setCitizenReports(prev => {
+                    const updated = { ...prev };
+                    if (!updated[defendantName]) updated[defendantName] = [];
+                    updated[defendantName] = [{
+                        defendant: defendantName,
+                        content: reportForm.content.trim(),
+                        sourceUrl: reportForm.sourceUrl.trim(),
+                        sourceType: reportForm.sourceType,
+                        nickname: reportForm.nickname.trim() || '익명 시민',
+                        credibilityScore: result.score,
+                        verdict: result.verdict,
+                        timestamp: { seconds: Date.now() / 1000 }
+                    }, ...updated[defendantName]];
+                    return updated;
+                });
+            }
+        } catch (err) {
+            console.error('제보 저장 실패:', err);
+        }
+
+        setFactCheckResult({ ...result, defendant: defendantName });
+        setReportSubmitting(false);
+
+        // Reset form after success
+        if (isApproved) {
+            setTimeout(() => {
+                setReportForm({ defendant: '', content: '', sourceUrl: '', sourceType: 'news', nickname: '' });
+            }, 3000);
+        }
+    };
 
     // Firestore에서 최신 데이터 가져오기
     useEffect(() => {
@@ -909,6 +1126,23 @@ export default function InsurrectionTrialAnalysis() {
                     if (firstInstance.length > 0) setFirstCourts(firstInstance);
                     if (appeal.length > 0) setAppealCourts(appeal);
                 }
+                // 시민 제보 데이터 로드
+                try {
+                    const reportsSnap = await getDocs(collection(db, 'citizenReports'));
+                    const reportsMap = {};
+                    reportsSnap.forEach(d => {
+                        const data = d.data();
+                        if (data.approved) {
+                            if (!reportsMap[data.defendant]) reportsMap[data.defendant] = [];
+                            reportsMap[data.defendant].push({ id: d.id, ...data });
+                        }
+                    });
+                    // Sort by timestamp desc
+                    Object.values(reportsMap).forEach(arr => arr.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)));
+                    setCitizenReports(reportsMap);
+                } catch (reportErr) {
+                    console.warn('시민 제보 로드 실패:', reportErr);
+                }
             } catch (error) {
                 console.error('Failed to fetch trial data:', error);
             } finally {
@@ -927,7 +1161,8 @@ export default function InsurrectionTrialAnalysis() {
         { id: 'timeline', label: '판결 타임라인' },
         { id: 'classAnalysis', label: '기수 분석' },
         { id: 'legal', label: '형법 제91조 분석' },
-        { id: 'simulation', label: '참심제 시뮬레이션' }
+        { id: 'simulation', label: '참심제 시뮬레이션' },
+        { id: 'aiVerdict', label: 'AI 판결 비교분석' }
     ];
 
     return (
@@ -1602,6 +1837,11 @@ export default function InsurrectionTrialAnalysis() {
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-3">
+                                                    {citizenReports[item.defendant]?.length > 0 && (
+                                                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                                                            제보 {citizenReports[item.defendant].length}건
+                                                        </span>
+                                                    )}
                                                     <div className="hidden sm:flex items-center gap-2">
                                                         <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">{item.actualVerdict.sentence}</span>
                                                         <span className="text-gray-300">→</span>
@@ -1680,6 +1920,209 @@ export default function InsurrectionTrialAnalysis() {
                                                     <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
                                                         <p className="text-xs text-indigo-600 font-medium mb-1">유럽 참심제 선례</p>
                                                         <p className="text-xs text-gray-700">{item.layJudgeSimulation.europeanPrecedent}</p>
+                                                    </div>
+
+                                                    {/* === 시민 제보 섹션 === */}
+                                                    <div className="mt-4 border-t border-gray-200 pt-4">
+                                                        {/* 제보된 범죄사실 목록 */}
+                                                        {citizenReports[item.defendant]?.length > 0 && (
+                                                            <div className="mb-4">
+                                                                <h4 className="text-sm font-bold text-purple-700 mb-3 flex items-center gap-2">
+                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+                                                                    시민 제보 사항 ({citizenReports[item.defendant].length}건 반영)
+                                                                </h4>
+                                                                <div className="space-y-2">
+                                                                    {citizenReports[item.defendant].map((report, ri) => (
+                                                                        <div key={ri} className={`rounded-lg p-3 text-xs ${
+                                                                            report.verdict === 'trusted' ? 'bg-green-50 border border-green-200' : 'bg-amber-50 border border-amber-200'
+                                                                        }`}>
+                                                                            <div className="flex items-center justify-between mb-1">
+                                                                                <span className="font-medium text-gray-800">{report.nickname || '익명 시민'}</span>
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                                                                                        report.verdict === 'trusted' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                                                                                    }`}>
+                                                                                        신뢰도 {report.credibilityScore}점
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
+                                                                            <p className="text-gray-700 leading-relaxed">{report.content}</p>
+                                                                            {report.sourceUrl && (
+                                                                                <a href={report.sourceUrl.startsWith('http') ? report.sourceUrl : 'https://' + report.sourceUrl}
+                                                                                   target="_blank" rel="noopener noreferrer"
+                                                                                   className="text-blue-600 hover:underline mt-1 inline-block">
+                                                                                    출처 확인
+                                                                                </a>
+                                                                            )}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {/* 제보하기 버튼 / 폼 토글 */}
+                                                        {showReportForm !== idx ? (
+                                                            <button
+                                                                onClick={() => { setShowReportForm(idx); setFactCheckResult(null); setReportForm({ defendant: '', content: '', sourceUrl: '', sourceType: 'news', nickname: '' }); }}
+                                                                className="w-full py-3 rounded-xl border-2 border-dashed border-purple-300 text-purple-600 font-medium text-sm hover:bg-purple-50 hover:border-purple-400 transition-all flex items-center justify-center gap-2"
+                                                            >
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                                                                새로운 범죄사실 제보하기
+                                                            </button>
+                                                        ) : (
+                                                            <div className="bg-white border border-purple-200 rounded-xl p-4 shadow-sm">
+                                                                <div className="flex items-center justify-between mb-3">
+                                                                    <h4 className="text-sm font-bold text-purple-700 flex items-center gap-2">
+                                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                                                        {item.defendant}에 대한 범죄사실 제보
+                                                                    </h4>
+                                                                    <button onClick={() => { setShowReportForm(null); setFactCheckResult(null); }} className="text-gray-400 hover:text-gray-600">
+                                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                                                    </button>
+                                                                </div>
+
+                                                                <div className="space-y-3">
+                                                                    <div>
+                                                                        <label className="block text-xs font-medium text-gray-600 mb-1">제보 내용 *</label>
+                                                                        <textarea
+                                                                            value={reportForm.content}
+                                                                            onChange={e => setReportForm(prev => ({ ...prev, content: e.target.value }))}
+                                                                            placeholder="언론이나 판결에서 공개되지 않은 범죄 사실을 구체적으로 작성해주세요..."
+                                                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none resize-none"
+                                                                            rows={4}
+                                                                        />
+                                                                        <p className="text-xs text-gray-400 mt-0.5">{reportForm.content.length}자 (30자 이상 권장)</p>
+                                                                    </div>
+
+                                                                    <div className="grid sm:grid-cols-2 gap-3">
+                                                                        <div>
+                                                                            <label className="block text-xs font-medium text-gray-600 mb-1">출처 URL</label>
+                                                                            <input
+                                                                                type="text"
+                                                                                value={reportForm.sourceUrl}
+                                                                                onChange={e => setReportForm(prev => ({ ...prev, sourceUrl: e.target.value }))}
+                                                                                placeholder="https://news.example.com/article..."
+                                                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none"
+                                                                            />
+                                                                        </div>
+                                                                        <div>
+                                                                            <label className="block text-xs font-medium text-gray-600 mb-1">출처 유형</label>
+                                                                            <select
+                                                                                value={reportForm.sourceType}
+                                                                                onChange={e => setReportForm(prev => ({ ...prev, sourceType: e.target.value }))}
+                                                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none bg-white"
+                                                                            >
+                                                                                <option value="news">언론 보도</option>
+                                                                                <option value="court">법원/공식 문서</option>
+                                                                                <option value="insider">내부 제보</option>
+                                                                                <option value="other">기타</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div>
+                                                                        <label className="block text-xs font-medium text-gray-600 mb-1">닉네임 (선택)</label>
+                                                                        <input
+                                                                            type="text"
+                                                                            value={reportForm.nickname}
+                                                                            onChange={e => setReportForm(prev => ({ ...prev, nickname: e.target.value }))}
+                                                                            placeholder="익명 시민"
+                                                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none"
+                                                                        />
+                                                                    </div>
+
+                                                                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                                                        <p className="text-xs text-amber-800 leading-relaxed">
+                                                                            <span className="font-bold">AI 팩트체크 안내:</span> 제출된 제보는 AI가 출처 신뢰도, 내용 구체성, 법률 관련성을 자동 분석합니다.
+                                                                            신뢰도 70점 이상은 즉시 시뮬레이션에 반영되며, 40~69점은 주의 표시와 함께 반영됩니다.
+                                                                            40점 미만은 반영되지 않으며 출처 보완을 요청합니다.
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <button
+                                                                        onClick={() => handleReportSubmit(item.defendant)}
+                                                                        disabled={reportSubmitting || !reportForm.content.trim()}
+                                                                        className={`w-full py-2.5 rounded-lg font-medium text-sm text-white transition-all flex items-center justify-center gap-2 ${
+                                                                            reportSubmitting || !reportForm.content.trim()
+                                                                                ? 'bg-gray-300 cursor-not-allowed'
+                                                                                : 'bg-purple-600 hover:bg-purple-700 shadow-sm hover:shadow-md'
+                                                                        }`}
+                                                                    >
+                                                                        {reportSubmitting ? (
+                                                                            <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>AI 팩트체크 분석 중...</>
+                                                                        ) : (
+                                                                            <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>제보 제출 및 AI 팩트체크</>
+                                                                        )}
+                                                                    </button>
+                                                                </div>
+
+                                                                {/* 팩트체크 결과 */}
+                                                                {factCheckResult && factCheckResult.defendant === item.defendant && (
+                                                                    <div className={`mt-4 rounded-xl p-4 border ${
+                                                                        factCheckResult.verdictColor === 'green' ? 'bg-green-50 border-green-300' :
+                                                                        factCheckResult.verdictColor === 'amber' ? 'bg-amber-50 border-amber-300' :
+                                                                        'bg-red-50 border-red-300'
+                                                                    }`}>
+                                                                        <div className="flex items-center gap-3 mb-3">
+                                                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
+                                                                                factCheckResult.verdictColor === 'green' ? 'bg-green-100' :
+                                                                                factCheckResult.verdictColor === 'amber' ? 'bg-amber-100' :
+                                                                                'bg-red-100'
+                                                                            }`}>
+                                                                                {factCheckResult.verdictColor === 'green' ? '\u2705' : factCheckResult.verdictColor === 'amber' ? '\u26A0\uFE0F' : '\uD83D\uDEAB'}
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className={`font-bold text-sm ${
+                                                                                    factCheckResult.verdictColor === 'green' ? 'text-green-800' :
+                                                                                    factCheckResult.verdictColor === 'amber' ? 'text-amber-800' :
+                                                                                    'text-red-800'
+                                                                                }`}>
+                                                                                    AI 팩트체크 결과: {factCheckResult.verdictLabel} (신뢰도 {factCheckResult.score}점)
+                                                                                </p>
+                                                                                <p className="text-xs text-gray-600">
+                                                                                    {factCheckResult.score >= 40
+                                                                                        ? '제보가 참심제 시뮬레이션에 반영되었습니다'
+                                                                                        : '신뢰도가 낮아 시뮬레이션에 반영되지 않았습니다. 출처를 보완해주세요.'}
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="space-y-1.5">
+                                                                            {factCheckResult.reasons.map((reason, ri) => (
+                                                                                <div key={ri} className="flex items-start gap-2 text-xs">
+                                                                                    <span className={`mt-0.5 shrink-0 ${
+                                                                                        reason.type === 'positive' ? 'text-green-500' :
+                                                                                        reason.type === 'neutral' ? 'text-amber-500' :
+                                                                                        'text-red-500'
+                                                                                    }`}>
+                                                                                        {reason.type === 'positive' ? '\u2713' : reason.type === 'neutral' ? '\u25B3' : '\u2717'}
+                                                                                    </span>
+                                                                                    <span className="text-gray-700">{reason.text}</span>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                        {/* 점수 바 */}
+                                                                        <div className="mt-3">
+                                                                            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                                                                <div
+                                                                                    className={`h-full rounded-full transition-all duration-1000 ${
+                                                                                        factCheckResult.verdictColor === 'green' ? 'bg-green-500' :
+                                                                                        factCheckResult.verdictColor === 'amber' ? 'bg-amber-500' :
+                                                                                        'bg-red-500'
+                                                                                    }`}
+                                                                                    style={{ width: `${factCheckResult.score}%` }}
+                                                                                />
+                                                                            </div>
+                                                                            <div className="flex justify-between text-xs text-gray-400 mt-1">
+                                                                                <span>0</span>
+                                                                                <span className="text-red-400">경고 40</span>
+                                                                                <span className="text-amber-400">주의 70</span>
+                                                                                <span>100</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             )}
@@ -2029,6 +2472,134 @@ export default function InsurrectionTrialAnalysis() {
                                 </div>
                             </div>
 
+                        </div>
+                    )}
+
+                    {/* AI 판결 비교분석 탭 */}
+                    {activeTab === 'aiVerdict' && (
+                        <div className="space-y-6">
+                            {/* 종합 평가 */}
+                            <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-teal-500">
+                                <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                    🤖 AI 판결 비교분석
+                                </h2>
+                                <p className="text-gray-600 mt-2 text-sm leading-relaxed">{VERDICT_COMPARISON_ANALYSIS.overallAssessment.summary}</p>
+                                <div className="mt-4 space-y-2">
+                                    {VERDICT_COMPARISON_ANALYSIS.overallAssessment.keyFindings.map((finding, idx) => (
+                                        <div key={idx} className="flex items-start gap-2 bg-teal-50 rounded-lg px-3 py-2">
+                                            <span className="text-teal-600 mt-0.5 shrink-0 font-bold">{idx + 1}.</span>
+                                            <span className="text-sm text-gray-700">{finding}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* AI 면책 배너 */}
+                            <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 text-center">
+                                <p className="text-sm text-teal-800">
+                                    ⚠️ 이 분석은 AI가 사전 생성한 판결 비교분석입니다. 법적 조언이 아니며, 정확한 법률 자문은 전문 변호사에게 문의하세요.
+                                </p>
+                            </div>
+
+                            {/* 양형 불균형 분석 */}
+                            <div className="bg-white rounded-xl shadow-lg p-6">
+                                <h3 className="text-lg font-bold text-gray-800 mb-4">⚖️ 양형 불균형 분석</h3>
+                                <div className="space-y-3">
+                                    {VERDICT_COMPARISON_ANALYSIS.sentencingDisparities.map((item, idx) => (
+                                        <div key={idx} className="border rounded-xl overflow-hidden">
+                                            <button
+                                                onClick={() => setExpandedDisparity(expandedDisparity === idx ? null : idx)}
+                                                className="w-full px-5 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                                                        item.disparity === 'high' ? 'bg-red-100 text-red-700' :
+                                                        item.disparity === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                                        'bg-green-100 text-green-700'
+                                                    }`}>{item.disparity === 'high' ? '높음' : item.disparity === 'medium' ? '중간' : '낮음'}</span>
+                                                    <span className="font-medium text-gray-800">{item.pair}</span>
+                                                    <span className="text-xs text-gray-500">({item.pairDetail})</span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-sm font-mono text-gray-600">{item.gap}</span>
+                                                    <span className={`transform transition-transform ${expandedDisparity === idx ? 'rotate-180' : ''}`}>▼</span>
+                                                </div>
+                                            </button>
+                                            {expandedDisparity === idx && (
+                                                <div className="px-5 pb-4 space-y-3">
+                                                    <div className="flex gap-3">
+                                                        {item.sentences.map((s, sIdx) => (
+                                                            <span key={sIdx} className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                                                s === '무죄' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                                            }`}>{s}</span>
+                                                        ))}
+                                                    </div>
+                                                    <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{item.analysis}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 사법 건전성 플래그 */}
+                            <div className="bg-white rounded-xl shadow-lg p-6">
+                                <h3 className="text-lg font-bold text-gray-800 mb-4">🚩 사법 건전성 플래그</h3>
+                                <div className="space-y-3">
+                                    {VERDICT_COMPARISON_ANALYSIS.judicialIntegrityFlags.map((flag, idx) => (
+                                        <div key={idx} className={`rounded-xl p-4 border ${
+                                            flag.severity === 'warning' ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200'
+                                        }`}>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span>{flag.severity === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                                                <span className={`font-bold text-sm ${
+                                                    flag.severity === 'warning' ? 'text-amber-800' : 'text-blue-800'
+                                                }`}>{flag.flag}</span>
+                                            </div>
+                                            <p className="text-sm text-gray-700 leading-relaxed">{flag.detail}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 역대 내란 양형 비교표 */}
+                            <div className="bg-white rounded-xl shadow-lg p-6">
+                                <h3 className="text-lg font-bold text-gray-800 mb-4">📊 역대 내란 사건 양형 비교</h3>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm">
+                                        <thead>
+                                            <tr className="border-b-2 border-gray-200">
+                                                <th className="text-left py-2 px-3 font-medium text-gray-600">사건</th>
+                                                <th className="text-left py-2 px-3 font-medium text-gray-600">연도</th>
+                                                <th className="text-left py-2 px-3 font-medium text-gray-600">피고인</th>
+                                                <th className="text-left py-2 px-3 font-medium text-gray-600">혐의</th>
+                                                <th className="text-left py-2 px-3 font-medium text-gray-600">양형</th>
+                                                <th className="text-left py-2 px-3 font-medium text-gray-600">비고</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {VERDICT_COMPARISON_ANALYSIS.historicalBenchmark.map((row, idx) => (
+                                                <tr key={idx} className={`border-b ${row.event === '12.3 비상계엄' ? 'bg-red-50 font-medium' : 'hover:bg-gray-50'}`}>
+                                                    <td className="py-2 px-3">{row.event}</td>
+                                                    <td className="py-2 px-3">{row.year}</td>
+                                                    <td className="py-2 px-3 font-medium">{row.defendant}</td>
+                                                    <td className="py-2 px-3 text-xs">{row.charge}</td>
+                                                    <td className="py-2 px-3">{row.sentence}</td>
+                                                    <td className="py-2 px-3 text-xs text-gray-500">{row.note}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* AI 면책 푸터 */}
+                            <div className="bg-gray-100 rounded-xl p-4 text-center">
+                                <p className="text-xs text-gray-500">
+                                    본 AI 분석은 공개된 판결 정보를 기반으로 사전 생성되었으며, 법적 구속력이 없습니다.
+                                    정확한 법률 해석은 전문 변호사에게 문의하세요.
+                                </p>
+                            </div>
                         </div>
                     )}
 

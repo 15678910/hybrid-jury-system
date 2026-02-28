@@ -887,7 +887,7 @@ export default function App() {
                                         <Link to="/sentencing-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">내란재판분석</Link>
                                         <Link to="/trial-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600 whitespace-nowrap">내란재판종합분석</Link>
                                         <Link to="/judge-evaluation" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">AI의 판사평가</Link>
-                                        <Link to="/reform-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">개혁안 비교</Link>
+                                        <Link to="/reform-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">사법개혁안 비교</Link>
                                         <Link to="/law-database" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">법령DB</Link>
                                         <Link to="/judicial-network" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">관계도</Link>
                                     </div>
@@ -1006,7 +1006,7 @@ export default function App() {
                                 <Link to="/sentencing-analysis" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">내란재판분석</Link>
                                 <Link to="/trial-analysis" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">내란재판종합분석</Link>
                                 <Link to="/judge-evaluation" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">AI의 판사평가</Link>
-                                <Link to="/reform-analysis" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">개혁안 비교</Link>
+                                <Link to="/reform-analysis" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">사법개혁안 비교</Link>
                                 <Link to="/law-database" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">법령DB</Link>
                                 <Link to="/judicial-network" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">관계도</Link>
                             </div>
