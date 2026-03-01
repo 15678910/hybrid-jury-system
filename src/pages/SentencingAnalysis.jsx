@@ -6,6 +6,7 @@ import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
 import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, TikTokIcon, LinkedInIcon } from '../components/icons';
 import { JUDGES_DATA } from '../data/judges';
+import SidebarNav from '../components/SidebarNav';
 
 // 위키백과 공개 이미지 URL (Wikimedia Commons) + 정부 정책브리핑(korea.kr) 공식 사진
 const PERSON_PHOTOS = {
@@ -2299,11 +2300,6 @@ const sortedPersons = Object.keys(personsData).sort((a, b) => a.localeCompare(b,
 export default function SentencingAnalysis() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [selectedPerson, setSelectedPerson] = useState(null);
-    const [activeTab, setActiveTab] = useState(() => {
-        const tabParam = searchParams.get('tab');
-        const validTabs = ['overview', 'verdict', 'charges', 'sentencing', 'judge', 'issues', 'aiPrediction'];
-        return validTabs.includes(tabParam) ? tabParam : 'overview';
-    });
     const [firestoreData, setFirestoreData] = useState({});
     const [judgeNewsData, setJudgeNewsData] = useState({});
     const [judgeYouTubeData, setJudgeYouTubeData] = useState({});
@@ -2315,27 +2311,33 @@ export default function SentencingAnalysis() {
         return (modelParam === 'gemini' || modelParam === 'claude') ? modelParam : 'claude';
     });
 
-    // URL 파라미터에서 person, tab 읽어서 선택
+    // URL 파라미터에서 person 읽어서 선택, tab은 자동 스크롤
     useEffect(() => {
         const personParam = searchParams.get('person');
         if (personParam && personsData[personParam]) {
             setSelectedPerson(personParam);
-            window.scrollTo(0, 0);
-        }
-        const tabParam = searchParams.get('tab');
-        if (tabParam) {
-            setActiveTab(tabParam);
+            const tabParam = searchParams.get('tab');
+            if (tabParam) {
+                setTimeout(() => {
+                    const el = document.getElementById(tabParam);
+                    if (el) {
+                        const y = el.getBoundingClientRect().top + window.scrollY - 104;
+                        window.scrollTo({ top: y, behavior: 'smooth' });
+                    }
+                }, 500);
+            } else {
+                window.scrollTo(0, 0);
+            }
         }
     }, []);
 
-    // activeTab, selectedPerson, selectedAiModel 변경 시 URL 동기화
+    // selectedPerson, selectedAiModel 변경 시 URL 동기화
     useEffect(() => {
         const newParams = new URLSearchParams();
         if (selectedPerson) newParams.set('person', selectedPerson);
-        if (activeTab && activeTab !== 'overview') newParams.set('tab', activeTab);
         if (selectedAiModel && selectedAiModel !== 'claude') newParams.set('model', selectedAiModel);
         setSearchParams(newParams, { replace: true });
-    }, [activeTab, selectedPerson, selectedAiModel]);
+    }, [selectedPerson, selectedAiModel]);
 
     // Kakao SDK 초기화
     useEffect(() => {
@@ -2416,7 +2418,6 @@ export default function SentencingAnalysis() {
     const getShareUrl = (personName) => {
         const params = new URLSearchParams();
         if (personName) params.set('person', personName);
-        if (activeTab && activeTab !== 'overview') params.set('tab', activeTab);
         if (selectedAiModel && selectedAiModel !== 'claude') params.set('model', selectedAiModel);
         const qs = params.toString();
         return `https://xn--lg3b0kt4n41f.kr/sentencing-analysis${qs ? `?${qs}` : ''}`;
@@ -2780,7 +2781,6 @@ export default function SentencingAnalysis() {
                                             key={p.id}
                                             onClick={() => {
                                                 setSelectedPerson(name);
-                                                setActiveTab(personsData[name].verdictDate ? 'verdict' : 'overview');
                                                 window.scrollTo(0, 0);
                                             }}
                                             className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
@@ -2885,13 +2885,39 @@ export default function SentencingAnalysis() {
         );
     }
 
+    // 동적 사이드바 아이템 생성
+    const sidebarItems = (() => {
+        if (!selectedPerson) return [];
+        const person = getMergedPersonData(selectedPerson);
+        const items = [];
+        if (person.verdictDate) {
+            items.push({ id: 'verdict', label: '판결 요약' });
+        } else {
+            items.push({ id: 'overview', label: '개요' });
+        }
+        items.push({ id: 'charges', label: '혐의별 분석' });
+        if (person.sentencingGuidelines) {
+            items.push({ id: 'sentencing', label: '양형기준 비교' });
+        }
+        if (person.judgeHistory) {
+            items.push({ id: 'judge', label: '판사 판결 이력' });
+        }
+        if (person.keyIssues) {
+            items.push({ id: 'issues', label: '핵심 쟁점' });
+        }
+        items.push({ id: 'aiPrediction', label: 'AI 양형 예측' });
+        return items;
+    })();
+
     // 개별 인물 상세 화면
     return (
         <div className="min-h-screen bg-gray-50">
             <Header />
 
-            <main className="pt-24 pb-16 px-4">
-                <div className="container mx-auto max-w-5xl">
+            <main className="pt-24 pb-16">
+                <div className="flex max-w-[1400px] mx-auto">
+                <SidebarNav items={sidebarItems} />
+                <div className="flex-1 min-w-0 px-4 max-w-5xl mx-auto">
                     {/* 뒤로가기 버튼 */}
                     <button
                         onClick={() => setSelectedPerson(null)}
@@ -2942,36 +2968,9 @@ export default function SentencingAnalysis() {
                         )}
                     </div>
 
-                    {/* 탭 네비게이션 */}
-                    <div className="flex overflow-x-auto gap-2 mb-6 pb-2">
-                        {(person.verdictDate ? [
-                            { id: 'verdict', label: '판결 요약' },
-                            { id: 'charges', label: '혐의별 분석' },
-                            { id: 'sentencing', label: '양형기준 비교' },
-                            { id: 'judge', label: '판사 판결 이력' },
-                            { id: 'issues', label: '핵심 쟁점' },
-                            { id: 'aiPrediction', label: 'AI 양형 예측' }
-                        ] : [
-                            { id: 'overview', label: '개요' },
-                            { id: 'charges', label: '혐의 분석' },
-                            { id: 'aiPrediction', label: 'AI 양형 예측' }
-                        ]).map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                                    activeTab === tab.id
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100'
-                                }`}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
 
-                    {/* 판결 요약 / 개요 탭 */}
-                    {(activeTab === 'verdict' || activeTab === 'overview') && (
+                    {/* 판결 요약 / 개요 */}
+                    <section id={person.verdictDate ? 'verdict' : 'overview'} className="scroll-mt-[100px] mb-12">
                         <div className="space-y-6">
                             {/* 구형 vs 선고 비교 (선고 완료 시) */}
                             {person.verdictDate && (
@@ -3040,10 +3039,10 @@ export default function SentencingAnalysis() {
                                 </div>
                             </div>
                         </div>
-                    )}
+                    </section>
 
-                    {/* 혐의 분석 탭 */}
-                    {activeTab === 'charges' && (
+                    {/* 혐의 분석 */}
+                    <section id="charges" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-4">
                             {person.charges.map(charge => (
                                 <div key={charge.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -3106,10 +3105,11 @@ export default function SentencingAnalysis() {
                                 </div>
                             ))}
                         </div>
-                    )}
+                    </section>
 
-                    {/* 양형기준 비교 탭 */}
-                    {activeTab === 'sentencing' && person.sentencingGuidelines && (
+                    {/* 양형기준 비교 */}
+                    {person.sentencingGuidelines && (
+                    <section id="sentencing" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-4">
                             {person.sentencingGuidelines.map((guideline, idx) => (
                                 <div key={idx} className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -3166,12 +3166,14 @@ export default function SentencingAnalysis() {
                                 </div>
                             ))}
                         </div>
+                    </section>
                     )}
 
-                    {/* 판사 판결 이력 탭 */}
-                    {activeTab === 'judge' && person.judgeHistory && (() => {
+                    {/* 판사 판결 이력 */}
+                    {person.judgeHistory && (() => {
                         const judgeFromDB = JUDGES_DATA.find(j => j.name === person.judgeHistory.judgeName);
                         return (
+                        <section id="judge" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-6">
                             {/* 판사 프로필 */}
                             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -3470,11 +3472,13 @@ export default function SentencingAnalysis() {
                                 </div>
                             )}
                         </div>
+                        </section>
                         );
                     })()}
 
-                    {/* 핵심 쟁점 탭 */}
-                    {activeTab === 'issues' && person.keyIssues && (
+                    {/* 핵심 쟁점 */}
+                    {person.keyIssues && (
+                    <section id="issues" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-4">
                             {person.keyIssues.map((issue, idx) => (
                                 <div key={idx} className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -3539,9 +3543,11 @@ export default function SentencingAnalysis() {
                                 </div>
                             ))}
                         </div>
+                    </section>
                     )}
 
-                    {activeTab === 'aiPrediction' && (
+                    {/* AI 양형 예측 */}
+                    <section id="aiPrediction" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-6">
                             {/* AI 모델 선택 — 데이터 있는 모델만 활성화 */}
                             <div className="flex items-center justify-center gap-2 bg-white rounded-xl shadow-sm p-3">
@@ -4133,7 +4139,7 @@ export default function SentencingAnalysis() {
                                 </div>
                             )}
                         </div>
-                    )}
+                    </section>
 
                     {/* 자료 출처 */}
                     {person.sources && person.sources.length > 0 && (
@@ -4221,6 +4227,7 @@ export default function SentencingAnalysis() {
                             </a>
                         </div>
                     </div>
+                </div>
                 </div>
             </main>
 

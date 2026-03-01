@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
 import SNSShareBar from '../components/SNSShareBar';
+import SidebarNav from '../components/SidebarNav';
 
 // 판결 데이터 (기본 fallback)
 const DEFAULT_VERDICTS = [
@@ -934,25 +935,20 @@ function computeClassAnalysis(firstInstanceCourts, appealCourtsData) {
 
 export default function InsurrectionTrialAnalysis() {
     const [searchParams, setSearchParams] = useSearchParams();
-    const [activeTab, setActiveTab] = useState(() => {
-        const tabParam = searchParams.get('tab');
-        const validTabs = ['overview', 'courts', 'timeline', 'classAnalysis', 'legal', 'simulation', 'aiVerdict'];
-        return validTabs.includes(tabParam) ? tabParam : 'overview';
-    });
-
-    // 탭 변경 시 URL 업데이트 (SNS 공유 시 탭 상태 유지)
+    // URL ?tab=xxx 하위 호환: 마운트 시 해당 섹션으로 자동 스크롤
     useEffect(() => {
-        if (activeTab === 'overview') {
-            // 기본 탭이면 ?tab= 제거 (깔끔한 URL)
-            if (searchParams.has('tab')) {
-                const newParams = new URLSearchParams(searchParams);
-                newParams.delete('tab');
-                setSearchParams(newParams, { replace: true });
-            }
-        } else {
-            setSearchParams({ tab: activeTab }, { replace: true });
+        const tabParam = searchParams.get('tab');
+        if (tabParam) {
+            const timer = setTimeout(() => {
+                const el = document.getElementById(tabParam);
+                if (el) {
+                    const y = el.getBoundingClientRect().top + window.scrollY - 104;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                }
+            }, 500);
+            return () => clearTimeout(timer);
         }
-    }, [activeTab]);
+    }, []);
     const [courtTab, setCourtTab] = useState('first');
     const [verdicts, setVerdicts] = useState(DEFAULT_VERDICTS);
     const [firstCourts, setFirstCourts] = useState(DEFAULT_FIRST_COURTS);
@@ -1183,7 +1179,9 @@ export default function InsurrectionTrialAnalysis() {
             <SEOHead title="내란재판종합분석" description={`참심제 시뮬레이션 - ${new Date().getFullYear()}년 ${new Date().getMonth() + 1}월 ${new Date().getDate()}일, 내란 27명 피고인 판결분석, AI 양형예측 vs 참심제 시뮬레이션 비교 - 시민법정`} path="/trial-analysis" />
             <Header />
             <div className="bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen pt-24">
-                <div className="container mx-auto px-4 py-8 max-w-6xl">
+                <div className="flex max-w-[1400px] mx-auto">
+                <SidebarNav items={tabs} />
+                <div className="flex-1 min-w-0 px-4 py-8 max-w-6xl mx-auto">
 
                     {/* 로딩 인디케이터 */}
                     {loading && (
@@ -1221,25 +1219,8 @@ export default function InsurrectionTrialAnalysis() {
                         </div>
                     </div>
 
-                    {/* 탭 네비게이션 */}
-                    <div className="flex flex-wrap justify-center gap-2 mb-8">
-                        {tabs.map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                                    activeTab === tab.id
-                                        ? 'bg-blue-600 text-white shadow-md'
-                                        : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
-                                }`}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* 종합 현황 탭 */}
-                    {activeTab === 'overview' && (
+                    {/* 종합 현황 */}
+                    <section id="overview" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-6">
                             {/* 통계 카드 그리드 */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1328,10 +1309,10 @@ export default function InsurrectionTrialAnalysis() {
                                 </table>
                             </div>
                         </div>
-                    )}
+                    </section>
 
-                    {/* 재판부 구성 탭 */}
-                    {activeTab === 'courts' && (
+                    {/* 재판부 구성 */}
+                    <section id="courts" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-6">
                             {/* 1심/항소심 토글 */}
                             <div className="flex justify-center gap-2 mb-4">
@@ -1439,10 +1420,10 @@ export default function InsurrectionTrialAnalysis() {
                                 </div>
                             )}
                         </div>
-                    )}
+                    </section>
 
-                    {/* 판결 타임라인 탭 */}
-                    {activeTab === 'timeline' && (
+                    {/* 판결 타임라인 */}
+                    <section id="timeline" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-4">
                             <div className="relative">
                                 {/* 타임라인 세로줄 */}
@@ -1493,10 +1474,10 @@ export default function InsurrectionTrialAnalysis() {
                                 })}
                             </div>
                         </div>
-                    )}
+                    </section>
 
-                    {/* 기수 분석 탭 */}
-                    {activeTab === 'classAnalysis' && (
+                    {/* 기수 분석 */}
+                    <section id="classAnalysis" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-6">
                             {/* 평균 기수 비교 */}
                             <div className="bg-white rounded-xl shadow-lg p-6">
@@ -1626,10 +1607,10 @@ export default function InsurrectionTrialAnalysis() {
                                 </div>
                             </div>
                         </div>
-                    )}
+                    </section>
 
-                    {/* 형법 제91조 분석 탭 */}
-                    {activeTab === 'legal' && (
+                    {/* 형법 제91조 분석 */}
+                    <section id="legal" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-6">
                             <div className="bg-white rounded-xl shadow-lg p-6">
                                 <h2 className="text-xl font-bold text-gray-800 mb-2">형법 제91조 제2호 — 국헌문란의 목적</h2>
@@ -1756,10 +1737,10 @@ export default function InsurrectionTrialAnalysis() {
                                 </div>
                             </div>
                         </div>
-                    )}
+                    </section>
 
-                    {/* 참심제 시뮬레이션 탭 */}
-                    {activeTab === 'simulation' && (
+                    {/* 참심제 시뮬레이션 */}
+                    <section id="simulation" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-6">
 
                             {/* A. 시뮬레이션 개요 */}
@@ -2487,10 +2468,10 @@ export default function InsurrectionTrialAnalysis() {
                             </div>
 
                         </div>
-                    )}
+                    </section>
 
-                    {/* AI 판결 비교분석 탭 */}
-                    {activeTab === 'aiVerdict' && (
+                    {/* AI 판결 비교분석 */}
+                    <section id="aiVerdict" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-6">
                             {/* 종합 평가 */}
                             <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-teal-500">
@@ -2615,13 +2596,14 @@ export default function InsurrectionTrialAnalysis() {
                                 </p>
                             </div>
                         </div>
-                    )}
+                    </section>
 
                     {/* 푸터 정보 */}
                     <div className="mt-12 text-center text-sm text-gray-400">
                         <p>본 페이지는 공개된 재판 정보를 바탕으로 작성되었습니다.</p>
                         <p className="mt-1">최종 업데이트: 2026.02.20</p>
                     </div>
+                </div>
                 </div>
             </div>
             <SNSShareBar />
