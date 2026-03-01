@@ -2232,31 +2232,29 @@ export default function App() {
                                 </a>
                             </div>
 
-                            {/* 푸시 알림 구독 배너 */}
-                            {isPushAvailable && pushPermission !== 'granted' && pushPermission !== 'denied' && (
-                                <div className="mt-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-4 border border-indigo-200">
-                                    <div className="flex items-start gap-3">
-                                        <span className="text-2xl">🔔</span>
-                                        <div className="flex-1">
-                                            <h4 className="text-sm font-bold text-indigo-800 mb-1">사법 민주화 함께 만들기</h4>
-                                            <p className="text-xs text-indigo-600 mb-2">
-                                                SNS에서 사법 민주화를 위한 협업 과정 알림 받기
-                                            </p>
-                                            <button
-                                                onClick={handlePushSubscribe}
-                                                className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition font-medium"
-                                            >
-                                                소통 소식 받기
-                                            </button>
-                                        </div>
+                            {/* 카카오 오픈채팅 참여 배너 */}
+                            <div className="mt-6 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-4 border border-yellow-200">
+                                <div className="flex items-start gap-3">
+                                    <span className="text-2xl">💬</span>
+                                    <div className="flex-1">
+                                        <h4 className="text-sm font-bold text-yellow-900 mb-1">사법 민주화 함께 만들기</h4>
+                                        <p className="text-xs text-yellow-700 mb-1">
+                                            카카오톡 오픈채팅방에서 사법개혁 소식과 활동을 함께 나눠요
+                                        </p>
+                                        <p className="text-xs text-yellow-600 mb-3">
+                                            참심제 도입, 내란재판 분석, 시민 참여 활동 등 실시간 소통
+                                        </p>
+                                        <a
+                                            href="https://open.kakao.com/o/g1wj6P3h"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-block px-4 py-2 bg-yellow-400 text-yellow-900 text-sm rounded-lg hover:bg-yellow-500 transition font-bold"
+                                        >
+                                            🗨️ 오픈채팅 참여하기
+                                        </a>
                                     </div>
                                 </div>
-                            )}
-                            {pushPermission === 'granted' && (
-                                <div className="mt-6 bg-green-50 rounded-xl p-3 border border-green-200 text-center">
-                                    <span className="text-sm text-green-700">✅ 알림이 활성화되었습니다. 새 소식이 있으면 알려드릴게요!</span>
-                                </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                 </div>
