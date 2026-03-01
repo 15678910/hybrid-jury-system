@@ -2238,15 +2238,15 @@ export default function App() {
                                     <div className="flex items-start gap-3">
                                         <span className="text-2xl">🔔</span>
                                         <div className="flex-1">
-                                            <h4 className="text-sm font-bold text-indigo-800 mb-1">판결 속보 알림 받기</h4>
+                                            <h4 className="text-sm font-bold text-indigo-800 mb-1">사법 민주화 함께 만들기</h4>
                                             <p className="text-xs text-indigo-600 mb-2">
-                                                내란재판 판결, 사법개혁 소식을 실시간으로 알려드립니다
+                                                SNS에서 사법 민주화를 위한 협업 과정 알림 받기
                                             </p>
                                             <button
                                                 onClick={handlePushSubscribe}
                                                 className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition font-medium"
                                             >
-                                                알림 받기
+                                                소통 소식 받기
                                             </button>
                                         </div>
                                     </div>
