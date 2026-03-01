@@ -4,8 +4,7 @@ import { db } from './firebase';
 import { trackPushSubscribe } from './analytics';
 
 // FCM VAPID Key - Firebase Console > Cloud Messaging > Web Push certificates에서 발급
-// 아직 없는 경우 Firebase Console에서 생성 후 교체 필요
-const VAPID_KEY = 'YOUR_VAPID_KEY_HERE';
+const VAPID_KEY = 'BNP59IEMKPVlG_927Yrl8F_LovOvlY85TpwxYxn5UPCGENTQCMNsw0NyHGbU2XT-MuuR6CaWIYRucKqlxX2t8fU';
 
 /**
  * 푸시 알림 구독 요청
