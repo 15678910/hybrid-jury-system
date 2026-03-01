@@ -1806,7 +1806,7 @@ export default function App() {
                             onClick={() => window.location.href = '/proposal.html'}
                             className="bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition transform hover:scale-105 shadow-lg"
                         >
-                            제안서 및 법률안 원문(PDF)
+                            제안서 및 법률안 원문
                         </button>
                     </div>
 
