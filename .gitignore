@@ -41,3 +41,8 @@ trigger rebuild
 .vercel
 
 .vercel
+
+# Functions environment variables
+functions/.env
+.vercel/.env*
+src_backup_*/

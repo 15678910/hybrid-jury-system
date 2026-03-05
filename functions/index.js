@@ -19,6 +19,69 @@ const GROUP_CHAT_ID = process.env.TELEGRAM_GROUP_CHAT_ID || '-1003615735371';
 // 투표 설정
 const DEFAULT_POLL_DURATION_HOURS = 24; // 기본 투표 기간 (시간)
 
+// ============================================
+// 보안 헬퍼 함수
+// ============================================
+
+// CORS 헬퍼 - 허용된 도메인만 허용
+const ALLOWED_ORIGINS = ['https://xn--lg3b0kt4n41f.kr', 'https://siminbupjung-blog.web.app', 'https://siminbupjung-blog.firebaseapp.com'];
+function setCorsHeaders(req, res) {
+    const origin = req.headers.origin;
+    res.set('Access-Control-Allow-Origin', ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]);
+    res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+}
+
+// 관리자 인증 검증
+async function verifyAdmin(req, res) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        const adminKey = req.headers['x-admin-key'];
+        if (adminKey === process.env.ADMIN_SECRET_KEY) return true;
+        res.status(401).json({ error: '인증이 필요합니다.' });
+        return false;
+    }
+    try {
+        const token = authHeader.split('Bearer ')[1];
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        req.user = decodedToken;
+        return true;
+    } catch (error) {
+        console.error('Auth verification failed:', error);
+        res.status(403).json({ error: '인증이 유효하지 않습니다.' });
+        return false;
+    }
+}
+
+// Rate Limiting (IP 기반)
+const rateLimitMap = new Map();
+function checkRateLimit(req, res, maxRequests = 30) {
+    const ip = req.headers['x-forwarded-for'] || req.ip || 'unknown';
+    const now = Date.now();
+    if (!rateLimitMap.has(ip)) {
+        rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 });
+        return true;
+    }
+    const record = rateLimitMap.get(ip);
+    if (now > record.resetTime) {
+        record.count = 1;
+        record.resetTime = now + 60000;
+        return true;
+    }
+    record.count++;
+    if (record.count > maxRequests) {
+        res.status(429).json({ error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' });
+        return false;
+    }
+    return true;
+}
+setInterval(() => {
+    const now = Date.now();
+    for (const [ip, record] of rateLimitMap) {
+        if (now > record.resetTime) rateLimitMap.delete(ip);
+    }
+}, 300000);
+
 // 환영 메시지 템플릿
 const getWelcomeMessage = (userName) => {
     return `🎉 환영합니다, ${userName}님!
@@ -864,6 +927,7 @@ exports.telegramWebhook = functions.https.onRequest(async (req, res) => {
 
 // Webhook 설정 함수 (수동 호출용)
 exports.setWebhook = functions.https.onRequest(async (req, res) => {
+    if (!(await verifyAdmin(req, res))) return;
     const webhookUrl = `https://us-central1-siminbupjung-blog.cloudfunctions.net/telegramWebhook`;
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/setWebhook`;
 
@@ -881,12 +945,13 @@ exports.setWebhook = functions.https.onRequest(async (req, res) => {
         res.json(result);
     } catch (error) {
         console.error('Error setting webhook:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
 });
 
 // Webhook 삭제 함수 (필요 시)
 exports.deleteWebhook = functions.https.onRequest(async (req, res) => {
+    if (!(await verifyAdmin(req, res))) return;
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/deleteWebhook`;
 
     try {
@@ -894,12 +959,13 @@ exports.deleteWebhook = functions.https.onRequest(async (req, res) => {
         const result = await response.json();
         res.json(result);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
 });
 
 // 참여하기 포스터 수동 전송 (HTTP 트리거)
 exports.sendPosterToGroup = functions.https.onRequest(async (req, res) => {
+    if (!(await verifyAdmin(req, res))) return;
     try {
         const posterUrl = 'https://siminbupjung-blog.web.app/%EC%B0%B8%EC%8B%AC%EC%A0%9C%ED%8F%AC%EC%8A%A4%ED%84%B01.png';
         const caption = '⚖️ <b>시민법관 참심제 - 온라인 준비위원 참여</b>\n\n직업법관 소수가 아닌, 주권자인 국민이 직접 판결을 결정하는 참심제!\n지금, 사법개혁추진준비위원으로 연대해주십시오!\n\n👇 아래 버튼을 눌러 참여하세요';
@@ -915,12 +981,13 @@ exports.sendPosterToGroup = functions.https.onRequest(async (req, res) => {
         res.json({ success: true, result });
     } catch (error) {
         console.error('Error sending poster:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
 });
 
 // Webhook 정보 확인
 exports.getWebhookInfo = functions.https.onRequest(async (req, res) => {
+    if (!(await verifyAdmin(req, res))) return;
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/getWebhookInfo`;
 
     try {
@@ -928,7 +995,7 @@ exports.getWebhookInfo = functions.https.onRequest(async (req, res) => {
         const result = await response.json();
         res.json(result);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
 });
 
@@ -1111,9 +1178,7 @@ const DAILY_LIMIT = 1000; // 하루 최대 등록 수
 
 exports.checkDailyLimit = functions.https.onRequest(async (req, res) => {
     // CORS 설정
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    setCorsHeaders(req, res);
 
     if (req.method === 'OPTIONS') {
         res.status(204).send('');
@@ -1146,7 +1211,7 @@ exports.checkDailyLimit = functions.https.onRequest(async (req, res) => {
         });
     } catch (error) {
         console.error('Error checking daily limit:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
 });
 
@@ -1156,14 +1221,13 @@ exports.checkDailyLimit = functions.https.onRequest(async (req, res) => {
 
 exports.registerSignature = functions.https.onRequest(async (req, res) => {
     // CORS 설정
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    setCorsHeaders(req, res);
 
     if (req.method === 'OPTIONS') {
         res.status(204).send('');
         return;
     }
+    if (!checkRateLimit(req, res, 10)) return;
 
     if (req.method !== 'POST') {
         res.status(405).json({ error: 'Method not allowed' });
@@ -1303,14 +1367,13 @@ exports.onNewSignature = functions.firestore
 
 exports.sendBlogNotification = functions.https.onRequest(async (req, res) => {
     // CORS 설정
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
+    setCorsHeaders(req, res);
 
     if (req.method === 'OPTIONS') {
         res.status(204).send('');
         return;
     }
+    if (!(await verifyAdmin(req, res))) return;
 
     if (req.method !== 'POST') {
         res.status(405).json({ error: 'Method not allowed' });
@@ -1335,7 +1398,7 @@ exports.sendBlogNotification = functions.https.onRequest(async (req, res) => {
         res.json({ success: true });
     } catch (error) {
         console.error('Blog notification error:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
 });
 
@@ -1479,9 +1542,7 @@ const KAKAO_APP_KEY = '83e843186c1251b9b5a8013fd5f29798';
 
 exports.kakaoToken = functions.https.onRequest(async (req, res) => {
     // CORS 설정
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    setCorsHeaders(req, res);
 
     if (req.method === 'OPTIONS') {
         res.status(204).send('');
@@ -1522,7 +1583,7 @@ exports.kakaoToken = functions.https.onRequest(async (req, res) => {
         res.json(tokenData);
     } catch (error) {
         console.error('Kakao token error:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
 });
 
@@ -1932,14 +1993,13 @@ exports.autoCollectNews = functions
 exports.collectNewsManual = functions
     .runWith({ timeoutSeconds: 540, memory: '512MB' })
     .https.onRequest(async (req, res) => {
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
+    setCorsHeaders(req, res);
 
     if (req.method === 'OPTIONS') {
         res.status(204).send('');
         return;
     }
+    if (!(await verifyAdmin(req, res))) return;
 
     try {
         const force = req.query.force === 'true';
@@ -1947,20 +2007,19 @@ exports.collectNewsManual = functions
         res.json(result);
     } catch (error) {
         console.error('Manual news collection error:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
 });
 
 // 대법원 보도자료 수동 수집 (테스트용)
 exports.collectSupremeCourtNews = functions.https.onRequest(async (req, res) => {
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
+    setCorsHeaders(req, res);
 
     if (req.method === 'OPTIONS') {
         res.status(204).send('');
         return;
     }
+    if (!(await verifyAdmin(req, res))) return;
 
     try {
         console.log('Manual Supreme Court news collection started');
@@ -2018,7 +2077,7 @@ exports.collectSupremeCourtNews = functions.https.onRequest(async (req, res) => 
         });
     } catch (error) {
         console.error('Supreme Court news collection error:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
 });
 
@@ -2882,10 +2941,8 @@ const DEFENDANT_JUDGE_MAP = {
 exports.updateJudgeHistory = functions
     .region('asia-northeast3')
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
-            res.set('Access-Control-Allow-Methods', 'GET, POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
             res.status(204).send('');
             return;
         }
@@ -2922,7 +2979,7 @@ exports.updateJudgeHistory = functions
             res.json({ success: true, results });
         } catch (error) {
             console.error('updateJudgeHistory error:', error);
-            res.status(500).json({ error: error.message });
+            console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
     });
 
@@ -2932,13 +2989,12 @@ exports.triggerSentencingCrawl = functions
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
     .https.onRequest(async (req, res) => {
         // CORS 설정
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
-            res.set('Access-Control-Allow-Methods', 'GET, POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
             res.status(204).send('');
             return;
         }
+        if (!(await verifyAdmin(req, res))) return;
 
         const personName = req.query.person;
 
@@ -2968,7 +3024,7 @@ exports.triggerSentencingCrawl = functions
             }
         } catch (error) {
             console.error('Trigger sentencing crawl error:', error);
-            res.status(500).json({ error: error.message });
+            console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
     });
 
@@ -2976,10 +3032,8 @@ exports.triggerSentencingCrawl = functions
 exports.getSentencingData = functions
     .region('asia-northeast3')
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
-            res.set('Access-Control-Allow-Methods', 'GET');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
             res.status(204).send('');
             return;
         }
@@ -3006,7 +3060,7 @@ exports.getSentencingData = functions
             }
         } catch (error) {
             console.error('Get sentencing data error:', error);
-            res.status(500).json({ error: error.message });
+            console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
     });
 
@@ -3158,14 +3212,13 @@ exports.collectReformNews = functions
 exports.collectReformNewsManual = functions
     .runWith({ timeoutSeconds: 120, memory: '256MB' })
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
-        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
+        setCorsHeaders(req, res);
 
         if (req.method === 'OPTIONS') {
             res.status(204).send('');
             return;
         }
+        if (!(await verifyAdmin(req, res))) return;
 
         const areaId = req.query.area;
 
@@ -3188,7 +3241,7 @@ exports.collectReformNewsManual = functions
             }
         } catch (error) {
             console.error('Manual reform news collection error:', error);
-            res.status(500).json({ error: error.message });
+            console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
     });
 
@@ -3669,13 +3722,12 @@ exports.triggerJudgeCrawl = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
-            res.set('Access-Control-Allow-Methods', 'GET, POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
             res.status(204).send('');
             return;
         }
+        if (!(await verifyAdmin(req, res))) return;
 
         const judgeName = req.query.judge || '우인성';
         const source = req.query.source; // 'news', 'youtube', 'court', or all
@@ -3702,7 +3754,7 @@ exports.triggerJudgeCrawl = functions
             res.json({ success: true, judge: judgeName, results });
         } catch (error) {
             console.error('Judge crawl error:', error);
-            res.status(500).json({ error: error.message });
+            console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
     });
 
@@ -3710,10 +3762,8 @@ exports.triggerJudgeCrawl = functions
 exports.getJudgeData = functions
     .region('asia-northeast3')
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
-            res.set('Access-Control-Allow-Methods', 'GET');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
             res.status(204).send('');
             return;
         }
@@ -3738,7 +3788,7 @@ exports.getJudgeData = functions
             });
         } catch (error) {
             console.error('Get judge data error:', error);
-            res.status(500).json({ error: error.message });
+            console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
     });
 
@@ -3747,9 +3797,7 @@ exports.getJudgeData = functions
 // ============================================
 
 exports.lawApi = functions.https.onRequest(async (req, res) => {
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    setCorsHeaders(req, res);
 
     if (req.method === 'OPTIONS') {
         res.status(204).send('');
@@ -3790,7 +3838,7 @@ exports.lawApi = functions.https.onRequest(async (req, res) => {
         }
     } catch (error) {
         console.error('Law API proxy error:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
 });
 
@@ -3800,9 +3848,7 @@ exports.lawApi = functions.https.onRequest(async (req, res) => {
 
 exports.searchNaverNews = functions.https.onRequest(async (req, res) => {
     // CORS 설정
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    setCorsHeaders(req, res);
 
     if (req.method === 'OPTIONS') {
         return res.status(204).send('');
@@ -4011,13 +4057,12 @@ exports.triggerVerdictCrawl = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
-            res.set('Access-Control-Allow-Methods', 'GET, POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
             res.status(204).send('');
             return;
         }
+        if (!(await verifyAdmin(req, res))) return;
 
         try {
             const allNewsItems = [];
@@ -4066,7 +4111,7 @@ exports.triggerVerdictCrawl = functions
             });
         } catch (error) {
             console.error('Trigger verdict crawl error:', error);
-            res.status(500).json({ error: error.message });
+            console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
     });
 
@@ -4075,13 +4120,13 @@ exports.analyzeVerdictWithAI = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 300, memory: '1GB' })
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
-            res.set('Access-Control-Allow-Methods', 'POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
             res.status(204).send('');
             return;
         }
+        if (!(await verifyAdmin(req, res))) return;
+        if (!checkRateLimit(req, res, 5)) return;
 
         const { defendant } = req.query;
         if (!defendant) {
@@ -4181,7 +4226,7 @@ ${newsText}
             res.json({ success: true, defendant, analysis: analysisData });
         } catch (error) {
             console.error('AI analysis error:', error);
-            res.status(500).json({ error: error.message });
+            console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
     });
 
@@ -4577,12 +4622,12 @@ exports.predictSentencingWithAI = functions
     .runWith({ timeoutSeconds: 300, memory: '1GB' })
     .https.onRequest(async (req, res) => {
         // CORS 헤더
-        res.set('Access-Control-Allow-Origin', '*');
-        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
             return res.status(204).send('');
         }
+        if (!(await verifyAdmin(req, res))) return;
+        if (!checkRateLimit(req, res, 5)) return;
 
         const defendant = req.query.defendant || req.body?.defendant;
         if (!defendant) {
@@ -4981,13 +5026,12 @@ exports.crawlCourtComposition = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 300, memory: '1GB' })
     .https.onRequest(async (req, res) => {
-        res.set('Access-Control-Allow-Origin', '*');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
-            res.set('Access-Control-Allow-Methods', 'GET, POST');
-            res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
             res.status(204).send('');
             return;
         }
+        if (!(await verifyAdmin(req, res))) return;
 
         try {
             const keywords = ['내란 전담재판부', '내란 항소심 재판부', '내란 재판부 배정'];
@@ -5075,7 +5119,7 @@ JSON 형식:
             res.json({ success: true, totalNews: uniqueNews.length, courts });
         } catch (error) {
             console.error('Court composition crawl error:', error);
-            res.status(500).json({ error: error.message });
+            console.error('Internal error:', error.message); res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
     });
 
@@ -5427,12 +5471,11 @@ exports.collectJudicialEvidence = functions
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
     .https.onRequest(async (req, res) => {
         // CORS 헤더
-        res.set('Access-Control-Allow-Origin', '*');
-        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.set('Access-Control-Allow-Headers', 'Content-Type');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
             return res.status(204).send('');
         }
+        if (!(await verifyAdmin(req, res))) return;
 
         const defendant = req.query.defendant || req.body?.defendant;
         if (!defendant) {
@@ -5487,7 +5530,7 @@ exports.collectJudicialEvidence = functions
             });
         } catch (error) {
             console.error('collectJudicialEvidence error:', error);
-            return res.status(500).json({ error: error.message });
+            console.error('Internal error:', error.message); return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
     });
 
@@ -5496,12 +5539,11 @@ exports.manageOpinionPolls = functions
     .region('asia-northeast3')
     .https.onRequest(async (req, res) => {
         // CORS 헤더
-        res.set('Access-Control-Allow-Origin', '*');
-        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.set('Access-Control-Allow-Headers', 'Content-Type');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
             return res.status(204).send('');
         }
+        if (!(await verifyAdmin(req, res))) return;
 
         const defendant = req.query.defendant || req.body?.defendant;
         if (!defendant) {
@@ -5544,7 +5586,7 @@ exports.manageOpinionPolls = functions
             return res.status(405).json({ error: '허용되지 않는 메서드입니다.' });
         } catch (error) {
             console.error('manageOpinionPolls error:', error);
-            return res.status(500).json({ error: error.message });
+            console.error('Internal error:', error.message); return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
     });
 
@@ -5554,12 +5596,12 @@ exports.evaluateJudicialIntegrity = functions
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
     .https.onRequest(async (req, res) => {
         // CORS 헤더
-        res.set('Access-Control-Allow-Origin', '*');
-        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.set('Access-Control-Allow-Headers', 'Content-Type');
+        setCorsHeaders(req, res);
         if (req.method === 'OPTIONS') {
             return res.status(204).send('');
         }
+        if (!(await verifyAdmin(req, res))) return;
+        if (!checkRateLimit(req, res, 5)) return;
 
         const defendant = req.query.defendant || req.body?.defendant;
         if (!defendant) {
@@ -5848,7 +5890,7 @@ ${Object.entries(FRONTEND_SENTENCING_DATA).filter(([name]) => name !== defendant
             });
         } catch (error) {
             console.error('evaluateJudicialIntegrity error:', error);
-            return res.status(500).json({ error: error.message });
+            console.error('Internal error:', error.message); return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
         }
     });
 

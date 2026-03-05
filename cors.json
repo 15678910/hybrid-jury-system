@@ -1,6 +1,6 @@
 [
   {
-    "origin": ["*"],
+    "origin": ["https://xn--lg3b0kt4n41f.kr", "https://siminbupjung-blog.web.app", "https://siminbupjung-blog.firebaseapp.com"],
     "method": ["GET", "HEAD", "PUT", "POST", "DELETE"],
     "maxAgeSeconds": 3600,
     "responseHeader": ["Content-Type", "Access-Control-Allow-Origin"]

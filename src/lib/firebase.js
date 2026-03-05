@@ -3,6 +3,7 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 const firebaseConfig = {
     apiKey: "AIzaSyA9zBNz9R4Y5rVRhPGZoCHqsPC9wRne5uk",
@@ -15,6 +16,21 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+// Firebase App Check (reCAPTCHA v3) - 봇 및 악성 요청 차단
+if (typeof window !== 'undefined') {
+    try {
+        if (import.meta.env.DEV) {
+            self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+        }
+        initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'),
+            isTokenAutoRefreshEnabled: true
+        });
+    } catch (e) {
+        console.log('App Check not available:', e.message);
+    }
+}
 
 // Firestore (기본 설정 - 안정성 + 속도)
 export const db = getFirestore(app);

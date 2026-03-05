@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { doc, getDoc, collection, query, orderBy, getDocs, updateDoc, increment, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import DOMPurify from 'dompurify';
 import Header from '../components/Header';
 import SNSShareBar from '../components/SNSShareBar';
 
@@ -209,7 +210,7 @@ export default function BlogPost() {
                             // HTML 콘텐츠 (리치 텍스트 에디터로 작성된 글)
                             <div
                                 className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700"
-                                dangerouslySetInnerHTML={{ __html: post.content }}
+                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
                             />
                         ) : (
                             // 일반 텍스트 (기존 글 호환)
