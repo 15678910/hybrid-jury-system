@@ -148,6 +148,21 @@ firebase deploy --only functions                  # 백엔드 함수
 - `npm run build` 실패 시 배포 절대 금지
 - `.firebase/hosting.ZGlzdA.cache`는 자동 생성 파일 → 커밋에 포함해도 무관하나 수동 수정 금지
 
+### 🚨 2026-03-06 사건 (App Check Enforce 장애)
+- **사건**: App Check를 Firestore/Storage에 Enforce 적용 → 사이트 전체 데이터 0으로 표시
+- **원인**: reCAPTCHA 토큰이 100% Unverified 상태에서 Enforce 적용 → 모든 요청 차단
+- **교훈**: Firebase Console에서 보안 설정 변경 시 반드시 다음 순서를 따를 것:
+  1. Monitoring 모드로 먼저 적용 → 토큰 Verified 비율 확인
+  2. Verified 비율이 90% 이상일 때만 Enforce 전환
+  3. Enforce 후 즉시 사이트 접속하여 데이터 로딩 확인
+  4. 문제 발생 시 즉시 Unenforce로 롤백
+- **현재 상태**: Cloud Firestore = Monitoring, Storage = Unenforced
+
+### 보안/인프라 변경 시 자체 검증 필수
+- Firebase 보안 규칙, App Check, CORS 등 변경 후 **반드시 사이트 접속 테스트**
+- 배포 후 최소 3개 페이지 확인: 메인, 서명, 블로그
+- 데이터가 0이거나 빈 화면이면 즉시 롤백 후 원인 분석
+
 ### 카카오 로그인
 - 이메일 권한은 비즈앱 전환 필요 → 현재 `profile_nickname`, `profile_image`만 사용
 - 모바일/데스크톱 로그인 플로우가 다름 (리다이렉트 vs 팝업) → 한쪽만 수정하지 말 것
@@ -182,6 +197,39 @@ firebase deploy --only functions                  # 백엔드 함수
 - 로컬 프리뷰 서버: `.claude/launch.json` → `npm run dev` (port 5173)
 - **사용자 승인 없이 `firebase deploy` 절대 금지**
 - 프리뷰 확인 도구: `preview_screenshot`, `preview_snapshot`, `preview_inspect` 활용
+
+## 판사 데이터 자동 관리 규칙
+
+### 🔄 세션 시작 시 자동 체크 (필수)
+매 세션에서 판사 관련 작업이 감지되면, 자동으로 다음을 수행:
+1. **웹 검색**: "내란전담재판부 판사 명단 최신" 검색
+2. **비교**: `src/data/judges.js`의 현재 판사 목록과 대조
+3. **누락 감지**: 새로 배정/변경된 판사가 있으면 자동 추가
+4. **사용자 알림**: "판사 X명 누락 발견, 자동 추가합니다" 안내
+
+### 새 판사 추가 시 자동 완성 항목 (사진 외 전부 자동)
+| 항목 | 자동화 | 방법 |
+|------|--------|------|
+| 기본 정보 (이름, 소속, 직위) | ✅ 자동 | 웹 검색 |
+| career (경력) | ✅ 자동 | 웹 검색 (나무위키, 법률신문 등) |
+| cases (주요 판결) | ✅ 자동 | 웹 검색 (뉴스 기사) |
+| justiceEvaluation (사법정의평가) | ✅ 자동 | 판결 데이터 기반 AI 분석 |
+| photo (인물 사진) | ❌ 수동 | 사용자가 public/에 직접 추가 |
+
+### 판사 추가 자동 워크플로우
+```
+1. 웹 검색으로 판사 정보 수집 (경력, 판결, 뉴스)
+2. justiceEvaluation AI 분석 생성 (검찰/재판부 이슈 포함)
+3. judges.js에 완성된 데이터 삽입
+4. npm run build로 검증
+5. 사용자에게 "사진만 public/{이름}.png에 추가해주세요" 안내
+6. 사진 추가 확인 후 배포
+```
+
+### 스크립트 (수동 사용 시)
+```bash
+node scripts/add-judge.cjs --name "판사이름" --category "내란전담재판부" --court "서울중앙지방법원" --position "형사합의00부 부장판사"
+```
 
 ## 배포 전 체크리스트
 - [ ] `npm run build` 오류 없음
