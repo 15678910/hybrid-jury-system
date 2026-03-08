@@ -43,6 +43,42 @@
         "function": "judgeDetailPage"
       },
       {
+        "source": "/governance",
+        "function": "governancePage"
+      },
+      {
+        "source": "/europe-jury",
+        "function": "europeJuryPage"
+      },
+      {
+        "source": "/case-search",
+        "function": "caseSearchPage"
+      },
+      {
+        "source": "/donate",
+        "function": "donatePage"
+      },
+      {
+        "source": "/judicial-network",
+        "function": "judicialNetworkPage"
+      },
+      {
+        "source": "/law-database",
+        "function": "lawDatabasePage"
+      },
+      {
+        "source": "/chat",
+        "function": "chatPage"
+      },
+      {
+        "source": "/news",
+        "function": "newsPage"
+      },
+      {
+        "source": "/precedent/**",
+        "function": "precedentDetailPage"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

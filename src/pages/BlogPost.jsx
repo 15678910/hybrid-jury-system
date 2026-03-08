@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import DOMPurify from 'dompurify';
 import Header from '../components/Header';
 import SNSShareBar from '../components/SNSShareBar';
+import SEOHead from '../components/SEOHead';
 
 export default function BlogPost() {
     const { id } = useParams();
@@ -164,6 +165,15 @@ export default function BlogPost() {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            {post && (
+              <SEOHead
+                title={post.title}
+                description={post.content?.replace(/<[^>]+>/g, '').slice(0, 150)}
+                path={`/blog/${id}`}
+                image={post.featuredImage || post.thumbnailUrl}
+                type="article"
+              />
+            )}
             <Header />
 
             {/* 메인 콘텐츠 */}

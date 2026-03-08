@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 import SNSShareBar from '../components/SNSShareBar';
 
 export default function PrivacyPolicy() {
     return (
         <div className="min-h-screen bg-gray-50">
+            <SEOHead title="개인정보 처리방침" description="시민법정 개인정보 처리방침" path="/privacy" />
             <Header />
 
             <main className="pt-24 pb-16 px-4">

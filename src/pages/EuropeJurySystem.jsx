@@ -450,7 +450,7 @@ export default function EuropeJurySystem() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <SEOHead title="유럽 참심제" description="독일, 프랑스, 핀란드, 스웨덴 등 유럽 각국의 참심제 운영 사례와 비교 분석" path="/europe-jury" />
+            <SEOHead title="유럽 참심제" description="독일, 프랑스, 핀란드, 스웨덴 등 유럽 각국의 참심제 운영 사례와 비교 분석" path="/europe-jury" image="/유럽참심제.png" />
             <Header />
 
             {/* 페이지 타이틀 헤더 */}

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 import SNSShareBar from '../components/SNSShareBar';
 
 // =============================================================================
@@ -708,6 +709,7 @@ function JudicialNetwork() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
+            <SEOHead title="사법부 네트워크 분석" description="대한민국 사법부 인맥·학맥 네트워크 시각화 분석" path="/judicial-network" image="/관계도.png" />
             <Header />
             <div className="container mx-auto px-4 py-6">
                 {/* 헤더 */}

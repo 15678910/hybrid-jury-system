@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import Header from '../components/Header';
 import { getPrecedentDetail } from '../lib/lawApi';
 import SNSShareBar from '../components/SNSShareBar';
+import SEOHead from '../components/SEOHead';
 
 function PrecedentDetail() {
     const { id } = useParams();
@@ -135,6 +136,13 @@ function PrecedentDetail() {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            {precedent && (
+              <SEOHead
+                title={`${precedent.사건번호} ${precedent.사건명 || ''}`}
+                description={`${precedent.법원명 || ''} 판결 상세 - ${precedent.판결유형 || ''}`}
+                path={`/precedent/${id}`}
+              />
+            )}
             <Header />
 
             <div className="pt-24 pb-16">

@@ -1196,7 +1196,7 @@ export default function ReformAnalysis() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <SEOHead title="사법개혁 분석" description="한국 사법제도 개혁 분석 - 참심제, 배심제, 국민참여재판 비교 분석" path="/reform-analysis" />
+            <SEOHead title="사법개혁 분석" description="한국 사법제도 개혁 분석 - 참심제, 배심제, 국민참여재판 비교 분석" path="/reform-analysis" image="/사법개혁안비교.png" />
             <Header />
             <main className="pt-24 pb-16 px-4">
                 <div className="container mx-auto max-w-5xl">

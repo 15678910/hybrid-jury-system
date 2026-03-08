@@ -9,7 +9,9 @@ export default function SEOHead({ title, description, path = '/', image, type = 
     const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} - 참심제 도입으로 시민이 판사가 되는 사법개혁`;
     const desc = description || DEFAULT_DESC;
     const url = `${BASE_URL}${path}`;
-    const img = image || DEFAULT_IMAGE;
+    const img = image
+        ? (image.startsWith('http') ? image : `${BASE_URL}${image}`)
+        : DEFAULT_IMAGE;
 
     return (
         <Helmet>

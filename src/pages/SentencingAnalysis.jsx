@@ -2711,7 +2711,7 @@ export default function SentencingAnalysis() {
     if (!selectedPerson) {
         return (
             <div className="min-h-screen bg-gray-50">
-                <SEOHead title="내란재판 AI 양형분석" description="AI가 분석하는 내란사건 피고인별 양형 예측과 판결 분석 - 윤석열, 한덕수, 이상민 등 25명" path="/sentencing-analysis" />
+                <SEOHead title="내란재판 AI 양형분석" description="AI가 분석하는 내란사건 피고인별 양형 예측과 판결 분석 - 윤석열, 한덕수, 이상민 등 25명" path="/sentencing-analysis" image="/ai양형예측.png" />
                 <Header />
                 <main className="pt-24 pb-16 px-4">
                     <div className="container mx-auto max-w-4xl">

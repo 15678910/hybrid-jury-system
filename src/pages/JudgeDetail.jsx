@@ -6,6 +6,7 @@ import DOMPurify from 'dompurify';
 import Header from '../components/Header';
 import { JUDGES_DATA } from '../data/judges';
 import SNSShareBar from '../components/SNSShareBar';
+import SEOHead from '../components/SEOHead';
 
 // 인라인 SVG 아이콘 (heroicons 대체)
 const ShareIcon = ({ className }) => (
@@ -150,6 +151,13 @@ export default function JudgeDetail() {
 
     return (
         <>
+            {judge && (
+              <SEOHead
+                title={`${judge.name} - 판사 프로필`}
+                description={`${judge.position || ''} 경력 및 주요 판결 정보`}
+                path={`/judge/${name}`}
+              />
+            )}
             <Header />
             <div className="pt-24 pb-12 min-h-screen bg-gray-50">
                 <div className="container mx-auto px-4 max-w-4xl">

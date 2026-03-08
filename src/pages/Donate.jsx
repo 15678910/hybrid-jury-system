@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 import SNSShareBar from '../components/SNSShareBar';
 
 export default function Donate() {
@@ -103,6 +104,7 @@ export default function Donate() {
 
     return (
         <div className="min-h-screen bg-gray-100">
+            <SEOHead title="시민법정 후원" description="사법개혁을 위한 시민법정 활동을 후원해 주세요" path="/donate" />
             <Header />
 
             <div className="flex min-h-screen pt-16">

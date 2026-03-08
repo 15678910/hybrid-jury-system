@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import SEOHead from './components/SEOHead';
 import Poster, { shouldShowPoster } from './Poster'
 import { Link, useNavigate } from 'react-router-dom'
 import { collection, addDoc, getDocs, query, orderBy, where } from 'firebase/firestore';
@@ -794,6 +795,7 @@ export default function App() {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            <SEOHead path="/" />
             {/* 헤더 */}
             <header className="bg-white shadow-md fixed top-0 w-full z-[9999] overflow-visible">
                 <div className="container mx-auto px-4 overflow-visible">

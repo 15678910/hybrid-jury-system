@@ -2677,7 +2677,7 @@ exports.sentencingAnalysisPage = functions.https.onRequest(async (req, res) => {
     const description = person
         ? `${person} 내란 재판 현황 및 AI 양형 예측 분석 - 시민법정`
         : '내란 관련 인물 재판 현황 및 판결 분석 - 시민법정';
-    const imageUrl = 'https://siminbupjung-blog.web.app/%EB%82%B4%EB%9E%80%EC%9E%AC%ED%8C%90%EB%B6%84%EC%84%9D.png?v=3';
+    const imageUrl = 'https://siminbupjung-blog.web.app/ai%EC%96%91%ED%98%95%EC%98%88%EC%B8%A1.png';
     const pageUrl = person
         ? `https://siminbupjung-blog.web.app/sentencing-analysis?person=${encodeURIComponent(person)}`
         : 'https://siminbupjung-blog.web.app/sentencing-analysis';
@@ -2730,7 +2730,7 @@ exports.reformAnalysisPage = functions.https.onRequest(async (req, res) => {
     const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
     const title = `[개혁안 비교] ${dateStr} 주요 소식`;
     const description = '사법개혁 7대 영역별 정당·시민사회 입장 비교 및 관련 뉴스 - 시민법정';
-    const imageUrl = 'https://siminbupjung-blog.web.app/%EA%B0%9C%ED%98%81%EC%95%88%EB%B9%84%EA%B5%90.png?v=4';
+    const imageUrl = 'https://siminbupjung-blog.web.app/%EC%82%AC%EB%B2%95%EA%B0%9C%ED%98%81%EC%95%88%EB%B9%84%EA%B5%90.png';
     const pageUrl = 'https://siminbupjung-blog.web.app/reform-analysis';
 
     const html = `<!doctype html>
@@ -2794,7 +2794,7 @@ exports.trialAnalysisPage = functions.https.onRequest(async (req, res) => {
     const description = tabTitle
         ? `내란재판 ${tabTitle} - 내란 27명 피고인 판결 분석, AI 양형 예측 vs 참심제 시뮬레이션 비교 - 시민법정`
         : '내란 27명 피고인 판결 분석, AI 양형 예측 vs 참심제 시뮬레이션 비교, 사법살인 70년 역사와 참심제 도입 당위성 - 시민법정';
-    const imageUrl = 'https://siminbupjung-blog.web.app/og-image.jpg';
+    const imageUrl = 'https://siminbupjung-blog.web.app/%EC%B0%B8%EC%8B%AC%EC%A0%9C%EC%8B%9C%EB%AE%AC%EB%A0%88%EC%9D%B4%EC%85%98.png';
     const pageUrl = tab
         ? `https://siminbupjung-blog.web.app/trial-analysis?tab=${tab}`
         : 'https://siminbupjung-blog.web.app/trial-analysis';
@@ -2844,7 +2844,7 @@ exports.judgeEvaluationPage = functions.https.onRequest(async (req, res) => {
 
     const title = '판사 평가 - 시민법정';
     const description = '내란 재판 담당 판사들의 판결 성향 - 사법정의평가';
-    const imageUrl = 'https://siminbupjung-blog.web.app/%EB%82%B4%EB%9E%80%EC%9E%AC%ED%8C%90%EB%B6%84%EC%84%9D.png?v=3';
+    const imageUrl = 'https://siminbupjung-blog.web.app/ai%EC%9D%98%ED%8C%90%EC%82%AC%ED%8F%89%EA%B0%80.png';
     const pageUrl = 'https://siminbupjung-blog.web.app/judge-evaluation';
 
     const html = `<!doctype html>
@@ -2943,6 +2943,167 @@ exports.judgeDetailPage = functions.https.onRequest(async (req, res) => {
 </html>`;
 
     res.send(html);
+});
+
+// ============================================
+// 정적 페이지 SSR 헬퍼 (OG 태그 - SNS 미리보기)
+// ============================================
+const CRAWLER_REGEX = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i;
+const DEFAULT_OG_IMAGE = 'https://siminbupjung-blog.web.app/og-image.jpg';
+
+function createStaticPageHandler(route, title, description, imageUrl) {
+    return functions.https.onRequest(async (req, res) => {
+        const userAgent = req.get('User-Agent') || '';
+        const isCrawler = CRAWLER_REGEX.test(userAgent);
+
+        if (!isCrawler) {
+            const queryString = req.url.includes('?') ? '&' + req.url.split('?')[1] : '';
+            const redirectUrl = `/?r=${route}${queryString}`;
+            return res.send(`<!DOCTYPE html>
+<html>
+<head><meta http-equiv="refresh" content="0;url=${redirectUrl}"><script>window.location.replace("${redirectUrl}")</script></head>
+<body>Loading...</body>
+</html>`);
+        }
+
+        const pageUrl = `https://siminbupjung-blog.web.app${route}`;
+        const ogImage = imageUrl || DEFAULT_OG_IMAGE;
+
+        const html = `<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${title} - 시민법정</title>
+    <meta name="description" content="${description}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${ogImage}" />
+    <meta property="og:url" content="${pageUrl}" />
+    <meta property="og:site_name" content="시민법정" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${ogImage}" />
+  </head>
+  <body>
+    <h1>${title}</h1>
+    <p>${description}</p>
+  </body>
+</html>`;
+
+        res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+        res.status(200).send(html);
+    });
+}
+
+// 거버넌스 페이지
+exports.governancePage = createStaticPageHandler(
+    '/governance',
+    '거버넌스 - 시민법정',
+    '시민법정 의사결정 구조와 운영 체계 - 주권자사법개혁추진준비위원회'
+);
+
+// 유럽 참심제 비교분석 페이지
+exports.europeJuryPage = createStaticPageHandler(
+    '/europe-jury',
+    '유럽 참심제 비교분석',
+    '독일, 프랑스, 핀란드, 스웨덴 등 유럽 각국의 참심제 운영 현황 비교 분석',
+    'https://siminbupjung-blog.web.app/%EC%9C%A0%EB%9F%BD%EC%B0%B8%EC%8B%AC%EC%A0%9C.png'
+);
+
+// 법률정보 검색 서비스
+exports.caseSearchPage = createStaticPageHandler(
+    '/case-search',
+    '법률정보 검색 서비스',
+    '판례, 법령, 헌재결정, 법률용어 등 법률정보를 검색하세요'
+);
+
+// 후원 페이지
+exports.donatePage = createStaticPageHandler(
+    '/donate',
+    '시민법정 후원',
+    '사법개혁을 위한 시민법정 활동을 후원해 주세요'
+);
+
+// 사법부 네트워크 분석
+exports.judicialNetworkPage = createStaticPageHandler(
+    '/judicial-network',
+    '사법부 네트워크 분석',
+    '대한민국 사법부 인맥·학맥 네트워크 시각화 분석',
+    'https://siminbupjung-blog.web.app/%EA%B4%80%EA%B3%84%EB%8F%84.png'
+);
+
+// 법률 데이터베이스
+exports.lawDatabasePage = createStaticPageHandler(
+    '/law-database',
+    '법률 데이터베이스',
+    '형법 조문, 판례, 헌재결정, 법률용어 검색'
+);
+
+// AI 법률 챗봇
+exports.chatPage = createStaticPageHandler(
+    '/chat',
+    '시민법정 AI 법률 챗봇',
+    '참심제·사법개혁에 관한 질문을 AI에게 물어보세요'
+);
+
+// 사법뉴스
+exports.newsPage = createStaticPageHandler(
+    '/news',
+    '사법뉴스 - 시민법정',
+    '대한민국 사법부 관련 최신 뉴스'
+);
+
+// 판례 상세 페이지
+exports.precedentDetailPage = functions.https.onRequest(async (req, res) => {
+    const userAgent = req.get('User-Agent') || '';
+    const isCrawler = CRAWLER_REGEX.test(userAgent);
+
+    const caseId = decodeURIComponent(req.path.split('/').pop() || '');
+
+    if (!isCrawler) {
+        const redirectUrl = `/?r=/precedent/${encodeURIComponent(caseId)}`;
+        return res.send(`<!DOCTYPE html>
+<html>
+<head><meta http-equiv="refresh" content="0;url=${redirectUrl}"><script>window.location.replace("${redirectUrl}")</script></head>
+<body>Loading...</body>
+</html>`);
+    }
+
+    const title = caseId ? `판례 ${caseId}` : '판례 상세';
+    const description = `${caseId} 판결 상세 정보 - 시민법정`;
+    const pageUrl = `https://siminbupjung-blog.web.app/precedent/${encodeURIComponent(caseId)}`;
+
+    const html = `<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${title} - 시민법정</title>
+    <meta name="description" content="${description}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${DEFAULT_OG_IMAGE}" />
+    <meta property="og:url" content="${pageUrl}" />
+    <meta property="og:site_name" content="시민법정" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${DEFAULT_OG_IMAGE}" />
+  </head>
+  <body>
+    <h1>${title}</h1>
+    <p>${description}</p>
+  </body>
+</html>`;
+
+    res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+    res.status(200).send(html);
 });
 
 // 피고인-판사 judgeHistory 매핑 업데이트 유틸리티

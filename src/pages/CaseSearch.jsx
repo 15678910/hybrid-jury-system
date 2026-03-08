@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 import { JUDGES_DATA as judges } from '../data/judges';
 import { searchPrecedents, searchLaws } from '../lib/lawApi';
 import SNSShareBar from '../components/SNSShareBar';
@@ -263,6 +264,7 @@ function CaseSearch() {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            <SEOHead title="법률정보 검색 서비스" description="판례, 법령, 헌재결정 등 법률정보를 검색하세요" path="/case-search" />
             <Header />
 
             {/* Hero Section */}

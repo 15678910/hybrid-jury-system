@@ -76,7 +76,7 @@ export default function JudgeEvaluation() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900">
-            <SEOHead title="AI의 판사평가" description="AI가 평가하는 내란사건 재판부별 사법정의 평가 - 헌법재판소, 대법원, 내란전담재판부" path="/judge-evaluation" />
+            <SEOHead title="AI의 판사평가" description="AI가 평가하는 내란사건 재판부별 사법정의 평가 - 헌법재판소, 대법원, 내란전담재판부" path="/judge-evaluation" image="/ai의판사평가.png" />
             <Header />
             <div className="pt-20 pb-12">
                 <div className="container mx-auto px-4 max-w-7xl">

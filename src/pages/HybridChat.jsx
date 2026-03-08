@@ -3,6 +3,7 @@ import { FAQMatcher } from '../lib/faqMatcher';
 import { getVectorSearch } from '../lib/vectorSearch';
 import faqData from '../data/faq.json';
 import SNSShareBar from '../components/SNSShareBar';
+import SEOHead from '../components/SEOHead';
 
 export default function HybridChat() {
   const [messages, setMessages] = useState([]);
@@ -192,6 +193,7 @@ export default function HybridChat() {
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <SEOHead title="시민법정 AI 법률 챗봇" description="참심제·사법개혁에 관한 질문을 AI에게 물어보세요" path="/chat" />
       {/* 헤더 */}
       <div className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
         <div className="max-w-4xl mx-auto">

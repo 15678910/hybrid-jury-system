@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 import SNSShareBar from '../components/SNSShareBar';
 
 export default function TermsOfService() {
     return (
         <div className="min-h-screen bg-gray-50">
+            <SEOHead title="이용약관" description="시민법정 서비스 이용약관" path="/terms" />
             <Header />
 
             <main className="pt-24 pb-16 px-4">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 import { searchLaws, searchPrecedents, searchConstitutionalDecisions, searchLegalTerms } from '../lib/lawApi';
 import SNSShareBar from '../components/SNSShareBar';
 
@@ -539,6 +540,7 @@ export default function LawDatabase() {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            <SEOHead title="법률 데이터베이스" description="형법 조문, 판례, 헌재결정, 법률용어 검색" path="/law-database" />
             <Header />
             <main className="pt-28 pb-16 px-4">
                 <div className="container mx-auto max-w-5xl">
