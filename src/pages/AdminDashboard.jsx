@@ -11,6 +11,7 @@ import {
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '../lib/firebase';
+import { getTodayStats, getWeekStats, getMonthStats } from '../lib/analyticsQueries';
 
 // 상대 시간 포맷 (한국어)
 const formatRelativeTime = (date) => {
@@ -53,6 +54,11 @@ export default function AdminDashboard() {
         users: 0,
         proposals: 0,
         news: 0
+    });
+    const [visitorStats, setVisitorStats] = useState({
+        today: { totalViews: 0, uniqueVisitors: 0 },
+        week: { totalViews: 0, uniqueVisitors: 0 },
+        month: { totalViews: 0, uniqueVisitors: 0 },
     });
     const [recentActivity, setRecentActivity] = useState([]);
     const [dataLoading, setDataLoading] = useState(false);
@@ -223,6 +229,18 @@ export default function AdminDashboard() {
                 news: newsCount
             });
 
+            // 방문자 분석 데이터 로드 (병렬, 개별 안전)
+            try {
+                const [todayData, weekData, monthData] = await Promise.all([
+                    getTodayStats(),
+                    getWeekStats(),
+                    getMonthStats(),
+                ]);
+                setVisitorStats({ today: todayData, week: weekData, month: monthData });
+            } catch (err) {
+                console.warn('Visitor stats load error:', err.message);
+            }
+
             // Recent activity - each individually safe
             const recentItems = [];
 
@@ -384,6 +402,24 @@ export default function AdminDashboard() {
             value: stats.news.toLocaleString(),
             sub: '뉴스 기사',
             bg: 'from-indigo-500 to-indigo-600'
+        },
+        {
+            title: '오늘 방문자',
+            value: (visitorStats.today.uniqueVisitors || 0).toLocaleString(),
+            sub: `페이지뷰 ${(visitorStats.today.totalViews || 0).toLocaleString()}`,
+            bg: 'from-cyan-500 to-teal-600'
+        },
+        {
+            title: '이번 주 방문자',
+            value: (visitorStats.week.uniqueVisitors || 0).toLocaleString(),
+            sub: `페이지뷰 ${(visitorStats.week.totalViews || 0).toLocaleString()}`,
+            bg: 'from-sky-500 to-blue-600'
+        },
+        {
+            title: '이번 달 방문자',
+            value: (visitorStats.month.uniqueVisitors || 0).toLocaleString(),
+            sub: `페이지뷰 ${(visitorStats.month.totalViews || 0).toLocaleString()}`,
+            bg: 'from-violet-500 to-purple-600'
         }
     ];
 
@@ -484,7 +520,7 @@ export default function AdminDashboard() {
                     <h2 className="text-lg font-semibold text-gray-800 mb-4">전체 현황</h2>
                     {dataLoading ? (
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
-                            {Array.from({ length: 6 }).map((_, i) => (
+                            {Array.from({ length: 9 }).map((_, i) => (
                                 <div key={i} className="rounded-xl h-28 bg-gray-200 animate-pulse"></div>
                             ))}
                         </div>

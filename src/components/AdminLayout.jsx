@@ -14,6 +14,7 @@ const MENU_ITEMS = [
     { path: '/admin/news',       label: '사법뉴스',    icon: '📰' },
     { path: '/admin/videos',     label: '동영상 관리', icon: '🎬' },
     { path: '/admin/governance', label: '거버넌스',    icon: '🗳️' },
+    { path: '/admin/analytics', label: '방문자 분석', icon: '📈' },
 ];
 
 export default function AdminLayout() {

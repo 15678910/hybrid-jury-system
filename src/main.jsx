@@ -6,6 +6,7 @@ import './index.css'
 
 // 홈페이지는 즉시 로드 (사용자가 가장 먼저 보는 페이지)
 import App from './App.jsx'
+import PageTracker from './components/PageTracker'
 
 // 나머지 페이지는 필요할 때 로드 (코드 분할)
 const Admin = lazy(() => import('./Admin.jsx'))
@@ -36,6 +37,7 @@ const JudgeDetail = lazy(() => import('./pages/JudgeDetail'))
 const JudicialNetwork = lazy(() => import('./pages/JudicialNetwork'))
 const InsurrectionTrialAnalysis = lazy(() => import('./pages/InsurrectionTrialAnalysis'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
+const AdminAnalytics = lazy(() => import('./pages/AdminAnalytics'))
 const CaseSearch = lazy(() => import('./pages/CaseSearch'))
 const PrecedentDetail = lazy(() => import('./pages/PrecedentDetail'))
 const FloatingChat = lazy(() => import('./CozeFloatingChat'))
@@ -55,6 +57,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <HelmetProvider>
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
+        <PageTracker />
         <Routes>
           <Route path="/" element={<App />} />
           {/* 통합 관리자 대시보드 (사이드바 레이아웃) */}
@@ -67,6 +70,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="news" element={<AdminNews />} />
             <Route path="videos" element={<AdminVideos />} />
             <Route path="governance" element={<GovernanceAdmin />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
           </Route>
           {/* 레거시 단독 접근 라우트 유지 */}
           <Route path="/blog/admin" element={<AdminBlog />} />
