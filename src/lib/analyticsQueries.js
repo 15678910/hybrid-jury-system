@@ -128,8 +128,8 @@ export const getPageBreakdown = async (n = 30) => {
 
     // Firestore 키를 원래 경로로 복원
     const unsanitize = (key) => {
-        if (key === '__root__') return '/';
-        return key.replace(/__/g, '/');
+        if (key === 'home') return '/';
+        return '/' + key.replace(/_/g, '/');
     };
 
     // 경로에 한글 이름 매핑
