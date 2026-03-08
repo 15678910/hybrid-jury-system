@@ -9,6 +9,7 @@ import App from './App.jsx'
 
 // 나머지 페이지는 필요할 때 로드 (코드 분할)
 const Admin = lazy(() => import('./Admin.jsx'))
+const AdminLayout = lazy(() => import('./components/AdminLayout'))
 const HybridChat = lazy(() => import('./pages/HybridChat'))
 const FAQTest = lazy(() => import('./pages/FAQTest'))
 const Blog = lazy(() => import('./pages/Blog'))
@@ -34,6 +35,7 @@ const JudgeEvaluation = lazy(() => import('./pages/JudgeEvaluation'))
 const JudgeDetail = lazy(() => import('./pages/JudgeDetail'))
 const JudicialNetwork = lazy(() => import('./pages/JudicialNetwork'))
 const InsurrectionTrialAnalysis = lazy(() => import('./pages/InsurrectionTrialAnalysis'))
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const CaseSearch = lazy(() => import('./pages/CaseSearch'))
 const PrecedentDetail = lazy(() => import('./pages/PrecedentDetail'))
 const FloatingChat = lazy(() => import('./CozeFloatingChat'))
@@ -55,7 +57,18 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<App />} />
-          <Route path="/admin" element={<Admin />} />
+          {/* 통합 관리자 대시보드 (사이드바 레이아웃) */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="signatures" element={<Admin />} />
+            <Route path="verdicts" element={<Admin />} />
+            <Route path="blog" element={<AdminBlog />} />
+            <Route path="news" element={<AdminNews />} />
+            <Route path="videos" element={<AdminVideos />} />
+            <Route path="governance" element={<GovernanceAdmin />} />
+          </Route>
+          {/* 레거시 단독 접근 라우트 유지 */}
           <Route path="/blog/admin" element={<AdminBlog />} />
           <Route path="/videos/admin" element={<AdminVideos />} />
           <Route path="/chat" element={<HybridChat />} />

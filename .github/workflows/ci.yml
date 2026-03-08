@@ -29,9 +29,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 필요하면 test 단계도 추가
-      # - name: Run tests
-      #   run: npm test -- --watch=false
+      - name: Run tests
+        run: npx vitest run
 
       - name: Build project
         run: npm run build

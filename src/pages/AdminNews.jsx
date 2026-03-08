@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { collection, query, orderBy, getDocs, deleteDoc, doc, where } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 
 export default function AdminNews() {
+    const context = useOutletContext();
+    const embedded = context?.embedded || false;
+
     const [isVerified, setIsVerified] = useState(false);
     const [writerCode, setWriterCode] = useState('');
     const [writerName, setWriterName] = useState('');
@@ -52,6 +56,14 @@ export default function AdminNews() {
             alert('인증 중 오류가 발생했습니다.');
         }
     };
+
+    // embedded 모드 자동 인증
+    useEffect(() => {
+        if (embedded) {
+            setIsVerified(true);
+            setWriterName('관리자');
+        }
+    }, [embedded]);
 
     // 저장된 코드로 자동 로그인
     useEffect(() => {
@@ -142,7 +154,7 @@ export default function AdminNews() {
         setWriterName('');
     };
 
-    if (!isVerified) {
+    if (!isVerified && !embedded) {
         return (
             <div className="min-h-screen bg-gray-50">
                 <Header />
@@ -174,9 +186,9 @@ export default function AdminNews() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <Header />
-            <main className="pt-24 pb-16 px-4">
+        <div className={embedded ? 'bg-gray-50' : 'min-h-screen bg-gray-50'}>
+            {!embedded && <Header />}
+            <main className={embedded ? 'pb-16 px-4' : 'pt-24 pb-16 px-4'}>
                 <div className="container mx-auto max-w-4xl">
                     <div className="flex justify-between items-center mb-8">
                         <div>

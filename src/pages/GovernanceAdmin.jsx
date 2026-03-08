@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useOutletContext } from 'react-router-dom';
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, deleteDoc, addDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -61,14 +61,27 @@ const COLOR_OPTIONS = [
 ];
 
 export default function GovernanceAdmin() {
+    const context = useOutletContext();
+    const embedded = context?.embedded || false;
+
     const [searchParams] = useSearchParams();
     const [isVerified, setIsVerified] = useState(false);
     const [accessDenied, setAccessDenied] = useState(false);
     const [adminCode, setAdminCode] = useState('');
     const [error, setError] = useState('');
 
+    // embedded 모드 자동 인증
+    useEffect(() => {
+        if (embedded) {
+            setIsVerified(true);
+            loadAllData();
+        }
+    }, [embedded]);
+
     // URL 파라미터로 관리자 자동 인증 (필수)
     useEffect(() => {
+        if (embedded) return;
+
         const adminCodeParam = searchParams.get('admin');
         const correctCode = getAdminCode();
 
@@ -726,7 +739,7 @@ export default function GovernanceAdmin() {
     );
 
     // 접근 거부 화면
-    if (accessDenied) {
+    if (accessDenied && !embedded) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
                 <div className="text-center">
@@ -741,8 +754,9 @@ export default function GovernanceAdmin() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <div className={embedded ? 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100' : 'min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100'}>
             {/* 헤더 */}
+            {!embedded && (
             <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
@@ -765,14 +779,15 @@ export default function GovernanceAdmin() {
                     </div>
                 </div>
             </header>
+            )}
 
-            <main className="pt-24 pb-16 px-4">
+            <main className={embedded ? 'pb-16 px-4' : 'pt-24 pb-16 px-4'}>
                 <div className="max-w-5xl mx-auto">
                     <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">
                         거버넌스 관리자 설정
                     </h1>
 
-                    {!isVerified ? (
+                    {!isVerified && !embedded ? (
                         <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md mx-auto">
                             <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center">관리자 인증</h2>
                             <div className="space-y-4">

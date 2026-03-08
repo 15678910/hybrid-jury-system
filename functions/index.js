@@ -82,6 +82,30 @@ setInterval(() => {
     }
 }, 300000);
 
+/**
+ * 한국어 파라미터 안전 디코딩 유틸리티
+ * - 이중 URL 인코딩 방어 (curl 등에서 발생)
+ * - U+FFFD (유니코드 대체 문자) 감지 및 거부
+ * @param {string} raw - 원본 파라미터 값
+ * @returns {string|null} - 디코딩된 값 또는 null (유효하지 않은 경우)
+ */
+function safeDecodeKorean(raw) {
+    if (!raw) return null;
+    let decoded = raw;
+    // 이중 URL 인코딩 방어
+    try {
+        if (raw.includes('%')) decoded = decodeURIComponent(raw);
+    } catch (e) {
+        // 디코딩 실패 시 원본 사용
+    }
+    // U+FFFD (유니코드 대체 문자) 감지 - 깨진 인코딩 표시
+    if (decoded.includes('\uFFFD')) {
+        console.error(`[safeDecodeKorean] U+FFFD detected in parameter: ${JSON.stringify(decoded)} — rejecting garbled input`);
+        return null;
+    }
+    return decoded;
+}
+
 // 환영 메시지 템플릿
 const getWelcomeMessage = (userName) => {
     return `🎉 환영합니다, ${userName}님!
@@ -2947,7 +2971,7 @@ exports.updateJudgeHistory = functions
             return;
         }
 
-        const defendant = req.query.defendant;
+        const defendant = safeDecodeKorean(req.query.defendant);
         const updateAll = req.query.all === 'true';
 
         try {
@@ -4128,7 +4152,7 @@ exports.analyzeVerdictWithAI = functions
         if (!(await verifyAdmin(req, res))) return;
         if (!checkRateLimit(req, res, 5)) return;
 
-        const { defendant } = req.query;
+        const defendant = safeDecodeKorean(req.query.defendant);
         if (!defendant) {
             res.status(400).json({ error: 'defendant parameter required' });
             return;
@@ -4629,7 +4653,7 @@ exports.predictSentencingWithAI = functions
         if (!(await verifyAdmin(req, res))) return;
         if (!checkRateLimit(req, res, 5)) return;
 
-        const defendant = req.query.defendant || req.body?.defendant;
+        const defendant = safeDecodeKorean(req.query.defendant || req.body?.defendant);
         if (!defendant) {
             return res.status(400).json({ error: '피고인 이름(defendant)을 지정해주세요.' });
         }
@@ -5603,7 +5627,7 @@ exports.evaluateJudicialIntegrity = functions
         if (!(await verifyAdmin(req, res))) return;
         if (!checkRateLimit(req, res, 5)) return;
 
-        const defendant = req.query.defendant || req.body?.defendant;
+        const defendant = safeDecodeKorean(req.query.defendant || req.body?.defendant);
         if (!defendant) {
             return res.status(400).json({ error: '피고인 이름(defendant)을 지정해주세요.' });
         }
@@ -5721,10 +5745,24 @@ ${formattedTrends || '수집된 트렌드 없음'}
 ### 4. 여론조사
 ${formattedPolls}
 
+## 검찰(특검·공수처) 평가 시 반드시 검토할 항목
+1. **미기소 혐의**: 피고인의 행위에 비해 기소하지 않은 중대 혐의가 있는지 (예: 외환유치, 내란목적살인, 내란수괴 방조 등)
+2. **수사 범위 축소**: 공범 관계, 지시-실행 체계, 배후 관계 등 수사가 충분했는지
+3. **구형 적정성**: 혐의의 중대성과 피고인의 역할에 비해 구형량이 적절한지
+4. **공소사실 범위**: 실제 범죄 행위를 충분히 포괄하는 공소사실인지
+5. **증거 수집 충실성**: 핵심 증거를 확보했는지, 수사 과정에서 누락된 것은 없는지
+
+## 재판부 평가 시 반드시 검토할 항목
+1. 양형 기준 및 판례와의 일관성
+2. 구형 대비 선고량의 적정성
+3. 피고인의 직위·역할에 상응하는 책임 부과 여부
+4. 증거 판단과 법리 해석의 합리성
+
 ## 평가 지침
-- 모든 주장에는 반드시 근거 자료의 출처를 sources 배열에 포함하세요
-- 출처가 없는 주장은 포함하지 마세요
+- 가능한 한 근거 자료의 출처를 sources 배열에 포함하세요
+- 출처가 직접적으로 없더라도, 수집된 증거에서 추론 가능한 쟁점은 가장 관련성 높은 출처를 연결하여 포함하세요
 - severity는 critical/major/minor 중 선택
+- **중요**: prosecutorialIssues와 judicialIssues 모두 빈 배열이 되지 않도록 최소 1개 이상의 쟁점을 도출하세요. 완벽한 수사나 재판은 없습니다.
 
 다음 JSON 형식으로 응답:
 {
@@ -5774,6 +5812,12 @@ ${JSON.stringify(stepAData, null, 2)}
 - 재판부 공정성 (0-100): 판례 일관성, 양형 기준 준수, 증거 판단, 법리 해석
 - 종합 평가 (0-100): 가중 평균 (검찰 40%, 재판부 40%, 여론·공적 관심 20%)
 
+## 점수 산출 시 주의사항 (필수)
+- **검찰 공정성 100점은 절대 부여하지 마세요.** 어떤 수사도 완벽할 수 없으며, 미기소 혐의·수사 범위 축소·증거 누락 등 구조적 한계가 항상 존재합니다.
+- prosecutorialIssues가 빈 배열이라면 이는 "이슈가 없다"가 아니라 "이슈를 찾지 못했다"를 의미합니다. 이 경우 검찰 공정성은 최대 75점으로 제한하세요.
+- judicialIssues가 빈 배열인 경우에도 동일하게 재판부 공정성 최대 75점으로 제한하세요.
+- 각 이슈의 severity에 따른 감점: critical = -20~30점, major = -10~20점, minor = -5~10점
+
 다음 JSON 형식으로 응답:
 {
     "integrityScore": {
@@ -5805,6 +5849,23 @@ ${JSON.stringify(stepAData, null, 2)}
                     evidenceSummary: { totalCount, byType: {}, keyFindings: [] },
                     trendInsight: ''
                 };
+            }
+
+            // === AI 점수 코드 레벨 클램핑 (프롬프트 무시 방어) ===
+            if (stepBData.integrityScore) {
+                const score = stepBData.integrityScore;
+                // 빈 이슈 배열이면 최대 75점 제한
+                if (!stepAData.prosecutorialIssues || stepAData.prosecutorialIssues.length === 0) {
+                    score.prosecution = Math.min(score.prosecution, 75);
+                }
+                if (!stepAData.judicialIssues || stepAData.judicialIssues.length === 0) {
+                    score.judiciary = Math.min(score.judiciary, 75);
+                }
+                // 100점 절대 금지 + 음수 방지
+                score.prosecution = Math.min(Math.max(score.prosecution, 0), 99);
+                score.judiciary = Math.min(Math.max(score.judiciary, 0), 99);
+                score.overall = Math.min(Math.max(score.overall, 0), 99);
+                console.log(`Score clamped for ${defendant}: prosecution=${score.prosecution}, judiciary=${score.judiciary}, overall=${score.overall}`);
             }
 
             // 결과 병합
@@ -5965,6 +6026,10 @@ exports.evaluateAllDefendants = functions
 주요 판례: ${legalPrecedents.slice(0, 3).map(p => p.caseName).join(', ') || '없음'}
 주요 뉴스: ${newsArticles.slice(0, 3).map(n => `${n.title}(${n.sentiment})`).join(', ') || '없음'}
 
+검찰 평가 시 필수 검토: 미기소 혐의(외환유치, 내란목적살인 등), 수사범위 축소, 구형 적정성, 공소사실 범위, 증거수집 충실성
+재판부 평가 시 필수 검토: 양형 일관성, 구형대비 선고량, 직위·역할 상응 책임, 법리해석 합리성
+중요: prosecutorialIssues와 judicialIssues 모두 최소 1개 이상 도출하세요. 완벽한 수사나 재판은 없습니다.
+
 다음 JSON 형식으로 응답:
 {
     "prosecutorialIssues": [{"title": "string", "description": "string", "severity": "critical|major|minor", "impact": "string", "sources": [{"title": "string", "url": "string", "date": "string", "type": "string"}]}],
@@ -5991,6 +6056,7 @@ Step A: ${JSON.stringify(stepAData)}
 감정: 긍정${sentimentStats.positive}, 부정${sentimentStats.negative}, 중립${sentimentStats.neutral}
 
 점수 기준: 검찰 공정성(0-100), 재판부 공정성(0-100), 종합(검찰40%+재판부40%+여론20%)
+주의: 100점은 절대 부여 금지. prosecutorialIssues/judicialIssues가 빈 배열이면 해당 점수 최대 75점. 감점: critical=-20~30, major=-10~20, minor=-5~10
 
 다음 JSON 형식으로 응답:
 {
@@ -6011,6 +6077,23 @@ Step A: ${JSON.stringify(stepAData)}
                             evidenceSummary: { totalCount, byType: {}, keyFindings: [] },
                             trendInsight: ''
                         };
+                    }
+
+                    // === AI 점수 코드 레벨 클램핑 (프롬프트 무시 방어) ===
+                    if (stepBData.integrityScore) {
+                        const score = stepBData.integrityScore;
+                        // 빈 이슈 배열이면 최대 75점 제한
+                        if (!stepAData.prosecutorialIssues || stepAData.prosecutorialIssues.length === 0) {
+                            score.prosecution = Math.min(score.prosecution, 75);
+                        }
+                        if (!stepAData.judicialIssues || stepAData.judicialIssues.length === 0) {
+                            score.judiciary = Math.min(score.judiciary, 75);
+                        }
+                        // 100점 절대 금지 + 음수 방지
+                        score.prosecution = Math.min(Math.max(score.prosecution, 0), 99);
+                        score.judiciary = Math.min(Math.max(score.judiciary, 0), 99);
+                        score.overall = Math.min(Math.max(score.overall, 0), 99);
+                        console.log(`Score clamped for ${defendant}: prosecution=${score.prosecution}, judiciary=${score.judiciary}, overall=${score.overall}`);
                     }
 
                     const judicialIntegrity = {

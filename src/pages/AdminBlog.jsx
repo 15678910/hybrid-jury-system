@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {
@@ -29,6 +29,9 @@ const adminPostsCache = {
 };
 
 export default function AdminBlog() {
+    const context = useOutletContext();
+    const embedded = context?.embedded || false;
+
     // 작성자 코드 인증
     const [writerCode, setWriterCode] = useState('');
     const [isVerified, setIsVerified] = useState(false);
@@ -56,6 +59,14 @@ export default function AdminBlog() {
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [uploadingImage, setUploadingImage] = useState(false);
+
+    // embedded 모드 자동 인증
+    useEffect(() => {
+        if (embedded) {
+            setIsVerified(true);
+            setWriterName('관리자');
+        }
+    }, [embedded]);
 
     // 이미지 선택 핸들러
     const handleImageSelect = (e) => {
@@ -189,16 +200,18 @@ export default function AdminBlog() {
 
             try {
                 const postsRef = collection(db, 'posts');
-                const q = query(postsRef, orderBy('createdAt', 'desc'), limit(POSTS_PER_PAGE));
+                // Fetch extra to compensate for client-side 사법뉴스 filtering
+                const q = query(postsRef, orderBy('createdAt', 'desc'), limit(POSTS_PER_PAGE * 5));
                 const querySnapshot = await getDocs(q);
 
-                const postsData = querySnapshot.docs
+                const allBlogPosts = querySnapshot.docs
                     .filter(doc => doc.data().category !== '사법뉴스')
                     .map(doc => ({
                         id: doc.id,
                         ...doc.data(),
                         date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
                     }));
+                const postsData = allBlogPosts.slice(0, POSTS_PER_PAGE);
 
                 // 캐시 저장
                 adminPostsCache.data = postsData;
@@ -224,7 +237,7 @@ export default function AdminBlog() {
         setLoadingMore(true);
         try {
             const postsRef = collection(db, 'posts');
-            const q = query(postsRef, orderBy('createdAt', 'desc'), startAfter(lastDoc), limit(POSTS_PER_PAGE));
+            const q = query(postsRef, orderBy('createdAt', 'desc'), startAfter(lastDoc), limit(POSTS_PER_PAGE * 5));
             const querySnapshot = await getDocs(q);
 
             const morePosts = querySnapshot.docs
@@ -233,7 +246,8 @@ export default function AdminBlog() {
                     id: doc.id,
                     ...doc.data(),
                     date: doc.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
-                }));
+                }))
+                .slice(0, POSTS_PER_PAGE);
 
             const newPosts = [...posts, ...morePosts];
             setPosts(newPosts);
@@ -408,7 +422,7 @@ export default function AdminBlog() {
     };
 
     // 로그인 화면
-    if (!isVerified) {
+    if (!isVerified && !embedded) {
         return (
             <div className="min-h-screen bg-gray-50">
                 <Header />
@@ -449,11 +463,11 @@ export default function AdminBlog() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <Header />
+        <div className={embedded ? 'bg-gray-50' : 'min-h-screen bg-gray-50'}>
+            {!embedded && <Header />}
 
             {/* 메인 콘텐츠 */}
-            <main className="pt-24 pb-16 px-4">
+            <main className={embedded ? 'pb-16 px-4' : 'pt-24 pb-16 px-4'}>
                 <div className="container mx-auto max-w-5xl">
                     <div className="flex justify-between items-center mb-8">
                         <div>

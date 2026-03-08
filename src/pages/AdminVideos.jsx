@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import {
     collection,
     query,
@@ -30,6 +30,9 @@ const extractYouTubeId = (url) => {
 };
 
 export default function AdminVideos() {
+    const context = useOutletContext();
+    const embedded = context?.embedded || false;
+
     // 인증 관련 상태
     const [writerCode, setWriterCode] = useState('');
     const [isVerified, setIsVerified] = useState(false);
@@ -98,6 +101,14 @@ export default function AdminVideos() {
             setVerifying(false);
         }
     };
+
+    // embedded 모드 자동 인증
+    useEffect(() => {
+        if (embedded) {
+            setIsVerified(true);
+            setWriterName('관리자');
+        }
+    }, [embedded]);
 
     // 인증 후 동영상 목록 불러오기
     useEffect(() => {
@@ -251,18 +262,18 @@ export default function AdminVideos() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <Header />
+        <div className={embedded ? 'bg-gray-50' : 'min-h-screen bg-gray-50'}>
+            {!embedded && <Header />}
 
             {/* 메인 콘텐츠 */}
-            <main className="pt-24 pb-16 px-4">
+            <main className={embedded ? 'pb-16 px-4' : 'pt-24 pb-16 px-4'}>
                 <div className="container mx-auto max-w-4xl">
                     <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
                         작성자 관리
                     </h1>
 
                     {/* 작성자 코드 입력 (미인증 시) */}
-                    {!isVerified ? (
+                    {!isVerified && !embedded ? (
                         <div className="bg-white rounded-xl shadow-md p-8 mb-8">
                             <h2 className="text-xl font-bold text-gray-900 mb-4">작성자 인증</h2>
                             <p className="text-gray-600 mb-6">

@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react';
+import { useOutletContext, useLocation } from 'react-router-dom';
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from './lib/firebase';
 
 export default function Admin() {
+    const context = useOutletContext();
+    const embedded = context?.embedded || false;
+    const location = useLocation();
+
+    const getDefaultTab = () => {
+        if (location.pathname.includes('/verdicts')) return 'verdicts';
+        return 'general';
+    };
+
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [password, setPassword] = useState('');
     const [signatures, setSignatures] = useState([]);
@@ -29,7 +39,7 @@ export default function Admin() {
     const [userSearchQuery, setUserSearchQuery] = useState('');
 
     // 탭 관리
-    const [activeTab, setActiveTab] = useState('general');
+    const [activeTab, setActiveTab] = useState(getDefaultTab);
 
     // 재능나눔 분류 뷰
     const [showTalentView, setShowTalentView] = useState(false);
@@ -56,8 +66,27 @@ export default function Admin() {
         { id: 'sample-video-1', title: 'Why Finland And Denmark Are Happier Than The U.S.', category: '해외 사례' }
     ];
 
+    // embedded 모드에서 탭 동기화
+    useEffect(() => {
+        if (embedded) {
+            setActiveTab(getDefaultTab());
+        }
+    }, [location.pathname, embedded]);
+
     // 로그인 확인 (24시간 세션 유효성 검증)
     useEffect(() => {
+        if (embedded) {
+            setIsLoggedIn(true);
+            loadSignatures();
+            loadWriterCodes();
+            loadPosts();
+            loadVideos();
+            loadUsers();
+            loadSampleData();
+            loadVerdicts();
+            return;
+        }
+
         const adminSession = sessionStorage.getItem('adminLoggedIn');
         const loginTimestamp = sessionStorage.getItem('adminLoginTimestamp');
 
@@ -561,7 +590,7 @@ export default function Admin() {
     };
 
     // 로그인 화면
-    if (!isLoggedIn) {
+    if (!isLoggedIn && !embedded) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
                 <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
@@ -604,8 +633,9 @@ export default function Admin() {
 
     // 관리자 대시보드
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className={embedded ? 'bg-gray-50' : 'min-h-screen bg-gray-50'}>
             {/* 헤더 */}
+            {!embedded && (
             <header className="bg-white shadow-sm">
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                     <div>
@@ -613,11 +643,17 @@ export default function Admin() {
                         <p className="text-sm text-gray-600">혼합형 참심제 서명 관리</p>
                     </div>
                     <div className="flex gap-3">
-                        <a 
+                        <a
                             href="/"
                             className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
                         >
                             메인으로
+                        </a>
+                        <a
+                            href="/admin/dashboard"
+                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                        >
+                            대시보드
                         </a>
                         <button
                             onClick={handleLogout}
@@ -628,8 +664,10 @@ export default function Admin() {
                     </div>
                 </div>
             </header>
+            )}
 
             {/* 탭 네비게이션 */}
+            {!embedded && (
             <div className="bg-white border-b">
                 <div className="container mx-auto px-4">
                     <div className="flex gap-1">
@@ -656,6 +694,7 @@ export default function Admin() {
                     </div>
                 </div>
             </div>
+            )}
 
             <div className="container mx-auto px-4 py-8">
             {activeTab === 'general' && (
