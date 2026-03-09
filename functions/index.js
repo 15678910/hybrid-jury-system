@@ -2728,10 +2728,29 @@ exports.reformAnalysisPage = functions.https.onRequest(async (req, res) => {
 
     const now = new Date();
     const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' });
-    const title = `[개혁안 비교] ${dateStr} 주요 소식`;
-    const description = '사법개혁 7대 영역별 정당·시민사회 입장 비교 및 관련 뉴스 - 시민법정';
-    const imageUrl = 'https://siminbupjung-blog.web.app/%EC%82%AC%EB%B2%95%EA%B0%9C%ED%98%81%EC%95%88%EB%B9%84%EA%B5%90.png';
-    const pageUrl = 'https://siminbupjung-blog.web.app/reform-analysis';
+
+    // 탭별 OG 태그 분기
+    const urlObj = new URL(req.url, 'https://siminbupjung-blog.web.app');
+    const tab = urlObj.searchParams.get('tab') || '';
+    const BASE = 'https://siminbupjung-blog.web.app';
+
+    let title, description, imageUrl, pageUrl;
+    if (tab === 'prosecution-reform') {
+        title = `[검찰개혁 심층분석] ${dateStr}`;
+        description = '공소청법·중수청법 정부안 vs 김용민·박은정 의원안 비교, 핵심 쟁점, 국제 비교, AI 법안 위험도 분석';
+        imageUrl = `${BASE}/${encodeURIComponent('검찰개혁심층분석')}.png`;
+        pageUrl = `${BASE}/reform-analysis?tab=prosecution-reform`;
+    } else if (tab === 'finland-reform') {
+        title = `[핀란드식 사법개혁안] ${dateStr}`;
+        description = '수사·기소 완전 분리, 참심제, 이중 감시 체계 - 핀란드 모델 벤치마킹 종합 사법개혁 법률안';
+        imageUrl = `${BASE}/${encodeURIComponent('핀란드식사법개혁안')}.png`;
+        pageUrl = `${BASE}/reform-analysis?tab=finland-reform`;
+    } else {
+        title = `[개혁안 비교] ${dateStr} 주요 소식`;
+        description = '사법개혁 9대 영역별 정당·시민사회 입장 비교 - 시민법정';
+        imageUrl = `${BASE}/${encodeURIComponent('사법개혁안비교')}.png`;
+        pageUrl = `${BASE}/reform-analysis`;
+    }
 
     const html = `<!doctype html>
 <html lang="ko">

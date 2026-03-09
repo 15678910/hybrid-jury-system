@@ -1246,7 +1246,12 @@ export default function ReformAnalysis() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <SEOHead title="사법개혁 분석" description="한국 사법제도 개혁 분석 - 참심제, 배심제, 국민참여재판 비교 분석" path="/reform-analysis" image="/사법개혁안비교.png" />
+            <SEOHead
+                title={activeTab === 'prosecution-reform' ? '검찰개혁 심층분석' : activeTab === 'finland-reform' ? '핀란드식 사법개혁안' : '사법개혁 분석'}
+                description={activeTab === 'prosecution-reform' ? '공소청법·중수청법 정부안 vs 김용민·박은정 의원안 비교, AI 법안 위험도 분석' : activeTab === 'finland-reform' ? '수사·기소 완전 분리, 참심제, 이중 감시 체계 - 핀란드 모델 벤치마킹 법률안' : '한국 사법제도 개혁 분석 - 참심제, 배심제, 국민참여재판 비교 분석'}
+                path={activeTab !== 'prosecution' ? `/reform-analysis?tab=${activeTab}` : '/reform-analysis'}
+                image={activeTab === 'prosecution-reform' ? '/검찰개혁심층분석.png' : activeTab === 'finland-reform' ? '/핀란드식사법개혁안.png' : '/사법개혁안비교.png'}
+            />
             <Header />
             <main className="pt-24 pb-16 px-4">
                 <div className="container mx-auto max-w-7xl">
