@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
 import SNSShareBar from '../components/SNSShareBar';
+import { BILL_COMPARISON, KEY_ISSUES, OPPOSITION_VOICES, INTERNATIONAL_COMPARISON, DEMOCRATIZATION_SCORECARD, FINLAND_REFORM_BILL } from '../data/prosecutionReformData';
 
 // 개혁안 뉴스 캐시 설정
 const REFORM_NEWS_CACHE_KEY = 'reform_news_cache';
@@ -369,6 +370,20 @@ const reformData = [
                 ]
             }
         ]
+    },
+    {
+        id: 'prosecution-reform',
+        title: '검찰개혁 심층분석',
+        icon: '🔬',
+        description: '공소청법·중수청법 법안 분석, 수사·기소 분리 실현 평가, 국제 비교를 통한 검찰 민주화 종합 평가',
+        customRender: true
+    },
+    {
+        id: 'finland-reform',
+        title: '핀란드식 사법개혁안',
+        icon: '🇫🇮',
+        description: '핀란드 모델을 벤치마킹한 이상적 사법개혁 법률안 - 수사·기소 완전 분리, 참심제, 이중 감시 체계',
+        customRender: true
     },
     {
         id: 'supreme-court',
@@ -1041,6 +1056,41 @@ const REFORM_RISK_ANALYSIS = {
             }
         ]
     },
+    'prosecution-reform': {
+        overallRisk: 'high',
+        overallScore: 7,
+        title: '검찰개혁 법안',
+        clauses: [
+            {
+                clause: '공소청 보완수사요구권',
+                risk: 'high', score: 8,
+                constitutionalIssues: ['수사권 없는 기소기관의 보완수사 요구가 사실상 수사지휘로 작동할 가능성', '수사·기소 분리 원칙과의 모순'],
+                implementationChallenges: ['보완수사 요구의 범위·한계 기준 모호', '중수청·경찰과의 수사 협력 시 갈등 발생 예상'],
+                internationalPrecedents: ['핀란드: 검찰이 수사에 일체 불개입, 기소 여부만 결정', '독일: 검찰이 수사를 주도하되 기소법정주의로 재량 제한']
+            },
+            {
+                clause: '중수청 정치적 독립성',
+                risk: 'high', score: 7,
+                constitutionalIssues: ['행안부장관 소속으로 행정부 정치적 영향 불가피', '청장 임기 2년은 독립적 수사 리더십 구축에 불충분'],
+                implementationChallenges: ['후보추천위 9명의 정치적 중립성 담보 방안 부재', '정권 교체 시 수사 독립성 보장 메커니즘 없음'],
+                internationalPrecedents: ['일본: 법무대신의 개별 사건 지휘 불행사 관행으로 실질적 독립', '핀란드: 검찰총장 독립적 지위로 정치적 간섭 원천 차단']
+            },
+            {
+                clause: '검찰총장 명칭 유지 문제',
+                risk: 'medium', score: 6,
+                constitutionalIssues: ['헌법 제89조 제16호의 "검찰총장" 명칭 → 헌법 개정 없이 조직 본질 변경 가능한지 논란', '명칭 유지가 기존 검찰 권위·문화 존속의 상징'],
+                implementationChallenges: ['국민 인식에서 "공소청 = 검찰" 동일시 우려', '조직 문화 혁신의 걸림돌로 작용 가능'],
+                internationalPrecedents: ['독일: 검찰청(Staatsanwaltschaft) 명칭 유지하되 기소법정주의로 본질 변경', '핀란드: 검찰청(Syyttäjälaitos) 독자 명칭으로 완전히 새로운 조직 정체성 확립']
+            },
+            {
+                clause: '시민 통제 메커니즘 부재',
+                risk: 'high', score: 8,
+                constitutionalIssues: ['검찰 권한에 대한 민주적 통제의 헌법적 요청', '국민주권 원리에 부합하는 시민 참여 장치의 필요성'],
+                implementationChallenges: ['일본식 검찰심사회 도입 시 법 제도 전면 개편 필요', '시민 참여 기구의 전문성·실효성 확보 방안'],
+                internationalPrecedents: ['일본: 시민 11명 검찰심사회, 2회 기소상당 의결 시 강제기소', '독일: 참심제로 시민이 재판 과정에서 검찰 기소를 사법적으로 통제']
+            }
+        ]
+    },
     'supreme-court': {
         overallRisk: 'high',
         overallScore: 8,
@@ -1145,7 +1195,7 @@ export default function ReformAnalysis() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [activeTab, setActiveTab] = useState(() => {
         const tabParam = searchParams.get('tab');
-        const validTabs = ['prosecution', 'supreme-court', 'law-distortion', 'judicial-appeal', 'court-admin', 'judge-personnel', 'citizen-trial'];
+        const validTabs = ['prosecution', 'prosecution-reform', 'finland-reform', 'supreme-court', 'law-distortion', 'judicial-appeal', 'court-admin', 'judge-personnel', 'citizen-trial'];
         return validTabs.includes(tabParam) ? tabParam : 'prosecution';
     });
 
@@ -1199,7 +1249,7 @@ export default function ReformAnalysis() {
             <SEOHead title="사법개혁 분석" description="한국 사법제도 개혁 분석 - 참심제, 배심제, 국민참여재판 비교 분석" path="/reform-analysis" image="/사법개혁안비교.png" />
             <Header />
             <main className="pt-24 pb-16 px-4">
-                <div className="container mx-auto max-w-5xl">
+                <div className="container mx-auto max-w-7xl">
                     {/* 페이지 헤더 */}
                     <div className="text-center mb-8">
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
@@ -1213,7 +1263,7 @@ export default function ReformAnalysis() {
                     {/* 통계 요약 */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
                         <div className="bg-white rounded-xl p-4 shadow-sm text-center">
-                            <p className="text-2xl font-bold text-gray-900">7</p>
+                            <p className="text-2xl font-bold text-gray-900">9</p>
                             <p className="text-sm text-gray-500">개혁 영역</p>
                         </div>
                         <div className="bg-white rounded-xl p-4 shadow-sm text-center">
@@ -1230,23 +1280,32 @@ export default function ReformAnalysis() {
                         </div>
                     </div>
 
-                    {/* 탭 네비게이션 */}
-                    <div className="flex overflow-x-auto gap-2 mb-6 pb-2">
-                        {reformData.map(reform => (
-                            <button
-                                key={reform.id}
-                                onClick={() => setActiveTab(reform.id)}
-                                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                                    activeTab === reform.id
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100'
-                                }`}
-                            >
-                                {reform.icon} {reform.title}
-                            </button>
-                        ))}
-                    </div>
+                    {/* 사이드바 + 컨텐츠 레이아웃 */}
+                    <div className="flex flex-col lg:flex-row gap-6">
+                        {/* 사이드바 */}
+                        <div className="lg:w-64 shrink-0">
+                            <div className="bg-white rounded-xl shadow-sm overflow-hidden sticky top-28">
+                                <nav className="flex lg:flex-col overflow-x-auto lg:overflow-x-visible">
+                                    {reformData.map(reform => (
+                                        <button
+                                            key={reform.id}
+                                            onClick={() => setActiveTab(reform.id)}
+                                            className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors border-l-4 whitespace-nowrap lg:whitespace-normal ${
+                                                activeTab === reform.id
+                                                    ? 'bg-blue-50 text-blue-700 border-blue-600'
+                                                    : 'text-gray-600 border-transparent hover:bg-gray-50 hover:text-gray-900'
+                                            }`}
+                                        >
+                                            <span className="mr-1.5">{reform.icon}</span>
+                                            {reform.title}
+                                        </button>
+                                    ))}
+                                </nav>
+                            </div>
+                        </div>
 
+                        {/* 메인 컨텐츠 */}
+                        <div className="flex-1 min-w-0">
                     {/* 선택된 개혁안 내용 */}
                     {activeReform && (
                         <>
@@ -1257,7 +1316,402 @@ export default function ReformAnalysis() {
                                 <p className="text-gray-600">{activeReform.description}</p>
                             </div>
 
-                            {activeReform.subsections ? (
+                            {activeReform.customRender && activeTab === 'prosecution-reform' ? (
+                                <div className="space-y-8">
+                                    {/* 섹션 A: 검찰개혁 법안 비교표 */}
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                            <span>📋</span> 검찰개혁 법안 비교 <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">정부안 vs 의원안</span>
+                                        </h3>
+                                        <div className="overflow-x-auto rounded-xl shadow-sm border border-gray-200">
+                                            <table className="w-full min-w-[1100px]">
+                                                <thead>
+                                                    <tr>
+                                                        <th className="bg-gray-100 px-3 py-3 text-left text-sm font-bold text-gray-700 w-[12%]">비교 항목</th>
+                                                        <th className="bg-sky-50 border-t-4 border-sky-400 px-3 py-3 text-center text-sm font-bold text-gray-800 w-[22%]">
+                                                            ⚖️ {BILL_COMPARISON.gongso.name}
+                                                            <div className="text-xs font-normal text-gray-500 mt-1">{BILL_COMPARISON.gongso.submitter}</div>
+                                                            <div className="mt-1"><span className="px-1.5 py-0.5 bg-blue-100 text-blue-600 text-[10px] rounded-full">정부안</span></div>
+                                                        </th>
+                                                        <th className="bg-amber-50 border-t-4 border-amber-400 px-3 py-3 text-center text-sm font-bold text-gray-800 w-[22%]">
+                                                            🔍 {BILL_COMPARISON.jungsu.name}
+                                                            <div className="text-xs font-normal text-gray-500 mt-1">{BILL_COMPARISON.jungsu.submitter}</div>
+                                                            <div className="mt-1"><span className="px-1.5 py-0.5 bg-blue-100 text-blue-600 text-[10px] rounded-full">정부안</span></div>
+                                                        </th>
+                                                        <th className="bg-green-50 border-t-4 border-green-500 px-3 py-3 text-center text-sm font-bold text-gray-800 w-[22%]">
+                                                            🏛️ {BILL_COMPARISON.kimyongmin.name}
+                                                            <div className="text-xs font-normal text-gray-500 mt-1">{BILL_COMPARISON.kimyongmin.submitter}</div>
+                                                            <div className="mt-1"><span className="px-1.5 py-0.5 bg-green-100 text-green-600 text-[10px] rounded-full">의원안</span></div>
+                                                        </th>
+                                                        <th className="bg-purple-50 border-t-4 border-purple-500 px-3 py-3 text-center text-sm font-bold text-gray-800 w-[22%]">
+                                                            ✊ {BILL_COMPARISON.parkeunjung.name}
+                                                            <div className="text-xs font-normal text-gray-500 mt-1">{BILL_COMPARISON.parkeunjung.submitter}</div>
+                                                            <div className="mt-1"><span className="px-1.5 py-0.5 bg-purple-100 text-purple-600 text-[10px] rounded-full">의원안</span></div>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr className="border-t border-gray-100">
+                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">소관부처</td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.gongso.parent}</td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.jungsu.parent}</td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.kimyongmin.parent}</td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.parkeunjung.parent}</td>
+                                                    </tr>
+                                                    <tr className="border-t border-gray-100">
+                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">조직구조</td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.gongso.structure}</td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.jungsu.structure}</td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.kimyongmin.structure}</td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.parkeunjung.structure}</td>
+                                                    </tr>
+                                                    <tr className="border-t border-gray-100">
+                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">핵심 역할</td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">
+                                                            <ul className="space-y-1">{BILL_COMPARISON.gongso.duties.map((d, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-sky-400 mt-0.5 shrink-0">•</span><span>{d}</span></li>)}</ul>
+                                                            <p className="mt-2 text-red-600 font-semibold text-xs">❌ 제외: {BILL_COMPARISON.gongso.excluded}</p>
+                                                        </td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">
+                                                            <p className="font-semibold mb-1">6대 중대범죄 수사:</p>
+                                                            <ul className="space-y-1">{BILL_COMPARISON.jungsu.targetCrimes.map((c, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-amber-400 mt-0.5 shrink-0">•</span><span>{c}</span></li>)}</ul>
+                                                        </td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">
+                                                            <ul className="space-y-1">{BILL_COMPARISON.kimyongmin.duties.map((d, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-green-400 mt-0.5 shrink-0">•</span><span>{d}</span></li>)}</ul>
+                                                            <p className="mt-2 text-green-700 font-semibold text-xs">✅ {BILL_COMPARISON.kimyongmin.excluded}</p>
+                                                        </td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">
+                                                            <ul className="space-y-1">{BILL_COMPARISON.parkeunjung.duties.map((d, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-purple-400 mt-0.5 shrink-0">•</span><span>{d}</span></li>)}</ul>
+                                                            <p className="mt-2 text-purple-700 font-semibold text-xs">✅ {BILL_COMPARISON.parkeunjung.excluded}</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr className="border-t border-gray-100">
+                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">감독·감시</td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">
+                                                            <ul className="space-y-1">{BILL_COMPARISON.gongso.oversight.map((o, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-sky-400 mt-0.5 shrink-0">•</span><span>{o}</span></li>)}</ul>
+                                                        </td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">
+                                                            <ul className="space-y-1">{BILL_COMPARISON.jungsu.oversight.map((o, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-amber-400 mt-0.5 shrink-0">•</span><span>{o}</span></li>)}</ul>
+                                                        </td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">
+                                                            <ul className="space-y-1">{BILL_COMPARISON.kimyongmin.oversight.map((o, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-green-400 mt-0.5 shrink-0">•</span><span>{o}</span></li>)}</ul>
+                                                        </td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">
+                                                            <ul className="space-y-1">{BILL_COMPARISON.parkeunjung.oversight.map((o, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-purple-400 mt-0.5 shrink-0">•</span><span>{o}</span></li>)}</ul>
+                                                        </td>
+                                                    </tr>
+                                                    <tr className="border-t border-gray-100">
+                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">분리 장치</td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">
+                                                            <p className="text-orange-600 font-semibold">⚠️ {BILL_COMPARISON.gongso.nameIssue}</p>
+                                                            <p className="mt-1">징계: {BILL_COMPARISON.gongso.discipline}</p>
+                                                        </td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">
+                                                            <ul className="space-y-1">{BILL_COMPARISON.jungsu.separation.map((s, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-amber-400 mt-0.5 shrink-0">•</span><span>{s}</span></li>)}</ul>
+                                                        </td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">
+                                                            <p className="text-green-700 font-semibold">✅ {BILL_COMPARISON.kimyongmin.nameIssue}</p>
+                                                            <p className="mt-1">징계: {BILL_COMPARISON.kimyongmin.discipline}</p>
+                                                        </td>
+                                                        <td className="px-3 py-3 text-sm text-gray-700">
+                                                            <p className="text-purple-700 font-semibold">✅ {BILL_COMPARISON.parkeunjung.nameIssue}</p>
+                                                            <p className="mt-1">징계: {BILL_COMPARISON.parkeunjung.discipline}</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr className="border-t border-gray-100 bg-gray-50/50">
+                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">핵심 차이</td>
+                                                        <td className="px-3 py-3 text-sm text-orange-700 font-medium">보완수사요구권 보유, 검찰총장 명칭 유지</td>
+                                                        <td className="px-3 py-3 text-sm text-orange-700 font-medium">행안부 소속, 청장 임기 2년(중임불가)</td>
+                                                        <td className="px-3 py-3 text-sm text-green-700 font-medium">{BILL_COMPARISON.kimyongmin.keyDifference}</td>
+                                                        <td className="px-3 py-3 text-sm text-purple-700 font-medium">{BILL_COMPARISON.parkeunjung.keyDifference}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    {/* 섹션 B: 핵심 쟁점 분석 */}
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                            <span>🔥</span> 핵심 쟁점: 수사·기소 분리 실현 여부
+                                        </h3>
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            {KEY_ISSUES.map((issue, idx) => (
+                                                <div key={idx} className="bg-white border rounded-xl overflow-hidden shadow-sm">
+                                                    <div className="px-5 py-4 flex items-start gap-3">
+                                                        <span className="text-2xl">{issue.icon}</span>
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <h4 className="font-bold text-gray-800">{issue.title}</h4>
+                                                                <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                                                                    issue.risk === 'high' ? 'bg-red-100 text-red-700' :
+                                                                    issue.risk === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                                                    'bg-green-100 text-green-700'
+                                                                }`}>{issue.risk === 'high' ? '고위험' : issue.risk === 'medium' ? '중위험' : '저위험'}</span>
+                                                            </div>
+                                                            <p className="text-base text-gray-600 mb-3">{issue.description}</p>
+                                                            <ul className="space-y-1.5">
+                                                                {issue.points.map((point, pIdx) => (
+                                                                    <li key={pIdx} className="text-sm text-gray-700 flex items-start gap-1.5">
+                                                                        <span className="text-red-400 mt-0.5 shrink-0">▸</span>
+                                                                        <span>{point}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* 섹션 D: 국제 비교 */}
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                            <span>🌍</span> 국제 비교: 검찰 조직 · 민주화
+                                        </h3>
+                                        <div className="overflow-x-auto rounded-xl shadow-sm border border-gray-200">
+                                            <table className="w-full min-w-[1000px]">
+                                                <thead>
+                                                    <tr>
+                                                        <th className="bg-gray-100 px-3 py-3 text-left text-sm font-bold text-gray-700 w-[12%]">비교 항목</th>
+                                                        {INTERNATIONAL_COMPARISON.map((c, idx) => (
+                                                            <th key={idx} className={`${c.bgColor} border-t-4 ${c.color} px-3 py-3 text-center text-sm font-bold text-gray-800 w-[22%]`}>
+                                                                {c.flag} {c.country}
+                                                                <div className="text-xs font-normal text-gray-500 mt-1">{c.model}</div>
+                                                                <div className="mt-1">
+                                                                    <span className={`px-1.5 py-0.5 text-[10px] rounded-full font-medium ${
+                                                                        c.score >= 8 ? 'bg-green-100 text-green-700' :
+                                                                        c.score >= 6 ? 'bg-yellow-100 text-yellow-700' :
+                                                                        'bg-red-100 text-red-700'
+                                                                    }`}>{c.score}/10</span>
+                                                                </div>
+                                                            </th>
+                                                        ))}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr className="border-t border-gray-100">
+                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">⚖️ 검찰</td>
+                                                        {INTERNATIONAL_COMPARISON.map((c, idx) => (
+                                                            <td key={idx} className="px-3 py-3 text-sm text-gray-700">
+                                                                <p className="font-semibold">{c.prosecution.name}</p>
+                                                                <p className="text-gray-500 mt-0.5">{c.prosecution.parent}</p>
+                                                                <p className="mt-1">역할: {c.prosecution.role}</p>
+                                                                <p className="text-gray-500 mt-0.5 text-xs">{c.prosecution.independence}</p>
+                                                            </td>
+                                                        ))}
+                                                    </tr>
+                                                    <tr className="border-t border-gray-100">
+                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">🚔 경찰·수사</td>
+                                                        {INTERNATIONAL_COMPARISON.map((c, idx) => (
+                                                            <td key={idx} className="px-3 py-3 text-sm text-gray-700">
+                                                                <p className="font-semibold">{c.police.name}</p>
+                                                                <p className="mt-0.5">{c.police.role}</p>
+                                                                <p className="text-gray-500 mt-0.5 text-xs">{c.police.relationship}</p>
+                                                            </td>
+                                                        ))}
+                                                    </tr>
+                                                    <tr className="border-t border-gray-100">
+                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">🛡️ 감시·통제</td>
+                                                        {INTERNATIONAL_COMPARISON.map((c, idx) => (
+                                                            <td key={idx} className="px-3 py-3 text-sm text-gray-700">{c.oversight}</td>
+                                                        ))}
+                                                    </tr>
+                                                    <tr className="border-t border-gray-100">
+                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">👥 시민 참여</td>
+                                                        {INTERNATIONAL_COMPARISON.map((c, idx) => (
+                                                            <td key={idx} className="px-3 py-3 text-sm text-gray-700">{c.democratization}</td>
+                                                        ))}
+                                                    </tr>
+                                                    <tr className="border-t border-gray-100 bg-gray-50/50">
+                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">💡 핵심</td>
+                                                        {INTERNATIONAL_COMPARISON.map((c, idx) => (
+                                                            <td key={idx} className={`px-3 py-3 text-sm font-medium ${
+                                                                c.score >= 8 ? 'text-green-700' :
+                                                                c.score >= 6 ? 'text-yellow-700' :
+                                                                'text-red-700'
+                                                            }`}>{c.keyFeature}</td>
+                                                        ))}
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    {/* 섹션 E: 종합 평가 스코어카드 */}
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                            <span>📊</span> 검찰 민주화 종합 평가
+                                        </h3>
+                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                                            {/* 국가별 총점 */}
+                                            <div className="grid grid-cols-4 gap-0 border-b">
+                                                {DEMOCRATIZATION_SCORECARD.countries.map((c, idx) => {
+                                                    const total = DEMOCRATIZATION_SCORECARD.categories.reduce((sum, cat) => sum + cat[c.key], 0);
+                                                    return (
+                                                        <div key={idx} className="p-4 text-center border-r last:border-r-0">
+                                                            <p className="text-2xl mb-1">{c.flag}</p>
+                                                            <p className="text-sm font-bold text-gray-800">{c.name}</p>
+                                                            <p className={`text-2xl font-bold mt-1 ${total >= 40 ? 'text-green-600' : total >= 30 ? 'text-yellow-600' : 'text-red-600'}`}>
+                                                                {total}<span className="text-sm text-gray-400">/{DEMOCRATIZATION_SCORECARD.totalMax}</span>
+                                                            </p>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                            {/* 항목별 비교 바 차트 */}
+                                            <div className="p-5 space-y-4">
+                                                {DEMOCRATIZATION_SCORECARD.categories.map((cat, cIdx) => (
+                                                    <div key={cIdx}>
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <span>{cat.icon}</span>
+                                                            <span className="text-base font-medium text-gray-800">{cat.name}</span>
+                                                            <span className="text-sm text-gray-400 ml-auto">{cat.description}</span>
+                                                        </div>
+                                                        <div className="space-y-1.5">
+                                                            {DEMOCRATIZATION_SCORECARD.countries.map((country, coIdx) => (
+                                                                <div key={coIdx} className="flex items-center gap-2">
+                                                                    <span className="text-sm w-12 text-right text-gray-500">{country.flag} {country.name}</span>
+                                                                    <div className="flex-1 bg-gray-100 rounded-full h-4 relative">
+                                                                        <div
+                                                                            className={`h-4 rounded-full transition-all ${country.color}`}
+                                                                            style={{ width: `${cat[country.key] * 10}%` }}
+                                                                        />
+                                                                    </div>
+                                                                    <span className={`text-xs font-bold w-6 ${cat[country.key] >= 7 ? 'text-green-600' : cat[country.key] >= 4 ? 'text-yellow-600' : 'text-red-600'}`}>
+                                                                        {cat[country.key]}
+                                                                    </span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {/* 결론 배너 */}
+                                            <div className="bg-red-50 border-t border-red-200 px-5 py-4">
+                                                <p className="text-base font-bold text-red-800 mb-2">⚠️ 종합 평가: 한국 검찰개혁안의 한계와 대안</p>
+                                                <p className="text-sm text-red-700 leading-relaxed mb-3">
+                                                    한국의 공소청·중수청 개혁안은 조직 분리의 형식을 갖추었으나, 핀란드·독일·일본 등 모범국 대비 시민 통제·참여(2/10),
+                                                    검찰 정치적 독립성(3/10), 인사 독립성(3/10)에서 현저히 낮은 점수를 기록합니다.
+                                                </p>
+                                                <div className="bg-white/70 rounded-lg p-3 border border-red-100">
+                                                    <p className="text-sm font-bold text-green-800 mb-1">🇫🇮 대안: 핀란드식 검찰 민주화 모델</p>
+                                                    <p className="text-sm text-gray-700 leading-relaxed">
+                                                        국가 조직의 민주화를 위한 검찰개혁의 가장 이상적인 방향은 <strong className="text-green-700">핀란드식 수사·기소 완전 분리 모델</strong>입니다.
+                                                        핀란드는 검찰을 독립 기관으로 두고 기소만 전담하게 하며, 수사는 경찰이 독자적으로 수행합니다.
+                                                        이중 감시(법률감찰관 + 국회 옴부즈만)와 참심원 제도(시민 3명 + 법관 1명)를 통해
+                                                        검찰 권한의 민주적 통제와 시민 직접 참여를 동시에 실현하고 있습니다.
+                                                        한국 개혁안이 진정한 수사·기소 분리를 달성하려면, 핀란드의 제도적 장치를 벤치마킹해야 합니다.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : activeReform.customRender && activeTab === 'finland-reform' ? (
+                                <div className="space-y-8">
+                                    {/* 핀란드 법률안 개요 */}
+                                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-5 border border-blue-200">
+                                        <h3 className="text-lg font-bold text-blue-900 mb-1">{FINLAND_REFORM_BILL.title}</h3>
+                                        <p className="text-sm text-blue-700 mb-2">{FINLAND_REFORM_BILL.subtitle}</p>
+                                        <p className="text-xs text-blue-500">벤치마킹: {FINLAND_REFORM_BILL.basedOn}</p>
+                                    </div>
+
+                                    {/* 4개 법안 상세 */}
+                                    {FINLAND_REFORM_BILL.bills.map((bill, bIdx) => (
+                                        <div key={bIdx} className={`${bill.bgColor} border-l-4 ${bill.color} rounded-xl overflow-hidden shadow-sm`}>
+                                            <div className="p-5">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <span className="text-xl">{bill.icon}</span>
+                                                    <h3 className="text-lg font-bold text-gray-800">{bill.name}</h3>
+                                                </div>
+                                                <p className="text-sm text-gray-600 mb-4">{bill.purpose}</p>
+
+                                                <div className="grid md:grid-cols-3 gap-4 mb-4">
+                                                    {bill.keyPoints.map((kp, kIdx) => (
+                                                        <div key={kIdx} className="bg-white/70 rounded-lg p-4">
+                                                            <h4 className="text-sm font-bold text-gray-800 mb-2">{kp.title}</h4>
+                                                            <ul className="space-y-1.5">
+                                                                {kp.items.map((item, iIdx) => (
+                                                                    <li key={iIdx} className="text-sm text-gray-700 flex items-start gap-1.5">
+                                                                        <span className="text-blue-400 mt-0.5 shrink-0">•</span>
+                                                                        <span>{item}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                <div className="bg-white/50 rounded-lg p-3 border border-gray-200/50">
+                                                    <p className="text-xs text-gray-600">
+                                                        <span className="font-bold">🇫🇮 핀란드 참조:</span> {bill.finlandReference}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {/* 시행 타임라인 */}
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                            <span>📅</span> 시행 로드맵
+                                        </h3>
+                                        <div className="grid md:grid-cols-4 gap-4">
+                                            {FINLAND_REFORM_BILL.timeline.map((t, tIdx) => (
+                                                <div key={tIdx} className="bg-white rounded-xl p-4 shadow-sm border-t-4 border-blue-400">
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-bold">{t.phase}</span>
+                                                        <span className="text-xs text-gray-500">{t.period}</span>
+                                                    </div>
+                                                    <h4 className="font-bold text-gray-800 text-sm mb-2">{t.title}</h4>
+                                                    <ul className="space-y-1">
+                                                        {t.items.map((item, iIdx) => (
+                                                            <li key={iIdx} className="text-sm text-gray-600 flex items-start gap-1.5">
+                                                                <span className="text-blue-400 mt-0.5 shrink-0">→</span>
+                                                                <span>{item}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* 현행 vs 개혁안 비교표 */}
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                            <span>📊</span> 현행 정부안 vs 핀란드식 개혁안
+                                        </h3>
+                                        <div className="overflow-x-auto rounded-xl shadow-sm border border-gray-200">
+                                            <table className="w-full">
+                                                <thead>
+                                                    <tr>
+                                                        <th className="bg-gray-100 px-4 py-3 text-left text-sm font-bold text-gray-700 w-[20%]">비교 항목</th>
+                                                        <th className="bg-red-50 border-t-4 border-red-400 px-4 py-3 text-center text-sm font-bold text-gray-800 w-[40%]">
+                                                            🇰🇷 현행 정부안
+                                                            <div className="text-xs font-normal text-red-500 mt-1">공소청·중수청 분리 (2026)</div>
+                                                        </th>
+                                                        <th className="bg-blue-50 border-t-4 border-blue-500 px-4 py-3 text-center text-sm font-bold text-gray-800 w-[40%]">
+                                                            🇫🇮 핀란드식 개혁안
+                                                            <div className="text-xs font-normal text-blue-500 mt-1">수사·기소 완전 분리 + 시민 참여</div>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {FINLAND_REFORM_BILL.comparison.items.map((item, idx) => (
+                                                        <tr key={idx} className="border-t border-gray-100">
+                                                            <td className="px-4 py-3 text-sm font-semibold text-gray-700 bg-gray-50">{item.category}</td>
+                                                            <td className="px-4 py-3 text-sm text-red-700">{item.current}</td>
+                                                            <td className="px-4 py-3 text-sm text-blue-700 font-medium">{item.proposed}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : activeReform.subsections ? (
                                 /* 섹션별 비교표 (검찰 조직 개편) */
                                 activeReform.subsections.map((section, sIdx) => (
                                     <div key={sIdx} className="mb-8">
@@ -1438,8 +1892,8 @@ export default function ReformAnalysis() {
                                             <div className="w-full bg-gray-200 rounded-full h-3">
                                                 <div
                                                     className={`h-3 rounded-full transition-all ${
-                                                        riskData.overallScore >= 8 ? 'bg-red-500' :
-                                                        riskData.overallScore >= 5 ? 'bg-yellow-500' : 'bg-green-500'
+                                                        riskData.overallScore >= 6 ? 'bg-red-500' :
+                                                        riskData.overallScore >= 4 ? 'bg-yellow-500' : 'bg-green-500'
                                                     }`}
                                                     style={{ width: `${riskData.overallScore * 10}%` }}
                                                 />
@@ -1512,67 +1966,8 @@ export default function ReformAnalysis() {
                         </div>
                     )}
 
-                    {/* 관련 최신 뉴스 */}
-                    {activeReform && (
-                        <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
-                            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                <span>📰</span> 관련 최신 뉴스
-                            </h3>
-
-                            {newsLoading && !reformNews[activeReform.id] ? (
-                                <div className="text-center py-6">
-                                    <div className="inline-block w-6 h-6 border-3 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                                    <p className="text-sm text-gray-500 mt-2">뉴스를 불러오는 중...</p>
-                                </div>
-                            ) : reformNews[activeReform.id]?.news?.length > 0 ? (
-                                <>
-                                    {reformNews[activeReform.id].aiSummary && (
-                                        <p className="text-sm text-gray-700 bg-blue-50 rounded-lg p-3 mb-4">
-                                            💡 {reformNews[activeReform.id].aiSummary}
-                                        </p>
-                                    )}
-                                    <ul className="space-y-3">
-                                        {reformNews[activeReform.id].news.map((item, idx) => (
-                                            <li key={idx} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0">
-                                                <span className="text-blue-500 mt-0.5 shrink-0">📌</span>
-                                                <div className="flex-1 min-w-0">
-                                                    <a
-                                                        href={item.link}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
-                                                    >
-                                                        {item.title}
-                                                    </a>
-                                                    {item.pubDate && (
-                                                        <p className="text-xs text-gray-400 mt-1">
-                                                            {new Date(item.pubDate).toLocaleDateString('ko-KR', {
-                                                                month: 'long',
-                                                                day: 'numeric'
-                                                            })}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    {reformNews[activeReform.id].lastUpdated && (
-                                        <p className="text-xs text-gray-400 mt-3 text-right">
-                                            마지막 업데이트: {
-                                                reformNews[activeReform.id].lastUpdated?.seconds
-                                                    ? new Date(reformNews[activeReform.id].lastUpdated.seconds * 1000).toLocaleDateString('ko-KR')
-                                                    : ''
-                                            }
-                                        </p>
-                                    )}
-                                </>
-                            ) : (
-                                <p className="text-sm text-gray-500 text-center py-4">
-                                    아직 수집된 뉴스가 없습니다.
-                                </p>
-                            )}
-                        </div>
-                    )}
+                        </div>{/* 메인 컨텐츠 끝 */}
+                    </div>{/* flex 컨테이너 끝 */}
 
                     {/* 출처 안내 */}
                     <div className="p-4 bg-gray-100 rounded-xl text-center">
