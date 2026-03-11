@@ -85,7 +85,7 @@ export default function SNSShareBar() {
 
     const shareToTwitter = () => {
         const text = `${document.title} #시민법정 #참심제 #사법개혁`;
-        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getShareUrl())}`, '_blank', 'width=600,height=400');
+        window.open(`https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getShareUrl())}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTelegram = () => {

@@ -170,7 +170,7 @@ export default function Videos() {
     const shareToTwitter = (video, videoId) => {
         const videoUrl = `https://youtu.be/${videoId}`;
         const tweetText = `${video.title} #시민법정 #참심제 #사법개혁`;
-        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(videoUrl)}`, '_blank', 'width=600,height=400');
+        window.open(`https://x.com/intent/post?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(videoUrl)}`, '_blank', 'width=600,height=400');
     };
 
     const copyLink = (video, videoId) => {
