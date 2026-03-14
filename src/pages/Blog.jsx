@@ -232,11 +232,11 @@ export default function Blog() {
                                         {/* 이미지 영역 (이미지가 있는 경우만) */}
                                         {post.imageUrl && post.imageUrl !== 'https://siminbupjung-blog.web.app/og-image.jpg' && (
                                             <Link to={`/blog/${post.id}`} className="block">
-                                                <div className="aspect-video overflow-hidden">
+                                                <div className="overflow-hidden">
                                                     <img
                                                         src={post.imageUrl}
                                                         alt={post.title}
-                                                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                                        className="w-full h-auto hover:scale-105 transition-transform duration-300"
                                                     />
                                                 </div>
                                             </Link>
@@ -245,7 +245,7 @@ export default function Blog() {
                                         {/* 콘텐츠 영역 */}
                                         <div className="p-5 flex flex-col flex-1">
                                             <Link to={`/blog/${post.id}`}>
-                                                <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 mb-2 line-clamp-2">
+                                                <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 mb-2">
                                                     {post.title}
                                                 </h2>
                                             </Link>

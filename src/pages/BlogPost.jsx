@@ -208,7 +208,7 @@ export default function BlogPost() {
                             <img
                                 src={post.imageUrl}
                                 alt={post.title}
-                                className="w-full rounded-xl shadow-md object-cover max-h-96"
+                                className="w-full rounded-xl shadow-md"
                             />
                         </div>
                     )}
