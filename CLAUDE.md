@@ -133,7 +133,6 @@ firebase deploy --only functions                  # 백엔드 함수
 - **교훈**: 어떤 데이터든 삭제/수정 전 반드시 `node backup_firestore.js` 실행
 
 ### 절대 수정 금지
-- `src/pages/SentencingAnalysis.jsx` — 사용자 명시 지시, 어떤 이유로든 수정 금지
 - AI 모델 기본값: `useState('claude')` — 임의 변경 금지 (2026-02-24 사건)
 - `functions/index.js`의 `isCrawler` 로직 → SNS 미리보기(카카오톡, 페이스북, 텔레그램) 깨짐
 - SNS 공유 URL의 도메인 `xn--lg3b0kt4n41f.kr` → 한글 도메인 인코딩이므로 변경 시 공유 링크 전체 실패

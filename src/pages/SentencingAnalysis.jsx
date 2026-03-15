@@ -2503,7 +2503,7 @@ export default function SentencingAnalysis() {
     const shareToTwitter = () => {
         const url = getShareUrl(selectedPerson);
         const text = `${getShareText(selectedPerson)} #시민법정 #내란재판 #양형분석`;
-        window.open(`https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToTelegram = () => {
