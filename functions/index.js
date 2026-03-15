@@ -3076,6 +3076,14 @@ exports.newsPage = createStaticPageHandler(
     '대한민국 사법부 관련 최신 뉴스'
 );
 
+// 참심제 시뮬레이션 체험
+exports.simulationPage = createStaticPageHandler(
+    '/simulation',
+    '참심제 체험 - 시민법정',
+    '당신이 참심원이 되어 내란 사건을 판단해보세요. 시민이 참여하면 판결이 달라집니다.',
+    'https://siminbupjung-blog.web.app/%EC%B0%B8%EC%8B%AC%EC%9B%90.png'
+);
+
 // 판례 상세 페이지
 exports.precedentDetailPage = functions.https.onRequest(async (req, res) => {
     const userAgent = req.get('User-Agent') || '';

@@ -75,6 +75,10 @@
         "function": "newsPage"
       },
       {
+        "source": "/simulation",
+        "function": "simulationPage"
+      },
+      {
         "source": "/precedent/**",
         "function": "precedentDetailPage"
       },

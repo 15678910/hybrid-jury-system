@@ -170,7 +170,7 @@ export default function BlogPost() {
                 title={post.title}
                 description={post.content?.replace(/<[^>]+>/g, '').slice(0, 150)}
                 path={`/blog/${id}`}
-                image={post.featuredImage || post.thumbnailUrl}
+                image={post.imageUrl || post.featuredImage || post.thumbnailUrl}
                 type="article"
               />
             )}

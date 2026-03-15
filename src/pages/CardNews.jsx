@@ -118,7 +118,7 @@ export default function CardNews() {
     const shareToTwitter = (card) => {
         const cardUrl = `https://xn--lg3b0kt4n41f.kr/cardnews?id=${card.id}`;
         const tweetText = `${card.title} #시민법정 #참심제 #사법개혁`;
-        window.open(`https://x.com/intent/post?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(cardUrl)}`, '_blank', 'width=600,height=400');
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(cardUrl)}`, '_blank', 'width=600,height=400');
     };
 
     const shareToInstagram = (card) => {

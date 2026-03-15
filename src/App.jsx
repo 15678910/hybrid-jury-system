@@ -1146,7 +1146,7 @@ export default function App() {
                                     <button
                                         onClick={() => {
                                             const text = `시민법관 참심제 도입에 ${successData.total.toLocaleString()}명이 참여했습니다! 함께해주세요.\nhttps://시민법정.kr?ref=invite`;
-                                            window.open(`https://x.com/intent/post?text=${encodeURIComponent(text)}`, '_blank', 'width=600,height=400');
+                                            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'width=600,height=400');
                                             trackShare('x', 'referral', '친구초대');
                                         }}
                                         className="flex-1 py-2.5 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition flex items-center justify-center gap-1"

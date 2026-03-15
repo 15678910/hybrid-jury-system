@@ -295,6 +295,20 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // 참심제 시뮬레이션 투표
+    match /simulation_votes/{voteId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['caseId', 'visitorId', 'verdict', 'sentence', 'reasons', 'createdAt'])
+                    && request.resource.data.caseId is string
+                    && request.resource.data.visitorId is string
+                    && request.resource.data.verdict in ['guilty', 'not_guilty'];
+      allow update: if request.resource.data.keys().hasAll(['caseId', 'visitorId', 'verdict', 'sentence', 'reasons', 'createdAt'])
+                    && request.resource.data.caseId is string
+                    && request.resource.data.visitorId is string
+                    && request.resource.data.verdict in ['guilty', 'not_guilty'];
+      allow delete: if false;
+    }
+
     // 기타 모든 컬렉션: 접근 불가
     match /{document=**} {
       allow read, write: if false;
