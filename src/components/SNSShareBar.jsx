@@ -38,7 +38,17 @@ export default function SNSShareBar() {
         return '시민법정 - 참심제 도입으로 시민이 판사가 되는 사법개혁';
     };
 
+    // 메인 페이지 여부 확인
+    const isMainPage = () => {
+        const path = window.location.pathname;
+        return path === '/' || path === '';
+    };
+
+    const WORLD_NEWS_URL = 'https://www.canadianlawyermag.com/news/international/uk-lady-chief-justice-flags-judge-security-issue-in-jury-trial-cutdown-plan/393857';
+    const WORLD_NEWS_IMAGE = 'https://xn--lg3b0kt4n41f.kr/%EC%84%B8%EA%B3%84%EC%8B%9C%EB%AF%BC%EB%B2%95%EA%B4%80%EB%89%B4%EC%8A%A4.png';
+
     const getOgImage = () => {
+        if (isMainPage()) return WORLD_NEWS_IMAGE;
         const helmetMeta = document.querySelector('meta[property="og:image"][data-rh="true"]');
         if (helmetMeta) return helmetMeta.content;
         const allMetas = document.querySelectorAll('meta[property="og:image"]');
@@ -47,19 +57,33 @@ export default function SNSShareBar() {
     };
 
     const shareToKakao = () => {
-        const url = getShareUrl();
         if (kakaoReady && window.Kakao?.isInitialized()) {
             try {
-                window.Kakao.Share.sendDefault({
-                    objectType: 'feed',
-                    content: {
-                        title: document.title,
-                        description: getOgDescription(),
-                        imageUrl: getOgImage(),
-                        link: { mobileWebUrl: url, webUrl: url },
-                    },
-                    buttons: [{ title: '자세히 보기', link: { mobileWebUrl: url, webUrl: url } }],
-                });
+                if (isMainPage()) {
+                    // 메인 페이지: 세계시민법관뉴스 이미지 + 영국 뉴스 URL 연결
+                    window.Kakao.Share.sendDefault({
+                        objectType: 'feed',
+                        content: {
+                            title: '세계시민법관뉴스 | 시민법정',
+                            description: '영국의 여성 대법원장이 배심원 축소 계획에서 판사의 안전문제를 제기했습니다.',
+                            imageUrl: WORLD_NEWS_IMAGE,
+                            link: { mobileWebUrl: WORLD_NEWS_URL, webUrl: WORLD_NEWS_URL },
+                        },
+                        buttons: [{ title: '자세히 보기', link: { mobileWebUrl: WORLD_NEWS_URL, webUrl: WORLD_NEWS_URL } }],
+                    });
+                } else {
+                    const url = getShareUrl();
+                    window.Kakao.Share.sendDefault({
+                        objectType: 'feed',
+                        content: {
+                            title: document.title,
+                            description: getOgDescription(),
+                            imageUrl: getOgImage(),
+                            link: { mobileWebUrl: url, webUrl: url },
+                        },
+                        buttons: [{ title: '자세히 보기', link: { mobileWebUrl: url, webUrl: url } }],
+                    });
+                }
             } catch (e) {
                 fallbackShare();
             }

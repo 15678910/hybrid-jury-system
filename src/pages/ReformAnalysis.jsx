@@ -5,7 +5,7 @@ import { db } from '../lib/firebase';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
 import SNSShareBar from '../components/SNSShareBar';
-import { BILL_COMPARISON, KEY_ISSUES, OPPOSITION_VOICES, INTERNATIONAL_COMPARISON, DEMOCRATIZATION_SCORECARD, FINLAND_REFORM_BILL } from '../data/prosecutionReformData';
+import { BILL_COMPARISON, BILL_COMPARISON_REVISED, KEY_ISSUES, OPPOSITION_VOICES, INTERNATIONAL_COMPARISON, DEMOCRATIZATION_SCORECARD, FINLAND_REFORM_BILL } from '../data/prosecutionReformData';
 
 // 개혁안 뉴스 캐시 설정
 const REFORM_NEWS_CACHE_KEY = 'reform_news_cache';
@@ -64,13 +64,11 @@ const reformData = [
                         color: 'border-blue-800',
                         stance: '추진',
                         stanceColor: 'bg-blue-100 text-blue-700',
-                        summary: '기소기관 권한 명확화 — 수사 개입 일체 배제, 시민 통제 도입',
+                        summary: '기소기관 권한 명확화 — 수사 개입 일체 배제',
                         details: [
                             '기소기관이 가져야 할 것: 수사 결과물 검토권, 기소/불기소 결정권, 공판 유지권, 법령 해석·적용 권한',
                             '기소기관이 가지면 안 되는 것: 보완수사요구권, 영장청구권, 특별사법경찰 지휘·감독권, 수사 과정 개입 일체',
-                            '시민기소심사위원회 도입 (강제기소권 부여) — 기소권에 대한 국민 통제',
-                            '참심제 도입 (시민 3명 + 법관 1명) — 재판에 대한 국민 참여',
-                            '법률감찰관 + 사법옴부즈만 (국회 소속) — 사법기관에 대한 국민 감시'
+                            '국민이 이 권력을 통제할 수 있는 장치가 반드시 수반되어야 한다는 원칙 제시'
                         ],
                         sources: [{name:'경향신문',url:'https://www.khan.co.kr/article/202510011658001'}]
                     },
@@ -285,13 +283,13 @@ const reformData = [
                         color: 'border-blue-800',
                         stance: '추진',
                         stanceColor: 'bg-blue-100 text-blue-700',
-                        summary: '시민기소심사위원회·법률감찰관·사법옴부즈만 3중 감시 체계',
+                        summary: '국민의 사법 권력 통제 장치 수반 원칙 제시',
                         details: [
-                            '시민기소심사위원회 설치 — 불기소 처분에 대한 시민 심사, 강제기소권 부여',
-                            '법률감찰관 신설 (국회 소속) — 사법기관 적법성 감찰 전담',
-                            '사법옴부즈만 신설 (국회 소속) — 시민 진정·고충 처리, 인권침해 조사',
-                            '국무총리 직속 국가수사위원회 신설 추진 (장경태 의원안)',
-                            '헌법 제1조 제2항 구현: 국민이 사법 권력을 통제할 수 있는 장치 수반'
+                            '헌법 제1조 제2항 구현: 국민이 이 권력을 통제할 수 있는 장치가 반드시 수반되어야 한다는 원칙 제시',
+                            '기소권에 대한 국민 통제 필요성 언급',
+                            '재판에 대한 국민 참여 필요성 언급',
+                            '사법기관에 대한 국민 감시 필요성 언급',
+                            '국무총리 직속 국가수사위원회 신설 추진 (장경태 의원안)'
                         ],
                         sources: [{name:'뉴시스',url:'https://www.newsis.com/view/NISX20250924_0003342587'}]
                     },
@@ -1253,7 +1251,7 @@ export default function ReformAnalysis() {
                 title={activeTab === 'prosecution-reform' ? '검찰개혁 심층분석' : activeTab === 'finland-reform' ? '핀란드식 사법개혁안' : '사법개혁 분석'}
                 description={activeTab === 'prosecution-reform' ? '공소청법·중수청법 정부안 vs 김용민·박은정 의원안 비교, AI 법안 위험도 분석' : activeTab === 'finland-reform' ? '수사·기소 완전 분리, 참심제, 이중 감시 체계 - 핀란드 모델 벤치마킹 법률안' : '한국 사법제도 개혁 분석 - 참심제, 배심제, 국민참여재판 비교 분석'}
                 path={activeTab !== 'prosecution' ? `/reform-analysis?tab=${activeTab}` : '/reform-analysis'}
-                image={activeTab === 'prosecution-reform' ? '/검찰개혁심층분석.png' : activeTab === 'finland-reform' ? '/핀란드식사법개혁안.png' : '/사법개혁안비교.png'}
+                image={activeTab === 'prosecution-reform' ? '/og-prosecution-reform.png?v=20260318' : activeTab === 'finland-reform' ? '/핀란드식사법개혁안.png' : '/사법개혁안비교.png'}
             />
             <Header />
             <main className="pt-24 pb-16 px-4">
@@ -1326,145 +1324,228 @@ export default function ReformAnalysis() {
 
                             {activeReform.customRender && activeTab === 'prosecution-reform' ? (
                                 <div className="space-y-8">
-                                    {/* 섹션 A: 검찰개혁 법안 비교표 */}
+                                    {/* 섹션 A: 검찰개혁 법안 수정안 비교 */}
                                     <div>
                                         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                            <span>📋</span> 검찰개혁 법안 비교 <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">정부안 vs 의원안</span>
+                                            <span>📋</span> 검찰개혁 법안 수정안 비교 <span className="ml-2 px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">2026.3.17 법사위 통과 기준</span>
                                         </h3>
-                                        <div className="overflow-x-auto rounded-xl shadow-sm border border-gray-200">
-                                            <table className="w-full min-w-[1100px]">
-                                                <thead>
-                                                    <tr>
-                                                        <th className="bg-gray-100 px-3 py-3 text-left text-sm font-bold text-gray-700 w-[12%]">비교 항목</th>
-                                                        <th className="bg-sky-50 border-t-4 border-sky-400 px-3 py-3 text-center text-sm font-bold text-gray-800 w-[22%]">
-                                                            ⚖️ {BILL_COMPARISON.gongso.name}
-                                                            <div className="text-xs font-normal text-gray-500 mt-1">{BILL_COMPARISON.gongso.submitter}</div>
-                                                            <div className="mt-1"><span className="px-1.5 py-0.5 bg-blue-100 text-blue-600 text-[10px] rounded-full">정부안</span></div>
-                                                        </th>
-                                                        <th className="bg-amber-50 border-t-4 border-amber-400 px-3 py-3 text-center text-sm font-bold text-gray-800 w-[22%]">
-                                                            🔍 {BILL_COMPARISON.jungsu.name}
-                                                            <div className="text-xs font-normal text-gray-500 mt-1">{BILL_COMPARISON.jungsu.submitter}</div>
-                                                            <div className="mt-1"><span className="px-1.5 py-0.5 bg-blue-100 text-blue-600 text-[10px] rounded-full">정부안</span></div>
-                                                        </th>
-                                                        <th className="bg-green-50 border-t-4 border-green-500 px-3 py-3 text-center text-sm font-bold text-gray-800 w-[22%]">
-                                                            🏛️ {BILL_COMPARISON.kimyongmin.name}
-                                                            <div className="text-xs font-normal text-gray-500 mt-1">{BILL_COMPARISON.kimyongmin.submitter}</div>
-                                                            <div className="mt-1"><span className="px-1.5 py-0.5 bg-green-100 text-green-600 text-[10px] rounded-full">의원안</span></div>
-                                                        </th>
-                                                        <th className="bg-purple-50 border-t-4 border-purple-500 px-3 py-3 text-center text-sm font-bold text-gray-800 w-[22%]">
-                                                            ✊ {BILL_COMPARISON.parkeunjung.name}
-                                                            <div className="text-xs font-normal text-gray-500 mt-1">{BILL_COMPARISON.parkeunjung.submitter}</div>
-                                                            <div className="mt-1"><span className="px-1.5 py-0.5 bg-purple-100 text-purple-600 text-[10px] rounded-full">의원안</span></div>
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr className="border-t border-gray-100">
-                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">소관부처</td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.gongso.parent}</td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.jungsu.parent}</td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.kimyongmin.parent}</td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.parkeunjung.parent}</td>
-                                                    </tr>
-                                                    <tr className="border-t border-gray-100">
-                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">조직구조</td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.gongso.structure}</td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.jungsu.structure}</td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.kimyongmin.structure}</td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">{BILL_COMPARISON.parkeunjung.structure}</td>
-                                                    </tr>
-                                                    <tr className="border-t border-gray-100">
-                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">핵심 역할</td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">
-                                                            <ul className="space-y-1">{BILL_COMPARISON.gongso.duties.map((d, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-sky-400 mt-0.5 shrink-0">•</span><span>{d}</span></li>)}</ul>
-                                                            <p className="mt-2 text-red-600 font-semibold text-xs">❌ 제외: {BILL_COMPARISON.gongso.excluded}</p>
-                                                        </td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">
-                                                            <p className="font-semibold mb-1">6대 중대범죄 수사:</p>
-                                                            <ul className="space-y-1">{BILL_COMPARISON.jungsu.targetCrimes.map((c, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-amber-400 mt-0.5 shrink-0">•</span><span>{c}</span></li>)}</ul>
-                                                        </td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">
-                                                            <ul className="space-y-1">{BILL_COMPARISON.kimyongmin.duties.map((d, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-green-400 mt-0.5 shrink-0">•</span><span>{d}</span></li>)}</ul>
-                                                            <p className="mt-2 text-green-700 font-semibold text-xs">✅ {BILL_COMPARISON.kimyongmin.excluded}</p>
-                                                        </td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">
-                                                            <ul className="space-y-1">{BILL_COMPARISON.parkeunjung.duties.map((d, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-purple-400 mt-0.5 shrink-0">•</span><span>{d}</span></li>)}</ul>
-                                                            <p className="mt-2 text-purple-700 font-semibold text-xs">✅ {BILL_COMPARISON.parkeunjung.excluded}</p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr className="border-t border-gray-100">
-                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">감독·감시</td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">
-                                                            <ul className="space-y-1">{BILL_COMPARISON.gongso.oversight.map((o, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-sky-400 mt-0.5 shrink-0">•</span><span>{o}</span></li>)}</ul>
-                                                        </td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">
-                                                            <ul className="space-y-1">{BILL_COMPARISON.jungsu.oversight.map((o, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-amber-400 mt-0.5 shrink-0">•</span><span>{o}</span></li>)}</ul>
-                                                        </td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">
-                                                            <ul className="space-y-1">{BILL_COMPARISON.kimyongmin.oversight.map((o, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-green-400 mt-0.5 shrink-0">•</span><span>{o}</span></li>)}</ul>
-                                                        </td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">
-                                                            <ul className="space-y-1">{BILL_COMPARISON.parkeunjung.oversight.map((o, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-purple-400 mt-0.5 shrink-0">•</span><span>{o}</span></li>)}</ul>
-                                                        </td>
-                                                    </tr>
-                                                    <tr className="border-t border-gray-100">
-                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">분리 장치</td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">
-                                                            <p className="text-orange-600 font-semibold">⚠️ {BILL_COMPARISON.gongso.nameIssue}</p>
-                                                            <p className="mt-1">징계: {BILL_COMPARISON.gongso.discipline}</p>
-                                                        </td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">
-                                                            <ul className="space-y-1">{BILL_COMPARISON.jungsu.separation.map((s, i) => <li key={i} className="flex items-start gap-1.5"><span className="text-amber-400 mt-0.5 shrink-0">•</span><span>{s}</span></li>)}</ul>
-                                                        </td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">
-                                                            <p className="text-green-700 font-semibold">✅ {BILL_COMPARISON.kimyongmin.nameIssue}</p>
-                                                            <p className="mt-1">징계: {BILL_COMPARISON.kimyongmin.discipline}</p>
-                                                        </td>
-                                                        <td className="px-3 py-3 text-sm text-gray-700">
-                                                            <p className="text-purple-700 font-semibold">✅ {BILL_COMPARISON.parkeunjung.nameIssue}</p>
-                                                            <p className="mt-1">징계: {BILL_COMPARISON.parkeunjung.discipline}</p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr className="border-t border-gray-100 bg-gray-50/50">
-                                                        <td className="px-3 py-3 text-sm font-semibold text-gray-700 bg-gray-50">핵심 차이</td>
-                                                        <td className="px-3 py-3 text-sm text-orange-700 font-medium">보완수사요구권 보유, 검찰총장 명칭 유지</td>
-                                                        <td className="px-3 py-3 text-sm text-orange-700 font-medium">행안부 소속, 청장 임기 2년(중임불가)</td>
-                                                        <td className="px-3 py-3 text-sm text-green-700 font-medium">{BILL_COMPARISON.kimyongmin.keyDifference}</td>
-                                                        <td className="px-3 py-3 text-sm text-purple-700 font-medium">{BILL_COMPARISON.parkeunjung.keyDifference}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                        <div className="grid md:grid-cols-3 gap-4">
+                                            {/* 정부 수정안 */}
+                                            <div className={`bg-white border-2 ${BILL_COMPARISON_REVISED.government.color} rounded-xl overflow-hidden shadow-sm`}>
+                                                <div className={`${BILL_COMPARISON_REVISED.government.bgColor} px-4 py-3 border-b`}>
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <h4 className="font-bold text-gray-800">{BILL_COMPARISON_REVISED.government.name}</h4>
+                                                        <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${BILL_COMPARISON_REVISED.government.badgeColor}`}>{BILL_COMPARISON_REVISED.government.badge}</span>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500">{BILL_COMPARISON_REVISED.government.subtitle}</p>
+                                                </div>
+                                                <div className="px-4 py-3 space-y-3">
+                                                    <p className="text-base text-gray-600">{BILL_COMPARISON_REVISED.government.description}</p>
+
+                                                    <div>
+                                                        <p className="text-sm font-bold text-green-700 mb-1">✅ 유지된 권한</p>
+                                                        <ul className="space-y-0.5">
+                                                            {BILL_COMPARISON_REVISED.government.retained.map((item, i) => (
+                                                                <li key={i} className="text-sm text-gray-600 flex items-start gap-1"><span className="text-green-400 shrink-0">•</span>{item}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+
+                                                    <div>
+                                                        <p className="text-sm font-bold text-red-700 mb-1">❌ 삭제된 권한 (원안 대비)</p>
+                                                        <ul className="space-y-0.5">
+                                                            {BILL_COMPARISON_REVISED.government.deleted.map((item, i) => (
+                                                                <li key={i} className="text-sm text-gray-600 flex items-start gap-1"><span className="text-red-400 shrink-0">•</span>{item}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+
+                                                    <div>
+                                                        <p className="text-sm font-bold text-blue-700 mb-1">🆕 새로 추가</p>
+                                                        <ul className="space-y-0.5">
+                                                            {BILL_COMPARISON_REVISED.government.added.map((item, i) => (
+                                                                <li key={i} className="text-sm text-gray-600 flex items-start gap-1"><span className="text-blue-400 shrink-0">•</span>{item}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+
+                                                    <div className="bg-orange-50 rounded-lg p-2">
+                                                        <p className="text-sm font-bold text-orange-700 mb-1">⚠️ 한계</p>
+                                                        <ul className="space-y-0.5">
+                                                            {BILL_COMPARISON_REVISED.government.limitations.map((item, i) => (
+                                                                <li key={i} className="text-sm text-orange-800 flex items-start gap-1"><span className="shrink-0">▸</span>{item}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+
+                                                    <div className="flex flex-wrap gap-1 pt-1">
+                                                        {BILL_COMPARISON_REVISED.government.sources.map((s, i) => (
+                                                            <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded hover:bg-gray-200">{s.name}</a>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* 민주당 수정 원칙 */}
+                                            <div className={`bg-white border-2 ${BILL_COMPARISON_REVISED.democrat.color} rounded-xl overflow-hidden shadow-sm`}>
+                                                <div className={`${BILL_COMPARISON_REVISED.democrat.bgColor} px-4 py-3 border-b`}>
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <h4 className="font-bold text-gray-800">{BILL_COMPARISON_REVISED.democrat.name}</h4>
+                                                        {BILL_COMPARISON_REVISED.democrat.badge && <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${BILL_COMPARISON_REVISED.democrat.badgeColor}`}>{BILL_COMPARISON_REVISED.democrat.badge}</span>}
+                                                    </div>
+                                                    <p className="text-xs text-gray-500">{BILL_COMPARISON_REVISED.democrat.subtitle}</p>
+                                                </div>
+                                                <div className="px-4 py-3 space-y-3">
+                                                    <p className="text-base text-gray-600">{BILL_COMPARISON_REVISED.democrat.description}</p>
+
+                                                    <div>
+                                                        <p className="text-sm font-bold text-blue-700 mb-1">🔧 주요 수정 사항</p>
+                                                        <ul className="space-y-0.5">
+                                                            {BILL_COMPARISON_REVISED.democrat.keyModifications.map((item, i) => (
+                                                                <li key={i} className="text-sm text-gray-600 flex items-start gap-1"><span className="text-blue-400 shrink-0">•</span>{item}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+
+                                                    <div className="bg-blue-50 rounded-lg p-2 space-y-2">
+                                                        <p className="text-sm font-bold text-blue-700 mb-1">💬 주요 발언</p>
+                                                        {BILL_COMPARISON_REVISED.democrat.keyQuotes.map((q, i) => (
+                                                            <div key={i}>
+                                                                <p className="text-xs font-semibold text-blue-600">{q.speaker}</p>
+                                                                <p className="text-sm text-blue-800 italic">"{q.content}"</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+
+                                                    <div className="bg-orange-50 rounded-lg p-2">
+                                                        <p className="text-sm font-bold text-orange-700 mb-1">⚠️ 한계</p>
+                                                        <ul className="space-y-0.5">
+                                                            {BILL_COMPARISON_REVISED.democrat.limitations.map((item, i) => (
+                                                                <li key={i} className="text-sm text-orange-800 flex items-start gap-1"><span className="shrink-0">▸</span>{item}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+
+                                                    <div className="flex flex-wrap gap-1 pt-1">
+                                                        {BILL_COMPARISON_REVISED.democrat.sources.map((s, i) => (
+                                                            <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded hover:bg-gray-200">{s.name}</a>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* 주권자사법개혁추진준비위원회 개정안 */}
+                                            <div className={`bg-white border-2 ${BILL_COMPARISON_REVISED.sovereign.color} rounded-xl overflow-hidden shadow-sm`}>
+                                                <div className={`${BILL_COMPARISON_REVISED.sovereign.bgColor} px-4 py-3 border-b`}>
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <h4 className="font-bold text-gray-800">{BILL_COMPARISON_REVISED.sovereign.name}</h4>
+                                                        {BILL_COMPARISON_REVISED.sovereign.badge && <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${BILL_COMPARISON_REVISED.sovereign.badgeColor}`}>{BILL_COMPARISON_REVISED.sovereign.badge}</span>}
+                                                    </div>
+                                                    <p className="text-xs text-gray-500">{BILL_COMPARISON_REVISED.sovereign.subtitle}</p>
+                                                </div>
+                                                <div className="px-4 py-3 space-y-3">
+                                                    <p className="text-base text-gray-600">{BILL_COMPARISON_REVISED.sovereign.description}</p>
+
+                                                    <div>
+                                                        <p className="text-sm font-bold text-green-700 mb-1">📜 4법 체계</p>
+                                                        <ul className="space-y-1">
+                                                            {BILL_COMPARISON_REVISED.sovereign.bills.map((bill, i) => (
+                                                                <li key={i} className="text-sm text-gray-600 flex items-start gap-1.5">
+                                                                    <span className="shrink-0">{bill.icon}</span>
+                                                                    <span><span className="font-semibold">{bill.name}</span> — {bill.description}</span>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+
+                                                    <div>
+                                                        <p className="text-sm font-bold text-green-700 mb-1">🎯 핵심 특징</p>
+                                                        <ul className="space-y-0.5">
+                                                            {BILL_COMPARISON_REVISED.sovereign.keyFeatures.map((item, i) => (
+                                                                <li key={i} className="text-sm text-gray-600 flex items-start gap-1"><span className="text-green-400 shrink-0">•</span>{item}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+
+                                                    <div className="bg-green-50 rounded-lg p-2">
+                                                        <p className="text-sm font-bold text-green-700 mb-1">💡 장점</p>
+                                                        <ul className="space-y-0.5">
+                                                            {BILL_COMPARISON_REVISED.sovereign.advantages.map((item, i) => (
+                                                                <li key={i} className="text-sm text-green-800 flex items-start gap-1"><span className="shrink-0">✓</span>{item}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    {/* 섹션 B: 핵심 쟁점 분석 */}
+                                    {/* 섹션 B: 핵심 쟁점 분석 (주권자사법개혁추진준비위원회 기준) */}
                                     <div>
                                         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                            <span>🔥</span> 핵심 쟁점: 수사·기소 분리 실현 여부
+                                            <span>🔥</span> 핵심 쟁점: 수사·기소 분리 실현 여부 <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">주권자사법개혁추진준비위원회 기준 평가</span>
                                         </h3>
-                                        <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="space-y-4">
                                             {KEY_ISSUES.map((issue, idx) => (
                                                 <div key={idx} className="bg-white border rounded-xl overflow-hidden shadow-sm">
-                                                    <div className="px-5 py-4 flex items-start gap-3">
-                                                        <span className="text-2xl">{issue.icon}</span>
-                                                        <div className="flex-1">
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                                <h4 className="font-bold text-gray-800">{issue.title}</h4>
-                                                                <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
-                                                                    issue.risk === 'high' ? 'bg-red-100 text-red-700' :
-                                                                    issue.risk === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                                                                    'bg-green-100 text-green-700'
-                                                                }`}>{issue.risk === 'high' ? '고위험' : issue.risk === 'medium' ? '중위험' : '저위험'}</span>
+                                                    <div className="px-5 py-4">
+                                                        <div className="flex items-center gap-3 mb-3">
+                                                            <span className="text-2xl">{issue.icon}</span>
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2">
+                                                                    <h4 className="font-bold text-gray-800">{issue.title}</h4>
+                                                                    <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                                                                        issue.risk === 'high' ? 'bg-red-100 text-red-700' :
+                                                                        issue.risk === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                                                        'bg-green-100 text-green-700'
+                                                                    }`}>{issue.risk === 'high' ? '미해결' : issue.risk === 'medium' ? '부분 해결' : '해결'}</span>
+                                                                </div>
+                                                                <p className="text-sm text-gray-600 mt-0.5">{issue.description}</p>
                                                             </div>
-                                                            <p className="text-base text-gray-600 mb-3">{issue.description}</p>
-                                                            <ul className="space-y-1.5">
-                                                                {issue.points.map((point, pIdx) => (
-                                                                    <li key={pIdx} className="text-sm text-gray-700 flex items-start gap-1.5">
-                                                                        <span className="text-red-400 mt-0.5 shrink-0">▸</span>
-                                                                        <span>{point}</span>
-                                                                    </li>
-                                                                ))}
-                                                            </ul>
+                                                        </div>
+
+                                                        {issue.keyPoint && (
+                                                            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
+                                                                <div className="space-y-1.5">
+                                                                    <div className="flex items-start gap-2">
+                                                                        <span className="text-red-500 font-bold text-sm mt-0.5">✕ 삭제</span>
+                                                                        <p className="text-sm text-gray-800">{issue.keyPoint.deleted}</p>
+                                                                    </div>
+                                                                    <div className="flex items-start gap-2">
+                                                                        <span className="text-amber-600 font-bold text-sm mt-0.5">⚠ 잔존</span>
+                                                                        <p className="text-sm text-gray-800 font-medium">{issue.keyPoint.remained}</p>
+                                                                    </div>
+                                                                    <div className="flex items-start gap-2">
+                                                                        <span className="text-blue-500 font-bold text-sm mt-0.5">→ 구조</span>
+                                                                        <p className="text-sm text-gray-800">{issue.keyPoint.structure}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        <div className="grid md:grid-cols-3 gap-2 mb-3">
+                                                            {issue.comparison.map((c, cIdx) => (
+                                                                <div key={cIdx} className={`rounded-lg p-2.5 border ${
+                                                                    c.verdict === 'best' ? 'bg-green-50 border-green-200' :
+                                                                    c.verdict === 'good' ? 'bg-blue-50 border-blue-200' :
+                                                                    c.verdict === 'partial' ? 'bg-yellow-50 border-yellow-200' :
+                                                                    'bg-red-50 border-red-200'
+                                                                }`}>
+                                                                    <p className={`text-sm font-bold mb-1 ${
+                                                                        c.verdict === 'best' ? 'text-green-700' :
+                                                                        c.verdict === 'good' ? 'text-blue-700' :
+                                                                        c.verdict === 'partial' ? 'text-yellow-700' :
+                                                                        'text-red-700'
+                                                                    }`}>
+                                                                        {c.verdict === 'best' ? '◎' : c.verdict === 'good' ? '○' : c.verdict === 'partial' ? '△' : '✕'} {c.actor}
+                                                                    </p>
+                                                                    <p className="text-sm text-gray-700">{c.content}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+
+                                                        <div className="bg-gray-50 rounded-lg px-3 py-2">
+                                                            <p className="text-sm text-gray-700"><span className="font-bold text-green-700">주권자사법개혁추진준비위원회 입장:</span> {issue.ourPosition}</p>
                                                         </div>
                                                     </div>
                                                 </div>

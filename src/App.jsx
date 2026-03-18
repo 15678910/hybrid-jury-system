@@ -1252,12 +1252,7 @@ export default function App() {
                                     <ul className="space-y-2">
                                         {worldNews.slice(0, 5).map((item, index) => (
                                             <li key={index}>
-                                                <a
-                                                    href={item.link}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="block text-xs hover:text-yellow-300 transition"
-                                                >
+                                                <a href={item.link} target="_blank" rel="noopener noreferrer" className="block text-xs hover:text-yellow-300 transition">
                                                     <span className="mr-1">{item.flag}</span>
                                                     <span className="line-clamp-1">{cleanTitle(item.title)}</span>
                                                     <span className="text-white/60 text-[10px] ml-1">{formatDate(item.pubDate)}</span>
@@ -1274,19 +1269,14 @@ export default function App() {
                 </div>
 
                 {/* 모바일용 세계 뉴스 - lg 미만에서만 표시 */}
-                <div className="lg:hidden container mx-auto px-4 pt-6 pb-8">
+                <div id="world-news" className="lg:hidden container mx-auto px-4 pt-6 pb-8">
                     <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                         <h3 className="text-sm font-bold mb-3 text-yellow-300">📰 세계 시민법관 뉴스</h3>
                         {worldNews.length > 0 ? (
                             <ul className="space-y-2">
                                 {worldNews.slice(0, 5).map((item, index) => (
                                     <li key={index}>
-                                        <a
-                                            href={item.link}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="block text-xs hover:text-yellow-300 transition"
-                                        >
+                                        <a href={item.link} target="_blank" rel="noopener noreferrer" className="block text-xs hover:text-yellow-300 transition">
                                             <span className="mr-1">{item.flag}</span>
                                             <span className="line-clamp-1">{cleanTitle(item.title)}</span>
                                             <span className="text-white/60 text-[10px] ml-1">{formatDate(item.pubDate)}</span>

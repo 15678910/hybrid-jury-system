@@ -23,6 +23,11 @@ const NEWS_FEEDS = {
         label: '세계',
         query: 'lay judge system OR citizen judge OR international court ruling',
         flag: '🌍'
+    },
+    uk: {
+        label: '영국',
+        query: '"jury trial" OR "lay magistrate" OR "crown court" UK',
+        flag: '🇬🇧'
     }
 };
 
@@ -112,15 +117,16 @@ export const formatDate = (dateString) => {
 // 모든 지역의 뉴스 가져오기
 export const fetchAllNews = async () => {
     try {
-        const [europeNews, japanNews, usaNews, globalNews] = await Promise.all([
+        const [europeNews, japanNews, usaNews, globalNews, ukNews] = await Promise.all([
             fetchRssFeed('europe'),
             fetchRssFeed('japan'),
             fetchRssFeed('usa'),
-            fetchRssFeed('global')
+            fetchRssFeed('global'),
+            fetchRssFeed('uk')
         ]);
 
         // 모든 뉴스를 합치고 날짜순 정렬
-        const allNews = [...europeNews, ...japanNews, ...usaNews, ...globalNews];
+        const allNews = [...europeNews, ...japanNews, ...usaNews, ...globalNews, ...ukNews];
         allNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
         return {
@@ -128,11 +134,12 @@ export const fetchAllNews = async () => {
             europe: europeNews,
             japan: japanNews,
             usa: usaNews,
-            global: globalNews
+            global: globalNews,
+            uk: ukNews
         };
     } catch (error) {
         console.error('[News] 전체 뉴스 가져오기 실패:', error);
-        return { all: [], europe: [], japan: [], usa: [], global: [] };
+        return { all: [], europe: [], japan: [], usa: [], global: [], uk: [] };
     }
 };
 
