@@ -54,7 +54,7 @@ export default function AdminVideos() {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const categories = ['해외 사례', '사법개혁', '인터뷰', '뉴스'];
+    const categories = ['해외 사례', '사법개혁', '인터뷰', '뉴스', '숏폼'];
 
     // Firestore에서 작성자 코드 검증
     const verifyWriterCode = async () => {

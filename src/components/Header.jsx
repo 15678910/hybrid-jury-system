@@ -55,6 +55,24 @@ export default function Header() {
                                     >
                                         참심제 체험
                                     </Link>
+                                    <Link
+                                        to="/mock-trial"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-amber-700 hover:text-amber-800 font-medium"
+                                    >
+                                        모의재판 체험
+                                    </Link>
+                                    <Link
+                                        to="/legislative-opinion"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                    >
+                                        입법 의견서
+                                    </Link>
+                                    <Link
+                                        to="/silence-analysis"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-red-600"
+                                    >
+                                        침묵의 구조
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -216,7 +234,10 @@ export default function Header() {
                             <div className="pl-4 border-l-2 border-gray-200">
                                 <p className="text-gray-500 text-sm mb-2">소통방</p>
                                 <Link to="/governance" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>의사결정</Link>
-                                <Link to="/simulation" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>참심제 체험</Link>
+                                <Link to="/simulation" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>참심제 체험</Link>
+                                <Link to="/mock-trial" className="block hover:text-amber-700 transition font-medium mb-2 text-amber-700" onClick={() => setMobileMenuOpen(false)}>모의재판 체험</Link>
+                                <Link to="/legislative-opinion" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>입법 의견서</Link>
+                                <Link to="/silence-analysis" className="block hover:text-red-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>침묵의 구조</Link>
                             </div>
                             <button onClick={() => { scrollToSection('necessity'); setMobileMenuOpen(false); }} className="text-left hover:text-blue-600 transition font-medium">도입 필요성</button>
                             {/* 모바일 해외사례 서브메뉴 */}

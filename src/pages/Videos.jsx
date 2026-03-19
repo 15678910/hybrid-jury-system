@@ -73,7 +73,10 @@ export default function Videos() {
     const [loadingMore, setLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const [lastDoc, setLastDoc] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState('전체');
     const VIDEOS_PER_PAGE = 9;
+
+    const categories = ['전체', '해외 사례', '사법개혁', '인터뷰', '뉴스', '숏폼'];
 
     // 공유된 동영상 모달로 표시
     useEffect(() => {
@@ -296,6 +299,23 @@ export default function Videos() {
                         <p className="text-gray-600">참심제와 사법개혁 관련 영상을 시청하세요</p>
                     </div>
 
+                    {/* 카테고리 필터 탭 */}
+                    <div className="flex flex-wrap justify-center gap-2 mb-8">
+                        {categories.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setSelectedCategory(cat)}
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                                    selectedCategory === cat
+                                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+
                     {/* 로딩 */}
                     {loading ? (
                         <div className="text-center py-12">
@@ -306,7 +326,7 @@ export default function Videos() {
                         <>
                             {/* 동영상 그리드 */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {videos.map(video => {
+                                {videos.filter(video => selectedCategory === '전체' || video.category === selectedCategory).map(video => {
                                     const videoId = video.videoId || extractYouTubeId(video.url);
                                     return (
                                         <div
@@ -421,9 +441,9 @@ export default function Videos() {
                                 })}
                             </div>
 
-                            {videos.length === 0 && (
+                            {videos.filter(video => selectedCategory === '전체' || video.category === selectedCategory).length === 0 && (
                                 <div className="text-center py-12 text-gray-500">
-                                    등록된 동영상이 없습니다.
+                                    {selectedCategory === '전체' ? '등록된 동영상이 없습니다.' : `'${selectedCategory}' 카테고리의 동영상이 없습니다.`}
                                 </div>
                             )}
 
