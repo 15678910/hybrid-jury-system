@@ -824,12 +824,24 @@ export default function App() {
                                     </svg>
                                 </button>
                                 <div className={`absolute top-full left-0 mt-0 pt-2 z-[9999] ${introDropdownOpen ? 'block' : 'hidden'}`}>
-                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[140px]">
+                                    <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[200px]">
                                         <Link
                                             to="/governance"
                                             className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                         >
                                             의사결정
+                                        </Link>
+                                        <Link
+                                            to="/simulation"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                        >
+                                            참심제 체험
+                                        </Link>
+                                        <Link
+                                            to="/mock-trial"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-amber-700 hover:text-amber-800 font-medium"
+                                        >
+                                            모의재판 체험
                                         </Link>
                                     </div>
                                 </div>
@@ -964,6 +976,20 @@ export default function App() {
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
                                 >
                                     의사결정
+                                </Link>
+                                <Link
+                                    to="/simulation"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    참심제 체험
+                                </Link>
+                                <Link
+                                    to="/mock-trial"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition text-amber-700 font-medium"
+                                >
+                                    모의재판 체험
                                 </Link>
                             </div>
                             <button

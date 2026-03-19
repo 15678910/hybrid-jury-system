@@ -53,7 +53,7 @@ export default function SNSShareBar() {
         if (helmetMeta) return helmetMeta.content;
         const allMetas = document.querySelectorAll('meta[property="og:image"]');
         if (allMetas.length > 0) return allMetas[allMetas.length - 1].content;
-        return 'https://xn--lg3b0kt4n41f.kr/og-image.jpg';
+        return 'https://xn--lg3b0kt4n41f.kr/og-world-news.png';
     };
 
     const shareToKakao = () => {

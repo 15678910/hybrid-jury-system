@@ -95,27 +95,104 @@ const shortformSeries = [
     {
         ep: 1,
         title: '"판사가 왜 3명뿐일까?"',
-        message: '한국은 직업법관 3명이 모든 것을 결정 → 독일은 시민 2명 + 판사 3명',
+        message: '한국은 직업법관 3명이 모든 것을 결정 → 핀란드는 시민 3명 + 판사 1명',
+        duration: '45초',
+        scenario: [
+            { type: 'narration', text: '한국에서 재판을 받으면, 당신의 유죄와 무죄를 결정하는 사람은 딱 3명입니다.' },
+            { type: 'visual', text: '[화면: 법정 이미지, 법관석에 3명의 판사]' },
+            { type: 'narration', text: '직업법관 3명. 모두 사법연수원 출신, 같은 교육, 같은 문화.' },
+            { type: 'visual', text: '[화면: 핀란드 법정 → 시민 3명 + 판사 1명이 나란히 앉은 모습]' },
+            { type: 'narration', text: '핀란드에서는 다릅니다. 시민 3명이 판사 1명과 함께 앉아 동등한 투표권으로 판결합니다.' },
+            { type: 'narration', text: '이것을 참심제, 핀란드어로 "라우타미에스(Lautamies)"라고 합니다.' },
+            { type: 'visual', text: '[화면: 한국 vs 핀란드 비교 그래픽]' },
+            { type: 'narration', text: '한국: 법관 3명이 100% 결정.' },
+            { type: 'narration', text: '핀란드: 시민 3명 + 법관 1명, 다수결로 결정. 시민이 다수입니다.' },
+            { type: 'emphasis', text: '"왜 한국에서는 시민이 재판에 참여할 수 없을까요?"' },
+            { type: 'closing', text: '다음 화에서 그 답을 찾아봅니다.' },
+        ],
     },
     {
         ep: 2,
         title: '"헌법이 37년째 묻고 있다"',
         message: '헌법 제1조 2항, 제27조 → 입법 부작위',
+        duration: '50초',
+        scenario: [
+            { type: 'narration', text: '대한민국 헌법 제1조 2항.' },
+            { type: 'emphasis', text: '"대한민국의 주권은 국민에게 있고, 모든 권력은 국민으로부터 나온다."' },
+            { type: 'narration', text: '1987년에 쓰인 이 문장. 입법부, 행정부에서는 실현됐습니다.' },
+            { type: 'visual', text: '[화면: 국회의원 선거 → 대통령 선거 이미지]' },
+            { type: 'narration', text: '국민이 국회의원을 뽑고, 대통령을 뽑습니다.' },
+            { type: 'narration', text: '그런데 사법부는?' },
+            { type: 'visual', text: '[화면: 법원 건물 → 물음표]' },
+            { type: 'narration', text: '판사를 국민이 뽑지도, 재판에 참여하지도 못합니다.' },
+            { type: 'narration', text: '헌법 제27조 1항: "모든 국민은 법률이 정한 법관에 의하여 재판을 받을 권리를 가진다."' },
+            { type: 'narration', text: '법률이 정하면 시민도 법관이 될 수 있습니다. 그런데 37년째 그 법률이 없습니다.' },
+            { type: 'emphasis', text: '이것을 "입법 부작위"라고 합니다.' },
+            { type: 'closing', text: '헌법이 37년째 묻고 있습니다. "왜 사법부만 국민 없이 운영되는가?"' },
+        ],
     },
     {
         ep: 3,
         title: '"검찰개혁? 국민 빠진 개혁"',
         message: '공소청법안도 시민 참여 없이 조직 개편만',
+        duration: '50초',
+        scenario: [
+            { type: 'narration', text: '2026년 3월, 검찰개혁법이 통과됐습니다.' },
+            { type: 'visual', text: '[화면: 국회 법사위 의결 장면]' },
+            { type: 'narration', text: '검찰청은 공소청으로, 수사권은 중대범죄수사청으로. 78년 만의 개혁이라고 합니다.' },
+            { type: 'narration', text: '그런데 한 가지 빠진 것이 있습니다.' },
+            { type: 'emphasis', text: '"국민"입니다.' },
+            { type: 'visual', text: '[화면: 공소청법 조문 → "시민 참여" 검색 → 결과 없음]' },
+            { type: 'narration', text: '시민기소심사위원회? 없습니다.' },
+            { type: 'narration', text: '참심제? 논의조차 없었습니다.' },
+            { type: 'narration', text: '법률감찰관? 사법옴부즈만? 어디에도 없습니다.' },
+            { type: 'narration', text: '조직을 바꿨을 뿐, 국민이 사법에 참여하는 장치는 하나도 만들지 않았습니다.' },
+            { type: 'emphasis', text: '"국민 없는 개혁은 개혁이 아닙니다."' },
+            { type: 'closing', text: '그렇다면 시민이 직접 재판에 참여하는 나라는 어떤 모습일까요?' },
+        ],
     },
     {
         ep: 4,
-        title: '"독일 시민은 판사다"',
-        message: '참심원 제도 30초 설명',
+        title: '"핀란드 시민은 판사다"',
+        message: '핀란드 참심제(Lautamies) 30초 설명',
+        duration: '40초',
+        scenario: [
+            { type: 'narration', text: '핀란드에서는 일반 시민이 판사가 됩니다.' },
+            { type: 'visual', text: '[화면: 핀란드 법정, "Lautamies (라우타미에스)" 자막]' },
+            { type: 'narration', text: '참심제. 핀란드어로 라우타미에스.' },
+            { type: 'narration', text: '어떻게 작동할까요?' },
+            { type: 'visual', text: '[화면: 단계별 인포그래픽]' },
+            { type: 'narration', text: '1단계: 지방의회가 시민 중에서 참심원을 선출합니다.' },
+            { type: 'narration', text: '2단계: 선출된 시민은 지방법원 1심 재판에 참여합니다.' },
+            { type: 'narration', text: '3단계: 직업법관 1명과 시민 3명이 함께 앉아 사건을 심리합니다.' },
+            { type: 'narration', text: '4단계: 유무죄와 형량을 동등한 투표권으로 결정합니다. 시민이 다수입니다.' },
+            { type: 'emphasis', text: '법학 학위 없이도, 시민의 상식과 양심으로 판단합니다.' },
+            { type: 'narration', text: '핀란드뿐 아닙니다. 독일, 프랑스, 덴마크, 노르웨이 — 유럽 대부분이 이렇게 합니다.' },
+            { type: 'closing', text: '그런데 왜 한국에서는 아무도 이 이야기를 하지 않을까요?' },
+        ],
     },
     {
         ep: 5,
         title: '"왜 아무도 말 안 하나?"',
         message: '진보·보수 모두 침묵하는 이유',
+        duration: '60초',
+        scenario: [
+            { type: 'narration', text: '참심제. 시민이 판사가 되는 제도.' },
+            { type: 'narration', text: '핀란드는 수십 년째 하고 있고, 독일도, 프랑스도 하고 있습니다.' },
+            { type: 'narration', text: '그런데 한국에서는 진보도, 보수도, 시민단체도 침묵합니다.' },
+            { type: 'emphasis', text: '왜?' },
+            { type: 'visual', text: '[화면: 이해관계 구조도]' },
+            { type: 'narration', text: '법관: 재판 권한을 독점하고 싶습니다. 시민이 들어오면 권한이 분산됩니다.' },
+            { type: 'narration', text: '검찰: 기소 독점을 유지하고 싶습니다. 시민기소심사위가 생기면 견제받습니다.' },
+            { type: 'narration', text: '변호사: 법률 전문가 지위를 지키고 싶습니다. 시민 참여는 독점을 약화시킵니다.' },
+            { type: 'narration', text: '법학자: 동료 법조인을 비판하기 어렵습니다. 학계 내 관계가 깨집니다.' },
+            { type: 'narration', text: '시민단체: 자문위원이 법조 출신입니다. 카르텔 안에 있습니다.' },
+            { type: 'visual', text: '[화면: 모든 화살표가 "현상 유지"로 향하는 다이어그램]' },
+            { type: 'emphasis', text: '모두가 침묵하는 이유는 하나입니다. 현재 구조가 자신에게 유리하기 때문입니다.' },
+            { type: 'narration', text: '이 침묵을 깰 수 있는 것은 오직 한 가지.' },
+            { type: 'emphasis', text: '"깨어 있는 시민"입니다.' },
+            { type: 'closing', text: '헌법 제1조 2항: 모든 권력은 국민으로부터 나온다. 사법도 예외가 아닙니다.' },
+        ],
     },
 ];
 
@@ -148,6 +225,7 @@ const tools = [
 
 export default function SilenceAnalysis() {
     const [hoveredCard, setHoveredCard] = useState(null);
+    const [openEpisode, setOpenEpisode] = useState(null);
 
     return (
         <>
@@ -270,16 +348,45 @@ export default function SilenceAnalysis() {
                             {shortformSeries.map((ep) => (
                                 <div
                                     key={ep.ep}
-                                    className="bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-200 hover:-translate-y-1"
+                                    className="bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-xl shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer"
+                                    onClick={() => setOpenEpisode(openEpisode === ep.ep ? null : ep.ep)}
                                 >
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-red-600 text-white font-black text-sm shrink-0">
-                                            {ep.ep}화
-                                        </span>
-                                        <span className="text-xs font-semibold text-red-400 uppercase tracking-wider">Episode {ep.ep}</span>
+                                    <div className="p-6">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-red-600 text-white font-black text-sm shrink-0">
+                                                {ep.ep}화
+                                            </span>
+                                            <span className="text-xs font-semibold text-red-400 uppercase tracking-wider">Episode {ep.ep}</span>
+                                            <span className="ml-auto text-xs text-gray-400">{ep.duration}</span>
+                                        </div>
+                                        <h3 className="text-base font-bold mb-3 leading-snug">{ep.title}</h3>
+                                        <p className="text-gray-300 text-sm leading-relaxed">{ep.message}</p>
+                                        <p className="text-xs text-gray-500 mt-3">
+                                            {openEpisode === ep.ep ? '▲ 시나리오 접기' : '▼ 시나리오 보기'}
+                                        </p>
                                     </div>
-                                    <h3 className="text-base font-bold mb-3 leading-snug">{ep.title}</h3>
-                                    <p className="text-gray-300 text-sm leading-relaxed">{ep.message}</p>
+                                    {openEpisode === ep.ep && (
+                                        <div className="border-t border-gray-700 px-6 py-5 bg-gray-950/50 rounded-b-xl" onClick={(e) => e.stopPropagation()}>
+                                            <h4 className="text-sm font-bold text-red-400 mb-4">📜 시나리오 ({ep.duration})</h4>
+                                            <div className="space-y-2.5">
+                                                {ep.scenario.map((line, idx) => (
+                                                    <div key={idx} className={`text-sm leading-relaxed ${
+                                                        line.type === 'narration' ? 'text-gray-300' :
+                                                        line.type === 'visual' ? 'text-blue-400 italic text-xs' :
+                                                        line.type === 'emphasis' ? 'text-yellow-300 font-bold text-base' :
+                                                        line.type === 'closing' ? 'text-red-300 font-semibold border-t border-gray-700 pt-3 mt-3' :
+                                                        'text-gray-300'
+                                                    }`}>
+                                                        {line.type === 'narration' && <span className="text-gray-500 mr-1">🎙</span>}
+                                                        {line.type === 'visual' && <span className="text-blue-500 mr-1">🎬</span>}
+                                                        {line.type === 'emphasis' && <span className="mr-1">💡</span>}
+                                                        {line.type === 'closing' && <span className="mr-1">🔚</span>}
+                                                        {line.text}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>

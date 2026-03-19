@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-// v2.0 - 카드뉴스 메뉴 추가
+// v3.0 - 모의재판 체험 메뉴 추가
 export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [mediaDropdownOpen, setMediaDropdownOpen] = useState(false);
@@ -61,18 +61,8 @@ export default function Header() {
                                     >
                                         모의재판 체험
                                     </Link>
-                                    <Link
-                                        to="/legislative-opinion"
-                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
-                                    >
-                                        입법 의견서
-                                    </Link>
-                                    <Link
-                                        to="/silence-analysis"
-                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-red-600"
-                                    >
-                                        침묵의 구조
-                                    </Link>
+                                    {/* 입법 의견서: 배포 보류 중 - 메뉴에서 숨김 */}
+                                    {/* 침묵의 구조: 배포 보류 중 - 메뉴에서 숨김 */}
                                 </div>
                             </div>
                         </div>
@@ -236,8 +226,8 @@ export default function Header() {
                                 <Link to="/governance" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>의사결정</Link>
                                 <Link to="/simulation" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>참심제 체험</Link>
                                 <Link to="/mock-trial" className="block hover:text-amber-700 transition font-medium mb-2 text-amber-700" onClick={() => setMobileMenuOpen(false)}>모의재판 체험</Link>
-                                <Link to="/legislative-opinion" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>입법 의견서</Link>
-                                <Link to="/silence-analysis" className="block hover:text-red-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>침묵의 구조</Link>
+                                {/* 입법 의견서: 배포 보류 중 - 모바일 메뉴에서 숨김 */}
+                                {/* 침묵의 구조: 배포 보류 중 - 모바일 메뉴에서 숨김 */}
                             </div>
                             <button onClick={() => { scrollToSection('necessity'); setMobileMenuOpen(false); }} className="text-left hover:text-blue-600 transition font-medium">도입 필요성</button>
                             {/* 모바일 해외사례 서브메뉴 */}

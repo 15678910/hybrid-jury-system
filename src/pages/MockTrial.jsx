@@ -240,7 +240,7 @@ export default function MockTrial() {
                 </div>
 
                 <div className="mt-4 text-xs text-stone-500">
-                  독일 Schoeffengericht(참심법원) 모델을 한국에 맞게 확대 적용
+                  핀란드 Lautamies(참심원) 모델 기반 — 시민 3명 + 법관 1명
                 </div>
               </div>
 
@@ -640,12 +640,12 @@ export default function MockTrial() {
                   </div>
                   <div className="bg-green-900/20 border border-green-900/30 rounded-xl p-4">
                     <p className="text-green-300 font-medium mb-1">
-                      &#127465;&#127466; 독일 참심제 (Schoeffengericht)
+                      🇫🇮 핀란드 참심제 (Lautamies)
                     </p>
                     <p className="text-stone-300 text-sm leading-relaxed">
-                      참심원의 투표는 법관과 <strong className="text-green-300">동등</strong>하며,{' '}
-                      <strong className="text-green-300">다수결</strong>로 판결이 확정됩니다.
-                      법관 혼자 시민의 뜻을 뒤집을 수 없습니다.
+                      시민 3명 + 법관 1명이 <strong className="text-green-300">동등한 투표권</strong>으로{' '}
+                      <strong className="text-green-300">다수결</strong> 판결합니다.
+                      시민이 다수이므로 법관 혼자 뒤집을 수 없습니다.
                     </p>
                   </div>
                   <div className="bg-amber-900/20 border border-amber-700/30 rounded-xl p-4 text-center">
