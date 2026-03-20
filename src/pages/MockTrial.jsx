@@ -250,6 +250,9 @@ export default function MockTrial() {
               >
                 재판 시작하기
               </button>
+              <div className="mt-10 mb-8">
+                <SNSShareBar />
+              </div>
             </div>
           )}
 
