@@ -843,6 +843,12 @@ export default function App() {
                                         >
                                             모의재판 체험
                                         </Link>
+                                        <Link
+                                            to="/jury-academy"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-indigo-700 hover:text-indigo-800 font-medium"
+                                        >
+                                            참심제 아카데미
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
@@ -990,6 +996,13 @@ export default function App() {
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition text-amber-700 font-medium"
                                 >
                                     모의재판 체험
+                                </Link>
+                                <Link
+                                    to="/jury-academy"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition text-indigo-700 font-medium"
+                                >
+                                    참심제 아카데미
                                 </Link>
                             </div>
                             <button

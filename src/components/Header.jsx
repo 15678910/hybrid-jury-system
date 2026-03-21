@@ -61,6 +61,12 @@ export default function Header() {
                                     >
                                         모의재판 체험
                                     </Link>
+                                    <Link
+                                        to="/jury-academy"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-indigo-700 hover:text-indigo-800 font-medium"
+                                    >
+                                        참심제 아카데미
+                                    </Link>
                                     {/* 입법 의견서: 배포 보류 중 - 메뉴에서 숨김 */}
                                     {/* 침묵의 구조: 배포 보류 중 - 메뉴에서 숨김 */}
                                 </div>
@@ -226,6 +232,7 @@ export default function Header() {
                                 <Link to="/governance" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>의사결정</Link>
                                 <Link to="/simulation" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>참심제 체험</Link>
                                 <Link to="/mock-trial" className="block hover:text-amber-700 transition font-medium mb-2 text-amber-700" onClick={() => setMobileMenuOpen(false)}>모의재판 체험</Link>
+                                <Link to="/jury-academy" className="block hover:text-indigo-700 transition font-medium mb-2 text-indigo-700" onClick={() => setMobileMenuOpen(false)}>참심제 아카데미</Link>
                                 {/* 입법 의견서: 배포 보류 중 - 모바일 메뉴에서 숨김 */}
                                 {/* 침묵의 구조: 배포 보류 중 - 모바일 메뉴에서 숨김 */}
                             </div>

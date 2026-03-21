@@ -44,6 +44,7 @@ const PrecedentDetail = lazy(() => import('./pages/PrecedentDetail'))
 const LegislativeOpinion = lazy(() => import('./pages/LegislativeOpinion'))
 const SilenceAnalysis = lazy(() => import('./pages/SilenceAnalysis'))
 const MockTrial = lazy(() => import('./pages/MockTrial'))
+const JuryAcademy = lazy(() => import('./pages/JuryAcademy'))
 const FloatingChat = lazy(() => import('./CozeFloatingChat'))
 
 // 로딩 컴포넌트
@@ -109,6 +110,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/legislative-opinion" element={<LegislativeOpinion />} />
           <Route path="/silence-analysis" element={<SilenceAnalysis />} />
           <Route path="/mock-trial" element={<MockTrial />} />
+          <Route path="/jury-academy" element={<JuryAcademy />} />
         </Routes>
         {/* 모든 페이지에서 보이는 플로팅 챗봇 */}
         <FloatingChat />
