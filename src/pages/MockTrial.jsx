@@ -133,6 +133,7 @@ export default function MockTrial() {
         title="참심제 모의재판 체험"
         description="시민법관이 되어 모의재판에 참여해보세요. 참심원으로서 직접 증거를 검토하고 판결에 참여하는 체험입니다."
         path="/mock-trial"
+        image="/참심제모의재판체험.png"
       />
       <Header />
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
+import SNSShareBar from '../components/SNSShareBar';
 
 // ─── SVG 아이콘 컴포넌트 ───
 function AcademyCapIcon({ className = 'w-12 h-12' }) {
@@ -1178,6 +1179,7 @@ export default function JuryAcademy() {
                 title="참심제 아카데미"
                 description="스웨덴·독일 모델 기반 시민법관 온라인 교육 프로그램. 입문 과정과 심화 과정을 통해 참심제의 기초부터 전문 지식까지 학습합니다."
                 path="/jury-academy"
+                image="/참심제아카데미.png"
             />
             <Header />
 
@@ -1587,6 +1589,11 @@ export default function JuryAcademy() {
                             </div>
                         </div>
                     )}
+                </div>
+
+                {/* SNS 공유 */}
+                <div className="max-w-6xl mx-auto px-4 py-8">
+                    <SNSShareBar />
                 </div>
             </main>
         </>

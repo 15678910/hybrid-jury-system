@@ -3040,6 +3040,22 @@ exports.caseSearchPage = createStaticPageHandler(
     '판례, 법령, 헌재결정, 법률용어 등 법률정보를 검색하세요'
 );
 
+// 참심제 아카데미
+exports.juryAcademyPage = createStaticPageHandler(
+    '/jury-academy',
+    '참심제 아카데미 - 시민법관 온라인 교육',
+    '스웨덴·독일 모델 기반 시민법관 온라인 교육 프로그램. 입문 과정과 심화 과정을 통해 참심제의 기초부터 전문 지식까지 학습합니다.',
+    'https://siminbupjung-blog.web.app/참심제아카데미.png'
+);
+
+// 참심제 모의재판 체험
+exports.mockTrialPage = createStaticPageHandler(
+    '/mock-trial',
+    '참심제 모의재판 체험 - 시민법정',
+    '시민법관이 되어 모의재판에 참여해보세요. 참심원으로서 직접 증거를 검토하고 판결에 참여하는 체험입니다.',
+    'https://siminbupjung-blog.web.app/참심제모의재판체험.png'
+);
+
 // 후원 페이지
 exports.donatePage = createStaticPageHandler(
     '/donate',
@@ -3081,7 +3097,7 @@ exports.simulationPage = createStaticPageHandler(
     '/simulation',
     '참심제 체험 - 시민법정',
     '당신이 참심원이 되어 내란 사건을 판단해보세요. 시민이 참여하면 판결이 달라집니다.',
-    'https://siminbupjung-blog.web.app/%EC%B0%B8%EC%8B%AC%EC%9B%90.png'
+    'https://siminbupjung-blog.web.app/og-simulation.png'
 );
 
 // 판례 상세 페이지

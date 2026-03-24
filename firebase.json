@@ -83,6 +83,14 @@
         "function": "precedentDetailPage"
       },
       {
+        "source": "/jury-academy",
+        "function": "juryAcademyPage"
+      },
+      {
+        "source": "/mock-trial",
+        "function": "mockTrialPage"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

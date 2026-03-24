@@ -830,7 +830,7 @@ export default function JudgeSimulation() {
         title="참심제 시뮬레이션"
         description="시민법관이 직업법관과 함께하는 참심제를 직접 체험해보세요. 내란 사건의 참심원이 되어 유·무죄와 양형을 결정하는 시뮬레이션입니다."
         path="/simulation"
-        image="/%EC%B0%B8%EC%8B%AC%EC%9B%90.png"
+        image="/og-simulation.png"
       />
       <Header />
 
