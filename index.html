@@ -1,16 +1,7 @@
 <!doctype html>
-<!-- v2.1 -->
+<!-- v2.2 -->
 <html lang="ko">
   <head>
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CV4K9D5TRC"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-CV4K9D5TRC');
-    </script>
-
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -43,14 +34,60 @@
     <!-- 네이버 검색 등록 -->
     <meta name="naver-site-verification" content="3a332da27c6871ed25fd1c673e8337e0a534f90f" />
 
-    <!-- 카카오 SDK v1 -->
-    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <!-- Preconnect hints for critical third-party origins -->
+    <link rel="preconnect" href="https://developers.kakao.com" crossorigin />
+    <link rel="preconnect" href="https://t1.daumcdn.net" crossorigin />
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+    <link rel="preconnect" href="https://accounts.google.com" crossorigin />
+    <link rel="preconnect" href="https://firebaseio.com" crossorigin />
+    <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin />
+    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+    <link rel="dns-prefetch" href="https://kauth.kakao.com" />
+    <link rel="dns-prefetch" href="https://kapi.kakao.com" />
 
-    <!-- Google Identity Services -->
+    <!-- 카카오 SDK v1 - defer: 파싱 완료 후 실행, 로그인은 사용자 상호작용 시에만 필요 -->
+    <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+
+    <!-- Google Identity Services - 이미 async defer 적용 -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-    <!-- 카카오 주소 검색 API (Daum Postcode) -->
-    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <!-- 카카오 주소 검색 API (Daum Postcode) - defer: 주소 입력 시에만 필요 -->
+    <script defer src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <!-- Google Analytics - 페이지 로드 후 유휴 시간에 지연 로딩 -->
+    <script>
+      // GTM을 requestIdleCallback 또는 setTimeout으로 지연 로드
+      // 첫 페인트를 차단하지 않도록 처리
+      (function() {
+        var loaded = false;
+        function loadGTM() {
+          if (loaded) return;
+          loaded = true;
+          // gtag 스크립트 동적 삽입
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-CV4K9D5TRC';
+          document.head.appendChild(script);
+          // dataLayer 초기화
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', 'G-CV4K9D5TRC');
+        }
+        // 사용자 첫 상호작용 시 즉시 로드 (정확한 이벤트 추적 보장)
+        ['mousedown', 'touchstart', 'keydown', 'scroll'].forEach(function(event) {
+          document.addEventListener(event, loadGTM, { once: true, passive: true });
+        });
+        // 상호작용 없을 경우 3초 후 폴백 로드 (세션 추적 누락 방지)
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(loadGTM, { timeout: 3000 });
+        } else {
+          setTimeout(loadGTM, 3000);
+        }
+      })();
+    </script>
 
     <!-- 구조화 데이터 (JSON-LD) -->
     <script type="application/ld+json">
@@ -82,7 +119,7 @@
 
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f9fafb"><div style="text-align:center"><div style="width:32px;height:32px;border:4px solid #dc2626;border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin 1s linear infinite"></div><p style="margin-top:16px;color:#6b7280">페이지를 불러오는 중...</p></div></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

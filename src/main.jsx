@@ -4,8 +4,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import './index.css'
 
-// 홈페이지는 즉시 로드 (사용자가 가장 먼저 보는 페이지)
-import App from './App.jsx'
+// 홈페이지도 lazy 로드로 변경 - 메인 번들 크기 감소
+const App = lazy(() => import('./App.jsx'))
 import PageTracker from './components/PageTracker'
 
 // 나머지 페이지는 필요할 때 로드 (코드 분할)
@@ -47,12 +47,12 @@ const MockTrial = lazy(() => import('./pages/MockTrial'))
 const JuryAcademy = lazy(() => import('./pages/JuryAcademy'))
 const FloatingChat = lazy(() => import('./CozeFloatingChat'))
 
-// 로딩 컴포넌트
+// 로딩 컴포넌트 (인라인 스타일로 CSS 의존성 제거)
 const PageLoader = () => (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-            <div className="inline-block w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="mt-4 text-gray-500">페이지를 불러오는 중...</p>
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',backgroundColor:'#f9fafb'}}>
+        <div style={{textAlign:'center'}}>
+            <div style={{width:32,height:32,border:'4px solid #dc2626',borderTopColor:'transparent',borderRadius:'50%',animation:'spin 1s linear infinite',display:'inline-block'}}></div>
+            <p style={{marginTop:16,color:'#6b7280'}}>페이지를 불러오는 중...</p>
         </div>
     </div>
 )
