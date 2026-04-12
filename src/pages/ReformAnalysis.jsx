@@ -6,6 +6,7 @@ import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
 import SNSShareBar from '../components/SNSShareBar';
 import { BILL_COMPARISON, BILL_COMPARISON_REVISED, KEY_ISSUES, OPPOSITION_VOICES, INTERNATIONAL_COMPARISON, DEMOCRATIZATION_SCORECARD, FINLAND_REFORM_BILL } from '../data/prosecutionReformData';
+import { getLawComparison, getLawHistory } from '../lib/lawApi';
 
 // 개혁안 뉴스 캐시 설정
 const REFORM_NEWS_CACHE_KEY = 'reform_news_cache';
@@ -1215,6 +1216,10 @@ export default function ReformAnalysis() {
     const [newsLoading, setNewsLoading] = useState(false);
     const [showRiskAnalysis, setShowRiskAnalysis] = useState(false);
     const [expandedRiskClause, setExpandedRiskClause] = useState(null);
+    const [showLawComparison, setShowLawComparison] = useState(false);
+    const [lawComparisonData, setLawComparisonData] = useState(null);
+    const [lawHistoryData, setLawHistoryData] = useState(null);
+    const [comparisonLoading, setComparisonLoading] = useState(false);
 
     // Firestore에서 개혁안 뉴스 가져오기
     useEffect(() => {
@@ -2054,6 +2059,169 @@ export default function ReformAnalysis() {
                             })()}
                         </div>
                     )}
+
+                    {/* 법원조직법 현행 vs 개정안 비교 */}
+                    <div className="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
+                        <button
+                            onClick={async () => {
+                                setShowLawComparison(!showLawComparison);
+                                if (!lawComparisonData && !comparisonLoading) {
+                                    setComparisonLoading(true);
+                                    try {
+                                        // 법원조직법 MST: 법원조직법의 법령 MST 번호
+                                        const COURT_ORG_ACT_MST = '002566';
+                                        const [compData, histData] = await Promise.all([
+                                            getLawComparison(COURT_ORG_ACT_MST),
+                                            getLawHistory(COURT_ORG_ACT_MST)
+                                        ]);
+                                        if (compData) setLawComparisonData(compData);
+                                        if (histData) setLawHistoryData(histData);
+                                    } catch (error) {
+                                        console.error('Law comparison fetch error:', error);
+                                    } finally {
+                                        setComparisonLoading(false);
+                                    }
+                                }
+                            }}
+                            className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className="text-lg">📜</span>
+                                <span className="font-bold text-gray-800">법원조직법 현행 vs 개정안 비교</span>
+                                <span className="px-2 py-0.5 text-xs rounded-full font-medium bg-blue-100 text-blue-700">API 연동</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <span className="text-sm text-gray-500">신구법 비교 조회</span>
+                                <span className={`transform transition-transform ${showLawComparison ? 'rotate-180' : ''}`}>▼</span>
+                            </div>
+                        </button>
+
+                        {showLawComparison && (
+                            <div className="px-6 pb-6 space-y-4">
+                                {/* 안내 배너 */}
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+                                    <p className="text-xs text-blue-800">
+                                        국가법령정보 OPEN API를 통해 법원조직법의 신구법 비교 및 변경이력을 조회합니다.
+                                    </p>
+                                </div>
+
+                                {comparisonLoading ? (
+                                    <div className="text-center py-8">
+                                        <div className="inline-block w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+                                        <p className="text-gray-500 text-sm">법원조직법 데이터를 불러오는 중...</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* 신구법 비교 결과 */}
+                                        {lawComparisonData ? (
+                                            <div className="space-y-4">
+                                                <h4 className="font-bold text-gray-800 text-sm flex items-center gap-2">
+                                                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                                    신구법 비교 조문
+                                                </h4>
+                                                {(() => {
+                                                    // 신구법 비교 데이터 파싱
+                                                    const articles = lawComparisonData?.법령?.조문 || lawComparisonData?.law?.articles || [];
+                                                    const articleList = Array.isArray(articles) ? articles : (articles ? [articles] : []);
+
+                                                    if (articleList.length === 0) {
+                                                        // 원본 데이터를 JSON으로 표시
+                                                        const dataStr = JSON.stringify(lawComparisonData, null, 2);
+                                                        const truncated = dataStr.length > 3000 ? dataStr.slice(0, 3000) + '...' : dataStr;
+                                                        return (
+                                                            <div className="bg-gray-50 rounded-lg p-4">
+                                                                <p className="text-sm text-gray-600 mb-2">API 응답 데이터:</p>
+                                                                <pre className="text-xs text-gray-700 overflow-x-auto whitespace-pre-wrap max-h-96 overflow-y-auto bg-white p-3 rounded border">{truncated}</pre>
+                                                            </div>
+                                                        );
+                                                    }
+
+                                                    return (
+                                                        <div className="grid md:grid-cols-2 gap-4">
+                                                            <div>
+                                                                <h5 className="text-sm font-bold text-red-700 mb-2 px-3 py-1 bg-red-50 rounded-lg">현행 (구법)</h5>
+                                                                <div className="space-y-2 max-h-96 overflow-y-auto">
+                                                                    {articleList.slice(0, 20).map((art, idx) => (
+                                                                        <div key={idx} className="bg-red-50/50 rounded-lg p-3 border border-red-100">
+                                                                            <p className="text-xs font-bold text-red-700 mb-1">{art['조문번호'] || art.조문번호 || `제${idx + 1}조`}</p>
+                                                                            <p className="text-xs text-gray-700 leading-relaxed">{art['조문내용_구'] || art['조문내용'] || art.content || ''}</p>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <h5 className="text-sm font-bold text-green-700 mb-2 px-3 py-1 bg-green-50 rounded-lg">개정 (신법)</h5>
+                                                                <div className="space-y-2 max-h-96 overflow-y-auto">
+                                                                    {articleList.slice(0, 20).map((art, idx) => (
+                                                                        <div key={idx} className="bg-green-50/50 rounded-lg p-3 border border-green-100">
+                                                                            <p className="text-xs font-bold text-green-700 mb-1">{art['조문번호'] || art.조문번호 || `제${idx + 1}조`}</p>
+                                                                            <p className="text-xs text-gray-700 leading-relaxed">{art['조문내용_신'] || art['개정내용'] || art.newContent || ''}</p>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })()}
+                                            </div>
+                                        ) : (
+                                            <div className="bg-gray-50 rounded-lg p-6 text-center">
+                                                <p className="text-gray-500 text-sm mb-2">신구법 비교 데이터를 불러오지 못했습니다.</p>
+                                                <a
+                                                    href="https://www.law.go.kr/법령/법원조직법"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-sm text-blue-600 hover:underline"
+                                                >
+                                                    국가법령정보센터에서 직접 확인 →
+                                                </a>
+                                            </div>
+                                        )}
+
+                                        {/* 변경이력 */}
+                                        {lawHistoryData && (
+                                            <div className="space-y-3">
+                                                <h4 className="font-bold text-gray-800 text-sm flex items-center gap-2">
+                                                    <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                                                    조문별 변경이력
+                                                </h4>
+                                                {(() => {
+                                                    const histStr = JSON.stringify(lawHistoryData, null, 2);
+                                                    const truncated = histStr.length > 2000 ? histStr.slice(0, 2000) + '...' : histStr;
+                                                    return (
+                                                        <div className="bg-amber-50 rounded-lg p-4">
+                                                            <pre className="text-xs text-gray-700 overflow-x-auto whitespace-pre-wrap max-h-64 overflow-y-auto bg-white p-3 rounded border">{truncated}</pre>
+                                                        </div>
+                                                    );
+                                                })()}
+                                            </div>
+                                        )}
+
+                                        {/* 외부 링크 */}
+                                        <div className="flex flex-wrap gap-3 pt-2">
+                                            <a
+                                                href="https://www.law.go.kr/법령/법원조직법"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg>
+                                                법원조직법 전문 보기
+                                            </a>
+                                            <a
+                                                href="/law-database"
+                                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                                            >
+                                                법령 데이터베이스 →
+                                            </a>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
 
                         </div>{/* 메인 컨텐츠 끝 */}
                     </div>{/* flex 컨테이너 끝 */}

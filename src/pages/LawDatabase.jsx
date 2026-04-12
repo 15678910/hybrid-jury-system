@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
-import { searchLaws, searchPrecedents, searchConstitutionalDecisions, searchLegalTerms } from '../lib/lawApi';
+import { searchLaws, searchPrecedents, searchConstitutionalDecisions, searchLegalTerms, searchLawInterpretations } from '../lib/lawApi';
 import SNSShareBar from '../components/SNSShareBar';
 
 // ============================================
@@ -457,7 +457,7 @@ export default function LawDatabase() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [activeTab, setActiveTab] = useState(() => {
         const tabParam = searchParams.get('tab');
-        const validTabs = ['laws', 'terms', 'timeline', 'constitutional', 'precedents', 'aiBrief'];
+        const validTabs = ['laws', 'terms', 'timeline', 'constitutional', 'precedents', 'aiBrief', 'interpretations'];
         return validTabs.includes(tabParam) ? tabParam : 'laws';
     });
 
@@ -480,6 +480,10 @@ export default function LawDatabase() {
     const [expandedTerm, setExpandedTerm] = useState(null);
     const [expandedDecision, setExpandedDecision] = useState(null);
     const [expandedBrief, setExpandedBrief] = useState(null);
+    const [interpretations, setInterpretations] = useState(null);
+    const [interpSearch, setInterpSearch] = useState('');
+    const [interpLoading, setInterpLoading] = useState(false);
+    const [expandedInterp, setExpandedInterp] = useState(null);
     // API 데이터 로드
     useEffect(() => {
         const fetchData = async () => {
@@ -501,6 +505,39 @@ export default function LawDatabase() {
         };
         fetchData();
     }, []);
+
+    // 법령해석례 기본 검색
+    useEffect(() => {
+        if (activeTab === 'interpretations' && !interpretations) {
+            handleInterpSearch('법원조직법');
+        }
+    }, [activeTab]);
+
+    const handleInterpSearch = async (query) => {
+        if (!query || query.trim() === '') return;
+        setInterpLoading(true);
+        setExpandedInterp(null);
+        try {
+            const data = await searchLawInterpretations(query.trim(), { display: 20 });
+            setInterpretations(data);
+        } catch (error) {
+            console.error('Interpretation search error:', error);
+        } finally {
+            setInterpLoading(false);
+        }
+    };
+
+    const getInterpretationList = () => {
+        if (!interpretations?.ExpcSearch?.expc) return [];
+        const expcs = interpretations.ExpcSearch.expc;
+        return (Array.isArray(expcs) ? expcs : [expcs]).map(e => ({
+            title: e['해석례제목'] || e.해석례제목 || '',
+            caseNumber: e['안건번호'] || e.안건번호 || '',
+            replyDate: e['회답일자'] || e.회답일자 || '',
+            fullText: e['해석례내용'] || e.해석례내용 || '',
+            link: e['해석례상세링크'] || e.해석례상세링크 || ''
+        }));
+    };
 
     // 판례 데이터 파싱
     const getPrecedentList = () => {
@@ -535,7 +572,8 @@ export default function LawDatabase() {
         { id: 'timeline', label: '법령 변천사', icon: '📅' },
         { id: 'constitutional', label: '헌재결정례', icon: '⚖️' },
         { id: 'precedents', label: '관련 판례', icon: '🔍' },
-        { id: 'aiBrief', label: 'AI 법률 브리프', icon: '🤖' }
+        { id: 'aiBrief', label: 'AI 법률 브리프', icon: '🤖' },
+        { id: 'interpretations', label: '법령해석례', icon: '📋' }
     ];
 
     return (
@@ -1078,6 +1116,120 @@ export default function LawDatabase() {
                                     )}
                                 </div>
                             ))}
+                        </div>
+                    )}
+
+                    {/* ========== Tab 7: 법령해석례 ========== */}
+                    {activeTab === 'interpretations' && (
+                        <div className="space-y-4">
+                            <div className="bg-white rounded-xl shadow-sm p-4 border-l-4 border-teal-500">
+                                <h2 className="font-bold text-gray-900 mb-1">법령해석례 검색</h2>
+                                <p className="text-sm text-gray-500">국가법령정보 OPEN API를 통한 법령해석례 검색</p>
+                            </div>
+
+                            {/* 검색 입력 */}
+                            <div className="bg-white rounded-xl shadow-sm p-4">
+                                <form onSubmit={(e) => { e.preventDefault(); handleInterpSearch(interpSearch); }} className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={interpSearch}
+                                        onChange={(e) => setInterpSearch(e.target.value)}
+                                        placeholder="검색어 입력 (예: 법원조직법, 참심제)"
+                                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={interpLoading}
+                                        className="px-5 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors disabled:opacity-50"
+                                    >
+                                        {interpLoading ? '검색 중...' : '검색'}
+                                    </button>
+                                </form>
+                                <div className="flex gap-2 mt-3">
+                                    {['법원조직법', '참심제', '배심제', '국민참여재판'].map(keyword => (
+                                        <button
+                                            key={keyword}
+                                            onClick={() => { setInterpSearch(keyword); handleInterpSearch(keyword); }}
+                                            className="px-3 py-1 text-xs bg-teal-50 text-teal-700 rounded-full hover:bg-teal-100 transition-colors"
+                                        >
+                                            {keyword}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 검색 결과 */}
+                            {interpLoading ? (
+                                <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+                                    <div className="inline-block w-8 h-8 border-3 border-teal-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+                                    <p className="text-gray-500">법령해석례를 검색하고 있습니다...</p>
+                                </div>
+                            ) : getInterpretationList().length > 0 ? (
+                                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                                    <div className="p-4 bg-teal-50 border-b">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="font-bold text-gray-900">
+                                                검색 결과 ({getInterpretationList().length}건)
+                                            </h3>
+                                            <span className="text-xs text-teal-600 bg-teal-100 px-2 py-1 rounded">API 실시간</span>
+                                        </div>
+                                    </div>
+                                    <div className="divide-y">
+                                        {getInterpretationList().map((interp, idx) => (
+                                            <div key={idx} className="overflow-hidden">
+                                                <button
+                                                    onClick={() => setExpandedInterp(expandedInterp === idx ? null : idx)}
+                                                    className="w-full p-4 text-left hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="font-medium text-gray-900 text-sm truncate">{interp.title || '(제목 없음)'}</p>
+                                                            <div className="flex items-center gap-3 mt-1">
+                                                                {interp.caseNumber && (
+                                                                    <span className="text-xs text-teal-700 bg-teal-50 px-2 py-0.5 rounded">{interp.caseNumber}</span>
+                                                                )}
+                                                                {interp.replyDate && (
+                                                                    <span className="text-xs text-gray-500">회답일: {interp.replyDate}</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <svg className={`w-5 h-5 text-gray-400 transition-transform shrink-0 ml-2 ${expandedInterp === idx ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                        </svg>
+                                                    </div>
+                                                </button>
+                                                {expandedInterp === idx && (
+                                                    <div className="px-4 pb-4">
+                                                        <div className="bg-gray-50 rounded-lg p-4">
+                                                            <p className="text-sm text-gray-800 whitespace-pre-line leading-relaxed">
+                                                                {interp.fullText || '본문을 불러올 수 없습니다. 아래 링크에서 확인해주세요.'}
+                                                            </p>
+                                                        </div>
+                                                        {interp.link && (
+                                                            <a
+                                                                href={interp.link.startsWith('http') ? interp.link : `https://www.law.go.kr${interp.link}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-1 mt-3 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                                            >
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                                </svg>
+                                                                해석례 전문 보기 →
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : interpretations && (
+                                <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+                                    <p className="text-gray-500 mb-2">검색 결과가 없습니다.</p>
+                                    <p className="text-sm text-gray-400">다른 검색어로 시도해보세요.</p>
+                                </div>
+                            )}
                         </div>
                     )}
 

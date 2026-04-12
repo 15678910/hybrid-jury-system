@@ -128,3 +128,23 @@ export async function searchLawInterpretations(query, options = {}) {
         page: options.page || 1
     });
 }
+
+// 신구법 비교 조회
+export async function getLawComparison(mst) {
+    return callLawApi({
+        target: 'law',
+        MST: mst,
+        type: 'JSON',
+        search: 5
+    });
+}
+
+// 조문별 변경이력 조회
+export async function getLawHistory(mst) {
+    return callLawApi({
+        target: 'law',
+        MST: mst,
+        type: 'JSON',
+        search: 2
+    });
+}
