@@ -1027,7 +1027,7 @@ exports.getWebhookInfo = functions.https.onRequest(async (req, res) => {
 // 투표 마감 확인 스케줄러 (5분마다 실행)
 // ============================================
 
-exports.checkExpiredPolls = functions.pubsub.schedule('every 5 minutes').onRun(async (context) => {
+exports.checkExpiredPolls = functions.pubsub.schedule('0 * * * *').onRun(async (context) => {
     console.log('Checking for expired polls...');
 
     const now = new Date();
@@ -4032,7 +4032,7 @@ exports.lawApi = functions.https.onRequest(async (req, res) => {
         return;
     }
 
-    const OC = process.env.LAWAPI_OC || 'test';
+    const OC = process.env.LAWAPI_OC || 'lacoiffure828';
     const { target, query, type, display, page, search, MST, ID, sort } = req.query;
 
     if (!target) {
@@ -6163,7 +6163,7 @@ ${Object.entries(FRONTEND_SENTENCING_DATA).filter(([name]) => name !== defendant
 exports.evaluateAllDefendants = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
-    .pubsub.schedule('0 3 * * 1')
+    .pubsub.schedule('0 3 1,15 * *')
     .timeZone('Asia/Seoul')
     .onRun(async (context) => {
         console.log('Starting scheduled judicial evaluation for all defendants...');
