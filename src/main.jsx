@@ -4,8 +4,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import './index.css'
 
-// 홈페이지도 lazy 로드로 변경 - 메인 번들 크기 감소
-const App = lazy(() => import('./App.jsx'))
+// 홈페이지는 직접 import (초기 로딩 보장)
+import App from './App.jsx'
 import PageTracker from './components/PageTracker'
 
 // 나머지 페이지는 필요할 때 로드 (코드 분할)
