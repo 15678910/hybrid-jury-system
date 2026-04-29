@@ -10,6 +10,37 @@ import SidebarNav from '../components/SidebarNav';
 // 판결 데이터 (기본 fallback)
 const DEFAULT_VERDICTS = [
     {
+        date: '2026.04.29',
+        defendant: '윤석열',
+        court: '서울고법 형사1부',
+        judge: '윤성식 부장판사',
+        charge: '체포방해, 직권남용, 허위공문서작성, 대통령기록물법 위반 (항소심)',
+        sentence: '징역 7년',
+        prosecution: '징역 10년 (특검)',
+        status: 'convicted',
+        detail: '1심 5년 → 항소심 7년 (2년 증가). "대통령으로서의 책무를 저버렸다"'
+    },
+    {
+        date: '2026.04.28',
+        defendant: '김건희',
+        court: '서울고법 형사15-2부',
+        charge: '도이치모터스 주가조작, 통일교 금품수수 (항소심)',
+        sentence: '징역 4년 (벌금 5천만원, 추징금 2,094만원)',
+        prosecution: '-',
+        status: 'convicted',
+        detail: '1심 1년 8개월 → 항소심 4년 (대폭 가중). 도이치 주가조작 일부 유죄(1심 무죄 뒤집음), 통일교 금품수수 전부 유죄, 정치자금법은 무죄 유지. 그라프 목걸이 몰수.'
+    },
+    {
+        date: '2026.04.27',
+        defendant: '박성재',
+        court: '서울중앙지법 (1심)',
+        charge: '내란중요임무종사 (형법 제87조)',
+        sentence: '미선고 (구형)',
+        prosecution: '징역 20년 (조은석 특검)',
+        status: 'pending',
+        detail: '특검: 위법한 계엄을 합법처럼 보이도록 법기술적 아이디어 제공. 박성재: "대통령 설득 실패에 책임감, 국민께 사죄". 선고일 2026.06.09 예정.'
+    },
+    {
         date: '2026.01.06',
         defendant: '윤석열',
         court: '서울중앙지법',
