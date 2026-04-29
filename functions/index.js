@@ -4157,7 +4157,7 @@ const extractStructuredVerdict = async (newsItems) => {
             }).join('\n\n');
         }
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
         const prompt = `다음은 내란 재판 관련 최신 뉴스 기사입니다. 기사에서 새로운 판결/선고 정보를 찾아서 구조화된 JSON 배열로 추출해주세요.
 
 뉴스 기사:
@@ -4186,7 +4186,33 @@ ${newsText}
 - 각 피고인별로 별도 항목으로 분리
 - status는 반드시 convicted/acquitted/partial/pending 중 하나`;
 
-        const result = await model.generateContent(prompt);
+        // 429 에러 대응: 최대 3회 재시도, 지수 백오프
+        let result;
+        let lastError;
+        for (let attempt = 0; attempt < 3; attempt++) {
+            try {
+                if (attempt > 0) {
+                    const waitMs = Math.pow(2, attempt) * 5000; // 10s, 20s
+                    console.log(`Retry ${attempt}/3 after ${waitMs}ms wait...`);
+                    await new Promise(r => setTimeout(r, waitMs));
+                }
+                result = await model.generateContent(prompt);
+                break;
+            } catch (err) {
+                lastError = err;
+                if (err.status === 429 || err.message?.includes('429')) {
+                    console.warn(`Rate limit hit (attempt ${attempt + 1}/3)`);
+                    continue;
+                }
+                throw err;
+            }
+        }
+
+        if (!result) {
+            console.error('Verdict extraction failed after retries:', lastError?.message);
+            return [];
+        }
+
         const text = result.response.text();
         const jsonMatch = text.match(/\[[\s\S]*\]/);
         if (jsonMatch) {
@@ -4203,7 +4229,7 @@ ${newsText}
 exports.crawlVerdictData = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
-    .pubsub.schedule('0 6,12,18 * * *')
+    .pubsub.schedule('0 9 * * *')
     .timeZone('Asia/Seoul')
     .onRun(async (context) => {
         console.log('Starting scheduled verdict data crawl...');
