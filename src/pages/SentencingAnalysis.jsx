@@ -8,34 +8,34 @@ import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIco
 import { JUDGES_DATA } from '../data/judges';
 import SidebarNav from '../components/SidebarNav';
 
-// 위키백과 공개 이미지 URL (Wikimedia Commons) + 정부 정책브리핑(korea.kr) 공식 사진
+// 인물 사진 (로컬 우선 — Wikimedia hotlink 차단 회피)
 const PERSON_PHOTOS = {
-    '곽종근': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Kwak_Jong-geun_in_November_2025.png/200px-Kwak_Jong-geun_in_November_2025.png',
-    '김건희': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Kim_Keon-hee_2024.jpg/200px-Kim_Keon-hee_2024.jpg',
+    '곽종근': '/곽종근.png',
+    '김건희': '/김건희.jpg',
     '김봉식': '/김봉식.png',
     '김용군': '/김용군.png',
-    '김용현': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Kim_Yong-hyun_%28_%EA%B9%80%EC%9A%A9%ED%98%84_%29_%282024%29_%28cropped%29.jpg/200px-Kim_Yong-hyun_%28_%EA%B9%80%EC%9A%A9%ED%98%84_%29_%282024%29_%28cropped%29.jpg',
+    '김용현': '/김용현.jpg',
     '김주현': '/김주현.png',
     '김태효': '/김태효.png',
-    '노상원': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/PD%EC%88%98%EC%B2%A9_%EB%85%B8%EC%83%81%EC%9B%90_%EC%82%AC%EC%A7%84.jpg/200px-PD%EC%88%98%EC%B2%A9_%EB%85%B8%EC%83%81%EC%9B%90_%EC%82%AC%EC%A7%84.jpg',
+    '노상원': '/노상원.jpg',
     '목현태': '/목현태.png',
     '문상호': '/문상호.png',
     '박성재': '/박성재.png',
-    '박안수': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/General_Park_An-su_%28_%EB%B0%95%EC%95%88%EC%88%98_%29%2C_Republic_of_Korea_chief_of_staff_of_the_army_during_the_Land_Forces_Pacific_Symposium_and_Exhibition_%28LANPAC%29_in_Honolulu%2C_Hawaii_on_May_15%2C_2024.jpg/200px-General_Park_An-su_%28_%EB%B0%95%EC%95%88%EC%88%98_%29%2C_Republic_of_Korea_chief_of_staff_of_the_army_during_the_Land_Forces_Pacific_Symposium_and_Exhibition_%28LANPAC%29_in_Honolulu%2C_Hawaii_on_May_15%2C_2024.jpg',
-    '박종준': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/%EB%B0%95%EC%A2%85%EC%A4%80.jpg/200px-%EB%B0%95%EC%A2%85%EC%A4%80.jpg',
-    '심우정': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Prosecutor_General_Shim_Woo-jung_20240926.jpg/200px-Prosecutor_General_Shim_Woo-jung_20240926.jpg',
-    '여인형': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Lieutenant_General_Yeo_In-hyung.png/200px-Lieutenant_General_Yeo_In-hyung.png',
-    '윤석열': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/South_Korea_President_Yoon_Suk_Yeol_portrait.jpg/200px-South_Korea_President_Yoon_Suk_Yeol_portrait.jpg',
+    '박안수': '/박안수.jpg',
+    '박종준': '/박종준.jpg',
+    '심우정': '/심우정.jpg',
+    '여인형': '/여인형.png',
+    '윤석열': '/윤석열.jpg',
     '윤승영': '/윤승영.png',
-    '이상민': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/%EC%9D%B4%EC%83%81%EB%AF%BC_20220128.jpg/200px-%EC%9D%B4%EC%83%81%EB%AF%BC_20220128.jpg',
+    '이상민': '/이상민.jpg',
     '이완규': '/이완규.png',
-    '이진우': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Lieutenant_General_Lee_Jin-woo.png/200px-Lieutenant_General_Lee_Jin-woo.png',
+    '이진우': '/이진우.png',
     '전성배': '/전성배.png',
-    '정진석': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/%EC%A0%95%EC%A7%84%EC%84%9D_%EA%B5%AD%ED%9A%8C%EB%B6%80%EC%9D%98%EC%9E%A5%2C_%EA%B5%90%EC%9C%A1%EC%A0%95%EC%83%81%ED%99%94%ED%8A%B9%EC%9C%84%C2%B7%EC%B6%A9%EC%B2%AD%EB%B0%9C%EC%A0%84%ED%8A%B9%EC%9C%84_%EB%B0%9C%EB%8C%80%EC%8B%9D_%EC%B0%B8%EC%84%9D_3_%28cropped%29.jpg/200px-%EC%A0%95%EC%A7%84%EC%84%9D_%EA%B5%AD%ED%9A%8C%EB%B6%80%EC%9D%98%EC%9E%A5%2C_%EA%B5%90%EC%9C%A1%EC%A0%95%EC%83%81%ED%99%94%ED%8A%B9%EC%9C%84%C2%B7%EC%B6%A9%EC%B2%AD%EB%B0%9C%EC%A0%84%ED%8A%B9%EC%9C%84_%EB%B0%9C%EB%8C%80%EC%8B%9D_%EC%B0%B8%EC%84%9D_3_%28cropped%29.jpg',
+    '정진석': '/정진석.png',
     '조지호': '/조지호.png',
-    '조태용': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Cho_Taeyong_in_2022_%28cropped%29.jpg/200px-Cho_Taeyong_in_2022_%28cropped%29.jpg',
+    '조태용': '/조태용.jpg',
     '최상목': '/최상목.png',
-    '추경호': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/%EC%B6%94%EA%B2%BD%ED%98%B8_%EB%B6%80%EC%B4%9D%EB%A6%AC_%EC%98%88%EB%B0%A9_%EB%B0%9B%EC%95%84_001_%28cropped%29.jpg/200px-%EC%B6%94%EA%B2%BD%ED%98%B8_%EB%B6%80%EC%B4%9D%EB%A6%AC_%EC%98%88%EB%B0%A9_%EB%B0%9B%EC%95%84_001_%28cropped%29.jpg',
+    '추경호': '/추경호.jpg',
     '한덕수': '/한덕수.png'
 };
 
