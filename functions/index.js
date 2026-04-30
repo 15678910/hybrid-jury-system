@@ -4355,17 +4355,27 @@ const runHealthCheck = async () => {
 
             // 외부 이미지 최대 5개만 샘플 체크 (시간 절약)
             const sampleImgs = externalImgs.slice(0, 5);
-            let brokenCount = 0;
+            const brokenImgs = [];
             for (const imgUrl of sampleImgs) {
                 try {
                     const imgRes = await fetch(imgUrl, { method: 'HEAD' });
-                    if (imgRes.status >= 400) brokenCount++;
+                    if (imgRes.status >= 400) brokenImgs.push(imgUrl);
                 } catch {
-                    brokenCount++;
+                    brokenImgs.push(imgUrl);
                 }
             }
-            if (brokenCount > 0) {
-                result.issues.push(`외부 이미지 ${brokenCount}/${sampleImgs.length}개 로드 실패`);
+            if (brokenImgs.length > 0) {
+                result.issues.push(`외부 이미지 ${brokenImgs.length}/${sampleImgs.length}개 로드 실패`);
+                result.brokenImages = brokenImgs;
+
+                // 자동 복구 시도: 위키미디어 등 알려진 호스트는 imageProxy 사용 권장
+                const recoverable = brokenImgs.filter(url =>
+                    /upload\.wikimedia\.org|commons\.wikimedia\.org|wikipedia\.org/.test(url)
+                );
+                if (recoverable.length > 0) {
+                    result.autoFixSuggestion = `imageProxy URL 사용: /imageProxy?url=<원본URL>`;
+                    result.recoverableImages = recoverable;
+                }
             }
         } catch (err) {
             result.status = 'ERROR';
@@ -4391,8 +4401,20 @@ const runHealthCheck = async () => {
                 if (r.issues.length === 0) {
                     return `✅ ${r.name}`;
                 }
-                return `❌ <b>${r.name}</b>\n   ${r.issues.join('\n   ')}\n   ${r.url}`;
+                let line = `❌ <b>${r.name}</b>\n   ${r.issues.join('\n   ')}\n   ${r.url}`;
+                if (r.autoFixSuggestion) {
+                    line += `\n   🔧 자동 복구 가능: ${r.recoverableImages?.length || 0}개`;
+                    line += `\n   👉 imageProxy 함수로 자동 우회 가능`;
+                }
+                return line;
             }).join('\n\n');
+
+        // 자동 복구 가능 항목이 있으면 안내
+        const totalRecoverable = results.reduce((sum, r) => sum + (r.recoverableImages?.length || 0), 0);
+        if (totalRecoverable > 0) {
+            telegramMsg += `\n\n💡 <b>자동 복구</b>: 깨진 이미지 ${totalRecoverable}개를 imageProxy로 즉시 우회 가능합니다.\n` +
+                `   "이미지 자동 복구해줘" 메시지를 보내거나 코드에서 imageProxy URL을 사용하세요.`;
+        }
     }
 
     try {
@@ -4404,6 +4426,75 @@ const runHealthCheck = async () => {
 
     return results;
 };
+
+// ========== 이미지 프록시 (외부 이미지 핫링크 차단 자동 복구) ==========
+// 사용법: <img src="/imageProxy?url=https://upload.wikimedia.org/...">
+// 또는: https://us-central1-siminbupjung-blog.cloudfunctions.net/imageProxy?url=...
+exports.imageProxy = functions.https.onRequest(async (req, res) => {
+    setCorsHeaders(req, res);
+
+    if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+    }
+
+    const targetUrl = req.query.url;
+    if (!targetUrl || typeof targetUrl !== 'string') {
+        return res.status(400).json({ error: 'url query parameter is required' });
+    }
+
+    // 보안: 허용된 도메인만 (남용 방지)
+    const ALLOWED_HOSTS = [
+        'upload.wikimedia.org',
+        'commons.wikimedia.org',
+        'ko.wikipedia.org',
+        'en.wikipedia.org',
+        'www.korea.kr',
+        'i.namu.wiki'
+    ];
+
+    let parsedUrl;
+    try {
+        parsedUrl = new URL(targetUrl);
+    } catch {
+        return res.status(400).json({ error: 'Invalid URL' });
+    }
+
+    if (!ALLOWED_HOSTS.some(host => parsedUrl.hostname.endsWith(host))) {
+        return res.status(403).json({ error: 'Domain not allowed', allowed: ALLOWED_HOSTS });
+    }
+
+    try {
+        // Wikimedia 등은 적절한 User-Agent 필수
+        const response = await fetch(targetUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (compatible; SiminbupjungBot/1.0; lacoiffure828@gmail.com) ImageProxy/1.0',
+                'Accept': 'image/*'
+            }
+        });
+
+        if (!response.ok) {
+            return res.status(response.status).json({
+                error: `Upstream returned ${response.status}`
+            });
+        }
+
+        const contentType = response.headers.get('content-type') || 'image/jpeg';
+        if (!contentType.startsWith('image/')) {
+            return res.status(400).json({ error: 'URL did not return an image' });
+        }
+
+        const buffer = await response.arrayBuffer();
+
+        // 캐시 헤더: 30일 (이미지는 거의 변하지 않음)
+        res.set('Content-Type', contentType);
+        res.set('Cache-Control', 'public, max-age=2592000, immutable');
+        res.send(Buffer.from(buffer));
+    } catch (err) {
+        console.error('Image proxy error:', err);
+        res.status(502).json({ error: 'Failed to fetch image', message: err.message });
+    }
+});
 
 // 헬스체크 수동 트리거 (테스트용)
 exports.triggerHealthCheck = functions
