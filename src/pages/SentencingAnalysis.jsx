@@ -97,16 +97,39 @@ const personsData = {
                 '그라프 목걸이(약 6,220만원 상당) 몰수'
             ]
         },
+        appealSentencing: {
+            totalSentence: '징역 4년',
+            fine: '벌금 5,000만원 (자본시장법 위반)',
+            surcharge: '추징금 2,094만원 (몰수 불가 금품 가액 — 샤넬백 2건)',
+            confiscation: '그라프 다이아몬드 목걸이 1개 몰수 (6,220만원 상당)',
+            judgeName: '신종오 부장판사 (재판장)',
+            judges: '신종오(재판장), 성언주, 원익선',
+            aggravatingFactors: [
+                '죄책을 인정하지 않고 변명으로 일관',
+                '시세조종으로 적지 않은 이익 취득',
+                '대통령 배우자 지위를 이용하여 국정 투명성 훼손',
+                '국론 분열 초래'
+            ],
+            mitigatingFactors: [
+                '범죄 전력 없음',
+                '시세조종을 주도하지 않음',
+                '금품을 적극 요구하지 않음',
+                '청탁 내용을 대통령에게 전달하지 않음',
+                '일부 자책하고 반성하는 태도'
+            ]
+        },
         charges: [
             {
                 id: 1,
-                name: '도이치모터스 주가조작',
+                name: '도이치모터스 주가조작 (시세조종)',
                 law: '자본시장법 위반',
                 period: '2010.10 ~ 2012.12',
-                amount: '8억 1,000만원 부당이득',
+                amount: '20억원 계좌 위탁, 수익 6:4 배분 약정',
                 prosecutionRequest: '징역 11년 (일부)',
-                verdict: '무죄',
-                reason: '공동정범 요건 불성립'
+                verdict: '1심 무죄 → 항소심 일부 유죄',
+                appealChange: '무죄→유죄',
+                reason: '1심: 공동정범 요건 불성립 / 항소심: 포괄일죄 인정으로 공소시효 해소, 20억원 계좌 위탁·40% 수익약정·통정매매 13만 9,383주를 근거로 공동정범 인정',
+                appealDetail: '재판부: "시세조종행위에 대해 공동 가공의 의사를 갖고 기능적 행위지배를 통해 가담한 것으로 인정된다"'
             },
             {
                 id: 2,
@@ -115,18 +138,22 @@ const personsData = {
                 period: '2021.6 ~ 2022.3',
                 amount: '58회, 2억 7,000만원 상당',
                 prosecutionRequest: '징역 4년',
-                verdict: '무죄',
-                reason: '명태균 진술 신빙성 부족'
+                verdict: '1심 무죄 → 항소심 무죄 유지',
+                appealChange: '무죄유지',
+                reason: '1심: 명태균 진술 신빙성 부족 / 항소심: 여론조사가 여러 사람에게 배포된 것으로 전속적 이익 공여 불인정',
+                appealDetail: '재판부: 명태균이 영업활동 일환으로 여러 사람에게 배포한 것이므로 특정 재산상 이익을 줬다고 보기 어렵다'
             },
             {
                 id: 3,
-                name: '통일교 금품 수수',
+                name: '통일교 금품 수수 (3건)',
                 law: '특정범죄가중처벌법 알선수재',
                 period: '2022.4 ~ 2022.7',
-                amount: '다이아몬드 목걸이, 샤넬백 등 8,000만원',
+                amount: '샤넬백 802만원(4/7) + 샤넬백 1,271만원(7/5) + 그라프 목걸이 6,220만원(7/29) = 총 약 8,293만원',
                 prosecutionRequest: '징역 11년 (일부)',
-                verdict: '유죄 - 징역 1년 8개월',
-                reason: '영부인 지위로 영리 추구'
+                verdict: '1심 일부 유죄(2건) → 항소심 전부 유죄(3건)',
+                appealChange: '유죄확대',
+                reason: '1심: 4/7 샤넬백은 구체적 청탁 부재로 무죄 / 항소심: 4/7 샤넬백 수령 시 묵시적 청탁 의사 존재를 인식했다고 판단, 3건 포괄일죄로 전부 유죄',
+                appealDetail: '재판부: "대통령 배우자는 대통령 못지않은 청렴성과 도덕성이 요구된다. 알선수재 행위를 해 국민의 신뢰를 저버렸다"'
             },
             {
                 id: 4,
@@ -135,7 +162,8 @@ const personsData = {
                 period: '2021.6 ~ 2022.3',
                 amount: '명태균 무상 여론조사 58회, 2억 7,000만원 + 허위사실 공표',
                 prosecutionRequest: '특검, 윤석열 불구속 기소 (공직선거법·정치자금법 위반)',
-                verdict: '정치자금법 위반: 김건희 무죄 (1심) / 윤석열: 재판 진행 중',
+                verdict: '정치자금법 위반: 김건희 무죄 (1심·항소심) / 윤석열: 재판 진행 중',
+                appealChange: '무죄유지',
                 reason: '유죄 확정 시 당선무효(벌금 100만원 이상) → 국민의힘 선거보조금 약 400억원 반환'
             }
         ],
@@ -156,34 +184,34 @@ const personsData = {
             {
                 crime: '주가조작 (자본시장법 위반)',
                 standardRange: '3년~5년',
-                aggravating: ['조직적 범행', '불법수익 5억원 이상'],
-                mitigating: ['초범', '처벌전력 없음'],
-                verdict: '무죄',
-                analysis: '재판부는 공동정범 요건이 성립하지 않는다고 판단'
+                aggravating: ['조직적 범행', '불법수익 5억원 이상', '20억원 계좌 위탁 및 통정매매'],
+                mitigating: ['초범', '처벌전력 없음', '시세조종 주도하지 않음'],
+                verdict: '1심 무죄 → 항소심 일부 유죄',
+                analysis: '1심은 공동정범 요건 불성립으로 무죄. 항소심은 포괄일죄 인정으로 공소시효 해소하고, 20억원 계좌·40% 수익약정·13만 9,383주 통정매매를 근거로 공동정범 인정'
             },
             {
                 crime: '정치자금법 위반',
                 standardRange: '2년~4년',
                 aggravating: ['반복적 범행', '선거 영향력 행사 시도'],
-                mitigating: ['대가성 불인정'],
-                verdict: '무죄',
-                analysis: '명태균 진술의 신빙성 부족으로 무죄'
+                mitigating: ['대가성 불인정', '전속적 이익 공여 불인정'],
+                verdict: '1심·항소심 모두 무죄',
+                analysis: '1심: 명태균 진술의 신빙성 부족. 항소심: 여론조사가 여러 사람에게 배포된 영업활동 일환으로 특정 재산상 이익 공여 불인정'
             },
             {
                 crime: '알선수재 (특정범죄가중처벌법)',
                 standardRange: '3년~7년',
-                aggravating: ['공무원의 배우자 지위 이용', '금품 수수'],
-                mitigating: ['초범'],
-                verdict: '유죄 - 징역 1년 8개월',
-                analysis: '영부인 지위를 이용한 영리 추구로 실형 선고'
+                aggravating: ['공무원의 배우자 지위 이용', '금품 수수 3건', '국정 투명성 훼손'],
+                mitigating: ['초범', '금품 적극 요구하지 않음', '청탁 내용 대통령에게 미전달'],
+                verdict: '1심 일부 유죄(2건) → 항소심 전부 유죄(3건)',
+                analysis: '1심: 4/7 샤넬백 무죄(청탁 부재), 7/5·7/29 유죄. 항소심: 4/7 샤넬백도 묵시적 청탁 인식 인정하여 3건 전부 유죄, 포괄일죄 처리'
             },
             {
                 crime: '공직선거법 위반·정치자금법 위반 (윤석열 관련)',
                 standardRange: '벌금 100만원 이상 시 당선무효',
                 aggravating: ['대선 과정 허위사실 공표', '2억 7천만원 상당 불법 여론조사 수수'],
-                mitigating: ['김건희 1심 정치자금법 무죄 판결'],
+                mitigating: ['김건희 1심·항소심 정치자금법 무죄 판결'],
                 verdict: '윤석열 재판 진행 중',
-                analysis: '김건희 정치자금법 무죄 판결이 윤석열 재판에 미칠 영향 주목. 유죄 시 당선무효·선거보조금 반환'
+                analysis: '김건희 정치자금법 무죄 유지로 윤석열 당선무효 차단 효과 지속. 유죄 시 당선무효·선거보조금 반환'
             }
         ],
         judgeHistory: {
@@ -262,6 +290,15 @@ const personsData = {
                 }
             ],
             profile: '제39회 사법시험 합격, 사법연수원 29기(2000년 수료). 서울대 법대 졸업. 2003년 창원지법 판사로 시작, 대법원 재판연구관(2012-2014), 청주지법·수원지법·서울서부지법 부장판사 역임. 2024년 서울중앙지법 형사합의27부 재판장. 2019년 서울지방변호사회 우수법관 선정. 한국형사판례연구회 부회장.'
+        },
+        appealJudgeHistory: {
+            judgeName: '신종오',
+            position: '서울고등법원 형사15-2부 재판장 (사법연수원 27기)',
+            judges: [
+                { name: '신종오', role: '재판장', background: '서울대 졸업, 사법연수원 27기, 55세' },
+                { name: '성언주', role: '배석판사', background: '고려대 법학과, 사법연수원 30기, 51세' },
+                { name: '원익선', role: '배석판사', background: '성균관대 법학과, 사법연수원 26기, 59세' }
+            ]
         },
         keyIssues: [
             {
@@ -560,27 +597,90 @@ const personsData = {
                 id: 1,
                 name: '내란중요임무종사',
                 law: '형법 제87조',
-                description: '2025.12.11 기소 — 위법한 계엄을 합법처럼 보이게 한 법기술적 아이디어 제공',
+                description: '위법한 계엄을 합법처럼 보이게 한 법기술적 아이디어 제공 — 국무회의 직후 참석자 명단 작성과 서명 언급',
                 prosecutionRequest: '징역 20년 (조은석 특검, 2026.4.27)',
                 verdict: '선고 예정 (2026.6.9)',
-                reason: '특검: "국무회의 직후 참석자 명단 작성과 서명을 언급해 사후적으로 합법성을 갖추도록 함". 박성재 최후진술: "그 상황을 막지 못하고 대통령 설득에 실패한 데 대해 많은 책임감을 느끼고 있다. 국민께 충격과 실망을 드려 대단히 죄송하다"'
+                reason: '특검: "법무부 장관은 법질서 수호의 최고 책임자임에도, 법의 이름으로 법을 파괴한 법 파괴 기술자". 박성재 최후진술: "그 상황을 막지 못하고 대통령 설득에 실패한 데 대해 많은 책임감을 느끼고 있다. 국민께 충격과 실망을 드려 대단히 죄송하다"'
+            },
+            {
+                id: 2,
+                name: '직권남용권리행사방해',
+                law: '형법 제123조',
+                description: '교정본부에 구치소 수용 여력 파악 지시, 검사 파견 검토 지시, 여권 제한 조치 대기 명령',
+                prosecutionRequest: '징역 20년에 포함 (병합 구형)',
+                verdict: '선고 예정 (2026.6.9)',
+                reason: '비상계엄 선포 직후 교정본부에 구치소 수용 여력 파악 지시 — 반대세력 검거·구금 준비 행위로 특검 해석'
+            },
+            {
+                id: 3,
+                name: '청탁금지법 위반 (김건희 수사 무마)',
+                law: '부정청탁 및 금품등 수수의 금지에 관한 법률',
+                description: '텔레그램으로 김건희 여사의 청탁을 수용, 서울중앙지검 특수수사팀 구성 조정',
+                prosecutionRequest: '징역 20년에 포함 (병합 구형)',
+                verdict: '선고 예정 (2026.6.9)',
+                reason: '특검: "적극적인 권력형 유착". 김건희 증인신문에서 핵심 질문에 대부분 증언 거부'
             }
         ],
         summary: {
-            prosecutionTotal: '징역 20년 (특검 구형, 2026.4.27)',
+            prosecutionTotal: '징역 20년 (내란중요임무종사·직권남용·청탁금지법 병합 구형, 2026.4.27)',
             verdictTotal: '선고 예정 (2026.6.9)',
             ratio: '-'
         },
         keyFacts: [
-            '비상계엄 당시 법무부 장관, 내란중요임무종사 혐의 기소 (2025.12.11)',
-            '12.4 안가회동(삼청동 안전가옥) 참석 — 계엄 사후 수습 논의',
-            '구치소 수용 확보: 체포 대상자 수용을 위한 구치소 수용 확보 지시 의혹',
-            '법무부 장관으로서 계엄 관련 법적 절차 지원 역할',
-            '특검 징역 20년 구형 (2026.4.27) — 위법한 계엄을 합법처럼 보이도록 한 법기술적 아이디어 제공',
-            '최후진술에서 눈물 흘리며 사죄: "대통령 설득 실패에 책임감"',
-            '선고 예정일: 2026년 6월 9일 오후 2시'
+            '비상계엄 당시 법무부 장관, 내란중요임무종사·직권남용·청탁금지법 위반 혐의 기소 (2025.12.11)',
+            '12.4 안가회동(삼청동 안전가옥) 참석 — 실패한 계엄의 사후 대책 논의',
+            '구치소 수용 여력 파악 지시 — 반대세력 검거·구금 준비 행위',
+            '국무회의 직후 "참석자 명단 작성과 서명" 언급 — 위법한 계엄의 사후 합법성 부여',
+            '검사 파견 검토 지시 + 여권 제한 조치 대기 명령',
+            '김건희 수사 무마 — 텔레그램으로 청탁 수용, 특수수사팀 구성 조정',
+            '특검 징역 20년 구형 (2026.4.27) — "법의 이름으로 법을 파괴한 법 파괴 기술자"',
+            '최후진술에서 눈물 흘리며 사죄 (혐의 자체는 부인), 퇴정 후 특검 후배 검사들에게 "그렇게 살지 말라" 발언',
+            '선고 예정일: 2026년 6월 9일 오후 2시',
+            '이완규 전 법제처장 동일 사건 병합 심리 — 징역 3년 구형'
         ],
-        trialStatus: '1심 결심 완료, 선고 예정 (2026.6.9)'
+        trialStatus: '1심 결심 완료, 선고 예정 (2026.6.9)',
+        judge: '이진관 부장판사 (서울중앙지법 형사합의33부)',
+        prosecutionDetail: {
+            prosecutor: '정재인 검사 (6년차)',
+            requestDate: '2026.4.27',
+            keyArguments: [
+                '사후 합법성 부여: 국무회의 직후 참석자 명단 작성과 서명 언급 — 법기술적 아이디어 제공',
+                '구치소 수용 확보: 교정본부에 수용 여력 파악 지시 — 반대세력 검거·구금 준비',
+                '검사 파견 검토: 법무부 검찰국·교정본부·출입국본부에 검사 파견 검토 지시',
+                '여권 제한 대기: 계엄 선포 직후 여권 제한 관련 대기 조치 지시',
+                '김건희 수사 무마: 텔레그램으로 청탁 수용, 특수수사팀 구성 조정',
+                '"법무부 장관은 법질서 수호의 최고 책임자임에도, 법의 이름으로 법을 파괴한 법 파괴 기술자에게 경종을 울려야 한다"'
+            ]
+        },
+        keyIssues: [
+            {
+                title: '만류 시도 vs. 내란 가담',
+                description: '박성재 측은 "이 상황이 계엄으로 해결할 일이냐"며 적극 반대·만류했다고 주장. 특검은 구치소 확보 지시, 합법성 사후 부여 등이 만류가 아닌 적극 가담의 증거라고 반박',
+                opinion: {
+                    prosecution: '구치소 수용 여력 파악, 검사 파견 검토 등 구체적 후속 조치가 만류와 모순',
+                    defense: '계엄 결정에 반대했으나 이미 선포된 상황에서 법무부 장관으로서 직무 수행',
+                    court: '선고 예정 (2026.6.9)'
+                }
+            },
+            {
+                title: '안가회동(삼청동 안전가옥) 참석 의미',
+                description: '12.4 국무회의 후 삼청동 안전가옥 모임 참석. 특검은 실패한 비상계엄의 정당성을 만들고 사후 대책 논의 자리라고 주장. 이완규 전 법제처장은 "대통령이 왜 계엄을 선포했는지 묻기만 했다"고 진술',
+                opinion: {
+                    prosecution: '사후 대책 논의 = 내란 가담의 연장',
+                    defense: '상황 파악 목적의 모임, 내란 가담 아님',
+                    court: '선고 예정 (2026.6.9)'
+                }
+            },
+            {
+                title: '김건희 수사 무마와 권력형 유착',
+                description: '텔레그램으로 김건희 여사의 청탁을 수용하여 서울중앙지검 특수수사팀 구성을 조정한 혐의. 김건희 증인신문에서 핵심 질문에 대부분 증언 거부',
+                opinion: {
+                    prosecution: '"적극적인 권력형 유착" — 법무부 장관이 대통령 배우자의 수사를 무마',
+                    defense: '인사권 행사의 일환이며 수사 무마 의도 없음',
+                    court: '선고 예정 (2026.6.9)'
+                }
+            }
+        ]
     },
     '박종준': {
         id: 'parkjongjun',
@@ -675,7 +775,7 @@ const personsData = {
     '윤석열': {
         id: 'yoon',
         name: '윤석열',
-        position: '대통령 (직무정지)',
+        position: '전 대통령 (파면)',
         status: '구속',
         statusColor: 'red',
         court: '서울중앙지방법원',
@@ -695,43 +795,54 @@ const personsData = {
                 law: '형법 제144조 등',
                 description: '공수처 체포영장 집행 방해, 국무회의 심의권 침해, 허위공문서 작성 등',
                 prosecutionRequest: '징역 10년 (특검 구형)',
-                verdict: '항소심 징역 7년 (2026.4.29 선고) - 1심 5년에서 가중',
-                reason: '서울고법 형사1부(윤성식 부장판사): "현직 대통령으로서 헌법을 준수하고 국가를 보위하며 국민의 자유와 권리를 증진해야 할 막중한 책임을 부담했음에도, 사회적 혼란을 더욱 가중하는 등 대통령으로서의 책무를 저버린 것으로 볼 수밖에 없다"'
+                verdict: '1심 징역 5년 → 항소심 징역 7년 (2026.4.29 선고)',
+                reason: '서울고법 형사1부(윤성식 부장판사): "현직 대통령으로서 헌법 준수·국가 보위·국민 자유와 권리 증진의 막중한 책임에도, 사회적 혼란을 가중하는 등 대통령으로서의 책무를 저버렸다". 1심 무죄였던 국무위원 2인 심의권 침해(직권남용), 외신비서관 허위보도 대응 지침 배포 지시도 유죄로 뒤집힘. 경호처 공무원을 "사병처럼 동원"했다고 지적'
             },
             {
                 id: 3,
                 name: '일반이적',
                 law: '형법 제93조',
-                description: '2025.11.10 기소',
+                description: '2024년 평양 무인기 침투 작전 주도 — 일반이적, 직권남용권리행사방해. 2025.11.10 기소',
                 prosecutionRequest: '조사 중',
-                verdict: '재판 진행 중',
-                reason: '-'
+                verdict: '재판 중단 (재판부 기피신청)',
+                reason: '김용현 측 변호인이 재판부 기피신청 제출하여 재판 중단 상태'
             },
             {
                 id: 4,
                 name: '위증',
                 law: '형법 제152조',
-                description: '2025.12.4 기소',
-                prosecutionRequest: '조사 중',
-                verdict: '재판 진행 중',
-                reason: '-'
+                description: '한덕수 전 총리 내란 재판(2025.11.19)에서 허위 증언. 2025.12.4 기소',
+                prosecutionRequest: '징역 2년 (특검 구형, 2026.4.16)',
+                verdict: '선고 예정 (2026.5.28)',
+                reason: '"한덕수 건의 전부터 국무회의를 계획한 것처럼" 허위 증언한 혐의'
+            },
+            {
+                id: 5,
+                name: '공직선거법·정치자금법 위반',
+                law: '공직선거법 위반 (허위사실 공표), 정치자금법 위반',
+                description: '대선 과정 허위사실 공표, 불법 선거비용 관련. 2026.3.23 1차 공판',
+                prosecutionRequest: '재판 진행 중',
+                verdict: '재판 진행 중 (증인신문 단계)',
+                reason: '서울중앙지법 형사합의21부(조순표 부장판사). 유죄 확정 시 당선무효 → 국민의힘 대선비용 약 397억원 반환 의무'
             }
         ],
         summary: {
-            prosecutionTotal: '내란수괴: 사형 구형 + 특수공무집행방해 등: 징역 10년 구형',
-            verdictTotal: '내란수괴: 무기징역 (2026.2.19 1심) + 체포방해 등: 징역 7년 (2026.4.29 항소심, 1심 5년에서 가중)',
-            ratio: '체포방해 항소심에서 형량 2년 증가 — "대통령으로서 책무 저버림"'
+            prosecutionTotal: '내란수괴: 사형 + 체포방해: 징역 10년 + 위증: 징역 2년 + 공직선거법·정치자금법: 재판 중',
+            verdictTotal: '내란수괴: 무기징역 (1심, 항소심 진행 중) + 체포방해: 징역 7년 (항소심) + 위증: 5/28 선고 예정',
+            ratio: '체포방해 항소심 형량 2년 증가(5년→7년) — "대통령으로서 책무 저버림". 내란수괴 항소심 진행 중'
         },
         keyFacts: [
             '대한민국 헌정사상 최초 현직 대통령 구속',
             '2024.12.3 비상계엄 선포',
             '2025.1.15 공수처 체포, 2025.4.4 헌재 탄핵 인용 (파면)',
-            '체포방해 등 1심 징역 5년 선고 (2026.1.16)',
-            '내란수괴 사형 구형 (2026.1.13)',
-            '2026.2.19 1심 선고: 무기징역 — "성경을 읽는다는 이유로 촛불을 훔칠 수는 없다"'
+            '체포방해 1심 징역 5년 (2026.1.16) → 항소심 징역 7년 (2026.4.29)',
+            '내란수괴 사형 구형 (2026.1.13) → 1심 무기징역 (2026.2.19)',
+            '내란수괴 항소심 2026.4.27 개시 — 서울고법 형사12-1부(이승철 재판장)',
+            '위증 징역 2년 구형 (2026.4.16) — 5/28 선고 예정',
+            '공직선거법 재판 진행 중 — 유죄 시 당선무효·선거보조금 397억원 반환'
         ],
         verdictDate: '2026년 2월 19일',
-        trialStatus: '1심 선고: 내란수괴 무기징역 (2026.2.19) + 체포방해 징역 5년 (2026.1.16)',
+        trialStatus: '내란수괴 항소심 진행 중 (2026.4.27 개시, 매주 목요일 7/23까지) + 체포방해 항소심 징역 7년 확정 (상고 예정) + 위증 5/28 선고 예정',
         sentencingGuidelines: [
             {
                 crime: '내란수괴 (형법 제87조)',
@@ -744,10 +855,10 @@ const personsData = {
             {
                 crime: '특수공무집행방해 (형법 제144조)',
                 standardRange: '5년 이상의 유기징역',
-                aggravating: ['공수처 체포영장 집행 조직적 방해', '경호처 동원하여 법 집행 차단'],
+                aggravating: ['공수처 체포영장 집행 조직적 방해', '경호처 동원하여 법 집행 차단 — "사병처럼 동원"', '1심 무죄 2건 항소심 유죄 전환 (국무위원 심의권 침해, 허위보도 대응 지시)', '법치주의 원칙 훼손'],
                 mitigating: ['최종적으로 체포에 응함'],
-                verdict: '유죄 - 징역 5년 (2026.1.16)',
-                analysis: '공수처 체포영장 집행 방해, 국무회의 심의권 침해'
+                verdict: '1심 징역 5년 → 항소심 징역 7년 (2년 가중)',
+                analysis: '항소심에서 1심 무죄 2건을 유죄로 뒤집고 형량 2년 가중. 재판부: "대통령으로서의 책무를 저버렸다", "법원이 발부한 영장 집행을 물리력으로 저지하려 한 것은 법치주의 원칙에 비춰 허용될 수 없다"'
             }
         ],
         judgeHistory: {
@@ -762,6 +873,24 @@ const personsData = {
                 }
             ],
             profile: '사법연수원 25기. 서울중앙지법 형사합의25부 부장판사. 내란 사건 1심 전담 재판장.'
+        },
+        appealHistory: {
+            insurrection: {
+                court: '서울고등법원 형사12-1부',
+                judges: '이승철(재판장), 조진구, 김민아',
+                firstHearing: '2026.4.27 (공판준비기일)',
+                schedule: '매주 목요일, 2026.7.23까지 공판 기일 지정',
+                nextHearing: '2026.5.7 (2차 준비기일), 2026.5.14 (첫 정식 공판)',
+                issues: '김용현 측 위헌법률심판제청 신청 — 재판부 "재판 중단 없을 것"'
+            },
+            obstruction: {
+                court: '서울고등법원 형사1부',
+                judge: '윤성식 부장판사',
+                verdict: '징역 7년 (1심 5년에서 가중)',
+                date: '2026.4.29',
+                reversedAcquittals: '국무위원 2인 심의권 침해(직권남용) + 외신비서관 허위보도 대응 지시 — 1심 무죄에서 유죄 전환',
+                keyQuote: '"대통령으로서의 책무를 저버렸다", "경호처 공무원을 사병처럼 동원"'
+            }
         },
         keyIssues: [
             {
@@ -2642,9 +2771,11 @@ export default function SentencingAnalysis() {
                     id: idx + 1,
                     name: clean(c.name) || staticCharge.name,
                     law: clean(c.law) || staticCharge.law,
-                    verdict: cleanVerdict(c.verdict) || staticCharge.verdict || '재판 진행 중',
+                    verdict: staticCharge.verdict || cleanVerdict(c.verdict) || '재판 진행 중',
                     prosecutionRequest: clean(c.sentence) || clean(c.prosecutionRequest) || staticCharge.prosecutionRequest || '조사 중',
-                    reason: staticCharge.reason || '-'
+                    reason: staticCharge.reason || '-',
+                    appealChange: staticCharge.appealChange || null,
+                    appealDetail: staticCharge.appealDetail || null
                 };
             }) : staticData.charges);
 
@@ -3040,14 +3171,23 @@ export default function SentencingAnalysis() {
                                                 <p className="text-sm text-gray-500">{charge.law}</p>
                                             </div>
                                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                                charge.verdict === '무죄'
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : charge.verdict.includes('유죄')
-                                                    ? 'bg-red-100 text-red-700'
+                                                charge.appealChange === '무죄→유죄' ? 'bg-orange-100 text-orange-700'
+                                                    : charge.appealChange === '유죄확대' ? 'bg-red-100 text-red-700'
+                                                    : charge.appealChange === '무죄유지' ? 'bg-green-100 text-green-700'
+                                                    : charge.verdict === '무죄' ? 'bg-green-100 text-green-700'
+                                                    : charge.verdict.includes('유죄') ? 'bg-red-100 text-red-700'
+                                                    : charge.verdict.includes('선고 예정') ? 'bg-blue-100 text-blue-700'
+                                                    : charge.verdict.includes('중단') ? 'bg-gray-100 text-gray-600'
                                                     : 'bg-yellow-100 text-yellow-700'
                                             }`}>
-                                                {charge.verdict === '재판 진행 중' ? '심리 중' :
-                                                 charge.verdict.includes('유죄') ? '유죄' : charge.verdict}
+                                                {charge.appealChange === '무죄→유죄' ? '항소심 유죄 전환'
+                                                    : charge.appealChange === '유죄확대' ? '항소심 유죄 확대'
+                                                    : charge.appealChange === '무죄유지' ? '무죄 유지'
+                                                    : charge.verdict === '재판 진행 중' ? '심리 중'
+                                                    : charge.verdict.includes('선고 예정') ? '선고 예정'
+                                                    : charge.verdict.includes('중단') ? '재판 중단'
+                                                    : charge.verdict.includes('유죄') ? '유죄'
+                                                    : charge.verdict}
                                             </span>
                                         </div>
                                     ))}
@@ -3062,19 +3202,23 @@ export default function SentencingAnalysis() {
                             {person.charges.map(charge => (
                                 <div key={charge.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
                                     <div className={`p-4 ${
-                                        charge.verdict === '무죄'
-                                            ? 'bg-green-50'
-                                            : charge.verdict.includes('유죄')
-                                            ? 'bg-red-50'
+                                        charge.appealChange === '무죄→유죄' ? 'bg-orange-50'
+                                            : charge.appealChange === '유죄확대' ? 'bg-red-50'
+                                            : charge.appealChange === '무죄유지' ? 'bg-green-50'
+                                            : charge.verdict === '무죄' ? 'bg-green-50'
+                                            : charge.verdict.includes('유죄') ? 'bg-red-50'
+                                            : charge.verdict.includes('선고 예정') ? 'bg-blue-50'
                                             : 'bg-yellow-50'
                                     }`}>
                                         <div className="flex items-center justify-between">
                                             <h3 className="font-bold text-gray-900">{charge.name}</h3>
                                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                                charge.verdict === '무죄'
-                                                    ? 'bg-green-200 text-green-800'
-                                                    : charge.verdict.includes('유죄')
-                                                    ? 'bg-red-200 text-red-800'
+                                                charge.appealChange === '무죄→유죄' ? 'bg-orange-200 text-orange-800'
+                                                    : charge.appealChange === '유죄확대' ? 'bg-red-200 text-red-800'
+                                                    : charge.appealChange === '무죄유지' ? 'bg-green-200 text-green-800'
+                                                    : charge.verdict === '무죄' ? 'bg-green-200 text-green-800'
+                                                    : charge.verdict.includes('유죄') ? 'bg-red-200 text-red-800'
+                                                    : charge.verdict.includes('선고 예정') ? 'bg-blue-200 text-blue-800'
                                                     : 'bg-yellow-200 text-yellow-800'
                                             }`}>
                                                 {charge.verdict}
