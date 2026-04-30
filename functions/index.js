@@ -4303,7 +4303,125 @@ exports.crawlVerdictData = functions
         }
 
         console.log(`Verdict crawl completed. Saved ${savedCount} new verdicts.`);
+
+        // ========== 통합 헬스체크 (모든 프로젝트 사이트 점검) ==========
+        try {
+            await runHealthCheck();
+        } catch (e) {
+            console.error('Health check failed:', e);
+        }
+
         return null;
+    });
+
+// ========== 사이트 헬스체크 ==========
+const HEALTH_CHECK_SITES = [
+    { name: '시민법정', url: 'https://siminbupjung-blog.web.app' },
+    { name: 'budget', url: 'https://budget.ai.kr' },
+    { name: 'aitutorial', url: 'https://aitutorial.kr' },
+    { name: 'election', url: 'https://election.re.kr' }
+];
+
+const runHealthCheck = async () => {
+    console.log('Starting health check...');
+    const results = [];
+
+    for (const site of HEALTH_CHECK_SITES) {
+        const result = { name: site.name, url: site.url, issues: [] };
+        try {
+            const startTime = Date.now();
+            const response = await fetch(site.url, {
+                redirect: 'follow',
+                headers: { 'User-Agent': 'Mozilla/5.0 (HealthCheckBot)' }
+            });
+            const elapsed = Date.now() - startTime;
+
+            result.status = response.status;
+            result.responseMs = elapsed;
+
+            if (response.status >= 400) {
+                result.issues.push(`HTTP ${response.status} 에러`);
+            } else if (elapsed > 10000) {
+                result.issues.push(`응답 느림 (${(elapsed / 1000).toFixed(1)}초)`);
+            }
+
+            // HTML 본문에서 깨진 이미지 패턴 감지
+            const html = await response.text();
+            const imgMatches = html.match(/<img[^>]+src="([^"]+)"/g) || [];
+            const externalImgs = imgMatches
+                .map(tag => (tag.match(/src="([^"]+)"/) || [])[1])
+                .filter(src => src && (src.startsWith('http://') || src.startsWith('https://')))
+                .filter(src => !src.includes('data:'));
+
+            // 외부 이미지 최대 5개만 샘플 체크 (시간 절약)
+            const sampleImgs = externalImgs.slice(0, 5);
+            let brokenCount = 0;
+            for (const imgUrl of sampleImgs) {
+                try {
+                    const imgRes = await fetch(imgUrl, { method: 'HEAD' });
+                    if (imgRes.status >= 400) brokenCount++;
+                } catch {
+                    brokenCount++;
+                }
+            }
+            if (brokenCount > 0) {
+                result.issues.push(`외부 이미지 ${brokenCount}/${sampleImgs.length}개 로드 실패`);
+            }
+        } catch (err) {
+            result.status = 'ERROR';
+            result.issues.push(`접속 불가: ${err.message?.substring(0, 100)}`);
+        }
+        results.push(result);
+    }
+
+    // 텔레그램 알림 — 문제가 있는 사이트만 보고
+    const problemSites = results.filter(r => r.issues.length > 0);
+
+    const dateStr = new Date().toLocaleDateString('ko-KR', {
+        year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul'
+    });
+
+    let telegramMsg;
+    if (problemSites.length === 0) {
+        telegramMsg = `🌅 <b>일일 헬스체크 정상 (${dateStr})</b>\n\n` +
+            results.map(r => `✅ ${r.name} (${r.responseMs}ms)`).join('\n');
+    } else {
+        telegramMsg = `⚠️ <b>일일 헬스체크 — 문제 발견 (${dateStr})</b>\n\n` +
+            results.map(r => {
+                if (r.issues.length === 0) {
+                    return `✅ ${r.name}`;
+                }
+                return `❌ <b>${r.name}</b>\n   ${r.issues.join('\n   ')}\n   ${r.url}`;
+            }).join('\n\n');
+    }
+
+    try {
+        await sendTelegramMessage(GROUP_CHAT_ID, telegramMsg);
+        console.log('Health check telegram sent');
+    } catch (e) {
+        console.error('Health check telegram failed:', e);
+    }
+
+    return results;
+};
+
+// 헬스체크 수동 트리거 (테스트용)
+exports.triggerHealthCheck = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 300, memory: '512MB' })
+    .https.onRequest(async (req, res) => {
+        setCorsHeaders(req, res);
+        if (req.method === 'OPTIONS') {
+            res.status(204).send('');
+            return;
+        }
+        try {
+            const results = await runHealthCheck();
+            res.json({ success: true, results });
+        } catch (e) {
+            console.error('Health check error:', e);
+            res.status(500).json({ error: e.message });
+        }
     });
 
 // 판결 수동 크롤링 트리거
