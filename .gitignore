@@ -46,3 +46,16 @@ trigger rebuild
 functions/.env
 .vercel/.env*
 src_backup_*/
+
+
+# Claude 로컬 설정 (민감 정보 가능)
+.claude/settings.local.json
+.claude/launch.json
+.claude/worktrees/
+
+# 임시 파일
+temp_pdf/
+nul
+
+# Lighthouse 리포트 (큰 파일, 일회성)
+lighthouse-*.json
