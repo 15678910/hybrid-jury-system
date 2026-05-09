@@ -23,47 +23,30 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// 백업할 컬렉션 목록
-const COLLECTIONS_TO_BACKUP = [
-    'posts',
-    'writerCodes',
-    'signatures',
-    'videos',
-    'governance',
-    'cardNews',
-    'judges',
-    'evaluations'
-];
-
 async function backupCollection(collectionName) {
-    try {
-        const snapshot = await db.collection(collectionName).get();
+    const snapshot = await db.collection(collectionName).get();
 
-        if (snapshot.empty) {
-            console.log(`  [${collectionName}] empty`);
-            return { name: collectionName, count: 0, data: [] };
-        }
-
-        const data = [];
-        snapshot.forEach(doc => {
-            const docData = doc.data();
-            Object.keys(docData).forEach(key => {
-                if (docData[key] && docData[key].toDate) {
-                    docData[key] = docData[key].toDate().toISOString();
-                }
-            });
-            data.push({
-                id: doc.id,
-                ...docData
-            });
-        });
-
-        console.log(`  [${collectionName}] ${data.length} documents`);
-        return { name: collectionName, count: data.length, data };
-    } catch (error) {
-        console.error(`  [${collectionName}] error:`, error.message);
-        return { name: collectionName, count: 0, data: [], error: error.message };
+    if (snapshot.empty) {
+        console.log(`  [${collectionName}] empty`);
+        return { name: collectionName, count: 0, data: [] };
     }
+
+    const data = [];
+    snapshot.forEach(doc => {
+        const docData = doc.data();
+        Object.keys(docData).forEach(key => {
+            if (docData[key] && docData[key].toDate) {
+                docData[key] = docData[key].toDate().toISOString();
+            }
+        });
+        data.push({
+            id: doc.id,
+            ...docData
+        });
+    });
+
+    console.log(`  [${collectionName}] ${data.length} documents`);
+    return { name: collectionName, count: data.length, data };
 }
 
 async function backup() {
@@ -78,28 +61,66 @@ async function backup() {
     console.log('Firestore Backup Started:', new Date().toISOString());
     console.log('===========================================\n');
 
+    // 컬렉션 목록을 동적으로 조회 (하드코딩 제거)
+    console.log('Discovering collections...');
+    const collectionRefs = await db.listCollections();
+    const collectionNames = collectionRefs.map(c => c.id).sort();
+    console.log(`Found ${collectionNames.length} collections: ${collectionNames.join(', ')}\n`);
+
+    if (collectionNames.length === 0) {
+        console.error('FATAL: No collections found. Aborting backup.');
+        process.exit(1);
+    }
+
     const backupData = {
         timestamp: new Date().toISOString(),
         collections: {}
     };
 
     let totalDocs = 0;
+    const failed = [];
 
-    for (const collectionName of COLLECTIONS_TO_BACKUP) {
-        const result = await backupCollection(collectionName);
-        backupData.collections[collectionName] = result.data;
-        totalDocs += result.count;
+    for (const collectionName of collectionNames) {
+        try {
+            const result = await backupCollection(collectionName);
+            backupData.collections[collectionName] = result.data;
+            totalDocs += result.count;
+        } catch (error) {
+            console.error(`  [${collectionName}] FAILED: ${error.message}`);
+            failed.push({ name: collectionName, error: error.message });
+        }
     }
 
     const filename = `firestore_backup_${timestamp}.json`;
     const filepath = path.join(backupDir, filename);
 
+    console.log('\n===========================================');
+    console.log('Backup Summary');
+    console.log('===========================================');
+    console.log(`Collections processed: ${collectionNames.length}`);
+    console.log(`Collections failed:    ${failed.length}`);
+    console.log(`Total documents:       ${totalDocs}`);
+
+    // 어떤 컬렉션이라도 실패하면 백업 실패로 처리 (부분 백업 방지)
+    if (failed.length > 0) {
+        console.error('\nFAILED collections:');
+        failed.forEach(f => console.error(`  - ${f.name}: ${f.error}`));
+        console.error('\nFATAL: Backup aborted due to collection failures.');
+        console.error('No backup file written.');
+        process.exit(1);
+    }
+
+    // 0건 백업도 비정상으로 처리
+    if (totalDocs === 0) {
+        console.error('\nFATAL: Backup contains 0 documents. This is almost certainly an error.');
+        console.error('No backup file written.');
+        process.exit(1);
+    }
+
     fs.writeFileSync(filepath, JSON.stringify(backupData, null, 2), 'utf8');
 
-    console.log('\n===========================================');
-    console.log('Backup Complete!');
-    console.log(`Total documents: ${totalDocs}`);
-    console.log(`File: ${filepath}`);
+    console.log(`\nBackup file written: ${filepath}`);
+    console.log(`File size: ${(fs.statSync(filepath).size / 1024).toFixed(1)} KB`);
     console.log('===========================================');
 
     process.exit(0);

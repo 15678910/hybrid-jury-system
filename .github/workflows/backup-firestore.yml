@@ -28,8 +28,25 @@ jobs:
           npm install
 
       - name: Create service account key file
+        env:
+          SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
         run: |
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > serviceAccountKey.json
+          printenv SA_KEY > serviceAccountKey.json
+
+      - name: Verify service account key is valid JSON
+        run: |
+          node -e "
+            const k = JSON.parse(require('fs').readFileSync('serviceAccountKey.json', 'utf8'));
+            if (!k.private_key || !k.client_email || !k.project_id) {
+              console.error('Service account key is missing required fields');
+              process.exit(1);
+            }
+            if (!k.private_key.includes('BEGIN PRIVATE KEY')) {
+              console.error('private_key field looks malformed');
+              process.exit(1);
+            }
+            console.log('Service account key OK for project:', k.project_id);
+          "
 
       - name: Run Firestore backup
         run: |
