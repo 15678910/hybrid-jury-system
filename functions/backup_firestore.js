@@ -20,14 +20,18 @@ const db = admin.firestore();
 
 // 백업할 컬렉션 목록
 const COLLECTIONS_TO_BACKUP = [
-    'posts',           // 블로그 글, 사법뉴스
-    'writerCodes',     // 작성자 코드
-    'signatures',      // 서명
-    'videos',          // 동영상
-    'governance',      // 거버넌스
-    'cardNews',        // 카드뉴스
-    'judges',          // 판사 정보
-    'evaluations'      // 판사 평가
+    'posts',                // 블로그 글, 사법뉴스
+    'writerCodes',          // 작성자 코드
+    'signatures',           // 서명
+    'videos',               // 동영상
+    'governance',           // 거버넌스
+    'cardNews',             // 카드뉴스
+    'judges',               // 판사 정보
+    'evaluations',          // 판사 평가
+    'sentencingData',       // 양형분석 인물별 실시간 데이터
+    'judgeData',            // 판사 뉴스 데이터
+    'judgeYouTubeData',     // 판사 YouTube 데이터
+    'judgeCourtCases'       // 판사 법원 사건 데이터
 ];
 
 async function backupCollection(collectionName) {
