@@ -2620,7 +2620,7 @@ export default function SentencingAnalysis() {
         const initKakao = () => {
             if (window.Kakao && !window.Kakao.isInitialized()) {
                 try {
-                    window.Kakao.init('83e843186c1251b9b5a8013fd5f29798');
+                    window.Kakao.init(import.meta.env.VITE_KAKAO_KEY);
                     setKakaoReady(true);
                 } catch (e) {
                     console.error('Kakao init error:', e);

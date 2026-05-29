@@ -8,7 +8,10 @@ import { auth, db } from './firebase';
 import { collection, query, where, getDocs, doc, setDoc, addDoc } from 'firebase/firestore';
 
 // 카카오 앱 키
-const KAKAO_APP_KEY = '83e843186c1251b9b5a8013fd5f29798';
+const KAKAO_APP_KEY = import.meta.env.VITE_KAKAO_KEY;
+if (!KAKAO_APP_KEY) {
+  console.error('[auth] VITE_KAKAO_KEY env var not set — Kakao login will fail');
+}
 
 // 카카오 SDK 초기화
 const initKakao = () => {

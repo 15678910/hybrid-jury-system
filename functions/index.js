@@ -1562,7 +1562,10 @@ exports.blog = functions.https.onRequest(async (req, res) => {
 // 카카오 OAuth 토큰 프록시 API
 // ============================================
 
-const KAKAO_APP_KEY = '83e843186c1251b9b5a8013fd5f29798';
+const KAKAO_APP_KEY = process.env.KAKAO_APP_KEY || functions.config().kakao?.app_key;
+if (!KAKAO_APP_KEY) {
+  throw new Error('KAKAO_APP_KEY env not set. Run: firebase functions:config:set kakao.app_key="<key>"');
+}
 
 exports.kakaoToken = functions.https.onRequest(async (req, res) => {
     // CORS 설정

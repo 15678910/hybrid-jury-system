@@ -106,7 +106,7 @@ firebase deploy --only functions                  # 백엔드 함수
 3. **Props 검증**: 중요 props는 기본값 설정 또는 타입 체크
 
 ## SNS 공유 설정
-- **카카오톡**: SDK 키 `83e843186c1251b9b5a8013fd5f29798`, `Kakao.Share.sendDefault`로 공유 (DOM의 `og:image` 메타태그에서 이미지 읽음)
+- **카카오톡**: SDK 키 `[VITE_KAKAO_KEY 환경변수 참조 — .env.local 또는 deployment env]`, `Kakao.Share.sendDefault`로 공유 (DOM의 `og:image` 메타태그에서 이미지 읽음)
 - **X(Twitter)**: 반드시 `https://twitter.com/intent/tweet?text=...&url=...` 사용 (⚠️ `x.com/intent/post` 절대 금지 - HTTP 400 발생)
 - **페이스북**: 클립보드 복사 방식 사용 (sharer API 불안정)
 - **텔레그램**: 캐시 무효화를 위해 URL에 타임스탬프 추가

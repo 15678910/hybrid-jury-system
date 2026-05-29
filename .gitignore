@@ -44,6 +44,7 @@ trigger rebuild
 
 # Functions environment variables
 functions/.env
+functions/.runtimeconfig.json
 .vercel/.env*
 src_backup_*/
 

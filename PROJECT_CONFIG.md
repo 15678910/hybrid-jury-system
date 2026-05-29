@@ -20,5 +20,5 @@
 - VITE_WRITER_CODE: 작성자 코드
 
 ## 카카오 로그인
-- 앱 키: 83e843186c1251b9b5a8013fd5f29798
+- 앱 키: [환경변수 VITE_KAKAO_KEY 참조 — `.env.local` 파일 또는 배포 env 설정 참고]
 - 허용된 도메인: localhost:5174, 시민법정.kr
