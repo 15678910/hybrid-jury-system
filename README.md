@@ -93,3 +93,11 @@ npm run preview
 ## 📝 라이센스
 
 © 주권자사법개혁추진위원회(준)
+
+
+---
+
+## 위협 모델
+
+전체 위협 카탈로그·자산·완화 매트릭스: [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)
+회귀 테스트: `tests/test_threat_scenarios.ts`
