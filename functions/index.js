@@ -1562,10 +1562,11 @@ exports.blog = functions.https.onRequest(async (req, res) => {
 // 카카오 OAuth 토큰 프록시 API
 // ============================================
 
-// KAKAO_APP_KEY: process.env (functions/.env) 우선, legacy functions.config() fallback.
+// KAKAO_APP_KEY: functions/.env 의 process.env로 주입 (firebase-functions v7).
+// functions.config()는 v7에서 제거됨 — 사용 금지.
 // top-level throw 금지 — 미설정 시 kakaoToken 함수 내부에서만 500 응답.
 // (top-level throw는 같은 index.js의 모든 export를 동시에 죽이므로 위험)
-const KAKAO_APP_KEY = process.env.KAKAO_APP_KEY || functions.config().kakao?.app_key;
+const KAKAO_APP_KEY = process.env.KAKAO_APP_KEY;
 
 exports.kakaoToken = functions.https.onRequest(async (req, res) => {
     // CORS 설정
