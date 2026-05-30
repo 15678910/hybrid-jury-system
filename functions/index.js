@@ -1562,10 +1562,10 @@ exports.blog = functions.https.onRequest(async (req, res) => {
 // 카카오 OAuth 토큰 프록시 API
 // ============================================
 
+// KAKAO_APP_KEY: process.env (functions/.env) 우선, legacy functions.config() fallback.
+// top-level throw 금지 — 미설정 시 kakaoToken 함수 내부에서만 500 응답.
+// (top-level throw는 같은 index.js의 모든 export를 동시에 죽이므로 위험)
 const KAKAO_APP_KEY = process.env.KAKAO_APP_KEY || functions.config().kakao?.app_key;
-if (!KAKAO_APP_KEY) {
-  throw new Error('KAKAO_APP_KEY env not set. Run: firebase functions:config:set kakao.app_key="<key>"');
-}
 
 exports.kakaoToken = functions.https.onRequest(async (req, res) => {
     // CORS 설정
@@ -1578,6 +1578,12 @@ exports.kakaoToken = functions.https.onRequest(async (req, res) => {
 
     if (req.method !== 'POST') {
         res.status(405).json({ error: 'Method not allowed' });
+        return;
+    }
+
+    if (!KAKAO_APP_KEY) {
+        console.error('KAKAO_APP_KEY env not set. Set in functions/.env or run: firebase functions:config:set kakao.app_key="<key>"');
+        res.status(500).json({ error: 'KAKAO_APP_KEY not configured' });
         return;
     }
 
