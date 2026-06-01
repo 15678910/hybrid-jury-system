@@ -43,9 +43,8 @@ const PERSON_PHOTOS = {
 };
 
 // 사진별 objectPosition 보정 (기본값은 'center', 얼굴이 잘려 보이는 경우만 명시)
-const PERSON_PHOTO_POSITIONS = {
-    '정진석': 'center 20%'  // 원본 사진에서 얼굴이 위쪽에 위치하여 머리 상단이 잘리지 않도록 보정
-};
+// 현재 보정이 필요한 인물 없음. 새 사진이 잘려 보일 경우 여기에 'center 30%' 등으로 추가하면 됨.
+const PERSON_PHOTO_POSITIONS = {};
 
 // 내란 관련 인물 데이터 (가나다순)
 const personsData = {
