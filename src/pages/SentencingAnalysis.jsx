@@ -7,6 +7,8 @@ import SEOHead from '../components/SEOHead';
 import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, TikTokIcon, LinkedInIcon } from '../components/icons';
 import { JUDGES_DATA } from '../data/judges';
 import SidebarNav from '../components/SidebarNav';
+// 정진석 사진: Vite import로 빌드 hash 포함된 URL 자동 생성 → 캐시 우회 강제
+import jungjinseokPhoto from '../assets/persons/jungjinseok.png';
 
 // 인물 사진 (로컬 우선 — Wikimedia hotlink 차단 회피)
 const PERSON_PHOTOS = {
@@ -34,7 +36,7 @@ const PERSON_PHOTOS = {
     '이완규': '/이완규.png',
     '이진우': '/이진우.png',
     '전성배': '/전성배.png',
-    '정진석': '/정진석_v5.png',
+    '정진석': jungjinseokPhoto,  // src/assets import → 빌드 hash 포함 URL (캐시 무력화)
     '조지호': '/조지호.png',
     '조태용': '/조태용.jpg',
     '최상목': '/최상목.png',
