@@ -42,6 +42,11 @@ const PERSON_PHOTOS = {
     '한덕수': '/한덕수.png'
 };
 
+// 사진별 objectPosition 보정 (기본값은 'center', 얼굴이 잘려 보이는 경우만 명시)
+const PERSON_PHOTO_POSITIONS = {
+    '정진석': 'center 20%'  // 원본 사진에서 얼굴이 위쪽에 위치하여 머리 상단이 잘리지 않도록 보정
+};
+
 // 내란 관련 인물 데이터 (가나다순)
 const personsData = {
     '강의구': {
@@ -3153,6 +3158,7 @@ export default function SentencingAnalysis() {
                                                             src={PERSON_PHOTOS[name]}
                                                             alt={name}
                                                             className="w-full h-full object-cover"
+                                                            style={{ objectPosition: PERSON_PHOTO_POSITIONS[name] || 'center' }}
                                                             onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
                                                         />
                                                     ) : null}
