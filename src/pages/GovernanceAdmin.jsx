@@ -2,11 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams, useOutletContext } from 'react-router-dom';
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, deleteDoc, addDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-
-// 관리자 코드 (환경변수에서 가져옴)
-const getAdminCode = () => {
-    return import.meta.env.VITE_ADMIN_CODE || '';
-};
+import { verifyAccessCode } from '../lib/authUtils';
 
 // 기본 의제 목록 (초기값)
 const DEFAULT_TOPICS = [
@@ -83,19 +79,21 @@ export default function GovernanceAdmin() {
         if (embedded) return;
 
         const adminCodeParam = searchParams.get('admin');
-        const correctCode = getAdminCode();
 
         if (!adminCodeParam) {
             // URL에 admin 파라미터가 없으면 접근 거부
             setAccessDenied(true);
-        } else if (adminCodeParam === correctCode) {
-            // 올바른 코드면 자동 인증
-            setIsVerified(true);
-            loadAllData();
-        } else {
-            // 잘못된 코드면 접근 거부
-            setAccessDenied(true);
+            return;
         }
+        (async () => {
+            const result = await verifyAccessCode(adminCodeParam);
+            if (result.valid) {
+                setIsVerified(true);
+                loadAllData();
+            } else {
+                setAccessDenied(true);
+            }
+        })();
     }, [searchParams]);
     const [isLoading, setIsLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
@@ -136,13 +134,15 @@ export default function GovernanceAdmin() {
         deadline: ''
     });
 
-    // 관리자 코드 확인
-    const handleVerify = () => {
-        const correctCode = getAdminCode();
-        if (adminCode === correctCode) {
+    // 관리자 코드 확인 (서버측 검증)
+    const handleVerify = async () => {
+        const result = await verifyAccessCode(adminCode);
+        if (result.valid) {
             setIsVerified(true);
             setError('');
             loadAllData();
+        } else if (result.error) {
+            setError('인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
         } else {
             setError('관리자 코드가 올바르지 않습니다.');
         }

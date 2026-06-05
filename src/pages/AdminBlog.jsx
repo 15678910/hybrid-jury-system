@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 
 import { db, storage } from '../lib/firebase';
+import { verifyAccessCode } from '../lib/authUtils';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Header from '../components/Header';
 
@@ -147,32 +148,13 @@ export default function AdminBlog() {
 
         setVerifying(true);
 
-        // 환경변수에서 관리자 코드 확인
-        const adminCode = import.meta.env.VITE_ADMIN_CODE;
-        const writerCodeEnv = import.meta.env.VITE_WRITER_CODE;
-
-        if (writerCode === adminCode) {
-            setIsVerified(true);
-            setWriterName('관리자');
-            setVerifying(false);
-            return;
-        }
-        if (writerCode === writerCodeEnv) {
-            setIsVerified(true);
-            setWriterName('시민법정');
-            setVerifying(false);
-            return;
-        }
-
         try {
-            const codesRef = collection(db, 'writerCodes');
-            const q = query(codesRef, where('code', '==', writerCode), where('active', '==', true));
-            const querySnapshot = await getDocs(q);
-
-            if (!querySnapshot.empty) {
-                const codeData = querySnapshot.docs[0].data();
+            const result = await verifyAccessCode(writerCode);
+            if (result.valid) {
                 setIsVerified(true);
-                setWriterName(codeData.name);
+                setWriterName(result.name);
+            } else if (result.error) {
+                alert('인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
             } else {
                 alert('유효하지 않거나 비활성화된 작성자 코드입니다.');
             }

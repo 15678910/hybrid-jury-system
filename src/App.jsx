@@ -12,6 +12,7 @@ import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIco
 import { trackSignatureComplete, trackShare, trackTelegramJoin } from './lib/analytics';
 import { requestPushPermission, isPushSupported, getPushPermissionStatus } from './lib/pushNotification';
 import SNSShareBar from './components/SNSShareBar';
+import { verifyAccessCode } from './lib/authUtils';
 
 // 이름 표시 함수 (전체 이름 공개)
 const maskName = (name) => {
@@ -118,8 +119,6 @@ export default function App() {
     // Google 로그인 진행 중 플래그 (useRef로 리렌더링 없이 상태 유지)
     const googleLoginInProgress = useRef(false);
     const [hasSignature, setHasSignature] = useState(null); // null = 로딩중, true = 서명함, false = 서명 안함
-
-    const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin2025'; // 환경변수 사용
 
     // 초기 데이터 병렬 로드 (서명, 블로그, 뉴스를 동시에 가져옴)
     useEffect(() => {
@@ -401,13 +400,17 @@ export default function App() {
     };
 
     // 관리자 로그인
-    const handleAdminLogin = (e) => {
+    const handleAdminLogin = async (e) => {
         e.preventDefault();
-        if (adminPassword === ADMIN_PASSWORD) {
+        const result = await verifyAccessCode(adminPassword);
+        if (result.valid) {
             setIsAdmin(true);
             setShowAdminLogin(false);
             setAdminPassword('');
             alert('관리자 모드로 로그인되었습니다.');
+        } else if (result.error) {
+            alert('인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+            setAdminPassword('');
         } else {
             alert('비밀번호가 올바르지 않습니다.');
             setAdminPassword('');

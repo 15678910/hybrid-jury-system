@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useLocation, Link } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../lib/firebase';
+import { verifyAccessCode } from '../lib/authUtils';
 
 const LOCKOUT_MINUTES = 15;
 const MAX_ATTEMPTS = 5;
@@ -75,7 +76,7 @@ export default function AdminLayout() {
     };
 
     // ── 로그인 처리 ────────────────────────────────────────
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setLoginError('');
 
@@ -86,26 +87,23 @@ export default function AdminLayout() {
             return;
         }
 
-        const validPasswords = [
-            import.meta.env.VITE_ADMIN_PASSWORD,
-            import.meta.env.VITE_ADMIN_CODE,
-            import.meta.env.VITE_WRITER_CODE,
-        ].filter(Boolean);
+        const result = await verifyAccessCode(password);
 
-        if (validPasswords.includes(password)) {
+        if (result.valid) {
             const loginTime = Date.now().toString();
             sessionStorage.setItem('adminLoggedIn', 'true');
             sessionStorage.setItem('adminLoginTimestamp', loginTime);
 
-            // 하위 페이지 자동 인증 지원
-            const adminCode = import.meta.env.VITE_ADMIN_CODE;
-            if (adminCode) localStorage.setItem('writerCode', adminCode);
+            // 하위 페이지 자동 인증 지원 (검증에 성공한 코드를 저장)
+            localStorage.setItem('writerCode', password);
 
             setIsLoggedIn(true);
             setLoginAttempts(0);
             setLockoutUntil(null);
             setLoginError('');
             setPassword('');
+        } else if (result.error) {
+            setLoginError('인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
         } else {
             const newAttempts = loginAttempts + 1;
             setLoginAttempts(newAttempts);

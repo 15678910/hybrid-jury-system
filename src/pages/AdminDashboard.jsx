@@ -11,6 +11,7 @@ import {
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '../lib/firebase';
+import { verifyAccessCode } from '../lib/authUtils';
 import { getTodayStats, getWeekStats, getMonthStats } from '../lib/analyticsQueries';
 
 // 상대 시간 포맷 (한국어)
@@ -128,7 +129,7 @@ export default function AdminDashboard() {
     };
 
     // 로그인 처리
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setLoginError('');
 
@@ -137,18 +138,14 @@ export default function AdminDashboard() {
             return;
         }
 
-        const validPasswords = [
-            import.meta.env.VITE_ADMIN_PASSWORD,
-            import.meta.env.VITE_ADMIN_CODE,
-            import.meta.env.VITE_WRITER_CODE
-        ].filter(Boolean);
+        const result = await verifyAccessCode(password);
 
-        if (validPasswords.length === 0) {
-            setLoginError('관리자 비밀번호가 설정되지 않았습니다. 환경 변수를 확인해주세요.');
+        if (result.error) {
+            setLoginError('인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
             return;
         }
 
-        if (validPasswords.includes(password)) {
+        if (result.valid) {
             sessionStorage.setItem('adminLoggedIn', 'true');
             sessionStorage.setItem('adminLoginTimestamp', Date.now().toString());
             setIsLoggedIn(true);

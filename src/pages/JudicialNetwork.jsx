@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { verifyAccessCode } from '../lib/authUtils';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
 import SNSShareBar from '../components/SNSShareBar';
@@ -263,23 +264,13 @@ function JudicialNetwork() {
     const verifyWriterCode = async () => {
         setError('');
 
-        const adminCode = import.meta.env.VITE_ADMIN_CODE;
-        const writerCodeEnv = import.meta.env.VITE_WRITER_CODE;
-
-        if (writerCode === adminCode || writerCode === writerCodeEnv) {
-            setIsVerified(true);
-            sessionStorage.setItem('judicialNetworkVerified', 'true');
-            return;
-        }
-
         try {
-            const codesRef = collection(db, 'writerCodes');
-            const q = query(codesRef, where('code', '==', writerCode), where('active', '==', true));
-            const snapshot = await getDocs(q);
-
-            if (!snapshot.empty) {
+            const result = await verifyAccessCode(writerCode);
+            if (result.valid) {
                 setIsVerified(true);
                 sessionStorage.setItem('judicialNetworkVerified', 'true');
+            } else if (result.error) {
+                setError('인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
             } else {
                 setError('유효하지 않은 접근 코드입니다.');
             }

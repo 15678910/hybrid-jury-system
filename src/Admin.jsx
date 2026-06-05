@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useOutletContext, useLocation } from 'react-router-dom';
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from './lib/firebase';
+import { verifyAccessCode } from './lib/authUtils';
 
 export default function Admin() {
     const context = useOutletContext();
@@ -397,12 +398,11 @@ export default function Admin() {
     };
 
     // 로그인 처리
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        // 환경변수에서 비밀번호 가져오기
-        const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin2024';
+        const result = await verifyAccessCode(password);
 
-        if (password === adminPassword) {
+        if (result.valid) {
             const loginTime = Date.now().toString();
             sessionStorage.setItem('adminLoggedIn', 'true');
             sessionStorage.setItem('adminLoginTimestamp', loginTime);
@@ -410,6 +410,8 @@ export default function Admin() {
             loadSignatures();
             loadVerdicts();
             alert('로그인 성공!');
+        } else if (result.error) {
+            alert('인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
         } else {
             alert('비밀번호가 틀렸습니다.');
         }

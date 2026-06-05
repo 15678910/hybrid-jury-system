@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { collection, query, orderBy, getDocs, deleteDoc, doc, where } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { verifyAccessCode } from '../lib/authUtils';
 import Header from '../components/Header';
 
 export default function AdminNews() {
@@ -21,33 +22,14 @@ export default function AdminNews() {
             return;
         }
 
-        // 환경변수에서 관리자 코드 확인
-        const adminCode = import.meta.env.VITE_ADMIN_CODE;
-        const writerCodeEnv = import.meta.env.VITE_WRITER_CODE;
-
-        if (writerCode === adminCode) {
-            setIsVerified(true);
-            setWriterName('관리자');
-            localStorage.setItem('writerCode', writerCode);
-            return;
-        }
-        if (writerCode === writerCodeEnv) {
-            setIsVerified(true);
-            setWriterName('시민법정');
-            localStorage.setItem('writerCode', writerCode);
-            return;
-        }
-
         try {
-            const codesRef = collection(db, 'writerCodes');
-            const q = query(codesRef, where('code', '==', writerCode), where('active', '==', true));
-            const querySnapshot = await getDocs(q);
-
-            if (!querySnapshot.empty) {
-                const codeData = querySnapshot.docs[0].data();
+            const result = await verifyAccessCode(writerCode);
+            if (result.valid) {
                 setIsVerified(true);
-                setWriterName(codeData.name);
+                setWriterName(result.name);
                 localStorage.setItem('writerCode', writerCode);
+            } else if (result.error) {
+                alert('인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
             } else {
                 alert('유효하지 않은 작성자 코드입니다.');
             }
@@ -70,30 +52,15 @@ export default function AdminNews() {
         const savedCode = localStorage.getItem('writerCode');
         if (savedCode) {
             setWriterCode(savedCode);
-
-            // 환경변수 확인
-            const adminCode = import.meta.env.VITE_ADMIN_CODE;
-            const writerCodeEnv = import.meta.env.VITE_WRITER_CODE;
-
-            if (savedCode === adminCode) {
-                setIsVerified(true);
-                setWriterName('관리자');
-                return;
-            }
-            if (savedCode === writerCodeEnv) {
-                setIsVerified(true);
-                setWriterName('시민법정');
-                return;
-            }
-
             (async () => {
                 try {
-                    const codesRef = collection(db, 'writerCodes');
-                    const q = query(codesRef, where('code', '==', savedCode), where('active', '==', true));
-                    const querySnapshot = await getDocs(q);
-                    if (!querySnapshot.empty) {
+                    const result = await verifyAccessCode(savedCode);
+                    if (result.valid) {
                         setIsVerified(true);
-                        setWriterName(querySnapshot.docs[0].data().name);
+                        setWriterName(result.name);
+                    } else if (!result.error) {
+                        // 저장된 코드가 더 이상 유효하지 않으면 제거 (통신 오류 시에는 유지)
+                        localStorage.removeItem('writerCode');
                     }
                 } catch (e) {
                     console.error('Auto login error:', e);

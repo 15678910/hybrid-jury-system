@@ -106,6 +106,78 @@ function safeDecodeKorean(raw) {
     return decoded;
 }
 
+// ============================================
+// 접근 코드 검증 (서버측 전용 - 클라이언트 번들에 코드 비노출)
+// 2026-06-06: VITE_ 환경변수 클라이언트 노출 취약점(CRITICAL) 대응
+// ============================================
+const crypto = require('crypto');
+
+// 타이밍 공격 방어용 상수 시간 문자열 비교
+function timingSafeStrEqual(a, b) {
+    if (typeof a !== 'string' || typeof b !== 'string') return false;
+    const ba = Buffer.from(a, 'utf8');
+    const bb = Buffer.from(b, 'utf8');
+    if (ba.length !== bb.length) return false;
+    try {
+        return crypto.timingSafeEqual(ba, bb);
+    } catch (e) {
+        return false;
+    }
+}
+
+/**
+ * 작성자/관리자 접근 코드 검증 함수
+ * - 코드는 functions/.env(서버측)에만 존재 → 클라이언트 JS 번들에 노출되지 않음
+ * - brute-force 방어: IP 기반 rate limit (분당 10회)
+ * - timing attack 방어: 상수 시간 비교
+ * - 개별 작성자 코드는 Firestore writerCodes(admin SDK가 보안규칙 우회) 조회
+ * 요청: POST { code: string }
+ * 응답: { valid: boolean, name?: string, role?: 'admin'|'writer' }
+ */
+exports.verifyAccessCode = functions
+    .region('asia-northeast3')
+    .https.onRequest(async (req, res) => {
+        setCorsHeaders(req, res);
+        if (req.method === 'OPTIONS') return res.status(204).send('');
+        if (req.method !== 'POST') {
+            return res.status(405).json({ valid: false, error: 'POST만 허용됩니다.' });
+        }
+        // brute-force 방어 (분당 10회)
+        if (!checkRateLimit(req, res, 10)) return;
+
+        const code = req.body && typeof req.body.code === 'string' ? req.body.code : null;
+        if (!code || code.length === 0 || code.length > 200) {
+            return res.status(400).json({ valid: false });
+        }
+
+        const adminCode = process.env.ACCESS_ADMIN_CODE;
+        const writerCode = process.env.ACCESS_WRITER_CODE;
+
+        if (adminCode && timingSafeStrEqual(code, adminCode)) {
+            return res.json({ valid: true, name: '관리자', role: 'admin' });
+        }
+        if (writerCode && timingSafeStrEqual(code, writerCode)) {
+            return res.json({ valid: true, name: '시민법정', role: 'writer' });
+        }
+
+        // 개별 작성자 코드 (Firestore writerCodes - admin SDK는 보안규칙 우회)
+        try {
+            const snap = await db.collection('writerCodes')
+                .where('code', '==', code)
+                .where('active', '==', true)
+                .limit(1)
+                .get();
+            if (!snap.empty) {
+                const data = snap.docs[0].data();
+                return res.json({ valid: true, name: data.name || '작성자', role: 'writer' });
+            }
+        } catch (e) {
+            console.error('[verifyAccessCode] Firestore lookup error:', e);
+        }
+
+        return res.status(401).json({ valid: false });
+    });
+
 // 환영 메시지 템플릿
 const getWelcomeMessage = (userName) => {
     return `🎉 환영합니다, ${userName}님!

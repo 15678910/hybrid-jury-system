@@ -6,14 +6,7 @@ import { onAuthChange } from '../lib/auth';
 import SEOHead from '../components/SEOHead';
 import Header from '../components/Header';
 import SNSShareBar from '../components/SNSShareBar';
-
-// 관리자 작성자 코드 (환경변수에서 가져옴)
-const getAdminWriterCodes = () => {
-    const adminCode = import.meta.env.VITE_ADMIN_CODE;
-    const writerCode = import.meta.env.VITE_WRITER_CODE;
-    return [adminCode, writerCode].filter(Boolean);
-};
-const ADMIN_WRITER_CODES = getAdminWriterCodes();
+import { verifyAccessCode } from '../lib/authUtils';
 
 // 제안이 정식 투표로 승격되기 위한 최소 추천 수
 const MIN_SUPPORTS_FOR_PROMOTION = 10;
@@ -76,12 +69,17 @@ export default function Governance() {
     const [writerCode, setWriterCode] = useState('');
     const [isAdminVerified, setIsAdminVerified] = useState(false);
 
-    // URL 파라미터로 관리자 자동 인증 (?admin=SbAdmin2025!)
+    // URL 파라미터로 관리자 자동 인증 (?admin=코드) — 서버 검증
     useEffect(() => {
         const adminCode = searchParams.get('admin');
-        if (adminCode && ADMIN_WRITER_CODES.includes(adminCode)) {
-            setIsAdminVerified(true);
-            setWriterCode(adminCode);
+        if (adminCode) {
+            (async () => {
+                const result = await verifyAccessCode(adminCode);
+                if (result.valid) {
+                    setIsAdminVerified(true);
+                    setWriterCode(adminCode);
+                }
+            })();
         }
     }, [searchParams]);
 
@@ -714,19 +712,24 @@ export default function Governance() {
         }
     };
 
-    // 관리자 코드 검증
-    const verifyAdminCode = () => {
-        if (ADMIN_WRITER_CODES.includes(writerCode)) {
+    // 관리자 코드 검증 (서버측 verifyAccessCode 호출)
+    const verifyAdminCode = async () => {
+        const result = await verifyAccessCode(writerCode);
+        if (result.valid) {
             setIsAdminVerified(true);
             return true;
         }
-        alert('작성자 코드가 올바르지 않습니다.');
+        if (result.error) {
+            alert('인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+        } else {
+            alert('작성자 코드가 올바르지 않습니다.');
+        }
         return false;
     };
 
     // 새 주제 생성
-    const handleCreateTopic = () => {
-        if (!isAdminVerified && !verifyAdminCode()) return;
+    const handleCreateTopic = async () => {
+        if (!isAdminVerified && !(await verifyAdminCode())) return;
 
         if (!newTopic.title || !newTopic.subtitle || !newTopic.deadline) {
             alert('제목, 부제목, 마감일은 필수 항목입니다.');
@@ -772,8 +775,8 @@ export default function Governance() {
     };
 
     // 마감일 수정
-    const handleUpdateDeadline = (newDeadline) => {
-        if (!isAdminVerified && !verifyAdminCode()) return;
+    const handleUpdateDeadline = async (newDeadline) => {
+        if (!isAdminVerified && !(await verifyAdminCode())) return;
 
         if (!selectedTopicId || !newDeadline) {
             alert('마감일을 선택해주세요.');

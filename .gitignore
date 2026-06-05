@@ -3,6 +3,9 @@
 .env.local
 .env.production
 backend/.env
+# 중첩 경로의 모든 .env 차단 (src/.env 등) — 접근 코드/시크릿 노출 방지
+**/.env
+**/.env.*
 
 # Firebase Service Account Key (절대 공유하면 안됨!)
 serviceAccountKey.json
