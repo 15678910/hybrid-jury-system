@@ -1,7 +1,4 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../lib/firebase';
-import { verifyAccessCode } from '../lib/authUtils';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
 import SNSShareBar from '../components/SNSShareBar';
@@ -207,9 +204,6 @@ function polarToCartesian(cx, cy, radius, angleDegrees) {
 // =============================================================================
 
 function JudicialNetwork() {
-    const [isVerified, setIsVerified] = useState(true);
-    const [writerCode, setWriterCode] = useState('');
-    const [error, setError] = useState('');
     const [selectedNode, setSelectedNode] = useState(null);
     const [highlightedLinks, setHighlightedLinks] = useState(new Set());
     const [highlightedNodes, setHighlightedNodes] = useState(new Set());
@@ -250,35 +244,7 @@ function JudicialNetwork() {
         updateDimensions();
         window.addEventListener('resize', updateDimensions);
         return () => window.removeEventListener('resize', updateDimensions);
-    }, [isVerified]);
-
-    // 관리자 코드 확인 (세션 스토리지)
-    useEffect(() => {
-        const savedCode = sessionStorage.getItem('judicialNetworkVerified');
-        if (savedCode === 'true') {
-            setIsVerified(true);
-        }
     }, []);
-
-    // 관리자 코드 검증
-    const verifyWriterCode = async () => {
-        setError('');
-
-        try {
-            const result = await verifyAccessCode(writerCode);
-            if (result.valid) {
-                setIsVerified(true);
-                sessionStorage.setItem('judicialNetworkVerified', 'true');
-            } else if (result.error) {
-                setError('인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
-            } else {
-                setError('유효하지 않은 접근 코드입니다.');
-            }
-        } catch (err) {
-            console.error('코드 확인 실패:', err);
-            setError('코드 확인 중 오류가 발생했습니다.');
-        }
-    };
 
     // 레이아웃 계산
     const layout = useMemo(() => {
@@ -650,50 +616,6 @@ function JudicialNetwork() {
         setHighlightedLinks(new Set());
         setHighlightedNodes(new Set());
     }, []);
-
-    // 인증 화면
-    if (!isVerified) {
-        return (
-            <div className="min-h-screen bg-gray-50">
-                <Header />
-                <div className="flex items-center justify-center py-20">
-                    <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border border-gray-100">
-                        <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
-                        <h2 className="text-2xl font-bold text-center mb-2 text-gray-900">
-                            사법부 네트워크 분석
-                        </h2>
-                        <p className="text-gray-500 text-center mb-8">
-                            관리자 전용 페이지입니다
-                        </p>
-
-                        <input
-                            type="password"
-                            value={writerCode}
-                            onChange={(e) => setWriterCode(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && verifyWriterCode()}
-                            placeholder="접근 코드 입력"
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 transition"
-                        />
-
-                        {error && (
-                            <p className="text-red-500 text-sm mt-3 text-center">{error}</p>
-                        )}
-
-                        <button
-                            onClick={verifyWriterCode}
-                            className="w-full mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition font-medium shadow-lg shadow-blue-500/25"
-                        >
-                            확인
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     // 필터링된 인물
     const filteredPersons = layout.personPositions.filter(p => filterTypes[p.group] !== false);
