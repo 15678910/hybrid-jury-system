@@ -2025,46 +2025,34 @@ const deduplicateNews = (newsItems) => {
 
 // AI 요약 함수
 const summarizeNewsWithAI = async (newsItems) => {
-    // genAI가 없으면 기본 요약 방식 사용
-    if (!genAI) {
-        console.log('Google AI not configured, using default summary');
-        const grouped = {};
-        newsItems.forEach(news => {
-            if (!grouped[news.keyword]) {
-                grouped[news.keyword] = [];
-            }
-            grouped[news.keyword].push(news);
-        });
-        const activeKeywords = Object.keys(grouped).slice(0, 5).join(', ');
-        return `오늘의 사법 관련 주요 뉴스입니다. ${activeKeywords} 등 ${newsItems.length}건의 뉴스를 수집했습니다.`;
+    // 2026-06-06: AI(Gemini) 크레딧 소진으로, AI 호출 없이 뉴스 본문/제목 기반
+    //             추출 요약으로 전환 (비용·API 한도와 완전 무관, 영구 무료)
+    if (!newsItems || newsItems.length === 0) {
+        return '오늘 수집된 사법 관련 뉴스가 없습니다.';
     }
 
-    try {
-        // 뉴스 제목 리스트 생성
-        const titles = newsItems.map(item => `- ${item.title}`).join('\n');
+    // HTML 태그·엔티티 제거 및 공백 정리
+    const clean = (s) => (s || '')
+        .replace(/<[^>]*>/g, '')
+        .replace(/&[a-z#0-9]+;/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-        const prompt = `다음은 오늘의 사법 관련 뉴스 제목들입니다. 전체적인 동향을 2-3문장으로 요약해주세요.\n\n${titles}`;
+    // 공식 보도자료(대법원 등)를 우선 정렬
+    const sorted = [...newsItems].sort((a, b) => (b.isOfficial ? 1 : 0) - (a.isOfficial ? 1 : 0));
 
-        const result = await model.generateContent(prompt);
-        const response = result.response;
-        const summary = response.text();
+    // 상위 3건에서 본문 첫 문장(없으면 제목)을 추출
+    const parts = sorted.slice(0, 3).map(n => {
+        const desc = clean(n.description);
+        const title = clean(n.title);
+        if (desc && desc.length > 10) {
+            const firstSentence = desc.split(/(?<=[.!?。])\s/)[0].trim();
+            return firstSentence.length > 5 ? firstSentence : title;
+        }
+        return title;
+    }).filter(Boolean);
 
-        console.log('AI summary generated:', summary);
-        return summary.trim();
-    } catch (error) {
-        console.error('AI summarization error:', error);
-        // 에러 발생 시 기본 요약 방식으로 폴백
-        const grouped = {};
-        newsItems.forEach(news => {
-            if (!grouped[news.keyword]) {
-                grouped[news.keyword] = [];
-            }
-            grouped[news.keyword].push(news);
-        });
-        const activeKeywords = Object.keys(grouped).slice(0, 5).join(', ');
-        return `오늘의 사법 관련 주요 뉴스입니다. ${activeKeywords} 등 ${newsItems.length}건의 뉴스를 수집했습니다.`;
-    }
+    return `${parts.join(' ')} 등 오늘 총 ${newsItems.length}건의 사법 관련 소식이 있습니다.`;
 };
 
 // 최근 24시간 내 뉴스만 필터링
