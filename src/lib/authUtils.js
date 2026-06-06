@@ -9,7 +9,10 @@
 //
 // 코드는 functions/.env(서버측)에만 존재하며, verifyAccessCode Function이 검증함.
 
-const VERIFY_URL = 'https://asia-northeast3-siminbupjung-blog.cloudfunctions.net/verifyAccessCode';
+const FN_BASE = 'https://asia-northeast3-siminbupjung-blog.cloudfunctions.net';
+const VERIFY_URL = `${FN_BASE}/verifyAccessCode`;
+const CHECK_DUP_URL = `${FN_BASE}/checkSignatureDuplicate`;
+const EXPORT_SIG_URL = `${FN_BASE}/exportSignatures`;
 
 /**
  * 작성자/관리자 접근 코드를 서버에서 검증한다.
@@ -36,5 +39,47 @@ export async function verifyAccessCode(code) {
     } catch (e) {
         console.error('접근 코드 검증 통신 실패:', e);
         return { valid: false, error: true };
+    }
+}
+
+/**
+ * 서명 전화번호 중복 여부를 서버에서 확인 (C-1: 클라이언트 phone 비교 대체)
+ * @param {string} phone
+ * @returns {Promise<{duplicate: boolean, error?: boolean}>}
+ */
+export async function checkSignatureDuplicate(phone) {
+    try {
+        const res = await fetch(CHECK_DUP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) return { duplicate: false, error: true };
+        return { duplicate: !!data.duplicate };
+    } catch (e) {
+        console.error('서명 중복 확인 통신 실패:', e);
+        return { duplicate: false, error: true };
+    }
+}
+
+/**
+ * 서명자 전체 데이터(PII 포함) 내보내기 — 관리자 전용 (C-1: 엑셀 서버화)
+ * @param {string} code - 관리자/작성자 접근 코드
+ * @returns {Promise<{signatures: Array|null, error?: boolean}>}
+ */
+export async function exportSignatures(code) {
+    try {
+        const res = await fetch(EXPORT_SIG_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code }),
+        });
+        if (!res.ok) return { signatures: null, error: true };
+        const data = await res.json();
+        return { signatures: Array.isArray(data.signatures) ? data.signatures : [] };
+    } catch (e) {
+        console.error('서명 내보내기 통신 실패:', e);
+        return { signatures: null, error: true };
     }
 }

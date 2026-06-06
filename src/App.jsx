@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import SEOHead from './components/SEOHead';
 import Poster, { shouldShowPoster } from './Poster'
 import { Link, useNavigate } from 'react-router-dom'
-import { collection, addDoc, getDocs, query, orderBy, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, where, writeBatch, doc } from 'firebase/firestore';
 import { db, auth, RecaptchaVerifier, signInWithPhoneNumber } from './lib/firebase';
 import ConsentCheckbox from './components/ConsentCheckbox';
 import LoginModal from './components/LoginModal';
@@ -12,7 +12,7 @@ import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIco
 import { trackSignatureComplete, trackShare, trackTelegramJoin } from './lib/analytics';
 import { requestPushPermission, isPushSupported, getPushPermissionStatus } from './lib/pushNotification';
 import SNSShareBar from './components/SNSShareBar';
-import { verifyAccessCode } from './lib/authUtils';
+import { verifyAccessCode, checkSignatureDuplicate, exportSignatures } from './lib/authUtils';
 
 // 이름 표시 함수 (전체 이름 공개)
 const maskName = (name) => {
@@ -118,6 +118,8 @@ export default function App() {
     const [loginModalProvider, setLoginModalProvider] = useState(null);
     // Google 로그인 진행 중 플래그 (useRef로 리렌더링 없이 상태 유지)
     const googleLoginInProgress = useRef(false);
+    // 관리자 엑셀 내보내기용 접근 코드 (메모리 보관 — localStorage 등 영구 저장 안 함)
+    const adminCodeRef = useRef(null);
     const [hasSignature, setHasSignature] = useState(null); // null = 로딩중, true = 서명함, false = 서명 안함
 
     // 초기 데이터 병렬 로드 (서명, 블로그, 뉴스를 동시에 가져옴)
@@ -405,6 +407,7 @@ export default function App() {
         const result = await verifyAccessCode(adminPassword);
         if (result.valid) {
             setIsAdmin(true);
+            adminCodeRef.current = adminPassword; // 엑셀 내보내기 시 서버 인증용 (메모리만)
             setShowAdminLogin(false);
             setAdminPassword('');
             alert('관리자 모드로 로그인되었습니다.');
@@ -456,20 +459,34 @@ export default function App() {
         }
     };
 
-    // 엑셀 다운로드 함수 (관리자 전용)
+    // 엑셀 다운로드 함수 (관리자 전용 — PII는 서버에서 인증 후 조회)
     const downloadExcel = async () => {
+        const code = adminCodeRef.current;
+        if (!code) {
+            alert('관리자 인증이 필요합니다. 다시 로그인해주세요.');
+            return;
+        }
+        // 서버에서 PII(전화번호 등) 포함 전체 서명 데이터 조회
+        const exported = await exportSignatures(code);
+        if (exported.error || !exported.signatures) {
+            alert('서명 데이터를 가져오지 못했습니다. 다시 로그인 후 시도해주세요.');
+            return;
+        }
+        const allSignatures = exported.signatures;
+
         // SheetJS 동적 로드
         const XLSX = await import('https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs');
 
         // 데이터 준비
-        const excelData = signatures.map((sig, index) => ({
-            '번호': signatures.length - index,
+        const excelData = allSignatures.map((sig, index) => ({
+            '번호': allSignatures.length - index,
             '이름/단체명': sig.name,
             '구분': sig.type === 'individual' ? '개인' : '단체',
             '재능나눔': sig.talent || '-',
             '전화번호': sig.phone || '-',
-            '텔레그램': sig.sns.includes('telegram') ? 'O' : 'X',
-            '카카오톡': sig.sns.includes('kakao') ? 'O' : 'X',
+            '이메일': sig.email || '-',
+            '텔레그램': sig.sns && sig.sns.includes('telegram') ? 'O' : 'X',
+            '카카오톡': sig.sns && sig.sns.includes('kakao') ? 'O' : 'X',
             '서명일시': new Date(sig.timestamp).toLocaleString('ko-KR')
         }));
 
@@ -552,11 +569,9 @@ export default function App() {
             return;
         }
 
-        // 중복 체크
-        const existingPhone = signatures.find(sig =>
-            sig.phone && sig.phone.replace(/[\s-]/g, '') === phoneClean
-        );
-        if (existingPhone) {
+        // 중복 체크 (서버측 — phone은 비공개 컬렉션에 분리 저장됨)
+        const dupCheck = await checkSignatureDuplicate(phoneClean);
+        if (dupCheck.duplicate) {
             alert('이미 등록된 전화번호입니다.');
             return;
         }
@@ -683,22 +698,10 @@ export default function App() {
             return;
         }
 
-        // 전화번호 중복 체크
-        const existingPhone = signatures.find(sig =>
-            sig.phone && sig.phone.replace(/[\s-]/g, '') === phoneClean
-        );
-        if (existingPhone) {
+        // 전화번호 중복 체크 (서버측)
+        const dupCheck = await checkSignatureDuplicate(phoneClean);
+        if (dupCheck.duplicate) {
             alert('이미 등록된 전화번호입니다.');
-            return;
-        }
-
-        // 이름+전화번호 조합 중복 체크
-        const existingCombo = signatures.find(sig =>
-            sig.name === formData.name.trim() &&
-            sig.phone && sig.phone.replace(/[\s-]/g, '') === phoneClean
-        );
-        if (existingCombo) {
-            alert('이미 동일한 이름과 전화번호로 등록되어 있습니다.');
             return;
         }
 
@@ -709,29 +712,44 @@ export default function App() {
             // 전화번호 정규화 (하이픈, 공백 제거)
             const phoneClean = dataToSave.phone.replace(/[\s-]/g, '');
 
-            const newSignature = {
-                ...dataToSave,
-                phone: phoneClean, // 정규화된 전화번호 저장
-                email: formData.email?.trim() || null, // 뉴스레터용 이메일 (선택)
-                timestamp: new Date().toISOString(),
-                // 로그인 정보 추가
+            const timestamp = new Date().toISOString();
+            const consentRecord = {
+                age14: consents.age14,
+                privacy: consents.privacy,
+                terms: consents.terms,
+                consentedAt: timestamp
+            };
+
+            // 공개 데이터 (PII 제외 — 이름/구분/재능/SNS만, 화면·통계용)
+            const publicData = {
+                name: dataToSave.name,
+                type: dataToSave.type,
+                talent: dataToSave.talent || '',
+                sns: dataToSave.sns || [],
+                timestamp
+            };
+
+            // 비공개 PII (signature_private — 클라이언트 읽기 완전 차단)
+            const privateData = {
+                phone: phoneClean,
+                email: formData.email?.trim() || null,
+                address: dataToSave.address || null,
                 userId: user?.uid || null,
                 loginMethod: user?.providerData?.[0]?.providerId || 'none',
                 userEmail: user?.email || null,
-                // 동의 기록 저장 (개인정보 감사 추적용)
-                consents: {
-                    age14: consents.age14,
-                    privacy: consents.privacy,
-                    terms: consents.terms,
-                    consentedAt: new Date().toISOString()
-                }
+                consents: consentRecord
             };
 
-            // Firestore에 저장
-            const docRef = await addDoc(collection(db, 'signatures'), newSignature);
+            // batch write로 공개/비공개 원자적 분리 저장 (둘 다 성공 또는 둘 다 실패)
+            const sigRef = doc(collection(db, 'signatures'));
+            const privRef = doc(db, 'signature_private', sigRef.id);
+            const batch = writeBatch(db);
+            batch.set(sigRef, publicData);
+            batch.set(privRef, privateData);
+            await batch.commit();
 
-            // 로컬 상태 업데이트 (Firestore에서 생성된 ID 사용)
-            const savedSignature = { ...newSignature, id: docRef.id };
+            // 로컬 상태 업데이트 (공개 데이터만)
+            const savedSignature = { ...publicData, id: sigRef.id };
             setSignatures(prev => [savedSignature, ...prev]);
 
             // 알림 표시

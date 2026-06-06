@@ -178,6 +178,103 @@ exports.verifyAccessCode = functions
         return res.status(401).json({ valid: false });
     });
 
+// ============================================
+// 서명자 PII 보호 (C-1) — phone 등 개인정보를 비공개 컬렉션(signature_private)으로 분리
+// 2026-06-06: signatures가 allow read:if true라 전화번호 평문 노출되던 문제 대응
+// ============================================
+
+// 관리자 접근 코드 검증 헬퍼 (verifyAccessCode와 동일 로직, 내부 재사용)
+async function isAuthorizedAccessCode(code) {
+    if (!code || typeof code !== 'string') return false;
+    const adminCode = process.env.ACCESS_ADMIN_CODE;
+    const writerCode = process.env.ACCESS_WRITER_CODE;
+    if (adminCode && timingSafeStrEqual(code, adminCode)) return true;
+    if (writerCode && timingSafeStrEqual(code, writerCode)) return true;
+    try {
+        const snap = await db.collection('writerCodes')
+            .where('code', '==', code).where('active', '==', true).limit(1).get();
+        if (!snap.empty) return true;
+    } catch (e) {
+        console.error('[isAuthorizedAccessCode]', e);
+    }
+    return false;
+}
+
+/**
+ * 서명 전화번호 중복 확인 (서버측)
+ * - 클라이언트가 전체 signatures(phone 포함)를 읽어 비교하던 것을 대체
+ * - 신규 구조(signature_private)와 마이그레이션 전 레거시(signatures.phone) 둘 다 확인
+ * 요청: POST { phone: string }
+ * 응답: { duplicate: boolean }
+ */
+exports.checkSignatureDuplicate = functions
+    .region('asia-northeast3')
+    .https.onRequest(async (req, res) => {
+        setCorsHeaders(req, res);
+        if (req.method === 'OPTIONS') return res.status(204).send('');
+        if (req.method !== 'POST') return res.status(405).json({ error: 'POST만 허용됩니다.' });
+        if (!checkRateLimit(req, res, 30)) return;
+
+        const raw = req.body && req.body.phone ? String(req.body.phone) : '';
+        const phone = raw.replace(/[\s-]/g, '');
+        if (!/^010[0-9]{8}$/.test(phone)) {
+            return res.status(400).json({ error: '유효하지 않은 전화번호입니다.' });
+        }
+        try {
+            // 신규 비공개 컬렉션 확인
+            const privSnap = await db.collection('signature_private')
+                .where('phone', '==', phone).limit(1).get();
+            if (!privSnap.empty) return res.json({ duplicate: true });
+            // 마이그레이션 전 레거시(signatures에 phone이 남아있는 경우) 확인
+            const legacySnap = await db.collection('signatures')
+                .where('phone', '==', phone).limit(1).get();
+            if (!legacySnap.empty) return res.json({ duplicate: true });
+            return res.json({ duplicate: false });
+        } catch (e) {
+            console.error('[checkSignatureDuplicate]', e);
+            return res.status(500).json({ error: '서버 오류' });
+        }
+    });
+
+/**
+ * 서명자 전체 데이터 내보내기 (관리자 전용, 엑셀용)
+ * - 공개 signatures + 비공개 signature_private를 admin SDK로 병합
+ * - 클라이언트가 phone 평문을 보유하던 downloadExcel을 대체
+ * 요청: POST { code: string }  (관리자/작성자 접근 코드)
+ * 응답: { signatures: [...] }  (PII 포함, 관리자만)
+ */
+exports.exportSignatures = functions
+    .region('asia-northeast3')
+    .https.onRequest(async (req, res) => {
+        setCorsHeaders(req, res);
+        if (req.method === 'OPTIONS') return res.status(204).send('');
+        if (req.method !== 'POST') return res.status(405).json({ error: 'POST만 허용됩니다.' });
+        if (!checkRateLimit(req, res, 10)) return;
+
+        const code = req.body && req.body.code ? String(req.body.code) : null;
+        if (!(await isAuthorizedAccessCode(code))) {
+            return res.status(401).json({ error: '관리자 인증이 필요합니다.' });
+        }
+        try {
+            const sigSnap = await db.collection('signatures').orderBy('timestamp', 'desc').get();
+            const result = [];
+            for (const doc of sigSnap.docs) {
+                const data = doc.data();
+                let merged = { id: doc.id, ...data };
+                // 신규 구조: PII가 signature_private에 분리 저장됨
+                if (!data.phone) {
+                    const pdoc = await db.collection('signature_private').doc(doc.id).get();
+                    if (pdoc.exists) merged = { ...merged, ...pdoc.data() };
+                }
+                result.push(merged);
+            }
+            return res.json({ signatures: result });
+        } catch (e) {
+            console.error('[exportSignatures]', e);
+            return res.status(500).json({ error: '서버 오류' });
+        }
+    });
+
 // 환영 메시지 템플릿
 const getWelcomeMessage = (userName) => {
     return `🎉 환영합니다, ${userName}님!

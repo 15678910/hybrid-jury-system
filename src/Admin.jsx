@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useOutletContext, useLocation } from 'react-router-dom';
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from './lib/firebase';
-import { verifyAccessCode } from './lib/authUtils';
+import { verifyAccessCode, exportSignatures } from './lib/authUtils';
 
 export default function Admin() {
     const context = useOutletContext();
@@ -362,12 +362,14 @@ export default function Admin() {
     // 서명 데이터 로드 (Firestore에서)
     const loadSignatures = async () => {
         try {
-            const signaturesRef = collection(db, 'signatures');
-            const snapshot = await getDocs(signaturesRef);
-            const signaturesData = snapshot.docs.map(docSnap => ({
-                id: docSnap.id,
-                ...docSnap.data()
-            }));
+            // 서명 PII(전화번호 등)는 서버에서 관리자 인증 후 조회 (C-1)
+            const code = localStorage.getItem('writerCode');
+            const exported = await exportSignatures(code);
+            if (exported.error || !exported.signatures) {
+                console.error('서명 데이터를 가져오지 못했습니다.');
+                return;
+            }
+            const signaturesData = exported.signatures;
 
             // timestamp를 밀리초로 변환하는 헬퍼 함수
             const getTimestamp = (ts) => {

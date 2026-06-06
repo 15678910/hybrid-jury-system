@@ -16,20 +16,37 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // signatures 컬렉션: 서명 데이터
+    // signatures 컬렉션: 서명 데이터 (공개 — PII 제외)
+    // C-1(2026-06-06): phone 등 개인정보는 signature_private(비공개)로 분리.
+    // signatures는 이름/구분 등 비민감 정보만 담아 공개 읽기 허용.
     match /signatures/{signatureId} {
-      // 읽기: 모든 사용자 허용 (공개 서명 목록)
+      // 읽기: 모든 사용자 허용 (공개 서명 목록 — 이름 마스킹 표시용)
       allow read: if true;
 
-      // 생성: 필수 필드가 있고 유효한 데이터인 경우만 허용
-      allow create: if request.resource.data.keys().hasAll(['name', 'phone', 'type', 'timestamp'])
+      // 생성: 필수 필드 검증 (phone은 signature_private로 분리되어 더 이상 필수 아님)
+      allow create: if request.resource.data.keys().hasAll(['name', 'type', 'timestamp'])
                     && request.resource.data.name is string
                     && request.resource.data.name.size() > 0
                     && request.resource.data.name.size() <= 50
-                    && request.resource.data.phone is string
                     && request.resource.data.type in ['individual', 'organization'];
 
       // 수정/삭제: 불가 (서명은 수정/삭제 불가)
+      allow update, delete: if false;
+    }
+
+    // signature_private 컬렉션: 서명자 개인정보(PII) — 비공개
+    // C-1: phone/email/address 등은 여기에 저장하고 클라이언트 읽기를 완전 차단.
+    // 관리자 조회/엑셀은 exportSignatures Function(admin SDK)으로만 가능.
+    match /signature_private/{signatureId} {
+      // 읽기: 절대 불가 (admin SDK만 우회 가능)
+      allow read: if false;
+
+      // 생성: 전화번호 형식 검증된 경우만 (서명 시 클라이언트가 분리 저장)
+      allow create: if request.resource.data.keys().hasAll(['phone'])
+                    && request.resource.data.phone is string
+                    && request.resource.data.phone.matches('010[0-9]{8}');
+
+      // 수정/삭제: 불가
       allow update, delete: if false;
     }
 
