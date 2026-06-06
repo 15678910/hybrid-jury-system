@@ -232,11 +232,11 @@ export default function Blog() {
                                         {/* 이미지 영역 (이미지가 있는 경우만) */}
                                         {post.imageUrl && post.imageUrl !== 'https://siminbupjung-blog.web.app/og-image.jpg' && (
                                             <Link to={`/blog/${post.id}`} className="block">
-                                                <div className="overflow-hidden h-52 bg-gray-100 flex items-center justify-center">
+                                                <div className="overflow-hidden aspect-video bg-gray-100">
                                                     <img
                                                         src={post.imageUrl}
                                                         alt={post.title}
-                                                        className="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300"
+                                                        className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
                                                     />
                                                 </div>
                                             </Link>
