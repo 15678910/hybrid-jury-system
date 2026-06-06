@@ -9,6 +9,9 @@
 //
 // 코드는 functions/.env(서버측)에만 존재하며, verifyAccessCode Function이 검증함.
 
+import { signInWithCustomToken } from 'firebase/auth';
+import { auth } from './firebase';
+
 const FN_BASE = 'https://asia-northeast3-siminbupjung-blog.cloudfunctions.net';
 const VERIFY_URL = `${FN_BASE}/verifyAccessCode`;
 const CHECK_DUP_URL = `${FN_BASE}/checkSignatureDuplicate`;
@@ -33,6 +36,15 @@ export async function verifyAccessCode(code) {
         });
         const data = await res.json().catch(() => ({ valid: false }));
         if (res.ok && data.valid) {
+            // custom token으로 Firebase Auth 로그인 → Firestore 쓰기 시 request.auth.token.role 사용 (H-1)
+            if (data.token) {
+                try {
+                    await signInWithCustomToken(auth, data.token);
+                } catch (e) {
+                    console.error('custom token 로그인 실패:', e);
+                    // Phase 1: 규칙이 아직 role을 강제하지 않으므로, 로그인 실패해도 검증 성공으로 진행
+                }
+            }
             return { valid: true, name: data.name, role: data.role };
         }
         return { valid: false };

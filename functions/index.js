@@ -125,6 +125,17 @@ function timingSafeStrEqual(a, b) {
     }
 }
 
+// Firebase custom token 발급 (role claim 포함) — Firestore 쓰기 권한 검증용 (H-1)
+// 실패해도 null 반환하여 코드 검증 자체는 계속 진행 (Phase 0 무영향 보장)
+async function createRoleToken(uid, role) {
+    try {
+        return await admin.auth().createCustomToken(uid, { role });
+    } catch (e) {
+        console.error('[createRoleToken] custom token 발급 실패:', e.message);
+        return null;
+    }
+}
+
 /**
  * 작성자/관리자 접근 코드 검증 함수
  * - 코드는 functions/.env(서버측)에만 존재 → 클라이언트 JS 번들에 노출되지 않음
@@ -154,10 +165,12 @@ exports.verifyAccessCode = functions
         const writerCode = process.env.ACCESS_WRITER_CODE;
 
         if (adminCode && timingSafeStrEqual(code, adminCode)) {
-            return res.json({ valid: true, name: '관리자', role: 'admin' });
+            const token = await createRoleToken('access-admin', 'admin');
+            return res.json({ valid: true, name: '관리자', role: 'admin', token });
         }
         if (writerCode && timingSafeStrEqual(code, writerCode)) {
-            return res.json({ valid: true, name: '시민법정', role: 'writer' });
+            const token = await createRoleToken('access-writer', 'writer');
+            return res.json({ valid: true, name: '시민법정', role: 'writer', token });
         }
 
         // 개별 작성자 코드 (Firestore writerCodes - admin SDK는 보안규칙 우회)
@@ -169,7 +182,8 @@ exports.verifyAccessCode = functions
                 .get();
             if (!snap.empty) {
                 const data = snap.docs[0].data();
-                return res.json({ valid: true, name: data.name || '작성자', role: 'writer' });
+                const token = await createRoleToken('access-writer-' + snap.docs[0].id, 'writer');
+                return res.json({ valid: true, name: data.name || '작성자', role: 'writer', token });
             }
         } catch (e) {
             console.error('[verifyAccessCode] Firestore lookup error:', e);

@@ -55,14 +55,18 @@ service cloud.firestore {
       // 읽기: 모든 사용자 허용 (공개 블로그)
       allow read: if true;
 
-      // 생성: 필수 필드가 있는 경우 허용
-      allow create: if request.resource.data.keys().hasAll(['title', 'content', 'author'])
+      // 생성: 관리자/작성자(custom token role)만 (H-1)
+      allow create: if request.auth != null && request.auth.token.role in ['admin', 'writer']
+                    && request.resource.data.keys().hasAll(['title', 'content', 'author'])
                     && request.resource.data.title is string
                     && request.resource.data.content is string;
 
-      // 수정: 글 내용(title, content, author, updatedAt, musicUrl, imageUrl) 또는 좋아요(likes, views) 허용
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
-                       .hasOnly(['title', 'content', 'author', 'updatedAt', 'likes', 'views', 'summary', 'category', 'musicUrl', 'imageUrl']);
+      // 수정: 좋아요/조회수(likes, views)는 익명 허용, 글 내용 수정은 관리자만 (H-1)
+      allow update: if
+                    (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'views']))
+                    || (request.auth != null && request.auth.token.role in ['admin', 'writer']
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly(['title', 'content', 'author', 'updatedAt', 'likes', 'views', 'summary', 'category', 'musicUrl', 'imageUrl']));
 
       allow delete: if false;
 
@@ -81,15 +85,19 @@ service cloud.firestore {
       // 읽기: 모든 사용자 허용 (공개 동영상 목록)
       allow read: if true;
 
-      // 생성: 필수 필드 검증
-      allow create: if request.resource.data.keys().hasAll(['title', 'videoId'])
+      // 생성: 관리자/작성자(custom token role)만 (H-1)
+      allow create: if request.auth != null && request.auth.token.role in ['admin', 'writer']
+                    && request.resource.data.keys().hasAll(['title', 'videoId'])
                     && request.resource.data.title is string
                     && request.resource.data.title.size() > 0
                     && request.resource.data.title.size() <= 200;
 
-      // 수정: 제목, 설명, 카테고리, 좋아요(likes, views) 필드 업데이트 허용
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
-                       .hasOnly(['title', 'description', 'category', 'videoId', 'likes', 'views', 'updatedAt']);
+      // 수정: 좋아요/조회수(likes, views)는 익명 허용, 내용 수정은 관리자만 (H-1)
+      allow update: if
+                    (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'views']))
+                    || (request.auth != null && request.auth.token.role in ['admin', 'writer']
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly(['title', 'description', 'category', 'videoId', 'likes', 'views', 'updatedAt']));
 
       allow delete: if false;
     }
@@ -99,18 +107,20 @@ service cloud.firestore {
       // 읽기: 모든 사용자 허용 (공개 카드뉴스)
       allow read: if true;
 
-      // 생성: 필수 필드 검증
-      allow create: if request.resource.data.keys().hasAll(['title', 'images'])
+      // 생성: 관리자/작성자(custom token role)만 (H-1)
+      allow create: if request.auth != null && request.auth.token.role in ['admin', 'writer']
+                    && request.resource.data.keys().hasAll(['title', 'images'])
                     && request.resource.data.title is string
                     && request.resource.data.title.size() > 0
                     && request.resource.data.images is list;
 
-      // 수정: 제목, 설명, 카테고리, 이미지 필드 업데이트 허용
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+      // 수정: 관리자/작성자만 (H-1)
+      allow update: if request.auth != null && request.auth.token.role in ['admin', 'writer']
+                    && request.resource.data.diff(resource.data).affectedKeys()
                        .hasOnly(['title', 'description', 'category', 'images', 'updatedAt']);
 
-      // 삭제: 인증된 관리자만
-      allow delete: if request.auth != null;
+      // 삭제: 관리자/작성자만 (H-1)
+      allow delete: if request.auth != null && request.auth.token.role in ['admin', 'writer'];
     }
 
     // 의제별 투표 컬렉션 (법왜곡죄, 내란전담재판부, 시민법관참심제)
