@@ -245,11 +245,11 @@ export default function Blog() {
                                         {/* 콘텐츠 영역 */}
                                         <div className="p-5 flex flex-col flex-1">
                                             <Link to={`/blog/${post.id}`}>
-                                                <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 mb-2">
+                                                <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 mb-2 line-clamp-2">
                                                     {post.title}
                                                 </h2>
                                             </Link>
-                                            <p className="text-gray-600 text-sm mb-4 line-clamp-4 flex-1">
+                                            <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">
                                                 {post.summary || (post.content ? post.content.replace(/<[^>]*>/g, '').slice(0, 200) : '')}
                                             </p>
 
