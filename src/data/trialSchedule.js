@@ -18,8 +18,9 @@ export const EVENT_CATEGORIES = {
 
 export const CASE_GROUPS = {
     insurrection: { label: '12·3 내란', badge: 'bg-gray-900 text-white' },
-    prosecution: { label: '검찰 조작·정치 사건', badge: 'bg-orange-600 text-white' },
-    daejangdong: { label: '대장동·정치자금', badge: 'bg-teal-600 text-white' },
+    // '의혹'을 명시(단정 회피) — 법적 책임 방지. 각 사건의 구체 주장은 event.note에 인용 형식으로 기재.
+    fabrication: { label: '검찰 조작 의혹·정치사건', badge: 'bg-orange-700 text-white' },
+    political: { label: '정치사건', badge: 'bg-slate-600 text-white' },
 };
 
 export const TRIAL_EVENTS = [
@@ -40,7 +41,7 @@ export const TRIAL_EVENTS = [
         id: 'ohsehoon-closing',
         date: '2026-06-17',
         category: 'hearing',
-        group: 'prosecution',
+        group: 'political',
         title: '오세훈 정치자금법 결심공판 (변론종결)',
         defendant: '오세훈',
         court: '서울중앙지법 형사합의22부',
@@ -53,7 +54,7 @@ export const TRIAL_EVENTS = [
         date: null,
         approxLabel: '6월 말~7월 중순 (예상)',
         category: 'verdict',
-        group: 'prosecution',
+        group: 'political',
         title: '오세훈 정치자금법 1심 선고 (기일 미정)',
         defendant: '오세훈',
         court: '서울중앙지법 형사합의22부',
@@ -65,7 +66,7 @@ export const TRIAL_EVENTS = [
         id: 'leehwayoung-jury',
         date: '2026-06-19',
         category: 'verdict',
-        group: 'prosecution',
+        group: 'fabrication',
         title: '이화영 국민참여재판 평결·선고 (역대 최장 10일)',
         defendant: '이화영',
         court: '수원지법 형사합의11부',
@@ -91,7 +92,7 @@ export const TRIAL_EVENTS = [
         id: 'ohsehoon-6-10',
         date: '2026-06-10',
         category: 'hearing',
-        group: 'prosecution',
+        group: 'political',
         title: '오세훈 정치자금법 공판 (당선 후 첫 출석)',
         defendant: '오세훈',
         court: '서울중앙지법 형사합의22부',
@@ -163,7 +164,7 @@ export const TRIAL_EVENTS = [
         id: 'daejangdong-main-verdict',
         date: '2025-10-31',
         category: 'verdict',
-        group: 'daejangdong',
+        group: 'fabrication',
         title: '대장동 도시개발 특혜 본류(민관유착 배임) 1심 선고',
         defendant: '김만배·유동규 등',
         court: '서울중앙지법 형사합의22부',
@@ -175,7 +176,7 @@ export const TRIAL_EVENTS = [
         id: 'kimyong-verdict',
         date: '2023-11-30',
         category: 'verdict',
-        group: 'daejangdong',
+        group: 'fabrication',
         title: '김용 대장동 불법 정치자금·뇌물 1심 선고',
         defendant: '김용',
         court: '서울중앙지법 형사합의23부',
