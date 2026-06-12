@@ -6,6 +6,7 @@ import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
 import { JUDGES_DATA } from '../data/judges';
 import SNSShareBar from '../components/SNSShareBar';
+import EvaluationRubric from '../components/EvaluationRubric';
 
 // 카테고리 정의
 const CATEGORIES = [
@@ -111,13 +112,9 @@ export default function JudgeEvaluation() {
                             })}
                         </div>
 
-                        {/* 면책 문구 */}
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-3xl mx-auto">
-                            <p className="text-blue-800 text-sm">
-                                📊 <strong>AI 평가 기준 안내:</strong> 본 평가는 AI가 각 판사의 공개된 판결문, 언론 보도, 법원 공식 기록 등
-                                객관적 자료를 기반으로 분석한 결과입니다. 양형 일관성, 판례 준수율, 심리 충실도 등의
-                                정량적 지표와 주요 판결 이력을 종합하여 평가하였습니다.
-                            </p>
+                        {/* AI 평가 기준 안내 (상세·면책 — 공유 패널) */}
+                        <div className="max-w-3xl mx-auto">
+                            <EvaluationRubric />
                         </div>
                     </div>
 

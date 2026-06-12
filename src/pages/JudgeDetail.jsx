@@ -7,6 +7,7 @@ import Header from '../components/Header';
 import { JUDGES_DATA } from '../data/judges';
 import SNSShareBar from '../components/SNSShareBar';
 import SEOHead from '../components/SEOHead';
+import EvaluationRubric from '../components/EvaluationRubric';
 
 // 인라인 SVG 아이콘 (heroicons 대체)
 const ShareIcon = ({ className }) => (
@@ -344,6 +345,35 @@ export default function JudgeDetail() {
                                 ))}
                             </div>
 
+                            {/* 점수 산정 근거 (자동 산출) — 표시된 점수를 아래 쟁점·출처와 직접 연결 */}
+                            {(() => {
+                                const ev = judge.justiceEvaluation;
+                                const iss = Array.isArray(ev.issues) ? ev.issues : [];
+                                const prosCount = iss.filter(i => i.category === '검찰').length;
+                                const courtCount = iss.filter(i => i.category === '재판부').length;
+                                return (
+                                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-4 text-sm text-gray-700">
+                                        <span className="font-semibold text-gray-900">📊 점수 산정 근거: </span>
+                                        종합 <b>{ev.overallScore}점</b>은 검찰 공정성 <b>{ev.prosecutionScore}점</b>·재판부 공정성 <b>{ev.courtScore}점</b>을 종합한 값입니다.
+                                        {(prosCount > 0 || courtCount > 0) ? (
+                                            <> 아래 {prosCount > 0 && <><b>특검·검찰 쟁점 {prosCount}건</b></>}{prosCount > 0 && courtCount > 0 && ', '}{courtCount > 0 && <><b>재판부 판단·쟁점 {courtCount}건</b></>}이 점수의 근거이며, 각 항목은 보도·판례 출처로 확인할 수 있습니다.</>
+                                        ) : (
+                                            <> 세부 쟁점은 아래 요약을 참고하세요.</>
+                                        )}
+                                        <div className="flex flex-wrap gap-2 mt-2 text-xs">
+                                            <span className="px-2 py-0.5 rounded bg-green-100 text-green-700">🟢 70~100 양호</span>
+                                            <span className="px-2 py-0.5 rounded bg-yellow-100 text-yellow-700">🟡 50~69 논란</span>
+                                            <span className="px-2 py-0.5 rounded bg-red-100 text-red-700">🔴 0~49 심각한 우려</span>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
+                            {/* AI 평가 기준 (접이식 공유 패널) */}
+                            <div className="mb-6">
+                                <EvaluationRubric />
+                            </div>
+
                             {/* 종합 평가 요약 */}
                             <p className="text-gray-700 mb-6 leading-relaxed">
                                 {judge.justiceEvaluation.summary}
@@ -376,7 +406,7 @@ export default function JudgeDetail() {
                                     {judge.justiceEvaluation.issues.filter(i => i.category === '재판부').length > 0 && (
                                         <div>
                                             <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                                                <span>⚖️</span> 재판부 문제점
+                                                <span>⚖️</span> 재판부 판단·쟁점
                                             </h3>
                                             <div className="space-y-3">
                                                 {judge.justiceEvaluation.issues.filter(i => i.category === '재판부').map((issue, idx) => (
