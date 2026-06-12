@@ -1,0 +1,174 @@
+// 재판 일정 데이터 — 공개 보도·법원 기록 기반 (추측 배제, 모든 항목 출처 명시)
+//
+// ⚠️ 재판 기일은 자주 변경/연기됩니다. 새 기일 확인 시 이 파일을 갱신하세요.
+//   - date: 'YYYY-MM-DD' (확정 기일). 미정/예상이면 null + approxLabel 사용.
+//   - category: EVENT_CATEGORIES 키 (hearing/verdict/appeal/warrant)
+//   - group:    CASE_GROUPS 키 (insurrection/prosecution/daejangdong)
+//   - source:   { name, url } — 보도/법원 출처 (필수)
+//
+// 범위: 12·3 내란 사건 + 오세훈·명태균(검찰 조작·정치자금) + 대장동(조형우·조병구) 등
+//       주요 정치·사법 재판을 폭넓게 포함. (내란 전용 분석 페이지와 달리 범위가 넓음)
+
+export const EVENT_CATEGORIES = {
+    hearing: { label: '공판기일', badge: 'bg-blue-100 text-blue-700 border-blue-200', dot: 'bg-blue-500' },
+    verdict: { label: '선고기일', badge: 'bg-red-100 text-red-700 border-red-200', dot: 'bg-red-500' },
+    appeal: { label: '항소심', badge: 'bg-purple-100 text-purple-700 border-purple-200', dot: 'bg-purple-500' },
+    warrant: { label: '영장·구속심사', badge: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
+};
+
+export const CASE_GROUPS = {
+    insurrection: { label: '12·3 내란', badge: 'bg-gray-900 text-white' },
+    prosecution: { label: '검찰 조작·정치 사건', badge: 'bg-orange-600 text-white' },
+    daejangdong: { label: '대장동·정치자금', badge: 'bg-teal-600 text-white' },
+};
+
+export const TRIAL_EVENTS = [
+    // ───────── 다가오는 일정 ─────────
+    {
+        id: 'choo-6th-hearing',
+        date: '2026-06-17',
+        category: 'hearing',
+        group: 'insurrection',
+        title: '추경호 내란중요임무종사 6차 공판',
+        defendant: '추경호',
+        court: '서울중앙지법 형사합의34부',
+        judge: '한성진 부장판사',
+        note: '계엄 해제 표결 방해 혐의. 당초 6.10 5차 공판이 안철수 의원 증인 불출석으로 6.17로 연기. 국민의힘 인사 증인신문 진행.',
+        source: { name: '아주경제', url: 'https://www.ajunews.com/view/20260609193942694' },
+    },
+    {
+        id: 'ohsehoon-closing',
+        date: '2026-06-17',
+        category: 'hearing',
+        group: 'prosecution',
+        title: '오세훈 정치자금법 결심공판 (변론종결)',
+        defendant: '오세훈',
+        court: '서울중앙지법 형사합의22부',
+        judge: '조형우 부장판사',
+        note: "'명태균 여론조사비 대납'(3,300만원 불법 정치자금 수수) 의혹. 6.17 변론 종결 예정. 100만원 이상 벌금 확정 시 시장직 상실. ※12·3 내란과 무관한 별개 사건.",
+        source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202606101031001' },
+    },
+    {
+        id: 'ohsehoon-verdict',
+        date: null,
+        approxLabel: '6월 말~7월 중순 (예상)',
+        category: 'verdict',
+        group: 'prosecution',
+        title: '오세훈 정치자금법 1심 선고 (기일 미정)',
+        defendant: '오세훈',
+        court: '서울중앙지법 형사합의22부',
+        judge: '조형우 부장판사',
+        note: '변론 종결(6.17) 후 통상 2~4주 내 선고. 빠르면 6월 말, 늦으면 7월 중순으로 예상(미확정).',
+        source: { name: '시사저널', url: 'https://www.sisajournal.com/news/articleView.html?idxno=375971' },
+    },
+
+    // ───────── 지난 일정 ─────────
+    {
+        id: 'drone-verdict',
+        date: '2026-06-12',
+        category: 'verdict',
+        group: 'insurrection',
+        title: '윤석열 등 평양 무인기 일반이적 1심 선고',
+        defendant: '윤석열·김용현·여인형·김용대',
+        court: '서울중앙지법 형사합의36부',
+        judge: '이정엽 부장판사',
+        note: '윤석열·김용현 각 징역 30년, 여인형 15년, 김용대 징역 3년·집행유예 5년. 일반이적 공동정범 인정.',
+        source: { name: '파이낸셜뉴스', url: 'https://www.fnnews.com/news/202606121114547074' },
+    },
+    {
+        id: 'ohsehoon-6-10',
+        date: '2026-06-10',
+        category: 'hearing',
+        group: 'prosecution',
+        title: '오세훈 정치자금법 공판 (당선 후 첫 출석)',
+        defendant: '오세훈',
+        court: '서울중앙지법 형사합의22부',
+        judge: '조형우 부장판사',
+        note: '지방선거 후 재개. 오세훈 "범죄자 아닌 허위 폭로 피해자" 주장.',
+        source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202606101031001' },
+    },
+    {
+        id: 'kanguigu-verdict',
+        date: '2026-05-28',
+        category: 'verdict',
+        group: 'insurrection',
+        title: '강의구 사후 계엄선포문 작성·폐기 1심 선고',
+        defendant: '강의구',
+        court: '서울중앙지법 형사합의30부',
+        judge: '박옥희 부장판사',
+        note: '허위공문서작성·대통령기록물법 위반 등. 징역 1년 6개월·법정구속 (특검 구형 5년).',
+        source: { name: '파이낸셜뉴스', url: 'https://www.fnnews.com/news/202605281509504057' },
+    },
+    {
+        id: 'yoon-insurrection-appeal-1',
+        date: '2026-05-14',
+        category: 'appeal',
+        group: 'insurrection',
+        title: '윤석열 내란우두머리 항소심 첫 공판',
+        defendant: '윤석열',
+        court: '서울고법 형사12-1부',
+        judge: '이승철 부장판사',
+        note: '내란 우두머리 혐의 항소심 개시(1심 무기징역). 피고인 측 재판부 기피·퇴정 등으로 진통.',
+        source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202605140724001' },
+    },
+    {
+        id: 'yoon-arrest-appeal-verdict',
+        date: '2026-04-29',
+        category: 'verdict',
+        group: 'insurrection',
+        title: '윤석열 체포방해 등 항소심 선고',
+        defendant: '윤석열',
+        court: '서울고법 형사1부',
+        judge: '윤성식 부장판사',
+        note: '특수공무집행방해·직권남용·허위공문서작성 등. 1심 징역 5년 → 항소심 징역 7년.',
+        source: { name: '이투데이', url: 'https://www.etoday.co.kr/news/view/2559532' },
+    },
+    {
+        id: 'yoon-insurrection-1st-verdict',
+        date: '2026-02-19',
+        category: 'verdict',
+        group: 'insurrection',
+        title: '윤석열 내란우두머리 1심 선고',
+        defendant: '윤석열',
+        court: '서울중앙지법 형사합의25부',
+        judge: '지귀연 부장판사',
+        note: '내란 우두머리(수괴) 혐의. 무기징역 선고(2.19 오후 3시, 417호 법정).',
+        source: { name: 'MBC', url: 'https://imnews.imbc.com/news/2026/society/article/6801803_36918.html' },
+    },
+    {
+        id: 'han-deoksu-verdict',
+        date: '2026-01-21',
+        category: 'verdict',
+        group: 'insurrection',
+        title: '한덕수 내란중요임무종사 1심 선고',
+        defendant: '한덕수',
+        court: '서울중앙지법 형사합의33부',
+        judge: '이진관 부장판사',
+        note: '12·3 비상계엄을 법원 최초로 "내란"으로 규정. 특검 구형(15년)보다 높은 징역 23년 선고.',
+        source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202601211634001' },
+    },
+    {
+        id: 'daejangdong-main-verdict',
+        date: '2025-10-31',
+        category: 'verdict',
+        group: 'daejangdong',
+        title: '대장동 도시개발 특혜 본류(민관유착 배임) 1심 선고',
+        defendant: '김만배·유동규 등',
+        court: '서울중앙지법 형사합의22부',
+        judge: '조형우 부장판사',
+        note: '김만배·유동규 각 징역 8년, 정민용 6년, 정영학 5년, 남욱 4년 등 전원 실형·법정구속. ※검찰 협력 증인 진술 의존 신빙성 논란.',
+        source: { name: '한국일보', url: 'https://www.hankookilbo.com/News/Read/A2025103118370004441' },
+    },
+    {
+        id: 'kimyong-verdict',
+        date: '2023-11-30',
+        category: 'verdict',
+        group: 'daejangdong',
+        title: '김용 대장동 불법 정치자금·뇌물 1심 선고',
+        defendant: '김용',
+        court: '서울중앙지법 형사합의23부',
+        judge: '조병구 부장판사',
+        note: '8억4700만원 중 6억 인정, 징역 5년·추징 6.7억. 현재 대법원 상고심. ※검찰 협력 증인(유동규) 진술 의존 논란.',
+        source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202604220600121' },
+    },
+];

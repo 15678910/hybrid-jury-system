@@ -928,6 +928,7 @@ export default function App() {
                                     <div className="bg-white rounded-lg shadow-lg border py-2 min-w-[200px]">
                                         <Link to="/sentencing-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">내란재판분석</Link>
                                         <Link to="/trial-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600 whitespace-nowrap">내란재판종합분석</Link>
+                                        <Link to="/trial-schedule" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600 whitespace-nowrap">📅 재판 일정</Link>
                                         <Link to="/judge-evaluation" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">AI의 판사평가</Link>
                                         <Link to="/reform-analysis" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">사법개혁안 비교</Link>
                                         <Link to="/law-database" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">법령DB</Link>
@@ -1068,6 +1069,7 @@ export default function App() {
                                 <div className="px-4 py-2 text-gray-500 text-sm font-medium">내란재판분석</div>
                                 <Link to="/sentencing-analysis" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">내란재판분석</Link>
                                 <Link to="/trial-analysis" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">내란재판종합분석</Link>
+                                <Link to="/trial-schedule" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">📅 재판 일정</Link>
                                 <Link to="/judge-evaluation" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">AI의 판사평가</Link>
                                 <Link to="/reform-analysis" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">사법개혁안 비교</Link>
                                 <Link to="/law-database" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">법령DB</Link>

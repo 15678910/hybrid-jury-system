@@ -36,6 +36,7 @@ const JudgeEvaluation = lazy(() => import('./pages/JudgeEvaluation'))
 const JudgeDetail = lazy(() => import('./pages/JudgeDetail'))
 const JudicialNetwork = lazy(() => import('./pages/JudicialNetwork'))
 const InsurrectionTrialAnalysis = lazy(() => import('./pages/InsurrectionTrialAnalysis'))
+const TrialSchedule = lazy(() => import('./pages/TrialSchedule'))
 const JudgeSimulation = lazy(() => import('./pages/JudgeSimulation'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const AdminAnalytics = lazy(() => import('./pages/AdminAnalytics'))
@@ -103,6 +104,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/judge/:name" element={<JudgeDetail />} />
           <Route path="/judicial-network" element={<JudicialNetwork />} />
           <Route path="/trial-analysis" element={<InsurrectionTrialAnalysis />} />
+          <Route path="/trial-schedule" element={<TrialSchedule />} />
           <Route path="/case-search" element={<CaseSearch />} />
           <Route path="/precedent/:id" element={<PrecedentDetail />} />
           <Route path="/simulation" element={<JudgeSimulation />} />
