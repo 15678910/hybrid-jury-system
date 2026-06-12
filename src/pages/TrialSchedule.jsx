@@ -10,6 +10,52 @@ const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 // 'YYYY-MM-DD' → Date (로컬 자정)
 const parseDate = (ds) => (ds ? new Date(ds + 'T00:00:00') : null);
 
+// 날짜 표시 'M.D(요일)'. ds는 'YYYY-MM-DD' (순수 함수).
+const fmt = (ds) => {
+    const dt = parseDate(ds);
+    return `${dt.getMonth() + 1}.${dt.getDate()}(${WEEKDAYS[dt.getDay()]})`;
+};
+
+// D-day 계산. today는 로컬 자정 Date.
+const dday = (ds, today) => {
+    const diff = Math.round((parseDate(ds) - today) / 86400000);
+    if (diff === 0) return '오늘';
+    if (diff === 1) return '내일';
+    return `D-${diff}`;
+};
+
+// 이벤트 카드 — 모듈 최상위 정의(부모 리렌더 시 리마운트 방지). today는 D-day 계산용.
+function EventCard({ e, upcoming: isUp, today }) {
+    const cat = EVENT_CATEGORIES[e.category];
+    const grp = CASE_GROUPS[e.group];
+    return (
+        <div className={`bg-white rounded-lg border p-4 shadow-sm ${isUp ? 'border-l-4 border-l-blue-500' : 'opacity-95'}`}>
+            <div className="flex items-center gap-2 flex-wrap mb-2">
+                {grp && <span className={`text-xs font-bold px-2 py-0.5 rounded ${grp.badge}`}>{grp.label}</span>}
+                {cat && <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${cat.badge}`}>{cat.label}</span>}
+                <span className="text-sm font-bold text-gray-900 ml-auto">
+                    {e.date ? fmt(e.date) : e.approxLabel}
+                </span>
+                {isUp && e.date && (
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded ${dday(e.date, today) === '오늘' ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'}`}>
+                        {dday(e.date, today)}
+                    </span>
+                )}
+            </div>
+            <h3 className="font-bold text-gray-900">{e.title}</h3>
+            <p className="text-sm text-gray-500 mt-0.5">
+                {e.court} · {e.judge}
+            </p>
+            {e.note && <p className="text-sm text-gray-700 mt-2 leading-relaxed">{e.note}</p>}
+            {e.source && (
+                <a href={e.source.url} target="_blank" rel="noopener noreferrer" className="inline-block text-xs text-blue-600 hover:underline mt-2">
+                    출처: {e.source.name} ↗
+                </a>
+            )}
+        </div>
+    );
+}
+
 function TrialSchedule() {
     // 오늘(자정 기준) — 과거/미래 구분용
     const today = useMemo(() => {
@@ -80,49 +126,7 @@ function TrialSchedule() {
 
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
-    const dday = (ds) => {
-        const diff = Math.round((parseDate(ds) - today) / 86400000);
-        if (diff === 0) return '오늘';
-        if (diff === 1) return '내일';
-        return `D-${diff}`;
-    };
-
-    const fmt = (ds) => {
-        const dt = parseDate(ds);
-        return `${dt.getMonth() + 1}.${dt.getDate()}(${WEEKDAYS[dt.getDay()]})`;
-    };
-
-    // ── 이벤트 카드 ──
-    const EventCard = ({ e, upcoming: isUp }) => {
-        const cat = EVENT_CATEGORIES[e.category];
-        const grp = CASE_GROUPS[e.group];
-        return (
-            <div className={`bg-white rounded-lg border p-4 shadow-sm ${isUp ? 'border-l-4 border-l-blue-500' : 'opacity-95'}`}>
-                <div className="flex items-center gap-2 flex-wrap mb-2">
-                    {grp && <span className={`text-xs font-bold px-2 py-0.5 rounded ${grp.badge}`}>{grp.label}</span>}
-                    {cat && <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${cat.badge}`}>{cat.label}</span>}
-                    <span className="text-sm font-bold text-gray-900 ml-auto">
-                        {e.date ? fmt(e.date) : e.approxLabel}
-                    </span>
-                    {isUp && e.date && (
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded ${dday(e.date) === '오늘' ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'}`}>
-                            {dday(e.date)}
-                        </span>
-                    )}
-                </div>
-                <h3 className="font-bold text-gray-900">{e.title}</h3>
-                <p className="text-sm text-gray-500 mt-0.5">
-                    {e.court} · {e.judge}
-                </p>
-                {e.note && <p className="text-sm text-gray-700 mt-2 leading-relaxed">{e.note}</p>}
-                {e.source && (
-                    <a href={e.source.url} target="_blank" rel="noopener noreferrer" className="inline-block text-xs text-blue-600 hover:underline mt-2">
-                        출처: {e.source.name} ↗
-                    </a>
-                )}
-            </div>
-        );
-    };
+    // (날짜 포맷 fmt·D-day·EventCard는 모듈 최상위로 이동 — 부모 리렌더 시 EventCard 리마운트 방지)
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -211,7 +215,7 @@ function TrialSchedule() {
                                         {cell.d}
                                         {has && (
                                             <span className="flex gap-0.5 mt-0.5">
-                                                {[...new Set(cell.events.map((e) => e.category))].slice(0, 3).map((c) => (
+                                                {[...new Set(cell.events.map((e) => e.category))].filter((c) => EVENT_CATEGORIES[c]).slice(0, 3).map((c) => (
                                                     <span key={c} className={`w-1.5 h-1.5 rounded-full ${isSel ? 'bg-white' : EVENT_CATEGORIES[c].dot}`} />
                                                 ))}
                                             </span>
@@ -236,9 +240,9 @@ function TrialSchedule() {
                             </h2>
                             <div className="space-y-3">
                                 {visibleUpcoming.length > 0
-                                    ? visibleUpcoming.map((e) => <EventCard key={e.id} e={e} upcoming />)
+                                    ? visibleUpcoming.map((e) => <EventCard key={e.id} e={e} upcoming today={today} />)
                                     : <p className="text-sm text-gray-400 py-4 text-center bg-white rounded-lg border">표시할 다가오는 일정이 없습니다.</p>}
-                                {!selectedDate && tbd.map((e) => <EventCard key={e.id} e={e} upcoming />)}
+                                {!selectedDate && tbd.map((e) => <EventCard key={e.id} e={e} upcoming today={today} />)}
                             </div>
                         </section>
                     </div>
@@ -252,7 +256,7 @@ function TrialSchedule() {
                     </h2>
                     <div className="grid md:grid-cols-2 gap-3">
                         {visiblePast.length > 0
-                            ? visiblePast.map((e) => <EventCard key={e.id} e={e} />)
+                            ? visiblePast.map((e) => <EventCard key={e.id} e={e} today={today} />)
                             : <p className="text-sm text-gray-400 py-4 text-center bg-white rounded-lg border md:col-span-2">표시할 지난 일정이 없습니다.</p>}
                     </div>
                 </section>
