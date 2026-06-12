@@ -61,6 +61,18 @@ export const TRIAL_EVENTS = [
         note: '변론 종결(6.17) 후 통상 2~4주 내 선고. 빠르면 6월 말, 늦으면 7월 중순으로 예상(미확정).',
         source: { name: '시사저널', url: 'https://www.sisajournal.com/news/articleView.html?idxno=375971' },
     },
+    {
+        id: 'leehwayoung-jury',
+        date: '2026-06-19',
+        category: 'verdict',
+        group: 'prosecution',
+        title: '이화영 국민참여재판 평결·선고 (역대 최장 10일)',
+        defendant: '이화영',
+        court: '수원지법 형사합의11부',
+        judge: '송병훈 부장판사',
+        note: "쌍방울 대북송금 본안 사건(징역 7년8개월 대법 확정, 2025.6.5)과 별개로, 이화영 전 경기 평화부지사 본인 요청으로 열린 국민참여재판(2026.6.8~6.19, 역대 최장 10일). 혐의: 정치자금법 위반(김성태 전 쌍방울 회장과 공모해 이재명 측에 쪼개기 한도초과 기부)·직권남용(경기도 공무원에 대북 금송·밀가루 지원 강요)·위증(국회 '박상용 검사 탄핵' 청문회서 '연어 술파티' 허위증언). 이화영은 검찰의 진술 회유·'조작 수사'·'인간사냥'을 주장하며 전부 부인. 6.19 배심원 평결·선고 예정.",
+        source: { name: 'MBC', url: 'https://imnews.imbc.com/replay/2026/nwdesk/article/6828666_37004.html' },
+    },
 
     // ───────── 지난 일정 ─────────
     {
