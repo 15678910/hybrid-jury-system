@@ -16,13 +16,6 @@ const CATEGORIES = [
     { id: 'warrant', name: '영장전담판사', icon: '📋' }
 ];
 
-const CATEGORY_MAP = {
-    '헌법재판소': 'constitutional',
-    '대법원': 'supreme',
-    '내란전담재판부': 'insurrection',
-    '영장전담판사': 'warrant'
-};
-
 export default function JudgeEvaluation() {
     const [searchParams] = useSearchParams();
     const categoryFromUrl = searchParams.get('category');

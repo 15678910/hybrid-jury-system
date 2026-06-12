@@ -153,7 +153,8 @@ describe('JUDGES_DATA 스키마 검증', () => {
                         expect(source).toHaveProperty('name');
                         expect(source).toHaveProperty('url');
                         expect(typeof source.name).toBe('string');
-                        expect(typeof source.url).toBe('string');
+                        // url은 문자열 또는 null(출처명은 있으나 링크 없음, 예: 방송 자막 인용) 허용
+                        expect(source.url === null || typeof source.url === 'string').toBe(true);
                     }
                 });
             });

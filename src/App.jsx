@@ -2,15 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import SEOHead from './components/SEOHead';
 import Poster, { shouldShowPoster } from './Poster'
 import { Link, useNavigate } from 'react-router-dom'
-import { collection, addDoc, getDocs, query, orderBy, where, writeBatch, doc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, writeBatch, doc } from 'firebase/firestore';
 import { db, auth, RecaptchaVerifier, signInWithPhoneNumber } from './lib/firebase';
 import ConsentCheckbox from './components/ConsentCheckbox';
 import LoginModal from './components/LoginModal';
 import { onAuthChange, signOut as authSignOut, getUserInfo, checkUserSignature, checkGoogleRedirectResult, checkKakaoRedirectResult } from './lib/auth';
 import { fetchAllNews, cleanTitle, formatDate } from './lib/news';
 import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, LinkedInIcon } from './components/icons';
-import { trackSignatureComplete, trackShare, trackTelegramJoin } from './lib/analytics';
-import { requestPushPermission, isPushSupported, getPushPermissionStatus } from './lib/pushNotification';
+import { trackSignatureComplete, trackShare } from './lib/analytics';
 import SNSShareBar from './components/SNSShareBar';
 import { verifyAccessCode, checkSignatureDuplicate, exportSignatures } from './lib/authUtils';
 
@@ -20,22 +19,6 @@ const maskName = (name) => {
     return name;
 };
 
-// 전화번호 마스킹 함수 (예: 010-1234-5678 → 010-****-5678)
-const maskPhone = (phone) => {
-    if (!phone) return '';
-    // 하이픈이 있는 경우
-    if (phone.includes('-')) {
-        const parts = phone.split('-');
-        if (parts.length === 3) {
-            return `${parts[0]}-****-${parts[2]}`;
-        }
-    }
-    // 하이픈이 없는 경우 (예: 01012345678)
-    if (phone.length === 11) {
-        return phone.slice(0, 3) + '-****-' + phone.slice(7);
-    }
-    return phone;
-};
 
 export default function App() {
     const navigate = useNavigate();
@@ -68,19 +51,6 @@ export default function App() {
     const [introDropdownOpen, setIntroDropdownOpen] = useState(false);
     const [casesDropdownOpen, setCasesDropdownOpen] = useState(false);
     const [trialDropdownOpen, setTrialDropdownOpen] = useState(false);
-
-    // 푸시 알림 상태
-    const [isPushAvailable] = useState(() => isPushSupported());
-    const [pushPermission, setPushPermission] = useState(() => getPushPermissionStatus());
-
-    const handlePushSubscribe = async () => {
-        const token = await requestPushPermission();
-        if (token) {
-            setPushPermission('granted');
-        } else {
-            setPushPermission(getPushPermissionStatus());
-        }
-    };
 
     // 최신 블로그 글 상태
     const [latestPosts, setLatestPosts] = useState([]);
@@ -420,12 +390,6 @@ export default function App() {
         }
     };
 
-    // 관리자 로그아웃
-    const handleAdminLogout = () => {
-        setIsAdmin(false);
-        alert('로그아웃되었습니다.');
-    };
-
     // 사용자 로그인 성공 핸들러
     const handleLoginSuccess = (loggedInUser) => {
         // 로그인 완료 후 플래그 해제
@@ -513,16 +477,6 @@ export default function App() {
         // 파일 다운로드
         const timestamp = new Date().toISOString().split('T')[0];
         XLSX.writeFile(wb, `혼합형참심제_지지서명_${timestamp}.xlsx`);
-    };
-
-    // SNS 토글
-    const toggleSNS = (platform) => {
-        setFormData(prev => ({
-            ...prev,
-            sns: prev.sns.includes(platform)
-                ? prev.sns.filter(s => s !== platform)
-                : [...prev.sns, platform]
-        }));
     };
 
     // reCAPTCHA 초기화

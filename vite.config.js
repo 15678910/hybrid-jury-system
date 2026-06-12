@@ -26,5 +26,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.js',
+    // .claude/worktrees의 옛 소스 복제본이 테스트로 이중 실행되는 것을 차단
+    exclude: ['**/node_modules/**', '**/dist/**', '**/.claude/**'],
   }
 })

@@ -130,19 +130,19 @@ describe('Header Component', () => {
     expect(europeLink.getAttribute('href')).toBe('/europe-jury')
   })
 
-  it('개혁안 비교 링크가 있는지 확인', () => {
+  it('사법개혁안 비교 링크가 있는지 확인', () => {
     renderWithRouter(<Header />)
 
-    const reformLinks = screen.getAllByText('개혁안 비교')
+    const reformLinks = screen.getAllByText('사법개혁안 비교')
     const reformLink = reformLinks.find(link => link.tagName === 'A')
     expect(reformLink).toBeTruthy()
     expect(reformLink.getAttribute('href')).toBe('/reform-analysis')
   })
 
-  it('판사평가 링크가 있는지 확인', () => {
+  it('AI의 판사평가 링크가 있는지 확인', () => {
     renderWithRouter(<Header />)
 
-    const judgeLinks = screen.getAllByText('판사평가')
+    const judgeLinks = screen.getAllByText('AI의 판사평가')
     const judgeLink = judgeLinks.find(link => link.tagName === 'A')
     expect(judgeLink).toBeTruthy()
     expect(judgeLink.getAttribute('href')).toBe('/judge-evaluation')
@@ -166,13 +166,13 @@ describe('Header Component', () => {
     expect(lawLink.getAttribute('href')).toBe('/law-database')
   })
 
-  it('법률정보 검색 링크가 있는지 확인', () => {
+  it('재판 일정 링크가 있는지 확인', () => {
     renderWithRouter(<Header />)
 
-    const searchLinks = screen.getAllByText('법률정보 검색')
-    const searchLink = searchLinks.find(link => link.tagName === 'A')
-    expect(searchLink).toBeTruthy()
-    expect(searchLink.getAttribute('href')).toBe('/case-search')
+    const scheduleLinks = screen.getAllByText('📅 재판 일정')
+    const scheduleLink = scheduleLinks.find(link => link.tagName === 'A')
+    expect(scheduleLink).toBeTruthy()
+    expect(scheduleLink.getAttribute('href')).toBe('/trial-schedule')
   })
 
   it('참여하기 버튼이 올바른 스타일을 가지는지 확인', () => {

@@ -1,6 +1,6 @@
 import { useState, useEffect, Fragment } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { collection, getDocs, doc, setDoc, addDoc, query, where, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, addDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
@@ -1020,7 +1020,7 @@ function computeClassAnalysis(firstInstanceCourts, appealCourtsData) {
 }
 
 export default function InsurrectionTrialAnalysis() {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
     // URL ?tab=xxx 하위 호환: 마운트 시 해당 섹션으로 자동 스크롤
     useEffect(() => {
         const tabParam = searchParams.get('tab');
