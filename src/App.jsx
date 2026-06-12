@@ -351,6 +351,25 @@ export default function App() {
         return () => unsubscribe();
     }, []);
 
+    // 로그인 사용자의 서명 여부 확인 → '이미 참여하셨습니다' 상태 표시용.
+    // [변경 이유] setHasSignature가 어디서도 호출되지 않아 hasSignature가 영원히
+    //   null(빈 화면)에 고정 → 로그인 사용자가 서명 완료 상태를 화면에서 볼 수 없던 버그.
+    //   user는 onAuthChange/LoginModal/세션 복원 등 여러 경로에서 설정되므로, 각 경로마다
+    //   중복 처리하는 대신 user 변화에 반응하는 단일 effect로 통합(로그아웃=user null도 커버).
+    //   중복 서명 차단(제출 시 checkUserSignature)은 기존대로 유지 — 여기서는 표시 전용.
+    useEffect(() => {
+        let cancelled = false;
+        if (!user?.uid) {
+            setHasSignature(null); // 비로그인/로그아웃: 표시 영역 숨김(로딩과 동일 처리)
+            return;
+        }
+        setHasSignature(null); // 확인 중
+        checkUserSignature(user.uid)
+            .then((signed) => { if (!cancelled) setHasSignature(!!signed); })
+            .catch(() => { if (!cancelled) setHasSignature(false); });
+        return () => { cancelled = true; };
+    }, [user]);
+
     // 초기 데이터 로드 및 통계 업데이트
     useEffect(() => {
         updateStats(signatures);
