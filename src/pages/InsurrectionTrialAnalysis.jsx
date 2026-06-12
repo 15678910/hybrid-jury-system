@@ -10,6 +10,50 @@ import SidebarNav from '../components/SidebarNav';
 // 판결 데이터 (기본 fallback)
 const DEFAULT_VERDICTS = [
     {
+        date: '2026.06.12',
+        defendant: '윤석열',
+        court: '서울중앙지법 형사합의36부',
+        judge: '이정엽 부장판사',
+        charge: '일반이적·직권남용 (평양 무인기 침투 작전)',
+        sentence: '징역 30년',
+        prosecution: '징역 30년 (특검)',
+        status: 'convicted',
+        detail: '12·3 비상계엄 명분 조성을 위해 2024.10월 이후 평양에 무인기를 투입해 북한의 군사적 반응(북풍)을 유도한 혐의. 재판부: "무인기 침투가 군사상 이익 침해, 윤석열이 김용현 등과 처음부터 작전 계획" → 일반이적 공동정범. "정치적 이익 위한 사적 목적의 군 동원" 직권남용 인정. 본안 내란수괴(무기징역, 2.19)와 별개 추가 30년.'
+    },
+    {
+        date: '2026.06.12',
+        defendant: '김용현',
+        court: '서울중앙지법 형사합의36부',
+        judge: '이정엽 부장판사',
+        charge: '일반이적 (평양 무인기 침투 작전)',
+        sentence: '징역 30년',
+        prosecution: '-',
+        status: 'convicted',
+        detail: '국방부 장관으로서 평양 무인기 작전을 지시·주도, 윤석열과 일반이적 공동정범. 본안 내란중요임무종사(징역 30년, 2.19 지귀연 재판부)와 별개 사건.'
+    },
+    {
+        date: '2026.06.12',
+        defendant: '여인형',
+        court: '서울중앙지법 형사합의36부',
+        judge: '이정엽 부장판사',
+        charge: '일반이적 (평양 무인기 침투 작전)',
+        sentence: '징역 15년',
+        prosecution: '-',
+        status: 'convicted',
+        detail: '국군방첩사령관으로서 평양 무인기 작전에 관여, 일반이적 인정. 윤석열·김용현(각 30년) 대비 낮은 15년.'
+    },
+    {
+        date: '2026.06.12',
+        defendant: '김용대',
+        court: '서울중앙지법 형사합의36부',
+        judge: '이정엽 부장판사',
+        charge: '일반이적 (평양 무인기 침투 작전)',
+        sentence: '징역 3년·집행유예 5년',
+        prosecution: '-',
+        status: 'convicted',
+        detail: '전 드론작전사령관으로서 무인기 작전을 직접 지휘·실행. 상부 지시에 따른 실행자라는 점이 양형에 반영되어, 4명 중 유일하게 집행유예.'
+    },
+    {
         date: '2026.06.10',
         defendant: '추경호',
         court: '서울중앙지법 형사합의34부',
