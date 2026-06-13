@@ -20,7 +20,9 @@ export default function SNSShareBar() {
         return () => clearTimeout(timer);
     }, []);
 
-    const getShareUrl = () => window.location.href;
+    // 공유 URL은 접속 도메인과 무관하게 항상 공식 도메인(시민법정.kr)으로 통일.
+    // (siminbupjung-blog.web.app 등에서 공유해도 시민법정.kr 주소로 나가게 함)
+    const getShareUrl = () => `https://xn--lg3b0kt4n41f.kr${window.location.pathname}${window.location.search}`;
     const getShareText = () => document.title + ' #시민법정 #참심제 #사법개혁';
     const getFullShareText = () => {
         const desc = getOgDescription();
@@ -111,7 +113,7 @@ export default function SNSShareBar() {
         const text = `${document.title} #시민법정 #참심제 #사법개혁`;
         // 전체 탭으로 오픈 (작은 600x400 팝업에서는 로그아웃 시 X 로그인/온보딩 페이지가
         // 빈 화면으로 깨지는 문제가 있어 일반 탭으로 변경). URL은 규격대로 twitter.com/intent/tweet 유지.
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getShareUrl())}`, '_blank', 'noopener,noreferrer');
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getShareUrl())}&via=siminbupjung`, '_blank', 'noopener,noreferrer');
     };
 
     const shareToTelegram = () => {

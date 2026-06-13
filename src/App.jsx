@@ -2209,7 +2209,7 @@ export default function App() {
                                 </a>
                                 {/* X (트위터) */}
                                 <a
-                                    href="https://x.com/chamsimje67719"
+                                    href="https://x.com/siminbupjung"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="w-12 h-12 flex items-center justify-center bg-black rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"

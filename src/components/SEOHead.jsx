@@ -28,6 +28,8 @@ export default function SEOHead({ title, description, path = '/', image, type = 
             <meta property="og:locale" content="ko_KR" />
 
             <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:site" content="@siminbupjung" />
+            <meta name="twitter:creator" content="@siminbupjung" />
             <meta name="twitter:title" content={fullTitle} />
             <meta name="twitter:description" content={desc} />
             <meta name="twitter:image" content={img} />
