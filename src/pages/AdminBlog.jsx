@@ -245,7 +245,9 @@ export default function AdminBlog() {
 
     // 글 삭제
     const handleDeletePost = async (postId) => {
-        if (!confirm('정말 이 글을 삭제하시겠습니까?')) return;
+        // ⚠️ 삭제는 기존 공유 링크(트위터·카카오 등)와 검색 결과를 모두 끊습니다.
+        //    내용만 바꾸려면 삭제하지 말고 아래 목록의 [수정] 버튼을 쓰세요(글 ID·링크 유지).
+        if (!confirm('⚠️ 이 글을 삭제하면 기존 공유 링크(트위터·카카오 등)와 검색 결과가 모두 끊깁니다.\n\n내용만 바꾸려면 삭제하지 말고 [수정] 버튼을 사용하세요 (글 주소·링크가 그대로 유지됩니다).\n\n그래도 삭제하시겠습니까?')) return;
 
         try {
             await deleteDoc(doc(db, 'posts', postId));

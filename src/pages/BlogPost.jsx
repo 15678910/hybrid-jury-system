@@ -6,6 +6,7 @@ import DOMPurify from 'dompurify';
 import Header from '../components/Header';
 import SNSShareBar from '../components/SNSShareBar';
 import SEOHead from '../components/SEOHead';
+import { POST_REDIRECTS } from '../data/postRedirects';
 
 export default function BlogPost() {
     const { id } = useParams();
@@ -23,6 +24,11 @@ export default function BlogPost() {
     const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
     useEffect(() => {
+        // 삭제·재작성으로 ID가 바뀐 글: 옛 링크를 새 글로 자동 이동 (기존 공유 링크 보존)
+        if (POST_REDIRECTS[id]) {
+            navigate(`/blog/${POST_REDIRECTS[id]}`, { replace: true });
+            return;
+        }
         const fetchPost = async () => {
             try {
                 // Firestore에서 글 가져오기
