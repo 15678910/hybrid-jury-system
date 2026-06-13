@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { doc, getDoc, collection, query, orderBy, getDocs, updateDoc, increment, addDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, collection, query, orderBy, limit, getDocs, updateDoc, increment, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import DOMPurify from 'dompurify';
 import Header from '../components/Header';
@@ -65,6 +65,17 @@ export default function BlogPost() {
                     setAllPosts(firestorePosts);
                 } else {
                     setPost(null);
+                    // 삭제/이동된 글로 들어와도 막다른 길이 안 되도록 최근 글 추천 로드
+                    try {
+                        const recentSnap = await getDocs(query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(6)));
+                        setAllPosts(recentSnap.docs.map(d => ({
+                            id: d.id,
+                            ...d.data(),
+                            date: d.data().createdAt?.toDate().toLocaleDateString('ko-KR') || ''
+                        })));
+                    } catch (e) {
+                        // 추천 로드 실패는 무시 — 기본 not-found 화면 유지
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching post:', error);
@@ -146,13 +157,36 @@ export default function BlogPost() {
     }
 
     if (!post) {
+        const suggestions = allPosts.slice(0, 6);
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="text-center">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-4">글을 찾을 수 없습니다</h1>
-                    <Link to="/blog" className="text-blue-600 hover:underline">
-                        블로그 목록으로 돌아가기
+            <div className="min-h-screen bg-gray-50">
+                <SEOHead title="글을 찾을 수 없습니다 - 시민법정" description="요청하신 글을 찾을 수 없습니다. 삭제되었거나 주소가 변경된 글일 수 있습니다." />
+                <Header />
+                <div className="max-w-2xl mx-auto px-4 py-16 text-center">
+                    <div className="text-5xl mb-4">🔍</div>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">글을 찾을 수 없습니다</h1>
+                    <p className="text-gray-500 mb-6 leading-relaxed">
+                        삭제되었거나 주소가 변경된 글일 수 있습니다.<br />
+                        아래 최근 글을 확인하거나 블로그 목록에서 찾아보세요.
+                    </p>
+                    <Link to="/blog" className="inline-block px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium mb-10">
+                        블로그 목록으로 가기
                     </Link>
+                    {suggestions.length > 0 && (
+                        <div className="text-left">
+                            <h2 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-1"><span>📰</span> 최근 글</h2>
+                            <ul className="divide-y divide-gray-100 bg-white rounded-lg border shadow-sm">
+                                {suggestions.map((p) => (
+                                    <li key={p.id}>
+                                        <Link to={`/blog/${p.id}`} className="block px-4 py-3 hover:bg-blue-50 transition">
+                                            <span className="font-medium text-gray-900 line-clamp-1">{p.title}</span>
+                                            {p.date && <span className="block text-xs text-gray-400 mt-0.5">{p.date}</span>}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
             </div>
         );
