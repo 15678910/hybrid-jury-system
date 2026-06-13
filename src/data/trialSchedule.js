@@ -1,13 +1,16 @@
 // 재판 일정 데이터 — 공개 보도·법원 기록 기반 (추측 배제, 모든 항목 출처 명시)
 //
 // ⚠️ 재판 기일은 자주 변경/연기됩니다. 새 기일 확인 시 이 파일을 갱신하세요.
-//   - date: 'YYYY-MM-DD' (확정 기일). 미정/예상이면 null + approxLabel 사용.
+//   - date:     'YYYY-MM-DD' (확정 기일). 미정/예상이면 null + approxLabel 사용.
+//   - time:     (선택) 개정/선고 시간. 보도로 확인된 경우만 기재 (예: '오후 3시').
 //   - category: EVENT_CATEGORIES 키 (hearing/verdict/appeal/warrant)
-//   - group:    CASE_GROUPS 키 (insurrection/prosecution/daejangdong)
-//   - source:   { name, url } — 보도/법원 출처 (필수)
+//   - group:    CASE_GROUPS 키 (insurrection/fabrication/political)
+//   - court:    재판부(법원+합의부). room: (선택) 법정 호실 — 확인된 경우만.
+//   - source:   { name, url } — 보도/법원 출처 (필수, url은 null 허용)
+//   ※ 장소(법원종합청사)는 컴포넌트가 court에서 자동 도출(서울/수원).
 //
-// 범위: 12·3 내란 사건 + 오세훈·명태균(검찰 조작·정치자금) + 대장동(조형우·조병구) 등
-//       주요 정치·사법 재판을 폭넓게 포함. (내란 전용 분석 페이지와 달리 범위가 넓음)
+// 범위: 12·3 내란 + '검찰 조작 의혹·정치사건'(이화영·대장동·김용) +
+//       '정치사건'(오세훈) 등 주요 정치·사법 재판. (내란 전용 분석 페이지보다 넓음)
 
 export const EVENT_CATEGORIES = {
     hearing: { label: '공판기일', badge: 'bg-blue-100 text-blue-700 border-blue-200', dot: 'bg-blue-500' },
@@ -145,6 +148,8 @@ export const TRIAL_EVENTS = [
         defendant: '윤석열',
         court: '서울중앙지법 형사합의25부',
         judge: '지귀연 부장판사',
+        time: '오후 3시',
+        room: '417호 법정',
         note: '내란 우두머리(수괴) 혐의. 무기징역 선고(2.19 오후 3시, 417호 법정).',
         source: { name: 'MBC', url: 'https://imnews.imbc.com/news/2026/society/article/6801803_36918.html' },
     },

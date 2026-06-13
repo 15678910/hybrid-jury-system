@@ -24,6 +24,14 @@ const dday = (ds, today) => {
     return `D-${diff}`;
 };
 
+// 법원 → 장소(청사). 공개 정보로 확인 가능한 매핑만(서울/수원 법원종합청사).
+const courthouse = (court) => {
+    if (!court) return '';
+    if (court.includes('수원')) return '수원법원종합청사';
+    if (court.includes('서울')) return '서울법원종합청사';
+    return court;
+};
+
 // 이벤트 카드 — 모듈 최상위 정의(부모 리렌더 시 리마운트 방지). today는 D-day 계산용.
 function EventCard({ e, upcoming: isUp, today }) {
     const cat = EVENT_CATEGORIES[e.category];
@@ -43,9 +51,22 @@ function EventCard({ e, upcoming: isUp, today }) {
                 )}
             </div>
             <h3 className="font-bold text-gray-900">{e.title}</h3>
-            <p className="text-sm text-gray-500 mt-0.5">
-                {e.court} · {e.judge}
-            </p>
+            <div className="mt-2 space-y-0.5 text-sm">
+                <div className="text-gray-700">
+                    <span className="text-gray-400">🗓 기일 </span>
+                    {e.date ? fmt(e.date) : e.approxLabel}
+                    {e.time && <> · <span className="text-gray-900 font-medium">{e.time}</span></>}
+                </div>
+                <div className="text-gray-700">
+                    <span className="text-gray-400">📍 장소 </span>
+                    {courthouse(e.court)}
+                    {e.room && <span className="text-gray-900 font-medium"> {e.room}</span>}
+                </div>
+                <div className="text-gray-500">
+                    <span className="text-gray-400">⚖️ 재판부 </span>
+                    {e.court} · {e.judge}
+                </div>
+            </div>
             {e.note && <p className="text-sm text-gray-700 mt-2 leading-relaxed">{e.note}</p>}
             {e.source && (
                 <a href={e.source.url} target="_blank" rel="noopener noreferrer" className="inline-block text-xs text-blue-600 hover:underline mt-2">

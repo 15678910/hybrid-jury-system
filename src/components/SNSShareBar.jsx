@@ -109,7 +109,9 @@ export default function SNSShareBar() {
 
     const shareToTwitter = () => {
         const text = `${document.title} #시민법정 #참심제 #사법개혁`;
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getShareUrl())}`, '_blank', 'width=600,height=400');
+        // 전체 탭으로 오픈 (작은 600x400 팝업에서는 로그아웃 시 X 로그인/온보딩 페이지가
+        // 빈 화면으로 깨지는 문제가 있어 일반 탭으로 변경). URL은 규격대로 twitter.com/intent/tweet 유지.
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getShareUrl())}`, '_blank', 'noopener,noreferrer');
     };
 
     const shareToTelegram = () => {
