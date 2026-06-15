@@ -52,20 +52,36 @@ function EventCard({ e, upcoming: isUp, today }) {
             </div>
             <h3 className="font-bold text-gray-900">{e.title}</h3>
             <div className="mt-2 space-y-0.5 text-sm">
-                <div className="text-gray-700">
-                    <span className="text-gray-400">🗓 기일 </span>
-                    {e.date ? fmt(e.date) : e.approxLabel}
-                    {e.time && <> · <span className="text-gray-900 font-medium">{e.time}</span></>}
-                </div>
-                <div className="text-gray-700">
-                    <span className="text-gray-400">📍 장소 </span>
-                    {courthouse(e.court)}
-                    {e.room && <span className="text-gray-900 font-medium"> {e.room}</span>}
-                </div>
-                <div className="text-gray-500">
-                    <span className="text-gray-400">⚖️ 재판부 </span>
-                    {e.court} · {e.judge}
-                </div>
+                {e.category === 'investigation' ? (
+                    <>
+                        <div className="text-gray-700">
+                            <span className="text-gray-400">🗓 조사 </span>
+                            {e.date ? fmt(e.date) : e.approxLabel}
+                            {e.time && <> · <span className="text-gray-900 font-medium">{e.time}</span></>}
+                        </div>
+                        <div className="text-gray-500">
+                            <span className="text-gray-400">🔎 수사 </span>
+                            {e.court}
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="text-gray-700">
+                            <span className="text-gray-400">🗓 기일 </span>
+                            {e.date ? fmt(e.date) : e.approxLabel}
+                            {e.time && <> · <span className="text-gray-900 font-medium">{e.time}</span></>}
+                        </div>
+                        <div className="text-gray-700">
+                            <span className="text-gray-400">📍 장소 </span>
+                            {courthouse(e.court)}
+                            {e.room && <span className="text-gray-900 font-medium"> {e.room}</span>}
+                        </div>
+                        <div className="text-gray-500">
+                            <span className="text-gray-400">⚖️ 재판부 </span>
+                            {e.court} · {e.judge}
+                        </div>
+                    </>
+                )}
             </div>
             {e.note && <p className="text-sm text-gray-700 mt-2 leading-relaxed">{e.note}</p>}
             {e.source && (
@@ -164,7 +180,7 @@ function TrialSchedule() {
                         <span>📅</span> 재판 일정
                     </h1>
                     <p className="text-gray-600 mt-2">
-                        12·3 내란 사건과 오세훈·대장동 등 주요 정치·사법 재판의 공판·선고 기일을 모았습니다.
+                        12·3 내란 사건과 오세훈·대장동 등 주요 정치·사법 재판의 공판·선고 기일, 검찰·특검 수사(소환) 동향을 모았습니다.
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
                         ※ 모든 일정은 공개 보도·법원 기록 기반이며, 재판 기일은 변경·연기될 수 있습니다.

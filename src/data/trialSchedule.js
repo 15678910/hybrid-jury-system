@@ -17,6 +17,8 @@ export const EVENT_CATEGORIES = {
     verdict: { label: '선고기일', badge: 'bg-red-100 text-red-700 border-red-200', dot: 'bg-red-500' },
     appeal: { label: '항소심', badge: 'bg-purple-100 text-purple-700 border-purple-200', dot: 'bg-purple-500' },
     warrant: { label: '영장·구속심사', badge: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
+    // 법원 기일이 아닌 검찰/특검 수사(소환) 단계 — 영장 청구·기소 전. court 필드엔 수사 주체(특검)를 기재.
+    investigation: { label: '수사·소환', badge: 'bg-indigo-100 text-indigo-700 border-indigo-200', dot: 'bg-indigo-500' },
 };
 
 export const CASE_GROUPS = {
@@ -89,6 +91,43 @@ export const TRIAL_EVENTS = [
         judge: '부동식 부장판사',
         note: '12·3 비상계엄 당시 국회 등에 군이 투입되는 상황을 알고도 막지 않고 관여한 내란중요임무종사 혐의. 종합특검이 6.9 군 수뇌부 4명에 구속영장 청구. 6.15 영장실질심사 결과 김명수는 "혐의 성립에 다툼의 여지가 있고 퇴직자라 증거인멸 우려가 크지 않다"며 구속영장 기각. 함께 청구된 정진팔 전 합참 차장·김흥준 전 육군본부 정책실장·이재식 전 합참 전비태세검열차장은 구속.',
         source: { name: '한국일보', url: 'https://www.hankookilbo.com/news/article/A2026061512380001409' },
+    },
+    {
+        id: 'shim-woojung-probe',
+        date: null,
+        approxLabel: '진행 중',
+        category: 'investigation',
+        group: 'fabrication',
+        title: '심우정 전 검찰총장 특검 소환 조사',
+        defendant: '심우정',
+        court: '조은석 내란특검',
+        judge: '',
+        note: '① 2025.3 윤석열 구속취소 결정 때 수사팀의 즉시항고를 포기시켜 석방을 지휘한 직권남용 의혹 ② 비상계엄 당시 박성재 전 법무장관 지시로 합동수사본부에 검사를 파견하려 한 내란중요임무종사 의혹. 피의자 신분 소환 조사, 기소 여부 결정 단계. (구속영장 청구·기소 전)',
+        source: { name: '뉴스1', url: 'https://www.news1.kr/society/court-prosecution/6005049' },
+    },
+    {
+        id: 'jeon-mugon-probe',
+        date: '2026-06-11',
+        category: 'investigation',
+        group: 'fabrication',
+        title: '전무곤 전 대검 기획조정부장 특검 조사',
+        defendant: '전무곤',
+        court: '권창영 종합특검',
+        judge: '',
+        note: '12·3 비상계엄 이후 대검찰청에서 내란 수사·재판 관할 관련 문건 작성에 관여한 의혹. 종합특검 피의자 조사 단계. (구속영장 청구·기소 전)',
+        source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202606111022011' },
+    },
+    {
+        id: 'lee-changsoo-probe',
+        date: '2026-06-15',
+        category: 'investigation',
+        group: 'fabrication',
+        title: '이창수 전 서울중앙지검장 특검 소환 조사',
+        defendant: '이창수',
+        court: '권창영 종합특검',
+        judge: '',
+        note: '김건희 여사 도이치모터스 주가조작 사건 불기소(2024.10) 과정에서 수사보고서를 처분 후 시점으로 사후 수정하고 수사팀에 외압을 행사한 허위공문서작성 의혹. 6.15 종합특검 첫 출석(피의자 조사). (구속영장 청구·기소 전)',
+        source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202606150928001' },
     },
 
     // ───────── 지난 일정 ─────────
