@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { useSearchParams, Link } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -2711,6 +2712,20 @@ export default function SentencingAnalysis() {
     const [judgeCourtData, setJudgeCourtData] = useState({});
     const [loading, setLoading] = useState(true);
     const [kakaoReady, setKakaoReady] = useState(false);
+    // 선택 인물의 관련 뉴스 (네이버 뉴스 검색, 실시간) — JudgeDetail과 동일 방식
+    const [relatedNews, setRelatedNews] = useState([]);
+    const [newsLoading, setNewsLoading] = useState(false);
+    useEffect(() => {
+        if (!selectedPerson) { setRelatedNews([]); return; }
+        let cancelled = false;
+        setNewsLoading(true);
+        fetch(`https://us-central1-siminbupjung-blog.cloudfunctions.net/searchNaverNews?query=${encodeURIComponent(selectedPerson + ' 재판')}`)
+            .then((r) => (r.ok ? r.json() : { items: [] }))
+            .then((data) => { if (!cancelled) setRelatedNews(data.items || []); })
+            .catch(() => { if (!cancelled) setRelatedNews([]); })
+            .finally(() => { if (!cancelled) setNewsLoading(false); });
+        return () => { cancelled = true; };
+    }, [selectedPerson]);
     const [selectedAiModel, setSelectedAiModel] = useState(() => {
         const modelParam = searchParams.get('model');
         return (modelParam === 'gemini' || modelParam === 'claude') ? modelParam : 'claude';
@@ -4588,43 +4603,42 @@ export default function SentencingAnalysis() {
                         </div>
                     )}
 
-                    {/* 자동 수집 최신 뉴스 */}
-                    {person._recentNews && person._recentNews.length > 0 && (
-                        <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                    <span className="text-green-500">●</span>
-                                    자동 수집 최신 뉴스
+                    {/* 관련 뉴스 (네이버 뉴스 검색 — 실시간, 폴백: 자동수집) */}
+                    {(() => {
+                        const items = relatedNews.length > 0 ? relatedNews : (person._recentNews || []);
+                        return (
+                            <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <span>📰</span> 관련 뉴스
+                                    <span className="text-sm font-normal text-gray-500">(네이버 뉴스 검색)</span>
                                 </h3>
-                                {person._lastUpdated && (
-                                    <span className="text-xs text-gray-400">
-                                        마지막 수집: {new Date(person._lastUpdated?.seconds * 1000).toLocaleDateString('ko-KR')}
-                                    </span>
+                                {newsLoading ? (
+                                    <div className="text-center py-4">
+                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                                        <p className="mt-2 text-sm text-gray-500">뉴스 검색 중...</p>
+                                    </div>
+                                ) : items.length > 0 ? (
+                                    <ul className="space-y-3">
+                                        {items.map((news, index) => (
+                                            <li key={index} className="border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                                                <a href={news.link} target="_blank" rel="noopener noreferrer" className="block hover:bg-gray-50 p-2 rounded -m-2">
+                                                    <h4 className="text-blue-600 hover:underline font-medium" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(news.title || '') }} />
+                                                    {news.description && (
+                                                        <p className="text-sm text-gray-600 mt-1 line-clamp-2" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(news.description) }} />
+                                                    )}
+                                                    {news.pubDate && (
+                                                        <p className="text-xs text-gray-400 mt-1">{new Date(news.pubDate).toLocaleDateString('ko-KR')}</p>
+                                                    )}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-gray-500 text-center py-4">관련 뉴스가 없습니다.</p>
                                 )}
                             </div>
-                            <div className="space-y-3">
-                                {person._recentNews.map((news, idx) => (
-                                    <a
-                                        key={idx}
-                                        href={news.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="block p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
-                                    >
-                                        <p className="text-sm font-medium text-gray-900 line-clamp-2">{news.title?.replace(/<[^>]*>/g, '')}</p>
-                                        {news.pubDate && (
-                                            <p className="text-xs text-gray-400 mt-1">
-                                                {new Date(news.pubDate).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                            </p>
-                                        )}
-                                    </a>
-                                ))}
-                            </div>
-                            <p className="text-xs text-gray-400 mt-4 text-center">
-                                Bing News RSS + Gemini AI로 자동 수집된 뉴스입니다 (하루 2회 업데이트)
-                            </p>
-                        </div>
-                    )}
+                        );
+                    })()}
 
                     {/* 하단 안내 */}
                     <div className="mt-8 p-4 bg-gray-100 rounded-xl text-center">
