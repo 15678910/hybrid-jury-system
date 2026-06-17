@@ -1,10 +1,9 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
 import SNSShareBar from '../components/SNSShareBar';
 import { TRIAL_EVENTS, EVENT_CATEGORIES, CASE_GROUPS } from '../data/trialSchedule';
-import DOMPurify from 'dompurify';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -102,20 +101,6 @@ function TrialSchedule() {
         return d;
     }, []);
 
-    // 내란 재판 최신 뉴스 (네이버 뉴스 검색, 실시간) — 사이트 전체와 동일 방식
-    const [trialNews, setTrialNews] = useState([]);
-    const [trialNewsLoading, setTrialNewsLoading] = useState(false);
-    useEffect(() => {
-        let cancelled = false;
-        setTrialNewsLoading(true);
-        fetch(`https://us-central1-siminbupjung-blog.cloudfunctions.net/searchNaverNews?query=${encodeURIComponent('내란 재판')}`)
-            .then((r) => (r.ok ? r.json() : { items: [] }))
-            .then((data) => { if (!cancelled) setTrialNews((data.items || []).slice(0, 6)); })
-            .catch(() => { if (!cancelled) setTrialNews([]); })
-            .finally(() => { if (!cancelled) setTrialNewsLoading(false); });
-        return () => { cancelled = true; };
-    }, []);
-
     const [activeGroups, setActiveGroups] = useState(() => new Set()); // 비어있으면 전체
     const [activeCats, setActiveCats] = useState(() => new Set());
     const [selectedDate, setSelectedDate] = useState(null); // 'YYYY-MM-DD'
@@ -137,11 +122,12 @@ function TrialSchedule() {
     const filtered = useMemo(() => TRIAL_EVENTS.filter(passFilter), [activeGroups, activeCats]);
 
     const dated = filtered.filter((e) => e.date);
+    // 당일(오늘) 기일은 이미 진행된 것으로 보아 '지난 일정'으로 분류 (미래 기일만 '다가오는 일정')
     const upcoming = dated
-        .filter((e) => parseDate(e.date) >= today)
+        .filter((e) => parseDate(e.date) > today)
         .sort((a, b) => a.date.localeCompare(b.date));
     const past = dated
-        .filter((e) => parseDate(e.date) < today)
+        .filter((e) => parseDate(e.date) <= today)
         .sort((a, b) => b.date.localeCompare(a.date));
     const tbd = filtered.filter((e) => !e.date);
 
@@ -201,32 +187,6 @@ function TrialSchedule() {
                         ※ 모든 일정은 공개 보도·법원 기록 기반이며, 재판 기일은 변경·연기될 수 있습니다.
                     </p>
                 </div>
-
-                {/* 내란 재판 최신 뉴스 (네이버 뉴스 검색 — 실시간) */}
-                {(trialNewsLoading || trialNews.length > 0) && (
-                    <div className="bg-white rounded-lg border p-4 mb-6">
-                        <h2 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                            <span>📰</span> 내란 재판 최신 뉴스
-                            <span className="text-xs font-normal text-gray-400">네이버 뉴스 검색 · 실시간</span>
-                        </h2>
-                        {trialNewsLoading ? (
-                            <div className="text-center py-3">
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mx-auto"></div>
-                            </div>
-                        ) : (
-                            <ul className="space-y-2">
-                                {trialNews.map((n, i) => (
-                                    <li key={i} className="border-b border-gray-100 pb-2 last:border-0 last:pb-0">
-                                        <a href={n.link} target="_blank" rel="noopener noreferrer" className="block hover:bg-gray-50 rounded px-2 py-1 -mx-2">
-                                            <span className="block text-sm text-gray-800 hover:text-blue-600 line-clamp-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(n.title || '') }} />
-                                            {n.pubDate && <span className="block text-xs text-gray-400 mt-0.5">{new Date(n.pubDate).toLocaleDateString('ko-KR')}</span>}
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                )}
 
                 {/* 필터 */}
                 <div className="bg-white rounded-lg border p-4 mb-6 space-y-3">
