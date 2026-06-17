@@ -3049,7 +3049,10 @@ export default function SentencingAnalysis() {
             ...staticData,
             status: mergedStatus,
             statusColor: (mergedStatus === '구속' || mergedStatus === '법정구속') ? 'red' : mergedStatus === '보석' ? 'orange' : (mergedStatus === '불구속' ? 'green' : staticData.statusColor),
-            verdictDate: clean(dynamicData.verdictDate) || staticData.verdictDate,
+            // 재판 진행 중(미선고)이면 선고일을 표시하지 않음 — Firestore의 잘못된 선고일 값 오염 방지
+            verdictDate: (mergedVerdictTotal && mergedVerdictTotal.includes('재판 진행 중'))
+                ? ''
+                : (clean(dynamicData.verdictDate) || staticData.verdictDate),
             trialStatus: cleanVerdict(dynamicData.trialStatus) || staticData.trialStatus,
             charges: mergedCharges,
             summary: {
