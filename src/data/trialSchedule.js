@@ -132,6 +132,18 @@ export const TRIAL_EVENTS = [
 
     // ───────── 지난 일정 ─────────
     {
+        id: 'kim-yonghyun-mil-secret-verdict',
+        date: '2026-06-19',
+        category: 'verdict',
+        group: 'insurrection',
+        title: '김용현 전 국방장관 정보사 명단 누설 1심 선고',
+        defendant: '김용현',
+        court: '서울중앙지법 형사합의21부',
+        judge: '조순표 부장판사',
+        note: '2024.10~11 문상호 정보사령관 등과 공모해 정보사 특수임무대(HID) 요원 약 40명 명단을 노상원 전 정보사령관에게 넘긴 군기누설·개인정보보호법 위반(부정선거 수사 \'제2수사단\' 구성 목적). 특검 구형 징역 5년 → 징역 3년 선고. 재판부 "위헌·위법한 비상계엄 선포의 동력". 2.19 내란중요임무종사 징역 30년과 별건, 변호인 항소 예고.',
+        source: { name: '경향신문', url: 'https://www.khan.co.kr/article/202606191629001' },
+    },
+    {
         id: 'drone-verdict',
         date: '2026-06-12',
         category: 'verdict',
