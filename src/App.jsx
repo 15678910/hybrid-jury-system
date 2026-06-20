@@ -843,6 +843,12 @@ export default function App() {
                                         >
                                             참심제 아카데미
                                         </Link>
+                                        <Link
+                                            to="/jury-analysis"
+                                            className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600 whitespace-nowrap"
+                                        >
+                                            ⚖️ 국민참여재판 분석
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
@@ -998,6 +1004,13 @@ export default function App() {
                                     className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition text-indigo-700 font-medium"
                                 >
                                     참심제 아카데미
+                                </Link>
+                                <Link
+                                    to="/jury-analysis"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition"
+                                >
+                                    ⚖️ 국민참여재판 분석
                                 </Link>
                             </div>
                             <button

@@ -46,6 +46,7 @@ const LegislativeOpinion = lazy(() => import('./pages/LegislativeOpinion'))
 const SilenceAnalysis = lazy(() => import('./pages/SilenceAnalysis'))
 const MockTrial = lazy(() => import('./pages/MockTrial'))
 const JuryAcademy = lazy(() => import('./pages/JuryAcademy'))
+const JuryTrialAnalysis = lazy(() => import('./pages/JuryTrialAnalysis'))
 const FloatingChat = lazy(() => import('./CozeFloatingChat'))
 
 // 로딩 컴포넌트 (인라인 스타일로 CSS 의존성 제거)
@@ -98,6 +99,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/news/admin" element={<AdminNews />} />
           <Route path="/sentencing-analysis" element={<SentencingAnalysis />} />
           <Route path="/europe-jury" element={<EuropeJurySystem />} />
+          <Route path="/jury-analysis" element={<JuryTrialAnalysis />} />
           <Route path="/reform-analysis" element={<ReformAnalysis />} />
           <Route path="/law-database" element={<LawDatabase />} />
           <Route path="/judge-evaluation" element={<JudgeEvaluation />} />
