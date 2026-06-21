@@ -140,7 +140,7 @@ export default function JuryTrialAnalysis() {
             />
             <Header />
 
-            <main className="max-w-4xl mx-auto px-4 py-8 md:py-12">
+            <main className="max-w-4xl mx-auto px-4 pt-24 pb-12">
                 {/* Hero */}
                 <header className="mb-10">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-sm font-semibold mb-4">
