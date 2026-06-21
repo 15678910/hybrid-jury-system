@@ -268,8 +268,7 @@ export default function JuryTrialAnalysis() {
 
                 {/* 4. 배심원제의 한계 */}
                 <section className="mb-10">
-                    <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">④ 그런데 — 이 재판이 드러낸 배심원제의 한계</h2>
-                    <p className="text-gray-600 mb-5">시민의 균형 잡힌 판단이 있었는데도, 그 판단은 판결을 ‘결정’하지 못했습니다.</p>
+                    <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-5">④ 그런데 — 이 재판이 드러낸 배심원제의 한계</h2>
                     <div className="grid md:grid-cols-2 gap-4">
                         {LIMITS.map((l) => (
                             <div key={l.n} className="bg-white rounded-2xl border border-gray-200 p-5">
