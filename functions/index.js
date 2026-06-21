@@ -3151,7 +3151,7 @@ exports.judgeDetailPage = functions.https.onRequest(async (req, res) => {
 const CRAWLER_REGEX = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i;
 const DEFAULT_OG_IMAGE = 'https://siminbupjung-blog.web.app/og-image.jpg';
 
-function createStaticPageHandler(route, title, description, imageUrl) {
+function createStaticPageHandler(route, title, description, imageUrl, imageWidth, imageHeight) {
     return functions.https.onRequest(async (req, res) => {
         const userAgent = req.get('User-Agent') || '';
         const isCrawler = CRAWLER_REGEX.test(userAgent);
@@ -3168,6 +3168,13 @@ function createStaticPageHandler(route, title, description, imageUrl) {
 
         const pageUrl = `https://siminbupjung-blog.web.app${route}`;
         const ogImage = imageUrl || DEFAULT_OG_IMAGE;
+        const ogImageType = /\.png(\?|$)/i.test(ogImage) ? 'image/png' : (/\.jpe?g(\?|$)/i.test(ogImage) ? 'image/jpeg' : '');
+        const imgExtraMeta = [
+            `<meta property="og:image:secure_url" content="${ogImage}" />`,
+            ogImageType ? `<meta property="og:image:type" content="${ogImageType}" />` : '',
+            imageWidth ? `<meta property="og:image:width" content="${imageWidth}" />` : '',
+            imageHeight ? `<meta property="og:image:height" content="${imageHeight}" />` : '',
+        ].filter(Boolean).join('\n    ');
 
         const html = `<!doctype html>
 <html lang="ko">
@@ -3180,6 +3187,7 @@ function createStaticPageHandler(route, title, description, imageUrl) {
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${description}" />
     <meta property="og:image" content="${ogImage}" />
+    ${imgExtraMeta}
     <meta property="og:url" content="${pageUrl}" />
     <meta property="og:site_name" content="시민법정" />
     <meta property="og:locale" content="ko_KR" />
@@ -3242,7 +3250,9 @@ exports.juryAnalysisPage = createStaticPageHandler(
     '/jury-analysis',
     '이화영 국민참여재판 분석 — 배심원제의 한계와 참심제',
     '배심원 만장일치 무죄에도 공소기각된 이화영 국민참여재판으로 본 배심원제의 한계와 참심제 도입 필요성 — 사건별 평결·배심원 선정·해외 비교',
-    'https://siminbupjung-blog.web.app/%EC%9D%B4%ED%99%94%EC%98%81%EB%B0%B0%EC%8B%AC%EC%A0%9C%ED%95%9C%EA%B3%84.png'
+    'https://siminbupjung-blog.web.app/%EC%9D%B4%ED%99%94%EC%98%81%EB%B0%B0%EC%8B%AC%EC%A0%9C%ED%95%9C%EA%B3%84.png',
+    642,
+    742
 );
 
 // 후원 페이지
