@@ -3237,6 +3237,14 @@ exports.mockTrialPage = createStaticPageHandler(
     'https://siminbupjung-blog.web.app/참심제모의재판체험.png'
 );
 
+// 이화영 국민참여재판 분석 (배심원제 한계와 참심제)
+exports.juryAnalysisPage = createStaticPageHandler(
+    '/jury-analysis',
+    '이화영 국민참여재판 분석 — 배심원제의 한계와 참심제',
+    '배심원 만장일치 무죄에도 공소기각된 이화영 국민참여재판으로 본 배심원제의 한계와 참심제 도입 필요성 — 사건별 평결·배심원 선정·해외 비교',
+    'https://siminbupjung-blog.web.app/%EC%9D%B4%ED%99%94%EC%98%81%EB%B0%B0%EC%8B%AC%EC%A0%9C%ED%95%9C%EA%B3%84.png'
+);
+
 // 후원 페이지
 exports.donatePage = createStaticPageHandler(
     '/donate',

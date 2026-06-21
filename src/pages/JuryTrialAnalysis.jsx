@@ -140,7 +140,7 @@ export default function JuryTrialAnalysis() {
                 title="이화영 국민참여재판 분석 — 배심원제의 한계와 참심제"
                 description="이화영 국민참여재판(2026.6.20 선고) 사건별 평결을 분석하고, 배심원 평결의 권고적 한계와 참심제 도입의 필요성을 짚습니다. 배심원 만장일치 무죄에도 재판부가 공소기각으로 종결한 이유는?"
                 path="/jury-analysis"
-                image="/참심제시뮬레이션.png"
+                image="/%EC%9D%B4%ED%99%94%EC%98%81%EB%B0%B0%EC%8B%AC%EC%A0%9C%ED%95%9C%EA%B3%84.png"
                 type="article"
             />
             <Header />

@@ -91,6 +91,10 @@
         "function": "mockTrialPage"
       },
       {
+        "source": "/jury-analysis",
+        "function": "juryAnalysisPage"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
