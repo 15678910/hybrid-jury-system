@@ -337,7 +337,7 @@ export default function JuryTrialAnalysis() {
                 <section className="mb-10 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-6 md:p-8 text-white">
                     <h2 className="text-xl md:text-2xl font-bold mb-2">⑥ 그래서 ‘참심제’다</h2>
                     <p className="text-indigo-100 leading-relaxed mb-6">
-                        배심원제(권고)와 달리, <strong className="text-white">참심제</strong>는 주권자가 뽑힌 ‘시민법관(참심원)’으로서 직업법관과 <strong className="text-white">하나의 재판부</strong>를 이뤄
+                        배심원제(권고)와 달리, <strong className="text-white">참심제</strong>는 주권자가 ‘시민법관(참심원)’으로서 직업법관과 <strong className="text-white">하나의 재판부</strong>를 이뤄
                         유·무죄와 양형을 <strong className="text-white">함께 결정</strong>합니다. 시민의 평결이 ‘권고’가 아니라 <strong className="text-white">판결 그 자체</strong>가 됩니다.
                     </p>
                     <div className="overflow-x-auto rounded-xl bg-white/10 backdrop-blur">
