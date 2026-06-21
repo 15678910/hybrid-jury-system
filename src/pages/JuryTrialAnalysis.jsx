@@ -149,9 +149,11 @@ export default function JuryTrialAnalysis() {
                     <h1 className="text-2xl md:text-4xl font-bold text-gray-900 leading-snug mb-4">
                         이화영 국민참여재판이 보여준<br className="hidden md:block" /> 배심원제의 한계와 <span className="text-indigo-700">참심제</span>.
                     </h1>
+                    <p className="text-gray-600 md:text-lg leading-relaxed mb-4">
+                        이 배심원단은 법원이 무작위로 통지한 후보 <strong>500명</strong> 중 출석한 50여 명을 <strong>검사와 변호인이 직접 면접(질의응답)·기피</strong>해 본배심원 7명·예비 5명(총 12명)으로 추렸습니다. 그런데 이 재판의 핵심 ‘술파티’ 위증은 <strong>검사의 향응·진술회유 의혹</strong>과 맞닿은 사건입니다 — 검찰 비위가 걸린 사건의 배심원을 검찰이 직접 골라내는 구조 자체가 이해충돌의 소지를 드러냅니다.
+                    </p>
                     <p className="text-gray-600 md:text-lg leading-relaxed mb-5">
-                        배심원 7명이 핵심 혐의를 <strong>만장일치로 무죄</strong>로 봤는데도, 재판부는 실체 판단 없이 <strong>공소기각</strong>으로 사건을 끝냈습니다.
-                        시민의 일치된 판단이 판결을 결정하지 못하는 이 구조가, <strong>노동자·농민도 직업법관과 동일한 권한을 갖는 참심제</strong> 도입이 왜 필요한지를 보여줍니다.
+                        더구나 배심원 7명이 핵심 혐의를 <strong>만장일치로 무죄</strong>로 봤는데도, 재판부는 실체 판단 없이 <strong>공소기각</strong>으로 사건을 끝냈습니다. 시민의 판단이 판결을 결정하지 못하고 그 시민조차 당사자가 선별하는 이 구조가, <strong>노동자·농민도 직업법관과 동일한 권한을 갖는 참심제</strong> 도입이 왜 필요한지를 보여줍니다.
                     </p>
                     <div className="flex flex-wrap gap-2 text-sm">
                         {[
