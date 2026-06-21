@@ -370,10 +370,12 @@ export default function JuryTrialAnalysis() {
                     </div>
 
                     <div className="mt-6 rounded-xl bg-white/10 p-5">
-                        <p className="font-bold mb-2">🔁 이화영 사건에 ‘참심제’였다면?</p>
+                        <p className="font-bold mb-2">🔁 이화영 사건에 ‘참심제’였다면? (스웨덴 모델 기준)</p>
+                        <p className="text-indigo-100 text-sm leading-relaxed mb-2">
+                            무엇보다 스웨덴처럼 시민법관을 사건마다 뽑지 않고 <strong className="text-white">정당 지명·지방의회 선출로 임기제</strong>(4년)로 두면, 검사·변호인이 <strong className="text-white">사건마다 배심원을 면접·기피로 거르는 절차 자체가 없습니다</strong>. 검찰이 자기 비위(향응·진술회유) 의혹이 걸린 사건에서 이유도 없이 배심원 후보를 빼낼 수 있는 <strong className="text-white">이해충돌이 원천적으로 사라집니다</strong>.
+                        </p>
                         <p className="text-indigo-100 text-sm leading-relaxed">
-                            정치자금법·대북지원에 대한 <strong className="text-white">시민 7명의 만장일치 무죄 판단이 곧 판결</strong>이 되어, 재판부가 절차로 우회하거나 실체판단을 미룰 여지가 줄어듭니다.
-                            위증의 <strong className="text-white">형량(징역 4개월)도 시민이 직업법관과 함께</strong> 정하게 됩니다. 시민의 상식이 ‘권고’를 넘어 결론에 책임 있게 반영되는 것입니다.
+                            그리고 정치자금법·대북지원에 대한 <strong className="text-white">시민 7명의 만장일치 무죄 판단이 곧 판결</strong>이 되어, 재판부가 절차로 우회하거나 실체판단을 미룰 여지가 줄어듭니다. 위증의 <strong className="text-white">형량(징역 4개월)도 시민이 직업법관과 함께</strong> 정합니다. 시민의 상식이 ‘권고’를 넘어 결론에 책임 있게 반영되는 것입니다.
                         </p>
                     </div>
                     <p className="mt-4 text-xs text-indigo-200">
