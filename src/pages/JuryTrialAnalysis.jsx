@@ -53,6 +53,16 @@ const COMPARISON = [
         chamsim: '시민법관과 직업법관이 한 재판부에서 함께 평의',
     },
     {
+        axis: '모집 기간',
+        jury: '사건마다 1회성 차출 (단기)',
+        chamsim: '정당 지명·지방의회 등이 임기제로 선출 (수년)',
+    },
+    {
+        axis: '배심원 면접 유무',
+        jury: '있음 — 선정기일에 판사·검사·변호인이 질문·기피',
+        chamsim: '없음 — 추천·선출로 구성, 사건별 면접 안 함',
+    },
+    {
         axis: '적용 사건',
         jury: '피고인이 신청한 일부 형사사건에 한정',
         chamsim: '법으로 정한 대상 사건에 상시 적용',
@@ -60,7 +70,7 @@ const COMPARISON = [
     {
         axis: '대표 국가',
         jury: '미국·영국 (배심제)',
-        chamsim: '독일·프랑스·일본 (참심제·재판원제)',
+        chamsim: '독일·스웨덴·핀란드·일본 (참심·재판원제)',
     },
     {
         axis: '도입 요건',
@@ -93,15 +103,16 @@ const LIMITS = [
     },
 ];
 
-// 해외와 비교 — 시민 모집(선정) 방식과 참여 기간
+// 해외와 비교 — 모집·추천 방식 / 선정 면접 / 모집 기간(임기)
 const INTL = [
-    { country: '🇰🇷 한국', type: '배심제', mark: 'jury', recruit: '무작위 추첨 → 선정기일에 판사·검사·변호인의 질문(면접)·기피를 거쳐 본배심원 7명+예비 5명(총 12명) 확정', term: '원칙 1~3일 내 종결 (이화영 10일은 역대 최장 예외)' },
-    { country: '🇺🇸 미국', type: '배심제', mark: 'jury', recruit: '유권자·면허 명부에서 무작위 소환 → 선정심문(voir dire)', term: '사건별, 수일~수개월' },
-    { country: '🇬🇧 영국', type: '배심제', mark: 'jury', recruit: '선거인명부에서 무작위 소환', term: '사건별, 보통 수일~수주' },
-    { country: '🇩🇪 독일', type: '참심제', mark: 'chamsim', recruit: '지방자치단체 추천을 거쳐 위원회가 임기제로 참심원 선출', term: '임기 동안 여러 사건을 직업법관과 함께 담당' },
-    { country: '🇫🇷 프랑스', type: '참심형(중죄법원)', mark: 'chamsim', recruit: '선거인명부 추첨 → 직업법관과 한 합의체 구성', term: '사건별' },
-    { country: '🇯🇵 일본', type: '재판원제(참심형)', mark: 'chamsim', recruit: '유권자 명부에서 무작위 선정 → 직업법관과 합의체', term: '사건별, 평균 수일' },
-    { country: '🇫🇮 핀란드', type: '참심제', mark: 'chamsim', recruit: '지방의회가 자원봉사 시민 중 임기제로 참심인(lautamies) 선출 — 사건별 면접·기피 없음', term: '임기 동안 직업법관과 동등한 권리로 함께 판단' },
+    { country: '🇰🇷 한국', type: '배심제', mark: 'jury', recruit: '국민 명부에서 사건마다 무작위 추첨', interview: '있음 — 판사·검사·변호인이 질문·기피', term: '사건 단위 (원칙 1~3일, 이화영 10일은 역대 최장)' },
+    { country: '🇺🇸 미국', type: '배심제', mark: 'jury', recruit: '유권자·면허 명부에서 무작위 소환', interview: '있음 — voir dire(판사·검사·변호인)', term: '사건 단위 (수일~수개월)' },
+    { country: '🇬🇧 영국', type: '배심제', mark: 'jury', recruit: '선거인명부에서 무작위 소환', interview: '제한적 — 원칙상 기피 거의 없음', term: '사건 단위 (수일~수주)' },
+    { country: '🇫🇷 프랑스', type: '혼합(중죄법원)', mark: 'mixed', recruit: '선거인명부 추첨 → 직업법관과 합의', interview: '개정 시 제한적 기피(이유 없이 검사 3·피고인 4명)', term: '세션 단위 (분기당 약 15일, 복수 사건)' },
+    { country: '🇩🇪 독일', type: '참심제', mark: 'chamsim', recruit: '지자체 명부 → 선정위원회가 선출 (정당·단체 추천 영향)', interview: '없음 — 사건별 면접·기피 안 함', term: '임기제 (통상 5년)' },
+    { country: '🇸🇪 스웨덴', type: '참심제', mark: 'chamsim', recruit: '정당이 지명 → 지방의회가 선출 (의석 비례)', interview: '없음 — 정당·의회 선출로 구성', term: '임기 4년' },
+    { country: '🇫🇮 핀란드', type: '참심제', mark: 'chamsim', recruit: '지방의회가 선출 (정당 협상·자원봉사 시민)', interview: '없음 — 의회 선출로 구성', term: '임기제 (의회 임기와 연동)' },
+    { country: '🇯🇵 일본', type: '재판원제(참심형)', mark: 'chamsim', recruit: '유권자 명부에서 사건마다 무작위 선정', interview: '있음(간이) — 선임절차서 기피 가능', term: '사건 단위 (평균 수일)' },
 ];
 
 const SOURCES = [
@@ -273,13 +284,14 @@ export default function JuryTrialAnalysis() {
                         이화영 재판의 10일은 역대 최장으로, 현행 배심제가 복잡·장기 사건에 취약함을 보여줍니다. 반면 참심제 국가들은 시민법관을 <strong>임기제로 두거나 합의체로 편성</strong>해 지속성과 책임성을 확보합니다.
                     </p>
                     <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
-                        <table className="w-full text-sm">
+                        <table className="w-full text-sm min-w-[760px]">
                             <thead>
                                 <tr className="border-b border-gray-200 text-left bg-gray-50">
                                     <th className="px-4 py-3 font-semibold text-gray-700 whitespace-nowrap">국가</th>
                                     <th className="px-4 py-3 font-semibold text-gray-700 whitespace-nowrap">유형</th>
-                                    <th className="px-4 py-3 font-semibold text-gray-700">시민 모집(선정) 방식</th>
-                                    <th className="px-4 py-3 font-semibold text-gray-700">참여 기간</th>
+                                    <th className="px-4 py-3 font-semibold text-gray-700">모집·추천 방식</th>
+                                    <th className="px-4 py-3 font-semibold text-gray-700">선정 면접</th>
+                                    <th className="px-4 py-3 font-semibold text-gray-700 whitespace-nowrap">모집 기간(임기)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -287,9 +299,10 @@ export default function JuryTrialAnalysis() {
                                     <tr key={r.country} className="border-b border-gray-100 align-top">
                                         <td className="px-4 py-3 font-semibold text-gray-900 whitespace-nowrap">{r.country}</td>
                                         <td className="px-4 py-3 whitespace-nowrap">
-                                            <span className={`px-2 py-0.5 rounded text-xs font-bold ${r.mark === 'chamsim' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600'}`}>{r.type}</span>
+                                            <span className={`px-2 py-0.5 rounded text-xs font-bold ${r.mark === 'chamsim' ? 'bg-indigo-100 text-indigo-700' : r.mark === 'mixed' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'}`}>{r.type}</span>
                                         </td>
                                         <td className="px-4 py-3 text-gray-700">{r.recruit}</td>
+                                        <td className="px-4 py-3 text-gray-700">{r.interview}</td>
                                         <td className="px-4 py-3 text-gray-700">{r.term}</td>
                                     </tr>
                                 ))}
@@ -305,7 +318,7 @@ export default function JuryTrialAnalysis() {
                         <p className="font-bold text-indigo-900 mb-2">📌 ‘면접(선정기일 질문)은 누가 보나?’</p>
                         <p className="text-sm text-gray-700 leading-relaxed">
                             한국 국민참여재판에서 배심원 후보를 질문·선별하는 주체는 <strong>시민이 아니라 재판부(판사)와 검사·변호인</strong>입니다. 검사·변호인은 이유를 대지 않고도 후보를 배제하는 ‘무이유부 기피’를 각각 행사합니다(7인 배심에서 각 4명). 미국도 <strong>voir dire</strong>에서 판사·검사·변호인이 같은 방식으로 선별하므로, ‘면접’ 절차 자체는 해외 배심제에도 있습니다.
-                            반면 참심제(독일·핀란드·일본 등)는 사건마다 면접·기피로 거르지 않고 <strong>지방의회 등이 임기제로 시민법관을 선출</strong>해, 선정 단계부터 시민의 대표성이 더 안정적으로 보장됩니다.
+                            반면 유럽 참심제는 사건마다 면접·기피로 거르지 않습니다. <strong>스웨덴</strong>은 정당이 후보를 지명하고 지방의회가 의석 비례로 선출(임기 4년), <strong>독일</strong>은 지자체 명부로 선정위원회가 선출(임기 약 5년), <strong>핀란드</strong>는 지방의회가 선출합니다 — 선정 단계부터 시민의 대표성이 더 안정적으로 보장됩니다.
                         </p>
                         <p className="mt-3 text-sm text-indigo-900 bg-white/70 rounded-lg p-3">
                             🇫🇮 <strong>핀란드 모델</strong> — 지방의회가 임기제로 시민 참심인(lautamies)을 선출하고 직업법관과 <strong>동등한 권리</strong>로 함께 판단하는 방식은, <strong>시민법정이 지향하는 모델</strong>입니다.
@@ -317,7 +330,7 @@ export default function JuryTrialAnalysis() {
                 <section className="mb-10 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-6 md:p-8 text-white">
                     <h2 className="text-xl md:text-2xl font-bold mb-2">⑥ 그래서 ‘참심제’다</h2>
                     <p className="text-indigo-100 leading-relaxed mb-6">
-                        배심원제(권고)와 달리, <strong className="text-white">참심제</strong>는 시민이 뽑힌 ‘시민법관(참심원)’으로서 직업법관과 <strong className="text-white">하나의 재판부</strong>를 이뤄
+                        배심원제(권고)와 달리, <strong className="text-white">참심제</strong>는 주권자가 뽑힌 ‘시민법관(참심원)’으로서 직업법관과 <strong className="text-white">하나의 재판부</strong>를 이뤄
                         유·무죄와 양형을 <strong className="text-white">함께 결정</strong>합니다. 시민의 평결이 ‘권고’가 아니라 <strong className="text-white">판결 그 자체</strong>가 됩니다.
                     </p>
                     <div className="overflow-x-auto rounded-xl bg-white/10 backdrop-blur">
