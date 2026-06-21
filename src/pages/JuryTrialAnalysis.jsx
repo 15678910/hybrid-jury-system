@@ -147,11 +147,11 @@ export default function JuryTrialAnalysis() {
                         ⚖️ 국민참여재판 심층 분석
                     </div>
                     <h1 className="text-2xl md:text-4xl font-bold text-gray-900 leading-snug mb-4">
-                        이화영 국민참여재판이 보여준<br className="hidden md:block" /> 배심원제의 한계와 <span className="text-indigo-700">참심제</span>라는 답
+                        이화영 국민참여재판이 보여준<br className="hidden md:block" /> 배심원제의 한계와 <span className="text-indigo-700">참심제</span>.
                     </h1>
                     <p className="text-gray-600 md:text-lg leading-relaxed mb-5">
                         배심원 7명이 핵심 혐의를 <strong>만장일치로 무죄</strong>로 봤는데도, 재판부는 실체 판단 없이 <strong>공소기각</strong>으로 사건을 끝냈습니다.
-                        시민의 일치된 판단이 판결을 결정하지 못하는 이 구조가, 왜 우리가 <strong>참심제</strong>를 말하는지 보여줍니다.
+                        시민의 일치된 판단이 판결을 결정하지 못하는 이 구조가, <strong>노동자·농민도 직업법관과 동일한 권한을 갖는 참심제</strong> 도입이 왜 필요한지를 보여줍니다.
                     </p>
                     <div className="flex flex-wrap gap-2 text-sm">
                         {[
