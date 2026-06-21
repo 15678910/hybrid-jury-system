@@ -330,6 +330,15 @@ export default function JuryTrialAnalysis() {
                             🇫🇮 <strong>핀란드 모델</strong> — 지방의회가 임기제로 시민 참심인(lautamies)을 선출하고 직업법관과 <strong>동등한 권리</strong>로 함께 판단하는 방식은, <strong>시민법정이 지향하는 모델</strong>입니다.
                         </p>
                     </div>
+
+                    {/* 용어 풀이: 기피 두 종류 */}
+                    <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                        <p className="text-sm font-semibold text-gray-700 mb-2">📖 용어 — ‘기피’ 두 종류</p>
+                        <ul className="space-y-1.5 text-sm text-gray-600 leading-relaxed">
+                            <li>• <strong>사유부(이유부) 기피</strong>: 후보가 편파적일 ‘구체적 사유’를 들어 배제를 신청 → <strong>판사가 심사해 결정</strong> (사유가 있으면 횟수 제한 없음).</li>
+                            <li>• <strong>무이유부 기피</strong>: <strong>검사·변호인이 이유 없이</strong> 후보를 배제 (7인 배심에서 각 4명, 판사 심사 없음). 검찰이 이유도 대지 않고 배심원 후보를 빼낼 수 있는 것이 바로 이 무이유부 기피입니다.</li>
+                        </ul>
+                    </div>
                 </section>
 
                 {/* 6. 참심제 대안 */}
