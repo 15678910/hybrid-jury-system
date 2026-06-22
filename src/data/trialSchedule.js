@@ -68,6 +68,18 @@ export const TRIAL_EVENTS = [
         source: { name: '뉴스핌', url: 'https://www.newspim.com/news/view/20260617000961' },
     },
     {
+        id: 'parksongjae-verdict',
+        date: '2026-06-22',
+        category: 'verdict',
+        group: 'insurrection',
+        title: '박성재 전 법무장관 1심 선고 — 징역 25년·법정구속',
+        defendant: '박성재',
+        court: '서울중앙지법 형사합의33부',
+        judge: '이진관 부장판사',
+        note: '12·3 비상계엄 당시 법무부 장관으로서 합동수사본부 검사 파견 검토·교정시설 수용공간 확보·출국금지 요원 대기 등을 지시한 내란중요임무종사·직권남용 혐의. 2026.6.22 1심 징역 25년 선고·법정구속(증거인멸 우려). 재판부 "윤석열 지시사항을 그대로 이행 — 내란 중요임무 실행", 특검 구형(20년)보다 5년 가중. 김건희 수사청탁 관련 혐의는 내란 특검 수사범위가 아니라며 공소기각.',
+        source: { name: '뉴스1', url: 'https://www.news1.kr/society/court-prosecution/6204582' },
+    },
+    {
         id: 'leehwayoung-jury',
         date: '2026-06-20',
         time: '새벽 3시 30분',
