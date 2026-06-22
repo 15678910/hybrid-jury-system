@@ -348,14 +348,14 @@ const DEFAULT_VERDICTS = [
         detail: '검찰총장, 검찰 수사 방해'
     },
     {
-        date: '',
+        date: '2026.06.22',
         defendant: '이완규',
-        court: '서울중앙지법',
-        charge: '직권남용권리행사방해',
-        sentence: '',
-        prosecution: '',
-        status: 'pending',
-        detail: '법원행정처장'
+        court: '서울중앙지법 형사합의33부',
+        charge: '위증 (국회증언감정법, 안가회동)',
+        sentence: '공소기각',
+        prosecution: '징역 3년 (특검)',
+        status: 'acquitted',
+        detail: '전 법제처장. 12·3 계엄 해제 직후 안가회동에서 계엄 논의가 없었다는 취지로 국회 위증한 혐의로 박성재와 병합 1심. 재판부(이진관): 내란 특검법상 수사 대상이 아니라며 공소기각(2026.6.22). 안가회동 관련 내란 방조는 별도 수사 중.'
     },
     {
         date: '',

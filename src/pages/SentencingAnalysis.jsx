@@ -781,7 +781,7 @@ const personsData = {
             '12.4 안가회동(삼청동 안전가옥) 참석 — 실패한 계엄의 사후 대책 논의',
             '국무회의 직후 "참석자 명단 작성과 서명" 언급 — 위법한 계엄의 사후 합법성 부여',
             '최후진술에서 눈물 흘리며 사죄(혐의 자체는 부인), 퇴정 후 특검 후배 검사들에게 "그렇게 살지 말라" 발언',
-            '이완규 전 법제처장 동일 사건 병합 심리 — 징역 3년 구형'
+            '이완규 전 법제처장 동일 사건 병합 심리 — 위증 구형 3년이었으나 1심 공소기각(2026.6.22, 특검 수사범위 아님)'
         ],
         trialStatus: '1심 징역 25년·법정구속 (2026.6.22) — 항소 가능',
         judge: '이진관 부장판사 (서울중앙지법 형사합의33부)',
@@ -1746,18 +1746,19 @@ const personsData = {
         id: 'leewankyu',
         name: '이완규',
         position: '전 법제처장',
-        status: '불구속',
+        status: '불구속 (위증 1심 공소기각)',
         statusColor: 'green',
-        court: '서울중앙지방법원',
+        court: '서울중앙지방법원 형사합의33부',
+        verdictDate: '2026년 6월 22일 (위증 공소기각)',
         charges: [
             {
                 id: 1,
                 name: '위증',
                 law: '국회증언감정법',
-                description: '2025.12.11 기소. 국회 법사위 출석 시 허위 진술',
-                prosecutionRequest: '조사 중',
-                verdict: '재판 진행 중',
-                reason: '-'
+                description: '2025.12.11 기소. 국회 법사위 출석 시 안가회동 관련 허위 진술',
+                prosecutionRequest: '징역 3년 (조은석 특검, 2026.4.27)',
+                verdict: '공소기각 (2026.6.22)',
+                reason: '재판부(형사합의33부 이진관): 이완규의 안가회동 관련 국회 위증 혐의는 내란 특검법상 수사 대상에 해당하지 않아 특검에 수사권·공소권이 없다며 공소기각(본안 판단 없이 종결). 박성재와 병합 심리.'
             },
             {
                 id: 2,
@@ -1770,8 +1771,8 @@ const personsData = {
             }
         ],
         summary: {
-            prosecutionTotal: '위증 재판 진행 중 + 내란 방조 수사 중',
-            verdictTotal: '재판 진행 중',
+            prosecutionTotal: '위증 구형 3년 (2026.4.27) + 내란 방조 수사 중',
+            verdictTotal: '위증 1심 공소기각 (2026.6.22, 내란 특검 수사범위 아님) + 내란 방조 수사 중',
             ratio: '-'
         },
         keyFacts: [
@@ -1780,17 +1781,18 @@ const personsData = {
             '12.4 안가회동(삼청동 안전가옥) 참석 — 김주현 민정수석과 함께 법률적 수습 논의',
             '국회 법사위 출석 시 안가회동 참석 사실 등에 대해 허위 진술 (위증)',
             '위증 혐의 불구속 기소 (2025.12.11)',
+            '위증 1심 공소기각 (2026.6.22, 박성재와 병합 심리 — 내란 특검 수사 대상 아니라는 이유, 특검 구형은 징역 3년)',
             '내란특검, 안가회동 참석·법적 자문을 근거로 내란 방조 수사 중'
         ],
-        trialStatus: '1심 재판 진행 중 (위증) + 내란 방조 수사 중',
+        trialStatus: '위증 1심 공소기각 (2026.6.22) + 내란 방조 수사 중',
         sentencingGuidelines: [
             {
                 crime: '위증 (국회증언감정법)',
                 standardRange: '1년 이상 10년 이하 징역',
                 aggravating: ['국회 법사위라는 공식 절차에서의 위증', '내란 관련 핵심 사실에 대한 허위 진술', '사법절차 방해'],
                 mitigating: ['직접적 내란 실행 행위 아님'],
-                verdict: '재판 진행 중',
-                analysis: '법제처장으로서 국회에서 안가회동 참석 사실 등에 대해 허위 진술한 혐의'
+                verdict: '공소기각 (2026.6.22)',
+                analysis: '법제처장으로서 국회에서 안가회동 참석 사실 등에 대해 허위 진술한 혐의. 1심은 본안 판단 없이 "내란 특검 수사범위가 아니다"라며 공소기각'
             }
         ],
         keyIssues: [
@@ -1809,7 +1811,7 @@ const personsData = {
                 opinion: {
                     prosecution: '내란 관련 핵심 사실을 은폐하기 위한 고의적 위증',
                     defense: '기억에 의존한 진술이며 고의적 허위가 아님',
-                    court: '재판 진행 중'
+                    court: '공소기각 — 내란 특검 수사 대상이 아니라는 이유 (2026.6.22)'
                 }
             },
             {
@@ -3076,10 +3078,12 @@ export default function SentencingAnalysis() {
             status: mergedStatus,
             statusColor: (mergedStatus === '구속' || mergedStatus === '법정구속') ? 'red' : mergedStatus === '보석' ? 'orange' : (mergedStatus === '불구속' ? 'green' : staticData.statusColor),
             // 재판 진행 중(미선고)이면 선고일을 표시하지 않음 — Firestore의 잘못된 선고일 값 오염 방지
+            // 정적 데이터(코드에서 관리하는 확정 사실)를 우선, 없을 때만 Firestore 폴백 (Firestore 선고일 오염 방지)
             verdictDate: (mergedVerdictTotal && mergedVerdictTotal.includes('재판 진행 중'))
                 ? ''
-                : (clean(dynamicData.verdictDate) || staticData.verdictDate),
-            trialStatus: cleanVerdict(dynamicData.trialStatus) || staticData.trialStatus,
+                : (staticData.verdictDate || clean(dynamicData.verdictDate)),
+            // 정적 trialStatus 우선 (코드에서 최신 선고 결과 관리) — Firestore 구버전 '재판 진행 중' 표시 방지
+            trialStatus: staticData.trialStatus || cleanVerdict(dynamicData.trialStatus),
             charges: mergedCharges,
             summary: {
                 ...staticData.summary,
