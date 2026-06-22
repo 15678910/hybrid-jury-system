@@ -125,6 +125,9 @@ const SOURCES = [
     { name: '파이낸셜뉴스 — ‘연어 술파티’ 징역 4개월, 배심원 4:3 (종합2보)', url: 'https://www.fnnews.com/news/202606200520089162' },
     { name: '경향신문 — 역대 최장 국민참여재판, 20일 새벽 선고', url: 'https://www.khan.co.kr/article/202606190924001/' },
     { name: '오마이뉴스 — 위증 유죄·정치자금법 무죄·직권남용 공소기각', url: 'https://www.ohmynews.com/NWS_Web/Series/series_premium_pg.aspx?CNTN_CD=A0003244814&PAGE_CD=N0002&CMPT_CD=M0112' },
+    { name: '오마이뉴스 — 법무부·서울고검 조사 ‘1313호 연어·소주 반입’·거짓말탐지기 ‘진실’', url: 'https://www.ohmynews.com/NWS_Web/Series/series_premium_pg.aspx?CNTN_CD=A0003242792' },
+    { name: 'MBC — 서울고검 ‘술자리 있었다’ 결론·박상용 검사 징계 임박', url: 'https://imnews.imbc.com/replay/2026/nwdesk/article/6820158_37004.html' },
+    { name: '아시아경제 — 대검 ‘관리 소홀로 술 반입 인정’', url: 'https://view.asiae.co.kr/article/2026062013094039614' },
 ];
 
 const VERDICT_BADGE = {
@@ -225,9 +228,17 @@ export default function JuryTrialAnalysis() {
                             <li>• <strong>박상용·검찰 측:</strong> 좁은 영상녹화실에 교도관이 계호하는 상황이라 음주는 불가능하다며 “진술세미나? 망상”이라고 전면 부인. 지목된 7명 전원이 술자리를 부인.</li>
                             <li>• <strong>재판부:</strong> 7명의 일관된 부인과 이화영의 진술 번복(장소·날짜·시간)을 근거로 위증 유죄. 변호인이 낸 소주 영수증은 다수 배심원을 설득하지 못함.</li>
                             <li>• <strong>다만</strong> 박상용 검사는 진술회유 의혹으로 2026.4.9 종합특검에 피의자로 입건·출국금지 — 향응·회유 의혹의 실체는 별도 수사로 가려지는 중.</li>
+                            <li>• <strong>검찰의 재판 대응도 논란:</strong> 증인 64명을 신청했다가 6명만 채택되자 수원지검 검사들이 재판부 기피신청 후 집단 퇴정(2025.11, 기각)하기도 했습니다.</li>
                         </ul>
+
+                        <div className="mt-3 rounded-lg bg-white/80 border border-rose-300 p-3">
+                            <p className="text-sm font-semibold text-rose-900 mb-1">⚠️ 정작 검찰 내부 조사는 ‘술자리 있었다’</p>
+                            <p className="text-sm text-gray-800 leading-relaxed">
+                                <strong>법무부 특별점검팀</strong>은 “2023.5.17 수원지검 1313호 검사실에 연어·소주가 반입돼 이화영 등이 마셨다”고 판단했고, <strong>서울고검 인권침해점검 TF</strong>도 “검찰청에 소주가 반입됐다”고 결론냈습니다(<strong>대검</strong>도 ‘관리 소홀로 술 반입’은 인정). 서울고검 <strong>거짓말탐지기(심리생리검사)</strong>에서도 이화영 진술은 “진실로 판단된다”고 나왔습니다. 그런데도 <strong>수원지검은 “감찰과 형사재판은 다르다”며 이를 받아들이지 않고 위증 기소를 유지</strong>했고, 법원은 7명의 일관된 부인과 이화영의 진술 번복을 들어 위증 유죄로 판단했습니다.
+                            </p>
+                        </div>
                         <p className="mt-3 text-sm text-rose-900 leading-relaxed bg-white/70 rounded-lg p-3">
-                            <strong>시민법정의 관점.</strong> 진술회유 의혹으로 특검 피의자까지 된 검사의 권한 남용조차 그 실체는 또다시 검찰의 손에서 가려지고, 시민이 핵심 혐의를 만장일치로 판단해도 그 평결은 ‘권고’에 그치며, 배심원을 누구로 앉힐지마저 판사와 검사가 정합니다. 견제받지 않는 검찰권, 시민의 판단을 ‘참고만 하는’ 사법 — 이 구조를 그대로 둔 채로는 어떤 판결도 신뢰를 회복할 수 없습니다. <strong>검찰개혁과 사법개혁(참심제 도입)은 선택이 아니라 필수입니다.</strong> 시민의 상식이 ‘권고’가 아니라 ‘판결’이 될 때, 비로소 권력은 시민 앞에 책임을 집니다.
+                            <strong>시민법정의 관점.</strong> 검찰 내부 감찰(법무부·서울고검)조차 ‘술 반입·음주가 있었다’고 본 사실을 정작 기소 검찰은 외면했고, 진술회유 의혹으로 특검 피의자까지 된 검사의 권한 남용조차 그 실체는 또다시 검찰의 손에서 가려집니다. 시민이 핵심 혐의를 만장일치로 판단해도 그 평결은 ‘권고’에 그치고, 배심원을 누구로 앉힐지마저 판사와 검사가 정합니다. 견제받지 않는 검찰권, 시민의 판단을 ‘참고만 하는’ 사법 — 이 구조를 그대로 둔 채로는 어떤 판결도 신뢰를 회복할 수 없습니다. <strong>검찰개혁과 사법개혁(참심제 도입)은 선택이 아니라 필수입니다.</strong> 시민의 상식이 ‘권고’가 아니라 ‘판결’이 될 때, 비로소 권력은 시민 앞에 책임을 집니다.
                         </p>
                     </div>
                 </section>
@@ -397,7 +408,7 @@ export default function JuryTrialAnalysis() {
 
                 {/* 출처 */}
                 <section className="mb-6">
-                    <h2 className="text-sm font-bold text-gray-500 mb-3">출처 (교차 검증 4개 매체)</h2>
+                    <h2 className="text-sm font-bold text-gray-500 mb-3">출처 (교차 검증 7개 매체)</h2>
                     <ul className="space-y-2">
                         {SOURCES.map((s) => (
                             <li key={s.url}>
@@ -408,7 +419,7 @@ export default function JuryTrialAnalysis() {
                         ))}
                     </ul>
                     <p className="mt-4 text-xs text-gray-400 leading-relaxed">
-                        본 분석의 평결·선고 사실은 2026년 6월 19~20일 보도된 위 4개 매체를 교차 확인한 것입니다.
+                        본 분석의 사실관계는 2025년 11월~2026년 6월 보도된 위 매체들을 교차 확인한 것입니다.
                         배심원 개인의 신원·성향은 법적으로 보호되어 공개되지 않으며, 본문의 ‘성향’ 분석은 공개된 평결 결과(집단적 판단)에 한정됩니다.
                     </p>
                 </section>
