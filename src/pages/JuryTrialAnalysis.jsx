@@ -128,6 +128,10 @@ const SOURCES = [
     { name: '오마이뉴스 — 법무부·서울고검 조사 ‘1313호 연어·소주 반입’·거짓말탐지기 ‘진실’', url: 'https://www.ohmynews.com/NWS_Web/Series/series_premium_pg.aspx?CNTN_CD=A0003242792' },
     { name: 'MBC — 서울고검 ‘술자리 있었다’ 결론·박상용 검사 징계 임박', url: 'https://imnews.imbc.com/replay/2026/nwdesk/article/6820158_37004.html' },
     { name: '아시아경제 — 대검 ‘관리 소홀로 술 반입 인정’', url: 'https://view.asiae.co.kr/article/2026062013094039614' },
+    { name: '파이낸셜뉴스 — 국조특위, 김성태 집중추궁(‘증언 회유’ vs ‘압박수사’ 공방)', url: 'https://www.fnnews.com/news/202604281220286855' },
+    { name: '뉴스1 — 김성태 ‘수원지검 술 반입·이화영 회유한 적 없어’', url: 'https://www.news1.kr/society/court-prosecution/6032478' },
+    { name: '파이낸셜뉴스 — 대검 ‘무죄 핵심증거 누락 주장 사실 아냐’(송부 촉탁 vs 제출 명령)', url: 'https://www.fnnews.com/news/202606221534596645' },
+    { name: '시사저널 — 박상용 ‘거짓말탐지기’ 두고 이화영과 정면충돌', url: 'https://www.sisajournal.com/news/articleView.html?idxno=377014' },
 ];
 
 const VERDICT_BADGE = {
@@ -226,9 +230,12 @@ export default function JuryTrialAnalysis() {
                         <ul className="space-y-2 text-sm text-gray-700">
                             <li>• <strong>이화영·변호인·민주당 측:</strong> 검찰청 앞 편의점 ‘소주 구입 영수증’, 박상용 검사–변호인 통화 녹취, 오후 6시 이후 수사기록 부재 등을 들어 검찰의 향응·진술회유가 실재했다고 주장.</li>
                             <li>• <strong>박상용·검찰 측:</strong> 좁은 영상녹화실에 교도관이 계호하는 상황이라 음주는 불가능하다며 “진술세미나? 망상”이라고 전면 부인. 지목된 7명 전원이 술자리를 부인.</li>
+                            <li>• <strong>김성태 전 쌍방울 회장(국회 증언):</strong> 술자리 당사자로 지목된 김성태는 국정조사 특위 청문회(2026.4.28)에서 “수원지검 술 반입·이화영 회유는 없었다”, 검찰 회유로 진술한 것도 “전혀 그런 사실 없다”고 부인. 반면 민주당은 그를 “검찰 압박·조작수사의 희생물”이라며 구치소 접견 녹취록(“악마보다 못한 놈들”)을 제시해, 그 부인이 회유된 진술인지를 두고 공방이 이어졌습니다.</li>
+                            <li>• <strong>박상용 검사의 ‘거짓말탐지기’ 공방:</strong> 이화영의 거짓말탐지기 ‘진실’ 결과가 공개되자 박상용은 ‘여론 조작’이라 반박하며 ‘나도 거짓말탐지기를 받겠다’고 추가 증인신문·심리생리검사를 요청했으나, 재판부는 시간 제약·피고인 측 부동의를 이유로 불채택했습니다. 박 검사는 방청석에서 재판을 지켜봤는데, 재판장은 “허가하지 않을 사유가 없다”며 방청을 허가했습니다(공개재판).</li>
                             <li>• <strong>재판부:</strong> 7명의 일관된 부인과 이화영의 진술 번복(장소·날짜·시간)을 근거로 위증 유죄. 변호인이 낸 소주 영수증은 다수 배심원을 설득하지 못함.</li>
                             <li>• <strong>다만</strong> 박상용 검사는 진술회유 의혹으로 2026.4.9 종합특검에 피의자로 입건·출국금지 — 향응·회유 의혹의 실체는 별도 수사로 가려지는 중.</li>
                             <li>• <strong>검찰의 재판 대응도 논란:</strong> 증인 64명을 신청했다가 6명만 채택되자 수원지검 검사들이 재판부 기피신청 후 집단 퇴정(2025.11, 기각)하기도 했습니다.</li>
+                            <li>• <strong>감찰자료 ‘제출’ 공방:</strong> 이화영 측은 “재판부가 서울고검 TF 자료 제출을 명령했는데도 검찰이 거부해 무죄 핵심증거가 누락됐다”고 주장. 반면 대검은 “재판부의 조치는 강제력 있는 ‘문서 제출 명령’이 아니라 협조 요청인 ‘문서 송부 촉탁’이었고, 서울고검이 수사 진행(1차)·종합특검 이송(2차)을 이유로 2회 송부 불가 회신했으며, 거짓말탐지기 ‘진실’ 결과는 재판부에 회신했고 필요 자료는 종합특검을 통해 제출·증거 채택됐다”고 반박했습니다(2026.6.22).</li>
                         </ul>
 
                         <div className="mt-3 rounded-lg bg-white/80 border border-rose-300 p-3">
@@ -408,7 +415,7 @@ export default function JuryTrialAnalysis() {
 
                 {/* 출처 */}
                 <section className="mb-6">
-                    <h2 className="text-sm font-bold text-gray-500 mb-3">출처 (교차 검증 7개 매체)</h2>
+                    <h2 className="text-sm font-bold text-gray-500 mb-3">출처 (교차 검증 11건)</h2>
                     <ul className="space-y-2">
                         {SOURCES.map((s) => (
                             <li key={s.url}>
