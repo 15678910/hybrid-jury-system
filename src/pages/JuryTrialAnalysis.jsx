@@ -132,6 +132,7 @@ const SOURCES = [
     { name: '뉴스1 — 김성태 ‘수원지검 술 반입·이화영 회유한 적 없어’', url: 'https://www.news1.kr/society/court-prosecution/6032478' },
     { name: '파이낸셜뉴스 — 대검 ‘무죄 핵심증거 누락 주장 사실 아냐’(송부 촉탁 vs 제출 명령)', url: 'https://www.fnnews.com/news/202606221534596645' },
     { name: '시사저널 — 박상용 ‘거짓말탐지기’ 두고 이화영과 정면충돌', url: 'https://www.sisajournal.com/news/articleView.html?idxno=377014' },
+    { name: '유튜브 ‘김어준의 겸손은 힘들다’(2026.6.22) — 이화영 측 변호인 김광민 발언(변호인 측 주장)', url: 'https://www.youtube.com/live/ONnb_YwvCVk' },
 ];
 
 const VERDICT_BADGE = {
@@ -244,6 +245,18 @@ export default function JuryTrialAnalysis() {
                                 <strong>법무부 특별점검팀</strong>은 “2023.5.17 수원지검 1313호 검사실에 연어·소주가 반입돼 이화영 등이 마셨다”고 판단했고, <strong>서울고검 인권침해점검 TF</strong>도 “검찰청에 소주가 반입됐다”고 결론냈습니다(<strong>대검</strong>도 ‘관리 소홀로 술 반입’은 인정). 서울고검 <strong>거짓말탐지기(심리생리검사)</strong>에서도 이화영 진술은 “진실로 판단된다”고 나왔습니다. 그런데도 <strong>수원지검은 “감찰과 형사재판은 다르다”며 이를 받아들이지 않고 위증 기소를 유지</strong>했고, 법원은 7명의 일관된 부인과 이화영의 진술 번복을 들어 위증 유죄로 판단했습니다.
                             </p>
                         </div>
+                        <div className="mt-3 rounded-lg bg-white/80 border border-gray-300 p-3">
+                            <p className="text-sm font-semibold text-gray-900 mb-1">🗣️ 이화영 측 변호인(김광민)의 반론 <span className="font-normal text-gray-500">— 방송(2026.6.22) 발언, 변호인 측 주장</span></p>
+                            <ul className="space-y-1.5 text-sm text-gray-700">
+                                <li>• <strong>감찰보고서 미제출:</strong> “재판부의 문서 제출 명령이 발부되고 변호인단이 고검과 공개 범위까지 협의했는데도, 검찰이 ‘수사 중’을 이유로 ‘술자리 있었다’는 고검 감찰보고서를 끝내 제출하지 않았다.” (※ 대검은 ‘송부 촉탁이었을 뿐 제출 명령은 없었다’고 반박 — 위 참조)</li>
+                                <li>• <strong>‘술 반입 불가’ 반박 실연:</strong> 검찰의 ‘술 반입은 물리적으로 불가능’ 주장에 맞서, 변호인 측이 가방에 소주병을 넣고 법원 검색대를 통과해 보였다고 했습니다.</li>
+                                <li>• <strong>일관성 잣대의 형평성:</strong> 박상용 검사도 ‘외부 음식 반입은 없었다’ → ‘개인 카드로 두 번 사줬다’로 진술을 바꿨는데, 유독 이화영에게만 일관성 잣대를 엄격히 적용했다는 지적.</li>
+                                <li>• <strong>위증의 본질:</strong> 위증은 ‘믿는 바와 다르게 말했는지’가 핵심인데, 거짓말탐지기 ‘진실’ 반응이 나온 만큼 기억대로 증언한 것이고, 날짜·호실 혼동이 ‘안 마셨는데 마셨다’는 거짓은 아니라는 주장.</li>
+                                <li>• <strong>항소 전략:</strong> 항소심에서 뒤집으려면 고검 감찰보고서 확보가 관건이라고 밝혔습니다.</li>
+                            </ul>
+                            <p className="mt-2 text-xs text-gray-500">※ 위 내용은 이화영 측 변호인의 일방 주장으로, 검찰·대검·법원의 반박(문서 송부 촉탁·방청 허가·증인 불채택 등)은 위 항목들에 함께 정리되어 있습니다.</p>
+                        </div>
+
                         <p className="mt-3 text-sm text-rose-900 leading-relaxed bg-white/70 rounded-lg p-3">
                             <strong>시민법정의 관점.</strong> 검찰 내부 감찰(법무부·서울고검)조차 ‘술 반입·음주가 있었다’고 본 사실을 정작 기소 검찰은 외면했고, 진술회유 의혹으로 특검 피의자까지 된 검사의 권한 남용조차 그 실체는 또다시 검찰의 손에서 가려집니다. 시민이 핵심 혐의를 만장일치로 판단해도 그 평결은 ‘권고’에 그치고, 배심원을 누구로 앉힐지마저 판사와 검사가 정합니다. 견제받지 않는 검찰권, 시민의 판단을 ‘참고만 하는’ 사법 — 이 구조를 그대로 둔 채로는 어떤 판결도 신뢰를 회복할 수 없습니다. <strong>검찰개혁과 사법개혁(참심제 도입)은 선택이 아니라 필수입니다.</strong> 시민의 상식이 ‘권고’가 아니라 ‘판결’이 될 때, 비로소 권력은 시민 앞에 책임을 집니다.
                         </p>
@@ -415,7 +428,7 @@ export default function JuryTrialAnalysis() {
 
                 {/* 출처 */}
                 <section className="mb-6">
-                    <h2 className="text-sm font-bold text-gray-500 mb-3">출처 (교차 검증 11건)</h2>
+                    <h2 className="text-sm font-bold text-gray-500 mb-3">출처 (11건 교차 검증 + 변호인 측 발언 1건)</h2>
                     <ul className="space-y-2">
                         {SOURCES.map((s) => (
                             <li key={s.url}>
