@@ -401,13 +401,15 @@ export default function JuryTrialAnalysis() {
                     </div>
 
                     <div className="mt-6 rounded-xl bg-white/10 p-5">
-                        <p className="font-bold mb-2">🔁 이화영 사건에 ‘참심제’였다면? (스웨덴 모델 기준)</p>
-                        <p className="text-indigo-100 text-sm leading-relaxed mb-2">
-                            무엇보다 핀란드·스웨덴처럼 시민법관을 사건마다 뽑지 않고 <strong className="text-white">정당 지명·지방의회 선출로 임기제</strong>(4년)로 두면, 검사·변호인이 <strong className="text-white">사건마다 배심원을 면접·기피로 거르는 절차 자체가 없습니다</strong>. 검찰이 자기 비위(향응·진술회유) 의혹이 걸린 사건에서 이유도 없이 배심원 후보를 빼낼 수 있는 <strong className="text-white">이해충돌이 원천적으로 사라집니다</strong>.
-                        </p>
-                        <p className="text-indigo-100 text-sm leading-relaxed">
-                            그리고 정치자금법·대북지원에 대한 <strong className="text-white">시민 7명의 만장일치 무죄 판단이 곧 판결</strong>이 되어, 재판부가 절차로 우회하거나 실체판단을 미룰 여지가 줄어듭니다. 위증의 <strong className="text-white">형량(징역 4개월)도 시민이 직업법관과 함께</strong> 정합니다. 시민의 상식이 ‘권고’를 넘어 결론에 책임 있게 반영되는 것입니다.
-                        </p>
+                        <p className="font-bold mb-3">🔁 이화영 사건에 ‘참심제’였다면? (핀란드·스웨덴 모델 기준)</p>
+                        <p className="text-indigo-100 text-sm leading-relaxed mb-2">이 재판은 <strong className="text-white">배심원제의 세 가지 구조적 약점</strong>을 드러냈습니다.</p>
+                        <ul className="text-indigo-100 text-sm leading-relaxed space-y-1.5 mb-3">
+                            <li>① <strong className="text-white">면접·기피로 당사자가 배심원을 거른다</strong> — 검사·변호인이 사건마다 배심원 후보를 면접하고 이유도 없이 빼냅니다(무이유부 기피). 검찰 비위 의혹이 걸린 사건에서 검찰이 배심원 선별에 관여하는 <strong className="text-white">이해충돌</strong>.</li>
+                            <li>② <strong className="text-white">평결은 ‘권고’, 최종 결정은 직업법관</strong> — 시민이 만장일치로 봐도 유·무죄와 양형의 최종 결정권은 직업법관에게 있습니다. 결국 <strong className="text-white">직업법관 1인의 판단·성향(편향)이 결론을 좌우할 위험</strong>이 남습니다.</li>
+                            <li>③ <strong className="text-white">재판부가 절차를 통제한다</strong> — 증인 채택·소송지휘·공소기각까지 재판부가 쥐고 있어, 시민의 일치된 판단마저 절차로 우회될 수 있습니다(이 사건의 직권남용 ‘공소기각’이 그 예).</li>
+                        </ul>
+                        <p className="text-indigo-100 text-sm leading-relaxed mb-2"><strong className="text-white">핀란드·스웨덴식 참심제</strong>는 이 세 약점을 정면으로 바꿉니다. 시민법관을 사건마다 뽑지 않고 정당 지명·지방의회 선출로 임기제(4년)로 두어 <strong className="text-white">당사자가 배심원을 면접·기피로 거를 수 없고(이해충돌 소멸)</strong>, 시민법관이 직업법관과 <strong className="text-white">하나의 합의체에서 동등한 표결권</strong>을 가져 <strong className="text-white">평결이 곧 판결</strong>이 되며 직업법관 한 사람의 편향을 시민이 견제하고 양형까지 함께 결정합니다.</p>
+                        <p className="text-indigo-100 text-sm leading-relaxed">이 사건에 적용하면, 정치자금법·대북지원에 대한 <strong className="text-white">시민 7명의 만장일치 무죄가 그대로 판결</strong>이 되어 재판부가 절차(공소기각)로 우회할 여지가 줄고, 4 대 3으로 갈린 위증도 <strong className="text-white">유·무죄와 형량(징역 4개월)을 시민이 직업법관과 함께</strong> 정하게 됩니다. 시민의 상식이 ‘권고’를 넘어 결론에 책임 있게 반영되는 것입니다.</p>
                     </div>
                     <p className="mt-4 text-xs text-indigo-200">
                         독일(Schöffe)·프랑스(중죄법원)·일본(재판원제)이 채택한 방식이며, 우리 헌법 제1조 제2항(국민주권)에 부합해 <strong className="text-white">헌법 개정 없이 법률 개정만으로 도입할 수 있습니다.</strong>
