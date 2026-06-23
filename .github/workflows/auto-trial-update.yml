@@ -1,0 +1,65 @@
+name: Auto Trial-Schedule Update
+
+# 클라우드 자동 재판일정 갱신 (Model A — PR 방식, 사람 검토)
+# - 매일 cron으로 Claude+웹검색이 최신 재판 뉴스를 교차검증해 trialSchedule.js 초안을 만들고
+#   빌드/테스트 통과 시 PR을 연다. 자동 배포는 하지 않는다(머지는 사람이).
+# - ANTHROPIC_API_KEY 시크릿이 없으면 스크립트가 안전하게 스킵하고 PR을 만들지 않는다.
+#
+# 필요한 시크릿:
+#   - ANTHROPIC_API_KEY : Claude API + 웹검색용 (GitHub → Settings → Secrets and variables → Actions)
+# 권한:
+#   - 기본 GITHUB_TOKEN 으로 PR 생성 (contents/pull-requests: write)
+
+on:
+  schedule:
+    - cron: '30 21 * * *'   # 매일 06:30 KST (21:30 UTC). 로컬 22:09 작업과 시간대를 분리.
+  workflow_dispatch:          # 수동 실행(테스트용)
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: auto-trial-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate update draft (Claude + web search)
+        id: gen
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/auto-trial-update.mjs
+
+      - name: Build & test gate
+        if: steps.gen.outputs.changed == 'true'
+        run: |
+          npm run build
+          npm run test:run
+
+      - name: Create Pull Request
+        if: steps.gen.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          add-paths: src/data/trialSchedule.js
+          branch: auto/trial-update
+          delete-branch: true
+          commit-message: 'auto: 재판 일정 자동 갱신 (Claude 교차검증 초안)'
+          title: '🤖 재판 일정 자동 갱신 — 검토 후 머지'
+          body-path: auto-update-summary.md
+          labels: auto-update
