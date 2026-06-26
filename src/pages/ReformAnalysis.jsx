@@ -2088,7 +2088,7 @@ export default function ReformAnalysis() {
                             <div className="flex items-center gap-3">
                                 <span className="text-lg">📜</span>
                                 <span className="font-bold text-gray-800">법원조직법 현행 vs 개정안 비교</span>
-                                <span className="px-2 py-0.5 text-xs rounded-full font-medium bg-blue-100 text-blue-700">API 연동</span>
+                                <span className="px-2 py-0.5 text-xs rounded-full font-medium bg-blue-100 text-blue-700">법령 참고</span>
                             </div>
                             <div className="flex items-center gap-3">
                                 <span className="text-sm text-gray-500">신구법 비교 조회</span>
@@ -2101,7 +2101,7 @@ export default function ReformAnalysis() {
                                 {/* 안내 배너 */}
                                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
                                     <p className="text-xs text-blue-800">
-                                        국가법령정보 OPEN API를 통해 법원조직법의 신구법 비교 및 변경이력을 조회합니다.
+                                        법원조직법의 현행 조문과 개정 연혁은 국가법령정보센터에서 확인할 수 있습니다.
                                     </p>
                                 </div>
 
@@ -2125,13 +2125,9 @@ export default function ReformAnalysis() {
                                                     const articleList = Array.isArray(articles) ? articles : (articles ? [articles] : []);
 
                                                     if (articleList.length === 0) {
-                                                        // 원본 데이터를 JSON으로 표시
-                                                        const dataStr = JSON.stringify(lawComparisonData, null, 2);
-                                                        const truncated = dataStr.length > 3000 ? dataStr.slice(0, 3000) + '...' : dataStr;
                                                         return (
-                                                            <div className="bg-gray-50 rounded-lg p-4">
-                                                                <p className="text-sm text-gray-600 mb-2">API 응답 데이터:</p>
-                                                                <pre className="text-xs text-gray-700 overflow-x-auto whitespace-pre-wrap max-h-96 overflow-y-auto bg-white p-3 rounded border">{truncated}</pre>
+                                                            <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600 leading-relaxed">
+                                                                법원조직법의 신구 조문 전체는 국가법령정보센터에서 확인할 수 있습니다. 아래 ‘법원조직법 전문 보기’에서 현행 조문과 개정 연혁을 직접 비교해 보세요.
                                                             </div>
                                                         );
                                                     }
@@ -2178,24 +2174,6 @@ export default function ReformAnalysis() {
                                             </div>
                                         )}
 
-                                        {/* 변경이력 */}
-                                        {lawHistoryData && (
-                                            <div className="space-y-3">
-                                                <h4 className="font-bold text-gray-800 text-sm flex items-center gap-2">
-                                                    <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                                                    조문별 변경이력
-                                                </h4>
-                                                {(() => {
-                                                    const histStr = JSON.stringify(lawHistoryData, null, 2);
-                                                    const truncated = histStr.length > 2000 ? histStr.slice(0, 2000) + '...' : histStr;
-                                                    return (
-                                                        <div className="bg-amber-50 rounded-lg p-4">
-                                                            <pre className="text-xs text-gray-700 overflow-x-auto whitespace-pre-wrap max-h-64 overflow-y-auto bg-white p-3 rounded border">{truncated}</pre>
-                                                        </div>
-                                                    );
-                                                })()}
-                                            </div>
-                                        )}
 
                                         {/* 외부 링크 */}
                                         <div className="flex flex-wrap gap-3 pt-2">
