@@ -8,6 +8,25 @@ import SNSShareBar from '../components/SNSShareBar';
 import { BILL_COMPARISON, BILL_COMPARISON_REVISED, KEY_ISSUES, OPPOSITION_VOICES, INTERNATIONAL_COMPARISON, DEMOCRATIZATION_SCORECARD, FINLAND_REFORM_BILL } from '../data/prosecutionReformData';
 import { getLawComparison, getLawHistory } from '../lib/lawApi';
 
+// 법원조직법 핵심 쟁점 현행 vs 개혁안 (개혁안 출처: 본 페이지의 사법개혁안 데이터)
+const COURT_ORG_COMPARISON = [
+    {
+        topic: '대법원 구성',
+        current: '대법관 14명(대법원장 포함)·3개 소부 — 상고 사건 폭증으로 충실한 심리가 어렵다는 지적',
+        reform: '대법관 14명→26명 증원, 소부 6개·합의부 2개로 확대, 비법관 출신 대법관 임명 확대',
+    },
+    {
+        topic: '법원행정처',
+        current: '법원행정처가 사법행정을 총괄, 처장·차장 등을 현직 법관이 겸직 — 사법농단의 구조적 배경으로 지목',
+        reform: '법원행정처 폐지, 비법관도 참여하는 사법행정위원회(13명) 신설로 민주적 통제',
+    },
+    {
+        topic: '법관 인사',
+        current: '대법원장에게 법관 인사·보임 권한이 집중 — 제청·평정의 불투명성 논란',
+        reform: '대법관 추천위 구성 다양화, 법관 평가제 도입 등 인사 투명화·분산',
+    },
+];
+
 // 개혁안 뉴스 캐시 설정
 const REFORM_NEWS_CACHE_KEY = 'reform_news_cache';
 const REFORM_NEWS_CACHE_DURATION = 30 * 60 * 1000; // 30분
@@ -2063,26 +2082,7 @@ export default function ReformAnalysis() {
                     {/* 법원조직법 현행 vs 개정안 비교 */}
                     <div className="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
                         <button
-                            onClick={async () => {
-                                setShowLawComparison(!showLawComparison);
-                                if (!lawComparisonData && !comparisonLoading) {
-                                    setComparisonLoading(true);
-                                    try {
-                                        // 법원조직법 MST: 법원조직법의 법령 MST 번호
-                                        const COURT_ORG_ACT_MST = '002566';
-                                        const [compData, histData] = await Promise.all([
-                                            getLawComparison(COURT_ORG_ACT_MST),
-                                            getLawHistory(COURT_ORG_ACT_MST)
-                                        ]);
-                                        if (compData) setLawComparisonData(compData);
-                                        if (histData) setLawHistoryData(histData);
-                                    } catch (error) {
-                                        console.error('Law comparison fetch error:', error);
-                                    } finally {
-                                        setComparisonLoading(false);
-                                    }
-                                }
-                            }}
+                            onClick={() => setShowLawComparison(!showLawComparison)}
                             className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
@@ -2112,67 +2112,34 @@ export default function ReformAnalysis() {
                                     </div>
                                 ) : (
                                     <>
-                                        {/* 신구법 비교 결과 */}
-                                        {lawComparisonData ? (
-                                            <div className="space-y-4">
-                                                <h4 className="font-bold text-gray-800 text-sm flex items-center gap-2">
-                                                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                                                    신구법 비교 조문
-                                                </h4>
-                                                {(() => {
-                                                    // 신구법 비교 데이터 파싱
-                                                    const articles = lawComparisonData?.법령?.조문 || lawComparisonData?.law?.articles || [];
-                                                    const articleList = Array.isArray(articles) ? articles : (articles ? [articles] : []);
-
-                                                    if (articleList.length === 0) {
-                                                        return (
-                                                            <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600 leading-relaxed">
-                                                                법원조직법의 신구 조문 전체는 국가법령정보센터에서 확인할 수 있습니다. 아래 ‘법원조직법 전문 보기’에서 현행 조문과 개정 연혁을 직접 비교해 보세요.
-                                                            </div>
-                                                        );
-                                                    }
-
-                                                    return (
-                                                        <div className="grid md:grid-cols-2 gap-4">
-                                                            <div>
-                                                                <h5 className="text-sm font-bold text-red-700 mb-2 px-3 py-1 bg-red-50 rounded-lg">현행 (구법)</h5>
-                                                                <div className="space-y-2 max-h-96 overflow-y-auto">
-                                                                    {articleList.slice(0, 20).map((art, idx) => (
-                                                                        <div key={idx} className="bg-red-50/50 rounded-lg p-3 border border-red-100">
-                                                                            <p className="text-xs font-bold text-red-700 mb-1">{art['조문번호'] || art.조문번호 || `제${idx + 1}조`}</p>
-                                                                            <p className="text-xs text-gray-700 leading-relaxed">{art['조문내용_구'] || art['조문내용'] || art.content || ''}</p>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <h5 className="text-sm font-bold text-green-700 mb-2 px-3 py-1 bg-green-50 rounded-lg">개정 (신법)</h5>
-                                                                <div className="space-y-2 max-h-96 overflow-y-auto">
-                                                                    {articleList.slice(0, 20).map((art, idx) => (
-                                                                        <div key={idx} className="bg-green-50/50 rounded-lg p-3 border border-green-100">
-                                                                            <p className="text-xs font-bold text-green-700 mb-1">{art['조문번호'] || art.조문번호 || `제${idx + 1}조`}</p>
-                                                                            <p className="text-xs text-gray-700 leading-relaxed">{art['조문내용_신'] || art['개정내용'] || art.newContent || ''}</p>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })()}
+                                        {/* 현행 vs 개혁안 핵심 비교표 */}
+                                        <div className="space-y-3">
+                                            <h4 className="font-bold text-gray-800 text-sm flex items-center gap-2">
+                                                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                                법원조직법 핵심 쟁점 — 현행 vs 개혁안
+                                            </h4>
+                                            <div className="overflow-x-auto rounded-lg border border-gray-200">
+                                                <table className="w-full text-sm min-w-[640px]">
+                                                    <thead>
+                                                        <tr className="bg-gray-50 text-left border-b border-gray-200">
+                                                            <th className="px-4 py-2.5 font-semibold text-gray-700 whitespace-nowrap">쟁점</th>
+                                                            <th className="px-4 py-2.5 font-semibold text-red-700">현행</th>
+                                                            <th className="px-4 py-2.5 font-semibold text-green-700">개혁안</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {COURT_ORG_COMPARISON.map((row) => (
+                                                            <tr key={row.topic} className="border-b border-gray-100 align-top">
+                                                                <td className="px-4 py-3 font-semibold text-gray-900 whitespace-nowrap">{row.topic}</td>
+                                                                <td className="px-4 py-3 text-gray-700 bg-red-50/40 leading-relaxed">{row.current}</td>
+                                                                <td className="px-4 py-3 text-gray-700 bg-green-50/40 leading-relaxed">{row.reform}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
                                             </div>
-                                        ) : (
-                                            <div className="bg-gray-50 rounded-lg p-6 text-center">
-                                                <p className="text-gray-500 text-sm mb-2">신구법 비교 데이터를 불러오지 못했습니다.</p>
-                                                <a
-                                                    href="https://www.law.go.kr/법령/법원조직법"
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-sm text-blue-600 hover:underline"
-                                                >
-                                                    국가법령정보센터에서 직접 확인 →
-                                                </a>
-                                            </div>
-                                        )}
+                                            <p className="text-xs text-gray-400">※ ‘개혁안’은 시민법정이 지지하는 사법개혁 방향이며, 구체 법안·조문은 아래 국가법령정보센터·법령DB에서 확인할 수 있습니다.</p>
+                                        </div>
 
 
                                         {/* 외부 링크 */}
