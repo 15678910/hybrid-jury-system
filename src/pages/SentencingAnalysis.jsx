@@ -468,6 +468,26 @@ const personsData = {
         },
         keyIssues: [
             {
+                matter: 'maegwan',
+                title: "'알선수재' 적용 — 매관매직 직접 당사자로 못 본 법리 공백",
+                description: "조순표 재판부는 김건희의 매관매직 혐의를 '알선수재'(특정범죄가중처벌법 제3조)로 의율했다. 뇌물수수죄는 공무원만 정범이 되는 신분범이라 민간인인 대통령 배우자에겐 직접 적용할 수 없고, 공무원인 윤석열과의 뇌물 공모(공동정범)도 특검이 입증하지 못했다. 현행법에는 '공무원 아닌 자가 공직을 직접 사고판' 행위를 정면으로 처벌하는 죄목이 없어, 가장 근접한 알선수재로 처벌됐다. 재판부는 \"공무원이었다면 수뢰액 1억원 이상으로 무기 또는 10년 이상\"이라며 알선수재 주체 중 대통령 배우자의 영향력이 가장 중하다고 보고 징역 7년(경합 가중 상한 근접)을 선고했다. ※ 형법상 알선수뢰죄(제132조)도 공무원 신분범이라 적용 불가 — 민간인 영향력 행사자에게 적용 가능한 죄목은 특가법 알선수재뿐.",
+                opinion: {
+                    prosecution: '대통령 배우자는 법적으로 민간인이라 수뢰죄(신분범) 직접 적용 불가. 윤석열과의 뇌물 공모 입증이 어려워 특가법 알선수재로 기소',
+                    defense: "공무원 직무에 관한 '알선'의 대가성·직무관련성이 부족하고 구성요건을 무한정 확장한 것이라며 항소 의사",
+                    court: "세부 5개 혐의 전부 유죄 — 청탁과 금품의 대가관계를 충분히 인식. 다만 의율은 알선수재이며, 영부인에 대해 공무원에 준하는 처벌 규정 등 입법 보완 필요성도 제기됨"
+                }
+            },
+            {
+                matter: 'maegwan',
+                title: '세부 5개 혐의 전부 유죄·중형(징역 7년) — 봐주기 없는 양형',
+                description: '도이치·통일교 사건(우인성 재판부, 항소심 징역 4년)과 달리, 조순표 재판부는 매관매직 알선수재 세부 5개 혐의를 전부 유죄로 인정하고 특검 구형(7년 6개월)에 근접한 징역 7년을 선고했다. "위법성을 인식하고도 은폐했다"고 판단하며 권력형 비리에 엄정한 양형을 적용했다.',
+                opinion: {
+                    prosecution: "'현대판 매관매직'으로 규정 — 공적 의사결정을 사적 이익을 위한 거래 대상으로 전락시킨 중대 범죄",
+                    defense: '알선수재 구성요건을 과도하게 확장했다며 항소 의사 표명',
+                    court: '공정·투명해야 할 공적 의사결정이 금품과 결부돼 사익을 위한 거래로 전락 — 공정성과 신뢰를 근본적으로 훼손'
+                }
+            },
+            {
                 title: '구형 대비 1/9 형량 논란',
                 description: '검찰의 징역 15년 구형에 비해 징역 1년 8개월 선고는 구형의 약 1/9 수준으로, 양형 기준에 비해 현저히 낮다는 비판',
                 opinion: {
@@ -3392,6 +3412,7 @@ export default function SentencingAnalysis() {
     const visibleCharges = selMatter ? person.charges.filter(c => selMatter.chargeIds.includes(c.id)) : person.charges;
     const visibleGuidelines = (selMatter && person.sentencingGuidelines) ? person.sentencingGuidelines.filter(g => selMatter.guidelineCrimes.includes(g.crime)) : person.sentencingGuidelines;
     const visibleGivers = (selMatter && person.bribeGivers) ? person.bribeGivers.filter(g => g.matter === selMatter.key) : person.bribeGivers;
+    const visibleIssues = (selMatter && person.keyIssues && person.matters) ? person.keyIssues.filter(iss => (iss.matter || person.matters[0].key) === selMatter.key) : person.keyIssues;
 
     // 개별 인물 상세 화면
     return (
@@ -4049,7 +4070,7 @@ export default function SentencingAnalysis() {
                     {person.keyIssues && (
                     <section id="issues" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-4">
-                            {person.keyIssues.map((issue, idx) => (
+                            {visibleIssues.map((issue, idx) => (
                                 <div key={idx} className="bg-white rounded-xl shadow-sm overflow-hidden">
                                     <div className="p-4 bg-orange-50 border-b">
                                         <h3 className="font-bold text-gray-900">{issue.title}</h3>
