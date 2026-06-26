@@ -252,6 +252,10 @@ const personsData = {
                 '일부 자책하고 반성하는 태도'
             ]
         },
+        matters: [
+            { key: 'doichi', label: '우인성 재판부', sub: '도이치모터스·통일교·명태균 (자본시장법·정치자금법·알선수재)', judgeId: 'woo-insung', court: '서울중앙지법 형사합의27부(1심) · 서울고법 형사15-2부(항소심)', prosecution: '징역 15년, 벌금 20억원, 추징금 9억 4,800만원', verdict: '항소심 징역 4년 (1심 1년 8개월→가중), 벌금 5,000만원·추징금 2,094만원', chargeIds: [1, 2, 3, 4], guidelineCrimes: ['주가조작 (자본시장법 위반)', '정치자금법 위반', '알선수재 (특정범죄가중처벌법)', '공직선거법 위반·정치자금법 위반 (윤석열 관련)'] },
+            { key: 'maegwan', label: '조순표 재판부', sub: "'매관매직' 알선수재 (이봉관 서희건설)", judgeId: 'jo-sunpyo', court: '서울중앙지법 형사합의21부 (1심)', prosecution: '징역 7년 6개월 (특검 구형)', verdict: '1심 징역 7년 (세부 5개 혐의 전부 유죄)', chargeIds: [5], guidelineCrimes: ["'매관매직' 알선수재 (특정범죄가중처벌법) — 별개 1심"] }
+        ],
         charges: [
             {
                 id: 1,
@@ -2738,6 +2742,7 @@ const sortedPersons = Object.keys(personsData).sort((a, b) => a.localeCompare(b,
 export default function SentencingAnalysis() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [selectedPerson, setSelectedPerson] = useState(null);
+    const [selectedMatter, setSelectedMatter] = useState(null); // 복수 재판부(우인성/조순표 등) 분리 보기 — person.matters 있을 때만 사용
     const [firestoreData, setFirestoreData] = useState({});
     const [judgeNewsData, setJudgeNewsData] = useState({});
     const [judgeYouTubeData, setJudgeYouTubeData] = useState({});
@@ -2748,6 +2753,7 @@ export default function SentencingAnalysis() {
     const [relatedNews, setRelatedNews] = useState([]);
     const [newsLoading, setNewsLoading] = useState(false);
     useEffect(() => {
+        setSelectedMatter(null);
         if (!selectedPerson) { setRelatedNews([]); return; }
         let cancelled = false;
         setNewsLoading(true);
@@ -3369,6 +3375,11 @@ export default function SentencingAnalysis() {
         return items;
     })();
 
+    // 복수 재판부(우인성/조순표 등) 분리 보기 — person.matters 있을 때만 필터링
+    const selMatter = person.matters ? person.matters.find(m => m.key === selectedMatter) : null;
+    const visibleCharges = selMatter ? person.charges.filter(c => selMatter.chargeIds.includes(c.id)) : person.charges;
+    const visibleGuidelines = (selMatter && person.sentencingGuidelines) ? person.sentencingGuidelines.filter(g => selMatter.guidelineCrimes.includes(g.crime)) : person.sentencingGuidelines;
+
     // 개별 인물 상세 화면
     return (
         <div className="min-h-screen bg-gray-50">
@@ -3428,6 +3439,43 @@ export default function SentencingAnalysis() {
                         )}
                     </div>
 
+                    {/* 재판부별 사건 분리 (우인성/조순표 등 복수 재판부) */}
+                    {person.matters && (
+                        <div className="mb-8 bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                            <p className="text-center text-sm text-gray-600 mb-3">
+                                ⚖️ 이 인물은 <b className="text-gray-900">서로 다른 재판부</b>의 별개 재판이 진행되었습니다. 재판부별로 나눠 보세요.
+                            </p>
+                            <div className="flex flex-wrap justify-center gap-2">
+                                <button
+                                    onClick={() => setSelectedMatter(null)}
+                                    className={`px-4 py-2 rounded-full text-sm font-medium transition ${!selectedMatter ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                >
+                                    전체 보기
+                                </button>
+                                {person.matters.map(m => (
+                                    <button
+                                        key={m.key}
+                                        onClick={() => setSelectedMatter(m.key)}
+                                        className={`px-4 py-2 rounded-full text-sm font-medium transition ${selectedMatter === m.key ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'}`}
+                                    >
+                                        ⚖️ {m.label} · {m.verdict.split('(')[0].trim()}
+                                    </button>
+                                ))}
+                            </div>
+                            {selMatter && (
+                                <div className="mt-4 bg-blue-50 border border-blue-100 rounded-lg p-4 text-sm">
+                                    <p className="font-bold text-blue-900 mb-1">{selMatter.label} — {selMatter.sub}</p>
+                                    <p className="text-gray-700"><span className="text-gray-500">법원·재판부: </span>{selMatter.court}</p>
+                                    <p className="text-gray-700"><span className="text-gray-500">검찰 구형: </span>{selMatter.prosecution}</p>
+                                    <p className="text-gray-700"><span className="text-gray-500">법원 선고: </span><b className="text-red-600">{selMatter.verdict}</b></p>
+                                    <Link to={`/judge/${selMatter.judgeId}`} className="inline-flex items-center gap-1 mt-2 text-blue-700 font-medium hover:underline">
+                                        이 재판관 AI 평가 보기 →
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
 
                     {/* 판결 요약 / 개요 */}
                     <section id={person.verdictDate ? 'verdict' : 'overview'} className="scroll-mt-[100px] mb-12">
@@ -3436,12 +3484,12 @@ export default function SentencingAnalysis() {
                             {person.verdictDate && (
                                 <div className="grid md:grid-cols-2 gap-4">
                                     <div className="bg-white rounded-xl p-6 shadow-sm border-l-4 border-blue-500">
-                                        <h3 className="text-sm text-gray-500 mb-2">검찰 구형</h3>
-                                        <p className="text-lg font-bold text-gray-900">{person.summary.prosecutionTotal}</p>
+                                        <h3 className="text-sm text-gray-500 mb-2">검찰 구형{selMatter ? ` · ${selMatter.label}` : ''}</h3>
+                                        <p className="text-lg font-bold text-gray-900">{selMatter ? selMatter.prosecution : person.summary.prosecutionTotal}</p>
                                     </div>
                                     <div className="bg-white rounded-xl p-6 shadow-sm border-l-4 border-red-500">
-                                        <h3 className="text-sm text-gray-500 mb-2">법원 선고</h3>
-                                        <p className="text-lg font-bold text-red-600">{person.summary.verdictTotal}</p>
+                                        <h3 className="text-sm text-gray-500 mb-2">법원 선고{selMatter ? ` · ${selMatter.label}` : ''}</h3>
+                                        <p className="text-lg font-bold text-red-600">{selMatter ? selMatter.verdict : person.summary.verdictTotal}</p>
                                     </div>
                                 </div>
                             )}
@@ -3475,10 +3523,10 @@ export default function SentencingAnalysis() {
                             {/* 기소 혐의 요약 */}
                             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                                 <div className="p-4 bg-gray-50 border-b">
-                                    <h3 className="font-bold text-gray-900">기소 혐의 ({person.charges.length}건)</h3>
+                                    <h3 className="font-bold text-gray-900">기소 혐의 ({visibleCharges.length}건)</h3>
                                 </div>
                                 <div className="divide-y">
-                                    {person.charges.map(charge => (
+                                    {visibleCharges.map(charge => (
                                         <div key={charge.id} className="p-4 flex items-center justify-between">
                                             <div>
                                                 <p className="font-medium text-gray-900">{charge.name}</p>
@@ -3513,7 +3561,7 @@ export default function SentencingAnalysis() {
                     {/* 혐의 분석 */}
                     <section id="charges" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-4">
-                            {person.charges.map(charge => (
+                            {visibleCharges.map(charge => (
                                 <div key={charge.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
                                     <div className={`p-4 ${
                                         charge.appealChange === '무죄→유죄' ? 'bg-orange-50'
@@ -3584,7 +3632,7 @@ export default function SentencingAnalysis() {
                     {person.sentencingGuidelines && (
                     <section id="sentencing" className="scroll-mt-[100px] mb-12">
                         <div className="space-y-4">
-                            {person.sentencingGuidelines.map((guideline, idx) => (
+                            {visibleGuidelines.map((guideline, idx) => (
                                 <div key={idx} className="bg-white rounded-xl shadow-sm overflow-hidden">
                                     <div className="p-4 bg-purple-50 border-b">
                                         <div className="flex items-center justify-between">
@@ -3642,8 +3690,8 @@ export default function SentencingAnalysis() {
                     </section>
                     )}
 
-                    {/* 판사 판결 이력 */}
-                    {person.judgeHistory && (() => {
+                    {/* 판사 판결 이력 (우인성) — 조순표 재판부 선택 시에는 숨김(해당 판사 프로필은 위 배너 링크로 이동) */}
+                    {person.judgeHistory && (!selMatter || selMatter.judgeId === 'woo-insung') && (() => {
                         const judgeFromDB = JUDGES_DATA.find(j => j.name === person.judgeHistory.judgeName);
                         return (
                         <section id="judge" className="scroll-mt-[100px] mb-12">
