@@ -258,8 +258,10 @@ const personsData = {
         ],
         bribeGivers: [
             { matter: 'maegwan', name: '이봉관', role: '서희건설 회장', gave: '반클리프 목걸이·귀걸이 등 1억380만원 상당 명품 귀금속', result: '징역 1년·집행유예 2년', source: { name: '오마이뉴스', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003246627' } },
-            { matter: 'maegwan', name: '서성빈', role: '금품 공여자', gave: '바쉐론 콘스탄틴 시계 3,990만원 상당', result: '징역 10개월·집행유예 2년', source: { name: '오마이뉴스', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003246627' } },
+            { matter: 'maegwan', name: '서성빈', role: '드롬돈 대표', gave: '바쉐론 콘스탄틴 시계 3,990만원 상당', result: '징역 10개월·집행유예 2년', source: { name: '오마이뉴스', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003246627' } },
             { matter: 'maegwan', name: '최재영', role: '목사 (디올백 공여)', gave: '디올백 등 (청탁금지법 위반)', result: '벌금 800만원', source: { name: '오마이뉴스', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003246627' } },
+            { matter: 'maegwan', name: '이배용', role: '전 국가교육위원장', gave: '금거북이(265만원)·세한도 복제본 (국가교육위원장 임명 청탁)', result: '징역 10개월·집행유예 2년 (증거인멸 교사)', source: { name: '뉴스핌', url: 'https://www.newspim.com/news/view/20260626000886' } },
+            { matter: 'maegwan', name: '김상민', role: '전 부장검사', gave: '이우환 그림 1억4,000만원 상당 (총선 공천 청탁)', result: '2심 징역 3년·집행유예 3년 (청탁금지법·정치자금법 위반, 그림 청탁 유죄로 뒤집힘) — 대법원 계류', source: { name: '뉴스1', url: 'https://www.news1.kr/society/court-prosecution/6160956' } },
             { matter: 'doichi', name: '전성배', role: "'건진법사'", gave: '통일교 청탁 명목 금품 전달 (샤넬백·그라프 목걸이 등)', result: '2심 징역 5년 (1심 6년→감형), 그라프 목걸이 몰수·1억8,078만원 추징', source: { name: 'MBC', url: 'https://imnews.imbc.com/news/2026/society/article/6824334_36918.html' } },
             { matter: 'doichi', name: '윤영호', role: '전 통일교 세계본부장', gave: '김건희·권성동 측 청탁 명목 금품 (정치자금법·청탁금지법·횡령)', result: '2심 징역 1년 6개월 (1심 1년 2개월→증가)', source: { name: '머니투데이', url: 'https://www.mt.co.kr/society/2026/04/27/2026042714012122138' } }
         ],
