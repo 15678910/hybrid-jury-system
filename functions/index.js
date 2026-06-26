@@ -2919,7 +2919,7 @@ exports.reformAnalysisPage = functions.https.onRequest(async (req, res) => {
     if (tab === 'prosecution-reform') {
         title = `[검찰개혁 심층분석] ${dateStr}`;
         description = '공소청법·중수청법 정부안 vs 김용민·박은정 의원안 비교, 핵심 쟁점, 국제 비교, AI 법안 위험도 분석';
-        imageUrl = `${BASE}/${encodeURIComponent('검찰개혁심층분석')}.png`;
+        imageUrl = `${BASE}/${encodeURIComponent('검찰개혁심층분석')}.png?v=20260626`;
         pageUrl = `${BASE}/reform-analysis?tab=prosecution-reform`;
     } else if (tab === 'finland-reform') {
         title = `[핀란드식 사법개혁안] ${dateStr}`;
