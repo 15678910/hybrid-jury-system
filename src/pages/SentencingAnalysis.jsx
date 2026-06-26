@@ -256,6 +256,13 @@ const personsData = {
             { key: 'doichi', label: '우인성 재판부', sub: '도이치모터스·통일교·명태균 (자본시장법·정치자금법·알선수재)', judgeId: 'woo-insung', court: '서울중앙지법 형사합의27부(1심) · 서울고법 형사15-2부(항소심)', prosecution: '징역 15년, 벌금 20억원, 추징금 9억 4,800만원', verdict: '항소심 징역 4년 (1심 1년 8개월→가중), 벌금 5,000만원·추징금 2,094만원', chargeIds: [1, 2, 3, 4], guidelineCrimes: ['주가조작 (자본시장법 위반)', '정치자금법 위반', '알선수재 (특정범죄가중처벌법)', '공직선거법 위반·정치자금법 위반 (윤석열 관련)'] },
             { key: 'maegwan', label: '조순표 재판부', sub: "'매관매직' 알선수재 (이봉관 서희건설)", judgeId: 'jo-sunpyo', court: '서울중앙지법 형사합의21부 (1심)', prosecution: '징역 7년 6개월 (특검 구형)', verdict: '1심 징역 7년 (세부 5개 혐의 전부 유죄)', chargeIds: [5], guidelineCrimes: ["'매관매직' 알선수재 (특정범죄가중처벌법) — 별개 1심"] }
         ],
+        bribeGivers: [
+            { matter: 'maegwan', name: '이봉관', role: '서희건설 회장', gave: '반클리프 목걸이·귀걸이 등 1억380만원 상당 명품 귀금속', result: '징역 1년·집행유예 2년', source: { name: '오마이뉴스', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003246627' } },
+            { matter: 'maegwan', name: '서성빈', role: '금품 공여자', gave: '바쉐론 콘스탄틴 시계 3,990만원 상당', result: '징역 10개월·집행유예 2년', source: { name: '오마이뉴스', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003246627' } },
+            { matter: 'maegwan', name: '최재영', role: '목사 (디올백 공여)', gave: '디올백 등 (청탁금지법 위반)', result: '벌금 800만원', source: { name: '오마이뉴스', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003246627' } },
+            { matter: 'doichi', name: '전성배', role: "'건진법사'", gave: '통일교 청탁 명목 금품 전달 (샤넬백·그라프 목걸이 등)', result: '2심 징역 5년 (1심 6년→감형), 그라프 목걸이 몰수·1억8,078만원 추징', source: { name: 'MBC', url: 'https://imnews.imbc.com/news/2026/society/article/6824334_36918.html' } },
+            { matter: 'doichi', name: '윤영호', role: '전 통일교 세계본부장', gave: '김건희·권성동 측 청탁 명목 금품 (정치자금법·청탁금지법·횡령)', result: '2심 징역 1년 6개월 (1심 1년 2개월→증가)', source: { name: '머니투데이', url: 'https://www.mt.co.kr/society/2026/04/27/2026042714012122138' } }
+        ],
         charges: [
             {
                 id: 1,
@@ -3365,6 +3372,9 @@ export default function SentencingAnalysis() {
         if (person.sentencingGuidelines) {
             items.push({ id: 'sentencing', label: '양형기준 비교' });
         }
+        if (person.bribeGivers) {
+            items.push({ id: 'givers', label: '금품 공여자 결과' });
+        }
         if (person.judgeHistory) {
             items.push({ id: 'judge', label: '판사 판결 이력' });
         }
@@ -3379,6 +3389,7 @@ export default function SentencingAnalysis() {
     const selMatter = person.matters ? person.matters.find(m => m.key === selectedMatter) : null;
     const visibleCharges = selMatter ? person.charges.filter(c => selMatter.chargeIds.includes(c.id)) : person.charges;
     const visibleGuidelines = (selMatter && person.sentencingGuidelines) ? person.sentencingGuidelines.filter(g => selMatter.guidelineCrimes.includes(g.crime)) : person.sentencingGuidelines;
+    const visibleGivers = (selMatter && person.bribeGivers) ? person.bribeGivers.filter(g => g.matter === selMatter.key) : person.bribeGivers;
 
     // 개별 인물 상세 화면
     return (
@@ -3688,6 +3699,40 @@ export default function SentencingAnalysis() {
                             ))}
                         </div>
                     </section>
+                    )}
+
+                    {/* 금품 공여자(뇌물 준 사람들) 처벌 결과 */}
+                    {person.bribeGivers && (
+                        <section id="givers" className="scroll-mt-[100px] mb-12">
+                            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                                <div className="p-4 bg-amber-50 border-b">
+                                    <h3 className="font-bold text-gray-900">💸 금품을 준 사람들 — 공여자 처벌 결과{selMatter ? ` · ${selMatter.label}` : ''}</h3>
+                                    <p className="text-sm text-gray-600 mt-1">김건희에게 청탁 대가로 금품을 제공한 인물들의 재판 결과입니다.</p>
+                                </div>
+                                <div className="divide-y">
+                                    {visibleGivers.length === 0 && (
+                                        <p className="p-4 text-sm text-gray-500">해당 재판부 관련 공여자 정보가 없습니다.</p>
+                                    )}
+                                    {visibleGivers.map((g, i) => (
+                                        <div key={i} className="p-4">
+                                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                                                <p className="font-bold text-gray-900">{g.name} <span className="text-sm font-normal text-gray-500">· {g.role}</span></p>
+                                                <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${(g.result.includes('집행유예') || g.result.includes('벌금')) ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-700'}`}>
+                                                    {g.result.split('(')[0].trim()}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-gray-600 mt-1">제공: {g.gave}</p>
+                                            <p className="text-sm text-gray-900 mt-1"><span className="text-gray-500">선고: </span>{g.result}</p>
+                                            {g.source && (
+                                                <a href={g.source.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline mt-1 inline-block">
+                                                    출처: {g.source.name} ↗
+                                                </a>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
                     )}
 
                     {/* 판사 판결 이력 (우인성) — 조순표 재판부 선택 시에는 숨김(해당 판사 프로필은 위 배너 링크로 이동) */}
