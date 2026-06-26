@@ -68,6 +68,8 @@ const NETWORK_DATA = {
         { id: 'judge_woo', name: '우인성', position: '형사합의27부 부장판사', jrti: 29, university: '-', group: 'trial' },
         { id: 'judge_lee_jg', name: '이진관', position: '형사합의33부 부장판사', jrti: 32, university: '-', group: 'trial' },
         { id: 'judge_ryu', name: '류경진', position: '이상민 재판장', jrti: 31, university: '고려대', group: 'trial' },
+        { id: 'judge_cho_sp', name: '조순표', position: '형사합의21부 (김건희 매관매직)', university: '-', group: 'trial' },
+        { id: 'judge_shin_jo', name: '신종오', position: '형사15-2부 (김건희 도이치·통일교 항소심)', jrti: 27, university: '서울대', group: 'trial' },
         // 항소심 형사1부
         { id: 'judge_yoon_ss', name: '윤성식', position: '형사1부 재판장', jrti: 24, university: '-', group: 'appeal1' },
         { id: 'judge_min_sc', name: '민성철', position: '형사1부 배석', jrti: 29, university: '-', group: 'appeal1' },
