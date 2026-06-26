@@ -13,6 +13,7 @@ const CATEGORIES = [
     { id: 'constitutional', name: '헌법재판소', icon: '⚖️' },
     { id: 'supreme', name: '대법원', icon: '🏛️' },
     { id: 'insurrection', name: '내란전담재판부', icon: '🔒' },
+    { id: 'power', name: '권력형 비리·선거 재판부', icon: '💼' },
     { id: 'warrant', name: '영장전담판사', icon: '📋' }
 ];
 
