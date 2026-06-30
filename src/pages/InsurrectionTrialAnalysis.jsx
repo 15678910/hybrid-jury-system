@@ -477,8 +477,9 @@ const VERDICT_COMPARISON_ANALYSIS = {
         { event: '12.12 군사반란', year: '1979', defendant: '노태우', charge: '반란중요임무·내란중요임무', sentence: '징역 22년6월→17년→특사', note: '1996년 선고, 1997년 특사' },
         { event: '12.12 군사반란', year: '1979', defendant: '정호용', charge: '반란중요임무·내란중요임무', sentence: '징역 10년→7년', note: '특전사령관' },
         { event: '12.3 비상계엄', year: '2024', defendant: '윤석열', charge: '내란수괴', sentence: '무기징역', note: '1심, 사형 구형' },
-        { event: '12.3 2차 계엄', year: '2026', defendant: '윤석열', charge: '군형법상 반란 우두머리', sentence: '종합특검 수사 중', note: '국회 해제 요구 후 병력 미철수를 군형법상 반란으로 보고 6.13 2차 소환조사 (추가 기소 여부 미정)' },
-        { event: '12.3 2차 계엄', year: '2026', defendant: '정진팔·김흥준·이재식', charge: '내란중요임무종사', sentence: '구속·기소 방침', note: '합참 차장·육본 정책실장·합참 전비태세검열차장. 6.15 구속, 6월 말 기소 방침 (김명수 합참의장은 영장 기각)' },
+        { event: '12.3 2차 계엄(군형법 반란)', year: '2024', defendant: '윤석열', charge: '군형법상 반란 우두머리(군형법 §5)', sentence: '종합특검 수사 중', note: '국회의 계엄 해제 요구 후에도 병력 미철수를 군형법상 반란으로 보고 6.13 2차 소환조사 (추가 기소 여부 미정)' },
+        { event: '12.3 비상계엄', year: '2024', defendant: '정진팔·김흥준·이재식', charge: '내란중요임무종사 (합참 수뇌부)', sentence: '구속·기소 방침', note: '합참 차장·육본 정책실장·합참 전비태세검열차장. 6.15 구속, 6월 말 기소 방침 (김명수 합참의장은 영장 기각)' },
+        { event: '12.3 비상계엄', year: '2024', defendant: '조성현', charge: '내란중요임무종사 (입건)', sentence: '종합특검 수사 중', note: '前 수방사 1경비단장(대령). 이진우 지시 하달 혐의로 6.27 입건. 이튿날 "서강대교 넘지 말라"로 진입 차단·보국훈장 수여 — 입건 논란' },
         { event: '12.3 비상계엄', year: '2024', defendant: '김용현', charge: '내란중요임무종사', sentence: '징역 30년', note: '1심, 국방부장관' },
         { event: '12.3 비상계엄', year: '2024', defendant: '한덕수', charge: '내란중요임무종사', sentence: '징역 23년', note: '1심, 구형 15년 초과' },
         { event: '12.3 비상계엄', year: '2024', defendant: '이상민', charge: '내란중요임무종사', sentence: '징역 7년', note: '1심, 행안부장관' }
@@ -2659,7 +2660,23 @@ export default function InsurrectionTrialAnalysis() {
 
                             {/* 역대 내란 양형 비교표 */}
                             <div className="bg-white rounded-xl shadow-lg p-6">
-                                <h3 className="text-lg font-bold text-gray-800 mb-4">📊 역대 내란 사건 양형 비교</h3>
+                                <h3 className="text-lg font-bold text-gray-800 mb-4">📊 역대 내란·군사반란 사건 비교</h3>
+                                {/* 용어 구분: 내란죄(형법) vs 군형법상 반란죄 */}
+                                <div className="grid md:grid-cols-2 gap-3 text-sm mb-4">
+                                    <div className="bg-red-50 border border-red-100 rounded-lg p-3">
+                                        <p className="font-bold text-red-800 mb-1">⚖️ 내란죄 (형법 제87조)</p>
+                                        <p className="text-gray-700 text-xs leading-relaxed">국헌문란 목적의 폭동. 민간인·공무원·군인 신분을 가리지 않고 적용된다. 12·3 비상계엄(1차)의 핵심 죄목으로 우두머리(수괴·제1호)와 중요임무종사(제2호)로 나뉜다. 예: 윤석열(내란수괴), 김용현·한덕수·이상민·정진팔·조성현(내란중요임무종사).</p>
+                                    </div>
+                                    <div className="bg-amber-50 border border-amber-100 rounded-lg p-3">
+                                        <p className="font-bold text-amber-800 mb-1">🪖 군사반란죄 (군형법 제5조)</p>
+                                        <p className="text-gray-700 text-xs leading-relaxed">군인이 작당하여 병기를 휴대하고 반란을 일으킨 죄(군인 신분범). 1979년 12.12(전두환 반란수괴)가 대표 사례다. 종합특검은 12·3의 '2차 계엄 시도'(국회의 계엄 해제 요구 이후에도 병력을 철수시키지 않은 행위)에 군형법상 반란 적용을 검토 중이다.</p>
+                                    </div>
+                                </div>
+                                {/* 조성현 입건 논란 분석 */}
+                                <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm mb-4">
+                                    <p className="font-bold text-blue-900 mb-1">🎖️ 쟁점 — 조성현 前 수방사 1경비단장 '내란중요임무종사' 입건 (2026.6.27)</p>
+                                    <p className="text-gray-700 text-xs leading-relaxed">종합특검(권창영)은 조 대령이 이진우 전 수방사령관의 "의원들을 끌어내라"는 지시를 휘하 부대에 하달한 점을 형법상 내란중요임무종사로 보고 입건했다(군형법상 반란이 아님). 다만 조 대령은 이튿날 새벽 "서강대교를 넘지 말라"며 국회 진입을 사실상 차단했고, 국방부는 2025.9 그에게 보국훈장(삼일장)을, 이재명 대통령도 격려를 한 바 있어 — <b>불법 명령에 저항한 공로자를 내란 피의자로 입건하는 것이 타당한가</b>를 두고 논란이 있다. 특검은 최초 지시 하달만으로도 혐의가 성립할 수 있다고 보고 다음 달 초 소환조사할 방침이다. (수사 단계)</p>
+                                </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-sm">
                                         <thead>

@@ -157,6 +157,18 @@ export const TRIAL_EVENTS = [
         source: { name: '아주경제', url: 'https://www.ajunews.com/view/20260628111805271' },
     },
     {
+        id: 'cho-seonghyeon-probe',
+        date: '2026-06-27',
+        category: 'investigation',
+        group: 'insurrection',
+        title: '조성현 前 수방사 1경비단장 내란중요임무종사 입건',
+        defendant: '조성현',
+        court: '권창영 종합특검',
+        judge: '',
+        note: "현직 육군 대령(12·3 당시 수도방위사령부 제1경비단장). 종합특검은 이진우 전 수방사령관의 '의원들을 끌어내라'는 국회 출동 지시를 휘하 부대에 하달한 것을 내란중요임무종사로 보고 6.27 피의자 입건. 다만 조 대령은 이튿날 새벽 '서강대교를 넘지 말라'며 국회 진입을 사실상 차단했고, 국방부가 2025.9 보국훈장(삼일장)을 수여하고 이재명 대통령도 격려한 바 있어 '불법 명령에 저항한 공로자 입건' 논란이 있다. 특검은 최초 지시 하달만으로도 혐의가 성립할 수 있다고 보고 다음 달 초 소환조사 예정. (수사 단계 — 군형법상 반란이 아닌 형법상 내란중요임무종사)",
+        source: { name: 'SBS', url: 'https://news.sbs.co.kr/news/endPage.do?news_id=N1008630193' },
+    },
+    {
         id: 'shim-woojung-probe',
         date: '2026-06-24',
         category: 'investigation',
