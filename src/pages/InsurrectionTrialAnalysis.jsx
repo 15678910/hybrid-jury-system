@@ -477,6 +477,8 @@ const VERDICT_COMPARISON_ANALYSIS = {
         { event: '12.12 군사반란', year: '1979', defendant: '노태우', charge: '반란중요임무·내란중요임무', sentence: '징역 22년6월→17년→특사', note: '1996년 선고, 1997년 특사' },
         { event: '12.12 군사반란', year: '1979', defendant: '정호용', charge: '반란중요임무·내란중요임무', sentence: '징역 10년→7년', note: '특전사령관' },
         { event: '12.3 비상계엄', year: '2024', defendant: '윤석열', charge: '내란수괴', sentence: '무기징역', note: '1심, 사형 구형' },
+        { event: '12.3 2차 계엄', year: '2026', defendant: '윤석열', charge: '군형법상 반란 우두머리', sentence: '종합특검 수사 중', note: '국회 해제 요구 후 병력 미철수를 군형법상 반란으로 보고 6.13 2차 소환조사 (추가 기소 여부 미정)' },
+        { event: '12.3 2차 계엄', year: '2026', defendant: '정진팔·김흥준·이재식', charge: '내란중요임무종사', sentence: '구속·기소 방침', note: '합참 차장·육본 정책실장·합참 전비태세검열차장. 6.15 구속, 6월 말 기소 방침 (김명수 합참의장은 영장 기각)' },
         { event: '12.3 비상계엄', year: '2024', defendant: '김용현', charge: '내란중요임무종사', sentence: '징역 30년', note: '1심, 국방부장관' },
         { event: '12.3 비상계엄', year: '2024', defendant: '한덕수', charge: '내란중요임무종사', sentence: '징역 23년', note: '1심, 구형 15년 초과' },
         { event: '12.3 비상계엄', year: '2024', defendant: '이상민', charge: '내란중요임무종사', sentence: '징역 7년', note: '1심, 행안부장관' }
