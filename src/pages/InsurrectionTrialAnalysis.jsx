@@ -1452,7 +1452,7 @@ export default function InsurrectionTrialAnalysis() {
                                                     <td className="py-3 px-2 text-gray-600">{v.prosecution}</td>
                                                     <td className="py-3 px-2 font-medium text-gray-800">{v.sentence}</td>
                                                     <td className="py-3 px-2">
-                                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}>
+                                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${cfg.bg} ${cfg.text}`}>
                                                             <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`}></span>
                                                             {cfg.label}
                                                         </span>
@@ -1598,7 +1598,7 @@ export default function InsurrectionTrialAnalysis() {
                                                         <h3 className="text-lg font-bold text-gray-800">{v.defendant}</h3>
                                                         <p className="text-sm text-gray-500">{v.court}{v.judge ? ` | ${v.judge}` : ''}</p>
                                                     </div>
-                                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${cfg.bg} ${cfg.text}`}>
+                                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ${cfg.bg} ${cfg.text}`}>
                                                         <span className={`w-2 h-2 rounded-full ${cfg.dot}`}></span>
                                                         {cfg.label}
                                                     </span>
