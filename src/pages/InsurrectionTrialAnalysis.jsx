@@ -1385,7 +1385,8 @@ export default function InsurrectionTrialAnalysis() {
 
                             {/* 구형 대비 선고 비율 차트 */}
                             <div className="bg-white rounded-xl shadow-lg p-6">
-                                <h2 className="text-xl font-bold text-gray-800 mb-4">구형 대비 선고 비율</h2>
+                                <h2 className="text-xl font-bold text-gray-800 mb-1">구형 대비 선고 비율</h2>
+                                <p className="text-xs text-gray-400 mb-4">회색 세로선 = 구형(100%) 기준 · 빨강 = 구형 초과 선고분 (막대는 0~160% 비율로 축소 표시)</p>
                                 <div className="space-y-4">
                                     {stats.sentenceRatios.map((item, idx) => (
                                         <div key={idx}>
@@ -1395,22 +1396,23 @@ export default function InsurrectionTrialAnalysis() {
                                                     선고 {item.sentence}년 / 구형 {item.prosecution}년 ({item.ratio}%)
                                                 </span>
                                             </div>
-                                            <div className="w-full bg-gray-200 rounded-full h-4 relative">
-                                                {/* 구형 (전체 바) */}
-                                                <div className="absolute inset-0 bg-gray-300 rounded-full"></div>
-                                                {/* 선고 비율 */}
+                                            <div className="w-full bg-gray-200 rounded-full h-4 relative overflow-hidden">
+                                                {/* 선고 비율 (구형 이하분, 0~100% → 트랙 0~62.5%) */}
                                                 <div
-                                                    className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${
+                                                    className={`absolute inset-y-0 left-0 transition-all duration-500 ${
                                                         item.ratio > 100 ? 'bg-red-500' : item.ratio > 50 ? 'bg-orange-400' : 'bg-blue-500'
                                                     }`}
-                                                    style={{ width: `${Math.min(item.ratio, 100)}%` }}
+                                                    style={{ width: `${Math.min(item.ratio, 100) / 1.6}%` }}
                                                 ></div>
+                                                {/* 초과 선고분 (구형 100% 초과, 트랙 62.5% 지점부터) */}
                                                 {item.ratio > 100 && (
                                                     <div
-                                                        className="absolute inset-y-0 bg-red-600 rounded-r-full opacity-60"
-                                                        style={{ left: '100%', width: `${Math.min(item.ratio - 100, 60)}%` }}
+                                                        className="absolute inset-y-0 bg-red-600 opacity-60"
+                                                        style={{ left: '62.5%', width: `${Math.min(item.ratio - 100, 60) / 1.6}%` }}
                                                     ></div>
                                                 )}
+                                                {/* 구형(100%) 기준선 — 0~160% 스케일에서 62.5% 지점 */}
+                                                <div className="absolute inset-y-0 w-0.5 bg-gray-500 z-10" style={{ left: '62.5%' }}></div>
                                             </div>
                                             {item.ratio > 100 && (
                                                 <p className="text-xs text-red-600 mt-1 font-medium">
