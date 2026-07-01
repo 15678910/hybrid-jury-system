@@ -209,6 +209,100 @@ const personsData = {
         ],
         trialStatus: '1심 재판 진행 중 (서울중앙지법 이송)'
     },
+    '정진팔': {
+        id: 'jeongjinpal',
+        name: '정진팔',
+        position: '전 합동참모본부 차장',
+        status: '구속',
+        statusColor: 'red',
+        court: '권창영 종합특검 → 서울중앙지법',
+        charges: [
+            { id: 1, name: '내란중요임무종사', law: '형법 제87조', description: '12·3 당시 합참 지휘통제실에서 병력의 국회 투입을 파악하고도 제지하지 않고 계엄사령부 구성에 관여', prosecutionRequest: '수사 중', verdict: '재판 진행 중', reason: '-' }
+        ],
+        summary: { prosecutionTotal: '수사 중 (기소 방침)', verdictTotal: '재판 진행 중', ratio: '-' },
+        keyFacts: [
+            '2차 종합특검(권창영)이 12·3 비상계엄 실행을 뒷받침한 혐의로 수사',
+            '2026.6.15 구속영장 발부(구속)',
+            '6월 말 내란중요임무종사 혐의로 기소 방침',
+            '※군형법상 반란이 아닌 형법상 내란중요임무종사로 의율'
+        ],
+        trialStatus: '구속 — 6.15 구속, 6월 말 기소 방침 (수사 단계)'
+    },
+    '김흥준': {
+        id: 'kimheungjun',
+        name: '김흥준',
+        position: '전 육군본부 정책실장',
+        status: '구속',
+        statusColor: 'red',
+        court: '권창영 종합특검 → 서울중앙지법',
+        charges: [
+            { id: 1, name: '내란중요임무종사', law: '형법 제87조', description: '12·3 비상계엄 실행을 뒷받침(계엄사령부 구성 관여)한 혐의', prosecutionRequest: '수사 중', verdict: '재판 진행 중', reason: '-' }
+        ],
+        summary: { prosecutionTotal: '수사 중 (기소 방침)', verdictTotal: '재판 진행 중', ratio: '-' },
+        keyFacts: [
+            '2차 종합특검이 12·3 비상계엄 실행 뒷받침 혐의로 수사',
+            '2026.6.15 구속',
+            '6월 말 내란중요임무종사 기소 방침'
+        ],
+        trialStatus: '구속 — 6.15 구속, 6월 말 기소 방침 (수사 단계)'
+    },
+    '이재식': {
+        id: 'leejaesik',
+        name: '이재식',
+        position: '전 합참 전비태세검열차장',
+        status: '구속',
+        statusColor: 'red',
+        court: '권창영 종합특검 → 서울중앙지법',
+        charges: [
+            { id: 1, name: '내란중요임무종사', law: '형법 제87조', description: '12·3 비상계엄 실행을 뒷받침(계엄사령부 구성 관여)한 혐의', prosecutionRequest: '수사 중', verdict: '재판 진행 중', reason: '-' }
+        ],
+        summary: { prosecutionTotal: '수사 중 (기소 방침)', verdictTotal: '재판 진행 중', ratio: '-' },
+        keyFacts: [
+            '2차 종합특검이 12·3 비상계엄 실행 뒷받침 혐의로 수사',
+            '2026.6.15 구속',
+            '6월 말 내란중요임무종사 기소 방침'
+        ],
+        trialStatus: '구속 — 6.15 구속, 6월 말 기소 방침 (수사 단계)'
+    },
+    '김명수': {
+        id: 'kimmyungsoo-jcs',
+        name: '김명수',
+        position: '전 합동참모본부 의장 (前 대법원장과 동명이인)',
+        status: '불구속',
+        statusColor: 'green',
+        court: '권창영 종합특검',
+        charges: [
+            { id: 1, name: '내란중요임무종사', law: '형법 제87조', description: '12·3 당시 국회 등에 군이 투입되는 상황을 알고도 막지 않고 계엄사령부 구성에 관여한 의혹', prosecutionRequest: '수사 중', verdict: '재판 진행 중', reason: '-' }
+        ],
+        summary: { prosecutionTotal: '수사 중', verdictTotal: '재판 진행 중', ratio: '-' },
+        keyFacts: [
+            '2차 종합특검이 6.9 내란중요임무종사 혐의로 구속영장 청구',
+            '6.15 영장실질심사 결과 "혐의 성립에 다툼의 여지가 있고 퇴직자라 증거인멸 우려가 크지 않다"며 구속영장 기각',
+            '불구속 상태로 수사 진행',
+            '전 대법원장 김명수와 동명이인'
+        ],
+        trialStatus: '불구속 수사 — 6.15 구속영장 기각'
+    },
+    '조성현': {
+        id: 'choseonghyeon',
+        name: '조성현',
+        position: '전 수도방위사령부 제1경비단장 (육군 대령)',
+        status: '불구속',
+        statusColor: 'green',
+        court: '권창영 종합특검',
+        charges: [
+            { id: 1, name: '내란중요임무종사', law: '형법 제87조', description: '이진우 전 수방사령관의 "의원 끌어내라"는 국회 출동 지시를 휘하 부대에 하달한 혐의', prosecutionRequest: '수사 중 (피의자 입건)', verdict: '재판 진행 중', reason: '-' }
+        ],
+        summary: { prosecutionTotal: '수사 중 (입건)', verdictTotal: '재판 진행 중', ratio: '-' },
+        keyFacts: [
+            '2026.6.27 종합특검이 내란중요임무종사 피의자로 입건',
+            '이진우 "의원 끌어내라" 지시를 서강대교 대기 부대에 하달한 혐의',
+            '다만 이튿날 새벽 "서강대교를 넘지 말라"며 국회 진입을 사실상 차단',
+            '국방부 보국훈장(삼일장, 2025.9) 수여·이재명 대통령 격려 — 공로자 입건 논란',
+            '다음 달 초 소환조사 예정'
+        ],
+        trialStatus: '입건(피의자) — 6.27 입건, 소환조사 예정 (수사 단계)'
+    },
     '김건희': {
         id: 'kimkunhee',
         name: '김건희',
@@ -3222,7 +3316,7 @@ export default function SentencingAnalysis() {
                                 12.3 내란 관련 재판 분석
                             </h1>
                             <p className="text-gray-500 text-sm">
-                                2024년 12월 3일 비상계엄 관련 기소 인물 현황
+                                2024년 12월 3일 비상계엄 관련 기소·수사 인물 현황
                             </p>
                             <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-full text-sm">
                                 <span>⚖️</span>
@@ -3265,7 +3359,7 @@ export default function SentencingAnalysis() {
                         {/* 인물 목록 */}
                         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                             <div className="p-4 bg-gray-50 border-b">
-                                <h2 className="font-bold text-gray-900">기소 인물 명단 (가나다순)</h2>
+                                <h2 className="font-bold text-gray-900">기소·수사 인물 명단 (가나다순)</h2>
                             </div>
                             <div className="divide-y">
                                 {sortedPersons.map(name => {
