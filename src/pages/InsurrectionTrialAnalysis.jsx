@@ -1036,22 +1036,30 @@ function computeStats(verdictsData) {
     const partial = verdictsData.filter(v => v.status === 'partial').length;
     const pending = verdictsData.filter(v => v.status === 'pending').length;
 
-    // 구형 대비 선고 비율 (숫자 추출 가능한 건만)
+    // 구형 대비 선고 비율 (숫자 추출 가능한 건만) — '년'과 '개월'을 모두 반영
     const sentenceRatios = [];
+    const toYears = (str) => {
+        const y = str.match(/(\d+)년/);
+        const mo = str.match(/(\d+)개월/);
+        return (y ? parseInt(y[1], 10) : 0) + (mo ? parseInt(mo[1], 10) / 12 : 0);
+    };
+    const toLabel = (str) => {
+        const y = str.match(/(\d+)년/);
+        const mo = str.match(/(\d+)개월/);
+        return ((y ? `${y[1]}년` : '') + (mo ? ` ${mo[1]}개월` : '')).trim();
+    };
     verdictsData.forEach(v => {
         if (!v.sentence || !v.prosecution) return;
-        const sentenceMatch = v.sentence.match(/(\d+)년/);
-        const prosMatch = v.prosecution.match(/(\d+)년/);
-        if (sentenceMatch && prosMatch) {
-            const sentenceYears = parseInt(sentenceMatch[1], 10);
-            const prosYears = parseInt(prosMatch[1], 10);
-            sentenceRatios.push({
-                defendant: v.defendant,
-                sentence: sentenceYears,
-                prosecution: prosYears,
-                ratio: Math.round((sentenceYears / prosYears) * 100)
-            });
-        }
+        if (!/(\d+)년/.test(v.sentence) || !/(\d+)년/.test(v.prosecution)) return;
+        const sentenceYears = toYears(v.sentence);
+        const prosYears = toYears(v.prosecution);
+        if (!sentenceYears || !prosYears) return;
+        sentenceRatios.push({
+            defendant: v.defendant,
+            sentenceLabel: toLabel(v.sentence),
+            prosecutionLabel: toLabel(v.prosecution),
+            ratio: Math.round((sentenceYears / prosYears) * 100)
+        });
     });
 
     return { convicted, acquitted, partial, pending, sentenceRatios };
@@ -1393,7 +1401,7 @@ export default function InsurrectionTrialAnalysis() {
                                             <div className="flex items-center justify-between mb-1">
                                                 <span className="text-sm font-medium text-gray-700">{item.defendant}</span>
                                                 <span className="text-sm text-gray-500">
-                                                    선고 {item.sentence}년 / 구형 {item.prosecution}년 ({item.ratio}%)
+                                                    선고 {item.sentenceLabel} / 구형 {item.prosecutionLabel} ({item.ratio}%)
                                                 </span>
                                             </div>
                                             <div className="w-full bg-gray-200 rounded-full h-4 relative overflow-hidden">
