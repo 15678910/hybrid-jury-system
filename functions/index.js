@@ -1210,7 +1210,9 @@ exports.getWebhookInfo = functions.https.onRequest(async (req, res) => {
 // 투표 마감 확인 스케줄러 (5분마다 실행)
 // ============================================
 
-exports.checkExpiredPolls = functions.pubsub.schedule('0 * * * *').onRun(async (context) => {
+// [비용차단 2026-07-05] 스케줄 자동실행 → Firebase 상시 과금 유발. export 제거로 배포 중단(코드는 보존). 필요시 수동 트리거 사용.
+// eslint-disable-next-line no-unused-vars
+const _DISABLED_checkExpiredPolls = functions.pubsub.schedule('0 * * * *').onRun(async (context) => {
     console.log('Checking for expired polls...');
 
     const now = new Date();
@@ -2181,7 +2183,9 @@ const collectAndPostNews = async (force = false) => {
 };
 
 // 매일 오전 6시, 오후 6시(한국시간) 자동 실행
-exports.autoCollectNews = functions
+// [비용차단 2026-07-05] 스케줄 자동실행 → Firebase 상시 과금 유발. export 제거로 배포 중단(코드는 보존). 필요시 수동 트리거 사용.
+// eslint-disable-next-line no-unused-vars
+const _DISABLED_autoCollectNews = functions
     .runWith({ timeoutSeconds: 540, memory: '512MB' })
     .pubsub.schedule('0 6,18 * * *')
     .timeZone('Asia/Seoul')
@@ -2791,7 +2795,9 @@ const crawlPersonSentencing = async (person) => {
 };
 
 // 모든 인물 데이터 크롤링 (스케줄 함수)
-exports.crawlAllSentencingData = functions
+// [비용차단 2026-07-05] 스케줄 자동실행 → Firebase 상시 과금 유발. export 제거로 배포 중단(코드는 보존). 필요시 수동 트리거 사용.
+// eslint-disable-next-line no-unused-vars
+const _DISABLED_crawlAllSentencingData = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
     .pubsub.schedule('0 6,18 * * *') // 매일 오전 6시, 오후 6시
@@ -3600,7 +3606,9 @@ const collectReformAreaNews = async (areaId, areaConfig) => {
 };
 
 // 매일 오전 9:10 (한국시간) 자동 실행
-exports.collectReformNews = functions
+// [비용차단 2026-07-05] 스케줄 자동실행 → Firebase 상시 과금 유발. export 제거로 배포 중단(코드는 보존). 필요시 수동 트리거 사용.
+// eslint-disable-next-line no-unused-vars
+const _DISABLED_collectReformNews = functions
     .runWith({ timeoutSeconds: 120, memory: '256MB' })
     .pubsub.schedule('10 6,18 * * *')
     .timeZone('Asia/Seoul')
@@ -4112,7 +4120,9 @@ const crawlCourtCases = async (judgeName) => {
 // ============================================
 
 // 스케줄 크롤링 (매일 새벽 3시)
-exports.crawlAllJudgeData = functions
+// [비용차단 2026-07-05] 스케줄 자동실행 → Firebase 상시 과금 유발. export 제거로 배포 중단(코드는 보존). 필요시 수동 트리거 사용.
+// eslint-disable-next-line no-unused-vars
+const _DISABLED_crawlAllJudgeData = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
     .pubsub.schedule('0 3 * * *')
@@ -4425,7 +4435,9 @@ ${newsText}
 };
 
 // 1. 판결 자동 수집 (스케줄 + 수동 트리거)
-exports.crawlVerdictData = functions
+// [비용차단 2026-07-05] 스케줄 자동실행 → Firebase 상시 과금 유발. export 제거로 배포 중단(코드는 보존). 필요시 수동 트리거 사용.
+// eslint-disable-next-line no-unused-vars
+const _DISABLED_crawlVerdictData = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
     .pubsub.schedule('0 9 * * *')
@@ -6594,7 +6606,9 @@ ${Object.entries(FRONTEND_SENTENCING_DATA).filter(([name]) => name !== defendant
     });
 
 // 전체 피고인 자동 평가 (매주 월요일 새벽 3시)
-exports.evaluateAllDefendants = functions
+// [비용차단 2026-07-05] 스케줄 자동실행 → Firebase 상시 과금 유발. export 제거로 배포 중단(코드는 보존). 필요시 수동 트리거 사용.
+// eslint-disable-next-line no-unused-vars
+const _DISABLED_evaluateAllDefendants = functions
     .region('asia-northeast3')
     .runWith({ timeoutSeconds: 540, memory: '1GB' })
     .pubsub.schedule('0 3 1,15 * *')
