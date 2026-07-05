@@ -1612,6 +1612,33 @@ exports.sendBlogNotification = functions.https.onRequest(async (req, res) => {
 });
 
 // ============================================
+// 새 블로그 글 → 텔레그램 자동 게시 (Firestore 트리거)
+// ============================================
+
+// [SNS 자동게시 2026-07-05] 새 블로그 글 → 텔레그램 자동 게시 (사람/봇 무관).
+// Firestore 트리거라 글이 생길 때만 실행 → 저렴(스케줄 아님). 리전은 DB와 동일(asia-northeast3) 필수.
+// 기존 sendBlogNotification(프론트가 직접 호출하는 HTTP 함수)을 대체 — 이제 누가/무엇이 posts 문서를
+// 만들든(관리자 UI, 스크립트 등) 자동으로 알림이 나감.
+exports.notifyNewPostToTelegram = functions
+    .region('asia-northeast3')
+    .firestore.document('posts/{postId}')
+    .onCreate(async (snap, context) => {
+        try {
+            const post = snap.data() || {};
+            const postId = context.params.postId;
+            const BASE = 'https://xn--lg3b0kt4n41f.kr'; // 시민법정.kr (공식 공유 도메인, SNSShareBar.jsx와 동일)
+            const link = `${BASE}/blog/${postId}`;
+            const title = (post.title || '(제목 없음)').toString();
+            const summary = (post.summary || (post.content ? String(post.content).replace(/<[^>]*>/g, '').slice(0, 120) : '')).toString();
+            // 평문 전송(HTML parse_mode 미사용) — 제목/요약에 특수문자가 있어도 안전
+            const text = `📰 새 글이 올라왔어요\n\n${title}\n\n${summary}\n\n${link}`;
+            await sendTelegramMessage(GROUP_CHAT_ID, text, { parse_mode: undefined, disable_web_page_preview: false });
+        } catch (e) {
+            console.error('notifyNewPostToTelegram 실패:', e);
+        }
+    });
+
+// ============================================
 // 블로그 SSR - 동적 OG 태그 생성
 // ============================================
 
