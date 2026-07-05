@@ -3121,7 +3121,9 @@ exports.trialSchedulePage = functions.https.onRequest(async (req, res) => {
 
         const title = '재판 일정 — 시민법정';
         const description = '12·3 내란·정치사건 등 주요 재판 기일 — 공개 보도·법원 기록 기반으로 정리한 재판 일정';
-        const imageUrl = 'https://siminbupjung-blog.web.app/' + encodeURIComponent('내란전담재판부.png');
+        // 빌드 시 자동 생성되는 공유 이미지(scripts/gen-og-trial-schedule.mjs → public/og-trial-schedule.png).
+        // og:image·twitter:image 를 동일 URL 로 지정 → X·페이스북·카카오톡·텔레그램·링크드인 모두 같은 이미지.
+        const imageUrl = 'https://xn--lg3b0kt4n41f.kr/og-trial-schedule.png';
         const pageUrl = 'https://xn--lg3b0kt4n41f.kr/trial-schedule';
 
         const html = `<!doctype html>
@@ -3135,6 +3137,8 @@ exports.trialSchedulePage = functions.https.onRequest(async (req, res) => {
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${description}" />
     <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:url" content="${pageUrl}" />
     <meta property="og:site_name" content="시민법정" />
     <meta property="og:locale" content="ko_KR" />
