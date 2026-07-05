@@ -3103,6 +3103,60 @@ exports.trialAnalysisPage = functions.https.onRequest(async (req, res) => {
     res.send(html);
 });
 
+// 재판 일정 페이지 SSR (OG 태그 - 텔레그램/카카오/페이스북/트위터 미리보기)
+exports.trialSchedulePage = functions.https.onRequest(async (req, res) => {
+    try {
+        const userAgent = req.get('User-Agent') || '';
+        const isCrawler = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i.test(userAgent);
+
+        if (!isCrawler) {
+            const queryString = req.url.includes('?') ? '&' + req.url.split('?')[1] : '';
+            const redirectUrl = `/?r=/trial-schedule${queryString}`;
+            return res.send(`<!DOCTYPE html>
+<html>
+<head><meta http-equiv="refresh" content="0;url=${redirectUrl}"><script>window.location.replace("${redirectUrl}")</script></head>
+<body>Loading...</body>
+</html>`);
+        }
+
+        const title = '재판 일정 — 시민법정';
+        const description = '12·3 내란·정치사건 등 주요 재판 기일 — 공개 보도·법원 기록 기반으로 정리한 재판 일정';
+        const imageUrl = 'https://siminbupjung-blog.web.app/' + encodeURIComponent('내란전담재판부.png');
+        const pageUrl = 'https://xn--lg3b0kt4n41f.kr/trial-schedule';
+
+        const html = `<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${title}</title>
+    <meta name="description" content="${description}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:url" content="${pageUrl}" />
+    <meta property="og:site_name" content="시민법정" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${imageUrl}" />
+    <link rel="canonical" href="${pageUrl}" />
+  </head>
+  <body>
+    <h1>${title}</h1>
+    <p>${description}</p>
+  </body>
+</html>`;
+
+        res.send(html);
+    } catch (error) {
+        console.error('trialSchedulePage error:', error);
+        return res.redirect('/');
+    }
+});
+
 // 판사평가 페이지 SSR (OG 태그 - 텔레그램/카카오/페이스북 미리보기)
 exports.judgeEvaluationPage = functions.https.onRequest(async (req, res) => {
     const userAgent = req.get('User-Agent') || '';

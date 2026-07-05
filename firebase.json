@@ -39,6 +39,10 @@
         "function": "trialAnalysisPage"
       },
       {
+        "source": "/trial-schedule",
+        "function": "trialSchedulePage"
+      },
+      {
         "source": "/judge-evaluation",
         "function": "judgeEvaluationPage"
       },
