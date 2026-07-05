@@ -1771,6 +1771,49 @@ exports.blog = functions.https.onRequest(async (req, res) => {
 });
 
 // ============================================
+// 블로그 RSS 피드 - 외부 SNS 자동게시 도구 연동용
+// ============================================
+
+// [SNS 자동게시용 RSS 2026-07-05] 블로그 posts → RSS 2.0 피드. dlvr.it/Buffer/Zapier 등 외부도구로 X·페북 자동게시 연결용.
+exports.blogRss = functions.region('asia-northeast3').https.onRequest(async (req, res) => {
+    try {
+        const BASE = 'https://xn--lg3b0kt4n41f.kr';
+        const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c]));
+
+        let snap;
+        try {
+            snap = await db.collection('posts').orderBy('createdAt', 'desc').limit(30).get();
+        } catch (orderErr) {
+            console.error('blogRss orderBy 실패, fallback 조회:', orderErr);
+            snap = await db.collection('posts').limit(30).get();
+        }
+
+        const items = snap.docs.map(d => {
+            const p = d.data() || {};
+            const link = `${BASE}/blog/${d.id}`;
+            const desc = p.summary || (p.content ? String(p.content).replace(/<[^>]*>/g, '').slice(0, 200) : '');
+            let pub = '';
+            try {
+                if (p.createdAt && typeof p.createdAt.toDate === 'function') {
+                    pub = `<pubDate>${p.createdAt.toDate().toUTCString()}</pubDate>`;
+                }
+            } catch (_) { /* createdAt 파싱 실패 시 pubDate 생략 */ }
+
+            return `<item><title>${esc(p.title || '(제목 없음)')}</title><link>${esc(link)}</link><guid isPermaLink="true">${esc(link)}</guid><description>${esc(desc)}</description>${pub}</item>`;
+        }).join('');
+
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel><title>시민법정 · 사법개혁 블로그</title><link>${BASE}</link><description>주권자에 의한 시민법관 참심제 — 사법개혁 소식</description><language>ko</language>${items}</channel></rss>`;
+
+        res.set('Content-Type', 'application/rss+xml; charset=utf-8');
+        res.set('Cache-Control', 'public, max-age=600');
+        res.status(200).send(xml);
+    } catch (e) {
+        console.error('blogRss 실패:', e);
+        res.status(500).send('feed error');
+    }
+});
+
+// ============================================
 // 카카오 OAuth 토큰 프록시 API
 // ============================================
 
