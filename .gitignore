@@ -63,3 +63,7 @@ nul
 
 # Lighthouse 리포트 (큰 파일, 일회성)
 lighthouse-*.json
+
+# 빌드 산출물/배포 캐시 (추적 안 함 — 빌드 시 재생성)
+.firebase/
+public/og-trial-schedule.png
