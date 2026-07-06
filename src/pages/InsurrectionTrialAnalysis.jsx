@@ -1424,6 +1424,29 @@ export default function InsurrectionTrialAnalysis() {
                                 <StatCard label="선고 대기" count={stats.pending} color="blue" icon="⌛" />
                             </div>
 
+                            {/* 12·3 계엄 군 자체 징계 현황 (형사 재판과 별개) */}
+                            <div className="bg-white rounded-xl shadow-lg p-6">
+                                <h2 className="text-xl font-bold text-gray-800 mb-1">🎖️ 12·3 계엄 군 자체 징계 현황</h2>
+                                <p className="text-xs text-gray-500 mb-4">형사 재판과 <b>별개</b>인 군 인사·징계 조치입니다. 12·3 이후 창군 이래 최대 규모 — <b>파면·해임 장군 14명(별 31개 추락)</b>, 대령 4명 파면 등.</p>
+                                <div className="space-y-2">
+                                    {[
+                                        { name: '김용대', rank: '전 드론작전사령관', action: '파면', color: 'red', note: '2025.12.10 보직해임 → 2026.2.12 파면. 평양 무인기 작전 지휘(일반이적 기소·1심 징역 3년·집유 5년)와 별개의 군 징계.' },
+                                        { name: '강동길', rank: '전 해군참모총장', action: '직무배제·전역', color: 'orange', note: '12·3 당시 합참 군사지원본부 부본부장으로서의 행위로 직무배제 → 정직 1개월 징계 후 사퇴·전역(2026.3).' },
+                                        { name: '주성운', rank: '전 지상작전사령관(대장)', action: '직무정지·전보', color: 'orange', note: '부하의 계엄 사전 준비 정황을 인지한 정황 등으로 수사 의뢰·직무정지 → 정책연구관으로 전보(사실상 보직해임).' },
+                                        { name: '김봉규·정성욱', rank: '대령', action: '파면', color: 'red', note: '선관위 점거·직원 체포 관여 등 성실·복종 의무 위반으로 파면(2026.1.29, 계엄 관여 대령 4명 중).' },
+                                    ].map((d, i) => (
+                                        <div key={i} className="flex items-start justify-between gap-3 p-3 rounded-lg bg-gray-50">
+                                            <div className="min-w-0">
+                                                <p className="font-bold text-gray-900">{d.name} <span className="text-xs font-normal text-gray-500">· {d.rank}</span></p>
+                                                <p className="text-xs text-gray-600 mt-0.5">{d.note}</p>
+                                            </div>
+                                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold whitespace-nowrap ${d.color === 'red' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}`}>{d.action}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className="text-xs text-gray-400 mt-3">※ 군 징계(파면·해임·직무배제)는 형사 처벌과 별개의 행정 조치입니다. 출처: 뉴스토마토·매일신문·뉴데일리 등.</p>
+                            </div>
+
                             {/* 구형 대비 선고 비율 차트 */}
                             <div className="bg-white rounded-xl shadow-lg p-6">
                                 <h2 className="text-xl font-bold text-gray-800 mb-1">구형 대비 선고 비율</h2>
