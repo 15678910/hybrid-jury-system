@@ -48,7 +48,9 @@ const PERSON_PHOTOS = {
     '김흥준': '/김흥준.png',
     '이재식': '/이재식.png',
     '김명수': '/김명수.png',
-    '조성현': '/조성현.png'
+    '조성현': '/조성현.png',
+    '강동길': '/강동길.png',
+    '주성운': '/주성운.png'
 };
 
 // 사진별 objectPosition 보정 (기본값은 'center', 얼굴이 잘려 보이는 경우만 명시)
@@ -213,6 +215,43 @@ const personsData = {
             '재판 군사법원→서울중앙지법 이송 (2026.1)'
         ],
         trialStatus: '1심 재판 진행 중 (서울중앙지법 이송)'
+    },
+    '강동길': {
+        id: 'kangdonggil',
+        name: '강동길',
+        position: '전 해군참모총장 (대장)',
+        status: '직무배제',
+        statusColor: 'amber',
+        court: '군 징계 (형사 재판 아님)',
+        charges: [
+            { id: 1, name: '군 징계 — 성실의무 위반 등', law: '군인사법·군인 징계령', description: '12·3 당시 합참 군사지원본부 부본부장으로서의 행위', prosecutionRequest: '군 징계 절차', verdict: '정직 1개월', reason: '2026.2 직무배제 → 3.4 정직 1개월 징계 후 사퇴 → 3.25 전역' }
+        ],
+        summary: { prosecutionTotal: '군 징계(정직 1개월)', verdictTotal: '직무배제 → 정직 1개월 → 사퇴·전역(2026.3)', ratio: '-' },
+        keyFacts: [
+            '2025.9 이재명 정부에서 대장 진급·해군참모총장 임명',
+            '12·3 당시 합참 군사지원본부 부본부장으로서의 행위로 직무배제(2026.2)',
+            '2026.3.4 정직 1개월 징계 후 사퇴 → 3.25 전역',
+            '※형사 재판이 아닌 군 자체 징계(행정 처분)'
+        ],
+        trialStatus: '군 징계 — 직무배제 → 정직 1개월 → 사퇴·전역 (형사 재판 아님)'
+    },
+    '주성운': {
+        id: 'jooseongwoon',
+        name: '주성운',
+        position: '전 지상작전사령관 (대장)',
+        status: '수사 중',
+        statusColor: 'blue',
+        court: '수사 의뢰 · 군 징계',
+        charges: [
+            { id: 1, name: '계엄 사전 준비 인지 의혹 (수사 의뢰)', law: '수사 진행 중', description: '부하의 계엄 사전 준비 정황을 미리 파악한 정황', prosecutionRequest: '수사 의뢰', verdict: '재판 진행 중', reason: '수사 의뢰·직무정지 → 정책연구관 전보(사실상 보직해임)' }
+        ],
+        summary: { prosecutionTotal: '수사 의뢰', verdictTotal: '수사 중 · 직무정지·전보', ratio: '-' },
+        keyFacts: [
+            '부하의 계엄 사전 준비 정황을 미리 파악한 정황이 포착돼 수사 의뢰',
+            '직무정지 → 정책연구관으로 전보(사실상 보직해임)',
+            '※군 징계·수사 단계 (형사 기소·재판 여부는 별도)'
+        ],
+        trialStatus: '수사 의뢰·직무정지 → 정책연구관 전보 (수사·군 징계 단계)'
     },
     '정진팔': {
         id: 'jeongjinpal',
@@ -2121,9 +2160,10 @@ const personsData = {
             '12·3 비상계엄 명분 조성용 평양 무인기 투입 작전(일반이적)에 가담',
             '2026.6.12 1심 징역 3년·집행유예 5년 선고 (서울중앙지법 형사합의36부 이정엽)',
             '같은 사건: 윤석열 30년·김용현 30년·여인형 15년(실형) 대비 유일한 집행유예',
-            '상부 지시에 따른 실행자라는 점이 양형에 반영됨'
+            '상부 지시에 따른 실행자라는 점이 양형에 반영됨',
+            '군 징계: 2025.12.10 보직해임 → 2026.2.12 파면 (형사 재판과 별개의 행정 처분)'
         ],
-        trialStatus: '1심 선고 완료 (2026.06.12, 징역 3년·집행유예 5년)'
+        trialStatus: '형사 1심 선고(2026.06.12, 징역 3년·집행유예 5년) · 군 징계 파면(2026.2.12)'
     },
     '김봉식': {
         id: 'kimbongsik',
@@ -3427,7 +3467,11 @@ export default function SentencingAnalysis() {
                                                         ? 'bg-red-100 text-red-700'
                                                         : p.status === '보석'
                                                             ? 'bg-orange-100 text-orange-700'
-                                                            : 'bg-green-100 text-green-700'
+                                                            : (p.status === '파면' || p.status === '직무배제' || p.status === '직무정지')
+                                                                ? 'bg-amber-100 text-amber-800'
+                                                                : p.status === '수사 중'
+                                                                    ? 'bg-blue-100 text-blue-700'
+                                                                    : 'bg-green-100 text-green-700'
                                                 }`}>
                                                     {p.status}
                                                 </span>
