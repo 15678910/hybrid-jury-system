@@ -50,7 +50,8 @@ const PERSON_PHOTOS = {
     '김명수': '/김명수.png',
     '조성현': '/조성현.png',
     '강동길': '/강동길.png',
-    '주성운': '/주성운.png'
+    '주성운': '/주성운.png',
+    '김봉규': '/김봉규.png'
 };
 
 // 사진별 objectPosition 보정 (기본값은 'center', 얼굴이 잘려 보이는 경우만 명시)
@@ -3422,12 +3423,27 @@ export default function SentencingAnalysis() {
                                     { name: '김용대', rank: '전 드론작전사령관', action: '파면', color: 'red', note: '2025.12.10 보직해임 → 2026.2.12 파면. 평양 무인기 작전 지휘(일반이적 기소·1심 징역 3년·집유 5년)와 별개의 군 징계.' },
                                     { name: '강동길', rank: '전 해군참모총장', action: '직무배제·전역', color: 'amber', note: '12·3 당시 합참 군사지원본부 부본부장으로서의 행위로 직무배제 → 정직 1개월 징계 후 사퇴·전역(2026.3).' },
                                     { name: '주성운', rank: '전 지상작전사령관(대장)', action: '직무정지·전보', color: 'amber', note: '부하의 계엄 사전 준비 정황을 인지한 정황 등으로 수사 의뢰·직무정지 → 정책연구관 전보(사실상 보직해임).' },
-                                    { name: '김봉규·정성욱', rank: '대령', action: '파면', color: 'red', note: '선관위 점거·직원 체포 관여 등 성실·복종 의무 위반으로 파면(2026.1.29, 계엄 관여 대령 4명 중).' },
+                                    { name: '김봉규', rank: '대령', action: '파면', color: 'red', note: '선관위 점거·직원 체포 관여 등 성실·복종 의무 위반으로 파면(2026.1.29, 계엄 관여 대령 4명 중).' },
+                                    { name: '정성욱', rank: '대령', action: '파면', color: 'red', note: '선관위 점거·직원 체포 관여 등 성실·복종 의무 위반으로 파면(2026.1.29, 계엄 관여 대령 4명 중).' },
                                 ].map((d, i) => (
                                     <div key={i} className="p-4 flex items-start justify-between gap-3">
-                                        <div className="min-w-0">
-                                            <p className="font-bold text-gray-900">{d.name} <span className="text-xs font-normal text-gray-500">· {d.rank}</span></p>
-                                            <p className="text-xs text-gray-600 mt-0.5">{d.note}</p>
+                                        <div className="flex items-start gap-3 min-w-0">
+                                            <div className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-gray-200 shrink-0">
+                                                {PERSON_PHOTOS[d.name] ? (
+                                                    <img
+                                                        src={PERSON_PHOTOS[d.name]}
+                                                        alt={d.name}
+                                                        className="w-full h-full object-cover"
+                                                        style={PERSON_PHOTO_POSITIONS[d.name] ? { objectPosition: PERSON_PHOTO_POSITIONS[d.name] } : undefined}
+                                                        onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                                    />
+                                                ) : null}
+                                                <span className={`text-base font-bold text-gray-600 ${PERSON_PHOTOS[d.name] ? 'hidden' : 'flex'} items-center justify-center w-full h-full`}>{d.name[0]}</span>
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="font-bold text-gray-900">{d.name} <span className="text-xs font-normal text-gray-500">· {d.rank}</span></p>
+                                                <p className="text-xs text-gray-600 mt-0.5">{d.note}</p>
+                                            </div>
                                         </div>
                                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold whitespace-nowrap ${d.color === 'red' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}`}>{d.action}</span>
                                     </div>
