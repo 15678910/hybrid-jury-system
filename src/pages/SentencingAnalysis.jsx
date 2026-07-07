@@ -3371,28 +3371,37 @@ export default function SentencingAnalysis() {
                         </div>
 
                         {/* 통계 요약 */}
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                        {/* 통계 요약 — status는 '법정구속 (1심 징역 25년)'처럼 접미 텍스트가 붙을 수 있어
+                            정확일치(===)가 아닌 startsWith로 집계해야 누락이 없다.
+                            구속+불구속+보석+기타 = 총 인원이 되도록 '기타'(수사중·직무배제 등)를 포함한다. */}
+                        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-gray-900">{sortedPersons.length}</p>
                                 <p className="text-sm text-gray-500">총 인원</p>
                             </div>
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-red-600">
-                                    {sortedPersons.filter(name => personsData[name].status === '구속' || personsData[name].status === '법정구속').length}
+                                    {sortedPersons.filter(name => { const s = personsData[name].status || ''; return s.startsWith('구속') || s.startsWith('법정구속'); }).length}
                                 </p>
                                 <p className="text-sm text-gray-500">구속</p>
                             </div>
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-green-600">
-                                    {sortedPersons.filter(name => personsData[name].status === '불구속').length}
+                                    {sortedPersons.filter(name => (personsData[name].status || '').startsWith('불구속')).length}
                                 </p>
                                 <p className="text-sm text-gray-500">불구속</p>
                             </div>
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-orange-600">
-                                    {sortedPersons.filter(name => personsData[name].status === '보석').length}
+                                    {sortedPersons.filter(name => (personsData[name].status || '').startsWith('보석')).length}
                                 </p>
                                 <p className="text-sm text-gray-500">보석</p>
+                            </div>
+                            <div className="bg-white rounded-xl p-4 shadow-sm text-center" title="구속·불구속·보석 어디에도 속하지 않는 상태(수사 중·직무배제·직무정지·파면 등)">
+                                <p className="text-2xl font-bold text-amber-600">
+                                    {sortedPersons.filter(name => { const s = personsData[name].status || ''; return !s.startsWith('구속') && !s.startsWith('법정구속') && !s.startsWith('불구속') && !s.startsWith('보석'); }).length}
+                                </p>
+                                <p className="text-sm text-gray-500">수사중·기타</p>
                             </div>
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-blue-600">
@@ -3464,13 +3473,13 @@ export default function SentencingAnalysis() {
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                                    (p.status === '구속' || p.status === '법정구속')
+                                                    ((p.status || '').startsWith('구속') || (p.status || '').startsWith('법정구속'))
                                                         ? 'bg-red-100 text-red-700'
-                                                        : p.status === '보석'
+                                                        : (p.status || '').startsWith('보석')
                                                             ? 'bg-orange-100 text-orange-700'
                                                             : (p.status === '파면' || p.status === '직무배제' || p.status === '직무정지')
                                                                 ? 'bg-amber-100 text-amber-800'
-                                                                : p.status === '수사 중'
+                                                                : (p.status || '').startsWith('수사')
                                                                     ? 'bg-blue-100 text-blue-700'
                                                                     : 'bg-green-100 text-green-700'
                                                 }`}>
@@ -3607,11 +3616,15 @@ export default function SentencingAnalysis() {
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 mb-4">
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                (person.status === '구속' || person.status === '법정구속')
+                                ((person.status || '').startsWith('구속') || (person.status || '').startsWith('법정구속'))
                                     ? 'bg-red-100 text-red-700'
-                                    : person.status === '보석'
+                                    : (person.status || '').startsWith('보석')
                                         ? 'bg-orange-100 text-orange-700'
-                                        : 'bg-green-100 text-green-700'
+                                        : (person.status === '파면' || person.status === '직무배제' || person.status === '직무정지')
+                                            ? 'bg-amber-100 text-amber-800'
+                                            : (person.status || '').startsWith('수사')
+                                                ? 'bg-blue-100 text-blue-700'
+                                                : 'bg-green-100 text-green-700'
                             }`}>
                                 {person.status}
                             </span>
