@@ -1869,31 +1869,48 @@ const personsData = {
         id: 'kimtaehyo',
         name: '김태효',
         position: '전 국가안보실 제1차장',
-        status: '불구속',
-        statusColor: 'green',
-        court: '수사 진행 중',
+        status: '구속영장 청구',
+        statusColor: 'amber',
+        court: '서울중앙지방법원 (구속 전 피의자심문 대기)',
         charges: [
             {
                 id: 1,
-                name: '내란 공모 의혹',
+                name: '내란중요임무종사',
                 law: '형법 제87조',
-                description: '내란특검 수사 중',
-                prosecutionRequest: '수사 중',
-                verdict: '수사 중',
+                description: '12·3 비상계엄 직후 외무 공무원을 통해 미국 등 우방국에 계엄 정당화 메시지를 전달한 혐의',
+                prosecutionRequest: '구속영장 청구 (2026.7.7, 종합특검)',
+                verdict: '영장심사 대기',
+                reason: '-'
+            },
+            {
+                id: 2,
+                name: '직권남용권리행사방해',
+                law: '형법 제123조',
+                description: '국가안보실 직원에게 "대통령 지시"라며 대미(對美) 계엄 정당화 메시지를 받아적게 한 혐의',
+                prosecutionRequest: '구속영장 청구 (2026.7.7, 종합특검)',
+                verdict: '영장심사 대기',
                 reason: '-'
             }
         ],
         summary: {
-            prosecutionTotal: '수사 중',
-            verdictTotal: '수사 중',
+            prosecutionTotal: '구속영장 청구',
+            verdictTotal: '영장심사 대기',
             ratio: '-'
         },
         keyFacts: [
-            '계엄 직후 휴대전화 3회 교체, 증거인멸 의혹',
-            '출국금지 조치 상태',
-            '2022년 군사기밀 유출 유죄 후 대통령 사면'
+            '2차 종합특검(특별검사 권창영)이 2026.7.7 구속영장 청구 — 내란중요임무종사·직권남용권리행사방해',
+            '12·3 계엄 직후 필립 골드버그 당시 주한미국대사에게 계엄 정당성을 설득했다는 의혹',
+            '외무 공무원을 통해 미국 등 우방국에 "자유민주주의 수호를 위한 조치"라는 취지의 계엄 정당화 메시지를 전파했다는 혐의',
+            '계엄 직후 휴대전화 3회 교체 등 증거인멸 의혹 / 출국금지 상태',
+            '2022년 군사기밀 유출 유죄 후 대통령 사면',
+            '※ 같은 혐의로 입건된 신원식 전 국가안보실장은 가담 정도가 상대적으로 가볍다고 보고 영장 미청구'
         ],
-        trialStatus: '수사 진행 중'
+        trialStatus: '2차 종합특검(권창영) 구속영장 청구 (2026.7.7) — 구속 전 피의자심문(영장실질심사) 대기',
+        sources: [
+            { label: '한국일보', title: "종합특검, 김태효 전 안보실 차장 구속영장 청구… '계엄 정당화 메시지 전파' 혐의", url: 'https://www.hankookilbo.com/news/article/A2026070721040003325', date: '2026.7.7' },
+            { label: '뉴스1', title: '특검, 김태효 구속영장 청구…계엄 정당화 메시지 전파 혐의', url: 'https://www.news1.kr/society/court-prosecution/6220804', date: '2026.7.7' },
+            { label: '헤럴드경제', title: "우방국에 '계엄 정당화 메시지' 보낸 김태효 전 차장 구속영장", url: 'https://biz.heraldcorp.com/article/10801379', date: '2026.7.7' }
+        ]
     },
     '심우정': {
         id: 'simwoojung',
@@ -3382,7 +3399,7 @@ export default function SentencingAnalysis() {
                             </div>
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-red-600">
-                                    {sortedPersons.filter(name => { const s = personsData[name].status || ''; return s.startsWith('구속') || s.startsWith('법정구속'); }).length}
+                                    {sortedPersons.filter(name => { const s = personsData[name].status || ''; return (s.startsWith('구속') && !s.startsWith('구속영장')) || s.startsWith('법정구속'); }).length}
                                 </p>
                                 <p className="text-sm text-gray-500">구속</p>
                             </div>
@@ -3400,7 +3417,7 @@ export default function SentencingAnalysis() {
                             </div>
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center" title="구속·불구속·보석 어디에도 속하지 않는 상태(수사 중·직무배제·직무정지·파면 등)">
                                 <p className="text-2xl font-bold text-amber-600">
-                                    {sortedPersons.filter(name => { const s = personsData[name].status || ''; return !s.startsWith('구속') && !s.startsWith('법정구속') && !s.startsWith('불구속') && !s.startsWith('보석'); }).length}
+                                    {sortedPersons.filter(name => { const s = personsData[name].status || ''; return !((s.startsWith('구속') && !s.startsWith('구속영장')) || s.startsWith('법정구속')) && !s.startsWith('불구속') && !s.startsWith('보석'); }).length}
                                 </p>
                                 <p className="text-sm text-gray-500">수사중·기타</p>
                             </div>
@@ -3489,7 +3506,9 @@ export default function SentencingAnalysis() {
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                                    ((p.status || '').startsWith('구속') || (p.status || '').startsWith('법정구속'))
+                                                    (p.status || '').startsWith('구속영장')
+                                                        ? 'bg-amber-100 text-amber-800'
+                                                        : ((p.status || '').startsWith('구속') || (p.status || '').startsWith('법정구속'))
                                                         ? 'bg-red-100 text-red-700'
                                                         : (p.status || '').startsWith('보석')
                                                             ? 'bg-orange-100 text-orange-700'
@@ -3632,7 +3651,9 @@ export default function SentencingAnalysis() {
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 mb-4">
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                ((person.status || '').startsWith('구속') || (person.status || '').startsWith('법정구속'))
+                                (person.status || '').startsWith('구속영장')
+                                    ? 'bg-amber-100 text-amber-800'
+                                    : ((person.status || '').startsWith('구속') || (person.status || '').startsWith('법정구속'))
                                     ? 'bg-red-100 text-red-700'
                                     : (person.status || '').startsWith('보석')
                                         ? 'bg-orange-100 text-orange-700'
