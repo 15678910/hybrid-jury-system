@@ -2228,8 +2228,30 @@ const collectAndPostNews = async (force = false) => {
     const summary = await summarizeNewsWithAI(allNews);
 
     // Firestore에 저장
+    const newsTitle = `[사법뉴스] ${dateStr} 주요 소식`;
+
+    // [2026-07-08] 같은 날짜 사법뉴스 글이 이미 있으면 새로 만들지 않고 '갱신'.
+    //   → 하루 여러 번 실행(수동 트리거·재시도 등)해도 같은 날짜 글이 중복 생성되지 않음.
+    //   → 기존 글 ID(공유 링크)를 그대로 유지하므로 링크가 안 깨짐.
+    const existingSnap = await db.collection('posts')
+        .where('title', '==', newsTitle)
+        .limit(1)
+        .get();
+
+    if (!existingSnap.empty) {
+        const existingRef = existingSnap.docs[0].ref;
+        await existingRef.update({
+            summary,
+            content,
+            newsCount: allNews.length,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        console.log(`News post updated (same-date dedup): ${existingRef.id} with ${allNews.length} articles`);
+        return { success: true, updated: true, postId: existingRef.id, newsCount: allNews.length };
+    }
+
     const postData = {
-        title: `[사법뉴스] ${dateStr} 주요 소식`,
+        title: newsTitle,
         summary: summary,
         content: content,
         category: '사법뉴스',
@@ -2241,9 +2263,9 @@ const collectAndPostNews = async (force = false) => {
     const postRef = await db.collection('posts').add(postData);
     console.log(`News post created: ${postRef.id} with ${allNews.length} articles`);
 
-    // 텔레그램 알림
+    // 텔레그램 알림 (새 글 생성 시에만)
     try {
-        const telegramMsg = `📰 <b>[사법뉴스] ${dateStr} 주요 소식</b>\n\n👉 https://siminbupjung-blog.web.app/blog/${postRef.id}`;
+        const telegramMsg = `📰 <b>${newsTitle}</b>\n\n👉 https://siminbupjung-blog.web.app/blog/${postRef.id}`;
         await sendTelegramMessage(GROUP_CHAT_ID, telegramMsg);
     } catch (e) {
         console.error('Telegram notification failed:', e);
@@ -2252,12 +2274,13 @@ const collectAndPostNews = async (force = false) => {
     return { success: true, postId: postRef.id, newsCount: allNews.length };
 };
 
-// 매일 오전 6시, 오후 6시(한국시간) 자동 실행
-// [비용차단 2026-07-05] 스케줄 자동실행 → Firebase 상시 과금 유발. export 제거로 배포 중단(코드는 보존). 필요시 수동 트리거 사용.
-// eslint-disable-next-line no-unused-vars
-const _DISABLED_autoCollectNews = functions
+// 매일 오전 6시(한국시간) 하루 1회 자동 실행
+// [2026-07-08 재개] 07-05 비용차단으로 껐던 스케줄을 재개. 하루 2회(0 6,18)→1회(0 6)로 변경해
+//   같은 날짜 중복 생성을 원천 차단. 사법뉴스 함수는 AI 미사용(무료 추출요약)·Cloud Scheduler 1개뿐이라 비용 거의 0.
+//   추가 안전장치: collectAndPostNews가 같은 날짜 글이 있으면 새로 만들지 않고 갱신함(수동 트리거 대비).
+exports.autoCollectNews = functions
     .runWith({ timeoutSeconds: 540, memory: '512MB' })
-    .pubsub.schedule('0 6,18 * * *')
+    .pubsub.schedule('0 6 * * *')
     .timeZone('Asia/Seoul')
     .onRun(async (context) => {
         try {
