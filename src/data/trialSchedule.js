@@ -44,6 +44,18 @@ export const TRIAL_EVENTS = [
         source: { name: '경향신문', url: null },
     },
     {
+        id: 'presidential-security-arrest-obstruction-verdict',
+        date: '2026-07-09',
+        category: 'verdict',
+        group: 'insurrection',
+        title: "'尹 체포방해' 경호처 박종준·김성훈 등 1심 선고",
+        defendant: '박종준·김성훈·이광우·김신',
+        court: '서울중앙지법 형사합의26부',
+        judge: '이현경 부장판사',
+        note: "2025.1 공수처의 윤석열 체포영장 집행을 경호처 직원·차벽 동원으로 저지한 특수공무집행방해·직권남용·범인은닉 혐의. 2026.6.1 결심공판에서 내란 특검(조은석)이 박종준·김성훈 각 징역 7년, 이광우 5년, 김신 3년 구형 → 2026.7.9 1심 선고. (같은 날 오후 2시 윤석열 본인의 체포방해 대법원 상고심 선고도 별도로 예정)",
+        source: { name: '뉴스1', url: 'https://www.news1.kr/society/court-prosecution/6184311' },
+    },
+    {
         id: 'shim-woojung-insurrection-search',
         date: '2026-07-03',
         category: 'investigation',
