@@ -56,6 +56,18 @@ export const TRIAL_EVENTS = [
         source: { name: '뉴스1', url: 'https://www.news1.kr/society/court-prosecution/6184311' },
     },
     {
+        id: 'unification-church-bribery-supreme-verdict',
+        date: '2026-07-09',
+        category: 'verdict',
+        group: 'political',
+        title: "'김건희 통일교 청탁' 건진법사 전성배·윤영호 대법원 확정",
+        defendant: '전성배·윤영호',
+        court: '대법원 3부',
+        judge: '노경필 대법관(주심)',
+        note: "김건희 여사와 공모한 통일교 청탁·금품수수 사건. 대법원 3부(주심 노경필)는 2026.7.9 상고를 기각하고 '건진법사' 전성배 징역 5년(1심 6년→2심 5년, 알선수재 유죄·정치자금법 무죄, 추징 약 1억8,078만원)과 윤영호 전 통일교 세계본부장 징역 1년 6개월(1심 1년2개월→2심 1년6개월)을 확정. 전성배는 2022.4~7 윤영호로부터 교단 지원 청탁과 샤넬백·그라프 다이아 목걸이 등 8천여만원을 받은 혐의, 윤영호는 한학자 총재 지시로 권성동 의원에게 1억원을 건넨 혐의 등. 김건희 통일교 금품수수 사건에 대한 첫 대법원 판단으로, 김건희 본인 재판(항소심 징역 4년, 상고심)에 영향.",
+        source: { name: '이투데이', url: 'https://www.etoday.co.kr/news/view/2602032' },
+    },
+    {
         id: 'shim-woojung-insurrection-search',
         date: '2026-07-03',
         category: 'investigation',

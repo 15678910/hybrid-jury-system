@@ -402,8 +402,8 @@ const personsData = {
             { matter: 'maegwan', name: '최재영', role: '목사', charge: '청탁금지법 위반', gave: '디올백 등', result: '벌금 800만원', source: { name: '오마이뉴스', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003246627' } },
             { matter: 'maegwan', name: '이배용', role: '전 국가교육위원장', charge: '증거인멸 교사', gave: '금거북이(265만원)·세한도 복제본 (국가교육위원장 임명 청탁)', result: '징역 10개월·집행유예 2년', source: { name: '뉴스핌', url: 'https://www.newspim.com/news/view/20260626000886' } },
             { matter: 'maegwan', name: '김상민', role: '전 부장검사', charge: '청탁금지법·정치자금법 위반', gave: '이우환 그림 1억4,000만원 상당 (총선 공천 청탁)', result: '2심 징역 3년·집행유예 3년 (그림 청탁 유죄로 뒤집힘) — 대법원 계류', source: { name: '뉴스1', url: 'https://www.news1.kr/society/court-prosecution/6160956' } },
-            { matter: 'doichi', name: '전성배', role: "'건진법사'", charge: '특정범죄가중처벌법 위반(알선수재) 등', gave: '통일교 청탁 명목 금품 전달 (샤넬백·그라프 목걸이 등)', result: '2심 징역 5년 (1심 6년→감형), 그라프 목걸이 몰수·1억8,078만원 추징', source: { name: 'MBC', url: 'https://imnews.imbc.com/news/2026/society/article/6824334_36918.html' } },
-            { matter: 'doichi', name: '윤영호', role: '전 통일교 세계본부장', charge: '정치자금법·청탁금지법 위반, 횡령', gave: '김건희·권성동 측 청탁 명목 금품', result: '2심 징역 1년 6개월 (1심 1년 2개월→증가)', source: { name: '머니투데이', url: 'https://www.mt.co.kr/society/2026/04/27/2026042714012122138' } }
+            { matter: 'doichi', name: '전성배', role: "'건진법사'", charge: '특정범죄가중처벌법 위반(알선수재) 등', gave: '통일교 청탁 명목 금품 전달 (샤넬백·그라프 목걸이 등)', result: '대법원 징역 5년 확정 (2026.7.9, 1심 6년→2심 5년), 그라프 목걸이 몰수·1억8,078만원 추징', source: { name: '파이낸셜뉴스', url: 'https://www.fnnews.com/news/202607091148166576' } },
+            { matter: 'doichi', name: '윤영호', role: '전 통일교 세계본부장', charge: '정치자금법·청탁금지법 위반, 횡령', gave: '김건희·권성동 측 청탁 명목 금품 (한학자 지시로 권성동에 1억 전달)', result: '대법원 징역 1년 6개월 확정 (2026.7.9, 1심 1년2개월→2심 1년6개월)', source: { name: '한국일보', url: 'https://www.hankookilbo.com/news/article/A2026070912090002715' } }
         ],
         charges: [
             {
@@ -2606,9 +2606,9 @@ const personsData = {
         position: '승려 (건진법사)',
         status: '구속',
         statusColor: 'red',
-        court: '서울중앙지방법원 형사합의33부',
-        judge: '이진관 부장판사',
-        verdictDate: '2026년 2월 24일',
+        court: '대법원 3부 (확정) / 서울중앙지방법원 형사합의33부 (1심)',
+        judge: '노경필 대법관(주심) / 이진관 부장판사(1심)',
+        verdictDate: '2026년 7월 9일 (대법원 5년 확정)',
         charges: [
             {
                 id: 1,
@@ -2618,8 +2618,8 @@ const personsData = {
                 period: '2022.4 ~ 2022.7',
                 amount: '약 8,000만원 상당',
                 prosecutionRequest: '징역 5년',
-                verdict: '유죄 - 징역 6년 (구형 초과)',
-                reason: '윤석열 부부와 통일교 간 정교유착 초래, 헌법상 정교분리 원칙 위반'
+                verdict: '대법원 징역 5년 확정 (2026.7.9) — 1심 6년 → 2심 5년 감형 → 대법원 유지',
+                reason: '윤석열 부부와 통일교 간 정교유착 초래, 헌법상 정교분리 원칙 위반. 2026.7.9 대법원 3부(주심 노경필) 상고기각으로 알선수재 유죄·징역 5년 확정'
             },
             {
                 id: 2,
@@ -2628,7 +2628,7 @@ const personsData = {
                 description: '통일교로부터 "통일그룹 고문" 명목으로 금품 수수',
                 amount: '3,000만원',
                 prosecutionRequest: '징역 5년 (병합)',
-                verdict: '유죄 - 징역 6년 (병합)',
+                verdict: '대법원 징역 5년 확정 (병합, 2026.7.9)',
                 reason: '대통령 부부 지인 지위를 이용한 알선 행위'
             },
             {
@@ -2639,7 +2639,7 @@ const personsData = {
                 period: '2022.7 ~ 2025.1',
                 amount: '약 2억원 상당',
                 prosecutionRequest: '징역 5년 (병합)',
-                verdict: '유죄 - 징역 6년 (병합)',
+                verdict: '대법원 징역 5년 확정 (병합, 2026.7.9)',
                 reason: '반복적·상습적 알선수재 행위'
             },
             {
@@ -2655,16 +2655,16 @@ const personsData = {
         ],
         summary: {
             prosecutionTotal: '징역 5년',
-            verdictTotal: '징역 6년 (구형 초과), 추징금 1억 8,079만원, 그라프 목걸이 몰수',
-            ratio: '구형 120% (구형 초과 선고)'
+            verdictTotal: '대법원 징역 5년 확정 (2026.7.9, 1심 6년→2심 5년), 추징금 1억 8,078만원, 그라프 목걸이 몰수',
+            ratio: '구형 5년 = 확정 5년 (구형 100%)'
         },
         keyFacts: [
             '윤석열 대통령 부부의 측근 승려 — "건진법사"로 알려진 인물',
             '김건희와 공모하여 통일교로부터 샤넬백·다이아몬드 목걸이 등 수수',
-            '특검 구형 5년보다 1년 높은 징역 6년 선고 (이진관 재판부)',
+            '1심 징역 6년(구형 초과) → 2심 징역 5년 감형 → 2026.7.9 대법원 3부(주심 노경필) 상고기각·징역 5년 확정 (김건희 통일교 금품수수 사건 첫 대법원 판단)',
             '재판부: "윤석열 부부와 통일교 간 정교유착 결과 발생" 판시',
-            '김건희 재판에서 무죄 인정된 샤넬백 수수 건을 이 재판에서는 유죄 판단',
-            '서울중앙지법 형사합의33부 이진관 부장판사'
+            '김건희 재판에서 무죄 인정된 샤넬백 수수 건을 이 재판에서는 유죄 판단 (알선수재 유죄·정치자금법 무죄로 대법원 확정)',
+            '1심 서울중앙지법 형사합의33부 이진관 부장판사 / 대법원 3부 주심 노경필 대법관'
         ],
         sentencingGuidelines: [
             {
@@ -2682,8 +2682,8 @@ const personsData = {
                     '정치자금법 위반 혐의는 1심 무죄',
                     '통일교 측의 적극적 로비가 범행 유발 요인'
                 ],
-                verdict: '유죄 — 징역 6년, 추징금 1억 8,079만원',
-                analysis: '특검 구형 5년을 초과하는 징역 6년 선고. 재판부는 정교유착의 중대성과 대통령 배우자 영향력 남용을 엄중히 판단'
+                verdict: '대법원 징역 5년 확정 (1심 6년→2심 5년), 추징금 1억 8,078만원',
+                analysis: '1심은 구형 5년을 초과하는 6년을 선고했으나 2심에서 5년으로 감형, 2026.7.9 대법원이 확정. 정교유착의 중대성과 대통령 배우자 영향력 남용을 엄중히 판단하되 최종 형량은 5년으로 정리'
             },
             {
                 crime: '정치자금법 위반',
@@ -2711,8 +2711,8 @@ const personsData = {
         },
         keyIssues: [
             {
-                title: '구형 초과 선고의 의미',
-                description: '재판부가 특검 구형 5년보다 1년 높은 6년을 선고한 것은 범죄의 중대성을 검찰보다 더 엄중하게 본 것으로, 사법부의 독립적 양형 판단을 보여줌',
+                title: '1심 구형 초과(6년) → 2심 감형(5년) → 대법원 확정',
+                description: '1심은 특검 구형 5년보다 높은 6년을 선고했으나 2심에서 5년으로 감형됐고 2026.7.9 대법원이 이를 확정. 알선수재 유죄·정치자금법 무죄의 유·무죄 판단은 1·2심·대법원 모두 유지. 김건희 통일교 금품수수 사건에 대한 첫 대법원 판단',
                 category: 'sentencing'
             },
             {
@@ -2731,7 +2731,11 @@ const personsData = {
                 category: 'precedent'
             }
         ],
-        trialStatus: '1심 선고 완료 (2026.2.24), 항소 예정'
+        trialStatus: '대법원 징역 5년 확정 (2026.7.9, 대법원 3부 주심 노경필) — 1심 6년→2심 5년→상고기각',
+        sources: [
+            { label: '파이낸셜뉴스', title: "'건진법사' 전성배 징역 5년 확정… 김건희 통일교 금품수수 첫 대법 판단", url: 'https://www.fnnews.com/news/202607091148166576', date: '2026.7.9' },
+            { label: '오마이뉴스', title: "'김건희 청탁 브로커' 건진법사 전성배, 징역 5년 유죄 확정", url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003249988', date: '2026.7.9' }
+        ]
     },
     '정진석': {
         id: 'jungjinseok',
