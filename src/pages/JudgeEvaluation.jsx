@@ -272,6 +272,81 @@ export default function JudgeEvaluation() {
                                     </Link>
                                 ))}
                             </div>
+
+                            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                                🔒 내란전담재판부 (상고심)
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                                {filteredJudges.filter(j => j.category === '내란전담재판부(상고심)').map((judge) => (
+                                    <Link key={judge.id} to={`/judge/${judge.id}`} className="block">
+                                        <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+                                            <div className="flex items-center gap-4 mb-4">
+                                                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-blue-200 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                                                    {judge.photo ? (
+                                                        <img src={judge.photo} alt={judge.name} className="w-full h-full object-cover"
+                                                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                                                    ) : null}
+                                                    <span className={`text-3xl font-bold text-white ${judge.photo ? 'hidden' : 'flex'} items-center justify-center w-full h-full`}>
+                                                        {judge.name[0]}
+                                                    </span>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h3 className="font-bold text-xl text-gray-900">{judge.name}</h3>
+                                                    <p className="text-gray-500 text-sm">{judge.court}</p>
+                                                    {judge.justiceEvaluation && (
+                                                        <div className="flex items-center gap-1 mt-1">
+                                                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                                                                judge.justiceEvaluation.overallScore >= 70 ? 'bg-green-100 text-green-700' :
+                                                                judge.justiceEvaluation.overallScore >= 50 ? 'bg-yellow-100 text-yellow-700' :
+                                                                'bg-red-100 text-red-700'
+                                                            }`}>
+                                                                AI 종합 {judge.justiceEvaluation.overallScore}점
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    {judgeScores[judge.name] && (
+                                                        <div className="flex items-center gap-1 mt-1">
+                                                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
+                                                                judgeScores[judge.name].overall >= 70 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                                                judgeScores[judge.name].overall >= 50 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                                                'bg-rose-50 text-rose-700 border-rose-200'
+                                                            }`}>
+                                                                🔥 동적평가 {judgeScores[judge.name].overall}점
+                                                            </span>
+                                                            <span className="text-xs text-gray-400">
+                                                                (피고인 {judgeScores[judge.name].defendantCount}명)
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <p className="text-sm text-gray-600"><span className="font-medium">직책:</span> {judge.position}</p>
+                                                {judge.cases && judge.cases.length > 0 && (
+                                                    <div className="text-sm text-gray-600">
+                                                        <span className="font-medium">담당:</span>
+                                                        {judge.cases.length === 1 ? (
+                                                            <span> {judge.cases[0].text || judge.cases[0]}</span>
+                                                        ) : (
+                                                            <ul className="ml-4 mt-1 space-y-1">
+                                                                {judge.cases.map((caseItem, idx) => (
+                                                                    <li key={idx}>• {caseItem.text || caseItem}</li>
+                                                                ))}
+                                                            </ul>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="mt-4 text-blue-600 text-sm font-medium flex items-center gap-1">
+                                                상세보기
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
                         </>
                     )}
 
