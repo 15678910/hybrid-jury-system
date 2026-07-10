@@ -153,6 +153,24 @@ const CRIMINAL_PROCEDURE_BILLS = {
             { name: '핀란드 의회 옴부즈만', url: 'https://oikeusasiamies.fi/en/parliamentary-ombudsman' },
         ],
     },
+    jangCase: {
+        title: '장윤기 사건과 「보완수사권 존치론」 — 사실과 반론',
+        facts: '2026.5.5 광주 광산구에서 장윤기가 여고생을 살해한 사건. 경찰은 「단순살인」으로 송치했으나 검찰이 보완수사로 성범죄(강간살인) 정황을 보강해 기소했다. 장윤기의 부친(현직 경찰 간부)이 성인용품·휴대전화 등을 폐기하고, 초동수사 때 누락된 케이블타이가 부친 집에서 발견됐으며, 광산경찰서 강력팀이 부친과 통화하며 정보를 누설하고 「경찰인 사실을 숨기라」는 윗선 지시 녹취까지 나오는 등 경찰의 조직적 은폐 정황이 드러났다(수사 진행 중). 이를 근거로 「검사 보완수사가 없었다면 진실이 은폐됐을 것」이라며 검찰 보완수사권 존치론이 재점화됐다.',
+        claim: '경찰이 조직적으로 증거를 인멸했고 검찰의 보완수사로 강간살인이 밝혀졌으니, 경찰을 견제할 「검사 보완수사권」을 폐지해선 안 된다.',
+        rebuttals: [
+            { title: '① 진짜 문제는 「경찰의 셀프수사·이해충돌」이지 검찰 권한 축소가 아니다', text: '핵심은 부친이 현직 경찰이고 동료 경찰이 은폐에 가담한, 「경찰이 경찰을 수사」하는 이해충돌이다. 검사에게 경찰 위 지휘권을 줄 문제가 아니라, 핀란드처럼 「경찰이 연루된 범죄는 별도 독립 수사기구(경찰범죄수사부·공수처·중수청)」가 맡아야 한다는 것을 보여준다. 검찰 권한 확대로 경찰 유착을 막자는 논리는, 검찰 유착이 생기면 다시 경찰 확대로 막자는 악순환일 뿐이다.' },
+            { title: '② 개정안도 「보완수사 요구권·재수사 요청권」은 유지·강화한다 — 폐지되는 건 「검사 직접수사」다', text: '김용민·박은정/김한규 안 모두 검사가 경찰에 보완수사를 「요구」하고 불이행 시 직무배제·징계까지 요구할 수 있으며(제197조의2), 불송치 재수사 요청(제245조의8)도 강화한다. 「경찰 부실수사를 거를 장치」는 개정안에 그대로 있다. 장윤기 사건에서 검찰이 한 것도 송치 후 「보완수사」로, 이는 개정안의 보완수사 요구·재수사 구조로도 가능하다. 「직접수사 폐지 = 견제 소멸」은 사실 왜곡이다.' },
+            { title: '③ 검찰 보완수사권도 만능이 아니다 — 검찰의 봐주기·부실수사 역사', text: '검찰 역시 김건희·통일교 사건 등에서 봐주기·부실수사 논란을 반복했다. 한 기관에 권력을 몰아주면, 그 기관이 유착·은폐의 주체가 될 때 통제할 수단이 사라진다. 답은 특정 기관의 권한 독점이 아니라 「수사·기소 분리 + 독립 시민감시」다.' },
+            { title: '④ 부친 처벌 공백은 「형법 친족특례」 문제 — 보완수사권과 무관', text: '부친이 증거인멸로 처벌받지 않는 것은 「검찰 보완수사권 유무」가 아니라 형법상 친족간 증거인멸 특례 때문이다. 공무원(경찰)이 직무상 지위를 이용해 자녀 사건을 은폐한 경우 친족특례를 배제하는 형법 개정이 필요하며, 이는 보완수사권 존폐와는 별개의 입법과제다.' },
+            { title: '⑤ 은폐를 끝내 드러낸 것은 언론·시민의 감시였다', text: '경찰 내부 은폐 정황을 세상에 드러낸 결정적 힘은 언론 보도와 시민의 감시였다. 상시 「시민옴부즈만(핀란드식)」이 제도화돼 있었다면 경찰의 은폐가 더 일찍·체계적으로 걸러졌을 것이다. 사건이 가리키는 방향은 「검찰 권한 강화」가 아니라 「독립 수사 + 상시 시민감시」다.' },
+        ],
+        conclusion: '장윤기 사건의 진짜 교훈은 「검찰에 권한을 몰아주자」가 아니라 ① 경찰 유착 사건은 독립 수사기구가 맡고 ② 검사의 보완수사 요구권·재수사 요청권은 유지하되(개정안이 이미 그렇다) ③ 형법 친족특례를 손보고 ④ 의회 선출 시민옴부즈만이 경찰·공소청을 상시 감시하는 것이다. 한 기관의 권력 강화가 아니라 「분리·독립·시민감시」가 헌법 제1조(주권재민)에 부합하는 해법이다.',
+        sources: [
+            { name: '한국일보', url: 'https://www.hankookilbo.com/news/article/A2026070911060003280' },
+            { name: 'YTN(친족특례)', url: 'https://www.ytn.co.kr/_ln/0103_202607041858392707' },
+            { name: '오마이뉴스(존폐 논란)', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003249370' },
+        ],
+    },
     assessment: '두 개정안은 검사의 직접수사·직접 보완수사를 폐지하고 수사 주체를 사법경찰관으로 일원화하되, 공소청 검사의 보완수사 요구권·재수사 요청권을 유지·강화한다는 큰 틀이 동일하다. 차이는 강조점이다. 김용민·박은정 안은 수사인권보호관·공소심의회 등 인권보호·민주통제 기구를 대거 신설한 "포괄형"이고, 김한규 안은 보완수사 1개월 단축·수사관서 지정변경권·재수사요청 강화 등 공소청의 실질적 이행강제 수단을 촘촘히 설계한 "이행강제형"이다. 공통 쟁점은 "수사지휘 없는 통제"의 경계 — 직무배제·징계요구권이 자칫 수사지휘의 부활로 비칠 수 있다는 점이다.',
 };
 
@@ -1757,7 +1775,36 @@ export default function ReformAnalysis() {
                                                 ))}
                                             </div>
                                         </div>
-                                        <p className="text-xs text-gray-400 mt-2">출처: 국회 의안정보시스템 원문(의안 2219564 김용민·박은정, 2219875 김한규) 제안이유·조문 직접 분석 · 핀란드 국가검찰청/의회 옴부즈만 공식자료 · 평가는 주권자 사법개혁 관점</p>
+                                        {/* 장윤기 사건 — 보완수사권 존치론 반론 */}
+                                        <div className="bg-rose-50 border-2 border-rose-300 rounded-xl p-4 mt-4">
+                                            <p className="text-lg font-bold text-rose-900 mb-2 flex items-center gap-2">🔎 {CRIMINAL_PROCEDURE_BILLS.jangCase.title}</p>
+                                            <div className="bg-white/70 rounded-lg p-3 border border-rose-200 mb-2">
+                                                <p className="text-sm font-bold text-gray-500 mb-1">사건 개요 (수사 진행 중)</p>
+                                                <p className="text-base text-gray-700 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.jangCase.facts}</p>
+                                            </div>
+                                            <div className="bg-gray-100 rounded-lg p-3 mb-3">
+                                                <p className="text-base font-bold text-gray-700 mb-1">📢 「보완수사권 존치」 주장</p>
+                                                <p className="text-base text-gray-800 italic">"{CRIMINAL_PROCEDURE_BILLS.jangCase.claim}"</p>
+                                            </div>
+                                            <p className="text-base font-bold text-rose-700 mb-2">↩️ 반론 (검찰개혁·주권자 관점)</p>
+                                            <div className="space-y-2 mb-3">
+                                                {CRIMINAL_PROCEDURE_BILLS.jangCase.rebuttals.map((r, i) => (
+                                                    <div key={i} className="bg-white/70 rounded-lg p-3 border border-rose-200">
+                                                        <p className="text-base font-bold text-rose-800">{r.title}</p>
+                                                        <p className="text-base text-gray-700 leading-relaxed">{r.text}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="bg-rose-100 rounded-lg p-3 border border-rose-300">
+                                                <p className="text-base font-bold text-rose-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.jangCase.conclusion}</p>
+                                            </div>
+                                            <div className="flex flex-wrap gap-1 mt-2">
+                                                {CRIMINAL_PROCEDURE_BILLS.jangCase.sources.map((s, i) => (
+                                                    <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" className="text-sm px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded hover:bg-gray-200">{s.name}</a>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-gray-400 mt-2">출처: 국회 의안정보시스템 원문(의안 2219564 김용민·박은정, 2219875 김한규) 제안이유·조문 직접 분석 · 핀란드 국가검찰청/의회 옴부즈만 공식자료 · 장윤기 사건 언론보도 교차확인 · 평가·반론은 주권자 사법개혁 관점</p>
                                     </div>
 
                                     {/* 섹션 B: 핵심 쟁점 분석 (주권자사법개혁추진준비위원회 기준) */}
