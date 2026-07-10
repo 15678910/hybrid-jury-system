@@ -56,11 +56,11 @@ const setReformNewsCache = (data) => {
 // 개혁안 비교 데이터
 // 형사소송법 검찰개혁 개정안 2건 심층 비교 (2026.6~7 발의) — 국회 의안정보시스템 원문(조문) 직접 분석
 const CRIMINAL_PROCEDURE_BILLS = {
-    intro: '2026.10 「검찰청법」 폐지·공소청/중대범죄수사청 출범(수사·기소 분리)의 후속으로 형사소송법을 정비하는 검찰개혁 법안 2건. 두 안 모두 ① 검사의 직접수사와 직접 보완수사를 폐지하고 ② 수사 주체를 사법경찰관으로 일원화하되, ③ 공소청 검사의 「보완수사 요구권」·「재수사 요청권」은 유지·강화한다. 차이는 무엇을 얼마나 강하게 정비하느냐에 있다.',
+    intro: '2026.10 「검찰청법」 폐지·공소청/중대범죄수사청 출범(수사·기소 분리)의 후속으로 형사소송법을 정비하는 검찰개혁 법안 2건. 두 안 모두 ① 검사의 직접수사와 직접 보완수사를 폐지하고 ② 수사 주체를 사법경찰관으로 일원화하되, ③ 공소청 검사의 「보완수사 요구권」·「재수사 요청권」은 유지·강화한다. 차이는 무엇을 얼마나 강하게 정비하느냐에 있다. (2219564는 김용민(민주당)·박은정(조국혁신당) 등 개혁파 공동안, 2219875는 더불어민주당 검찰개혁 TF가 발의한 당론성 안.)',
     bills: [
         {
             name: '김용민·박은정 의원안',
-            billNo: '2219564', proposers: '김용민·박은정 등 12인', date: '2026.6.26 발의',
+            billNo: '2219564', proposers: '김용민(민주당)·박은정(조국혁신당) 등 12인 · 개혁파 공동발의', date: '2026.6.26 발의',
             stance: '포괄·인권통제형', border: 'border-red-200', bg: 'bg-red-50', badge: 'bg-red-100 text-red-700',
             purpose: '형사소송법 전면 정비 + 인권보호·민주통제 기구를 대거 신설.',
             points: [
@@ -70,18 +70,27 @@ const CRIMINAL_PROCEDURE_BILLS = {
                 '공소심의회 신설(제246조의3) — 검사의 공소권 행사에 대한 민주적 통제',
                 '수사·기소 처리기한 명문화, 전자정보 압수수색 참여·의견진술권 등',
             ],
+            sources: [
+                { name: '국회 의안 2219564(열려라국회)', url: 'https://watch.peoplepower21.org/BillDetail/2219564' },
+            ],
         },
         {
-            name: '김한규 의원안',
-            billNo: '2219875', proposers: '김한규 등 22인', date: '2026.7.9 발의',
-            stance: '이행강제·집중형', border: 'border-orange-200', bg: 'bg-orange-50', badge: 'bg-orange-100 text-orange-700',
-            purpose: '수사·기소 분리 원칙 구현 + 공소청의 수사 통제(이행강제)를 촘촘히 설계.',
+            name: '더불어민주당 형사소송법 개정안',
+            billNo: '2219875', proposers: '김한규 의원 대표발의 · 김한규 등 22인 (민주당 검찰개혁 TF)', date: '2026.7.9 발의',
+            stance: '이행강제·집중형 (민주당 당론성)', border: 'border-orange-200', bg: 'bg-orange-50', badge: 'bg-orange-100 text-orange-700',
+            purpose: '더불어민주당 검찰개혁 TF가 발의한 당론성 법안. 수사·기소 분리 원칙 구현 + 공소청의 수사 통제(이행강제)를 촘촘히 설계.',
             points: [
                 '검사 직접수사·직접 보완수사 폐지 — 수사 주체 사법경찰관 일원화',
                 '★ 보완수사 완료기간 1개월로 단축(제197조의2) — 김용민·박은정 안(3개월)보다 신속',
                 '★ 보완수사 수사관서 지정·변경권 신설 — 특정 수사관서의 적정 이행이 어려운 사정이 있으면 검사가 관서를 지정·변경',
                 '★ 재수사요청 강화(제245조의8) — 요청기간 90일 명문화(새 증거·허위/위조 정황 시 제한 없음), 고소인 통지의무, 재수사 기간 3개월, "다시 재수사 요청" 규정 신설',
                 '보완수사·재수사 불이행 시 직무배제·교체·징계 요구 / 수사인권보호관·공소심의회 등 부가 기구는 두지 않음',
+            ],
+            sources: [
+                { name: '경향신문', url: 'https://www.khan.co.kr/article/202607092148005/' },
+                { name: '아주경제(보완수사요구권)', url: 'https://www.ajunews.com/view/20260709173302438' },
+                { name: '한국일보(당 TF 발의)', url: 'https://www.hankookilbo.com/news/article/A2026070917320002317' },
+                { name: '국회 의안 2219875(열려라국회)', url: 'https://watch.peoplepower21.org/BillDetail/2219875' },
             ],
         },
     ],
@@ -170,6 +179,17 @@ const CRIMINAL_PROCEDURE_BILLS = {
             { name: 'YTN(친족특례)', url: 'https://www.ytn.co.kr/_ln/0103_202607041858392707' },
             { name: '오마이뉴스(존폐 논란)', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003249370' },
         ],
+    },
+    multiLayer: {
+        title: '장윤기 사건 재발 방지 — 핀란드식 2중·3중 안전장치',
+        intro: '장윤기 사건 같은 경찰 유착·은폐를 막으려면 「검찰에 권한을 몰아주는」 단일 통제가 아니라, 핀란드처럼 서로 독립된 여러 겹의 감시·수사 장치가 필요하다.',
+        layers: [
+            { n: '1중', name: '독립수사팀', color: 'blue', desc: '경찰·검사 등 수사기관이 연루된 사건은 소속과 분리된 독립 수사기구가 전담 수사 — 셀프수사·이해충돌 차단. (핀란드 검찰총장실 「경찰범죄수사부」 / 한국은 공수처·중수청 활용·확대)' },
+            { n: '2중', name: '법률감찰단(사법감찰관)', color: 'green', desc: '수사·기소 기관의 위법·유착·부실을 상시 감찰하는 독립 감찰기구 — 개별 사건을 넘어 조직적 문제를 적발. (주권자위 「사법감시이중안전법」의 사법감찰관 / 핀란드 법무총감)' },
+            { n: '3중', name: '시민옴부즈만', color: 'purple', desc: '국회(주권자 대표)가 선출하는 독립 옴부즈만이 시민 민원·직권조사·현장점검으로 경찰·공소청을 상시 감시하고 시정 요구 — 최종 시민 통제. (핀란드 의회 옴부즈만 oikeusasiamies)' },
+        ],
+        plus: '여기에 ① 검사의 보완수사 요구권·재수사 요청권(개정안 유지)으로 개별 사건의 부실을 거르고 ② 형법 친족특례를 개정해 공무원의 직무상 은폐를 처벌하면, 장윤기식 은폐는 여러 겹에서 걸러진다.',
+        conclusion: '핵심은 「한 기관(검찰)의 힘」이 아니라 「서로 견제하는 여러 겹의 독립 장치 + 주권자 시민의 상시 감시」다. 이것이 헌법 제1조(주권재민)에 부합하는 장윤기 사건의 진짜 해법이다.',
     },
     assessment: '두 개정안은 검사의 직접수사·직접 보완수사를 폐지하고 수사 주체를 사법경찰관으로 일원화하되, 공소청 검사의 보완수사 요구권·재수사 요청권을 유지·강화한다는 큰 틀이 동일하다. 차이는 강조점이다. 김용민·박은정 안은 수사인권보호관·공소심의회 등 인권보호·민주통제 기구를 대거 신설한 "포괄형"이고, 김한규 안은 보완수사 1개월 단축·수사관서 지정변경권·재수사요청 강화 등 공소청의 실질적 이행강제 수단을 촘촘히 설계한 "이행강제형"이다. 공통 쟁점은 "수사지휘 없는 통제"의 경계 — 직무배제·징계요구권이 자칫 수사지휘의 부활로 비칠 수 있다는 점이다.',
 };
@@ -1650,6 +1670,13 @@ export default function ReformAnalysis() {
                                                                 <li key={j} className="text-base text-gray-700 flex items-start gap-1"><span className="text-gray-400 shrink-0">•</span>{p}</li>
                                                             ))}
                                                         </ul>
+                                                        {b.sources && (
+                                                            <div className="flex flex-wrap gap-1 mt-2 pt-2 border-t border-gray-100">
+                                                                {b.sources.map((s, j) => (
+                                                                    s.url ? <a key={j} href={s.url} target="_blank" rel="noopener noreferrer" className="text-sm px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded hover:bg-gray-200">{s.name}</a> : <span key={j} className="text-sm px-1.5 py-0.5 text-gray-400">{s.name}</span>
+                                                                ))}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             ))}
@@ -1662,7 +1689,7 @@ export default function ReformAnalysis() {
                                                     <tr className="bg-gray-100">
                                                         <th className="px-3 py-2 text-left font-bold text-gray-700">쟁점 (조문)</th>
                                                         <th className="px-3 py-2 text-left font-bold text-red-700 border-l border-gray-200">김용민·박은정</th>
-                                                        <th className="px-3 py-2 text-left font-bold text-orange-700 border-l border-gray-200">김한규</th>
+                                                        <th className="px-3 py-2 text-left font-bold text-orange-700 border-l border-gray-200">민주당(김한규)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -1804,7 +1831,29 @@ export default function ReformAnalysis() {
                                                 ))}
                                             </div>
                                         </div>
-                                        <p className="text-xs text-gray-400 mt-2">출처: 국회 의안정보시스템 원문(의안 2219564 김용민·박은정, 2219875 김한규) 제안이유·조문 직접 분석 · 핀란드 국가검찰청/의회 옴부즈만 공식자료 · 장윤기 사건 언론보도 교차확인 · 평가·반론은 주권자 사법개혁 관점</p>
+                                        {/* 2중·3중 안전장치 (장윤기 재발 방지) */}
+                                        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-300 rounded-xl p-4 mt-4">
+                                            <p className="text-lg font-bold text-emerald-900 mb-1 flex items-center gap-2">🛡️ {CRIMINAL_PROCEDURE_BILLS.multiLayer.title}</p>
+                                            <p className="text-base text-emerald-900 leading-relaxed mb-3">{CRIMINAL_PROCEDURE_BILLS.multiLayer.intro}</p>
+                                            <div className="space-y-2 mb-3">
+                                                {CRIMINAL_PROCEDURE_BILLS.multiLayer.layers.map((l, i) => (
+                                                    <div key={i} className={`rounded-lg p-3 border flex items-start gap-3 ${l.color === 'blue' ? 'bg-blue-50 border-blue-200' : l.color === 'green' ? 'bg-green-50 border-green-200' : 'bg-purple-50 border-purple-200'}`}>
+                                                        <span className={`shrink-0 px-2.5 py-1 rounded-full text-sm font-bold ${l.color === 'blue' ? 'bg-blue-200 text-blue-800' : l.color === 'green' ? 'bg-green-200 text-green-800' : 'bg-purple-200 text-purple-800'}`}>{l.n}</span>
+                                                        <div>
+                                                            <p className="text-base font-bold text-gray-800">{l.name}</p>
+                                                            <p className="text-base text-gray-700 leading-relaxed">{l.desc}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="bg-white/70 rounded-lg p-3 border border-emerald-200 mb-2">
+                                                <p className="text-base text-gray-700 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.multiLayer.plus}</p>
+                                            </div>
+                                            <div className="bg-emerald-100 rounded-lg p-3 border border-emerald-300">
+                                                <p className="text-base font-bold text-emerald-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.multiLayer.conclusion}</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-gray-400 mt-2">출처: 국회 의안정보시스템 원문(의안 2219564 김용민·박은정 등 12인, 2219875 더불어민주당 김한규 등 22인) 제안이유·조문 직접 분석 · 경향·아주경제·한국일보(민주당 발의) · 핀란드 국가검찰청/의회 옴부즈만 공식자료 · 장윤기 사건 언론 교차확인 · 평가·반론은 주권자 사법개혁 관점</p>
                                     </div>
 
                                     {/* 섹션 B: 핵심 쟁점 분석 (주권자사법개혁추진준비위원회 기준) */}
