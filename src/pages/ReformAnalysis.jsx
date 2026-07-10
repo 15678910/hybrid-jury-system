@@ -184,10 +184,11 @@ const CRIMINAL_PROCEDURE_BILLS = {
         title: '장윤기 사건 재발 방지 — 핀란드식 2중·3중 안전장치',
         intro: '장윤기 사건 같은 경찰 유착·은폐를 막으려면 「검찰에 권한을 몰아주는」 단일 통제가 아니라, 핀란드처럼 서로 독립된 여러 겹의 감시·수사 장치가 필요하다.',
         layers: [
-            { n: '1중', name: '독립수사팀', color: 'blue', desc: '경찰·검사 등 수사기관이 연루된 사건은 소속과 분리된 독립 수사기구가 전담 수사 — 셀프수사·이해충돌 차단. (핀란드 검찰총장실 「경찰범죄수사부」 / 한국은 공수처·중수청 활용·확대)' },
-            { n: '2중', name: '법률감찰단(사법감찰관)', color: 'green', desc: '수사·기소 기관의 위법·유착·부실을 상시 감찰하는 독립 감찰기구 — 개별 사건을 넘어 조직적 문제를 적발. (주권자위 「사법감시이중안전법」의 사법감찰관 / 핀란드 법무총감)' },
-            { n: '3중', name: '시민옴부즈만', color: 'purple', desc: '국회(주권자 대표)가 선출하는 독립 옴부즈만이 시민 민원·직권조사·현장점검으로 경찰·공소청을 상시 감시하고 시정 요구 — 최종 시민 통제. (핀란드 의회 옴부즈만 oikeusasiamies)' },
+            { n: '1중', name: '독립수사팀', color: 'blue', org: '독립기구 (경찰·검찰에서 분리)', orgDetail: '핀란드 = 검찰총장실 산하 「경찰범죄수사부」 / 한국 = 공수처·중수청 등 어느 부처에도 예속되지 않는 독립기구', desc: '경찰·검사 등 수사기관이 연루된 사건은 소속과 분리된 독립 수사기구가 전담 수사 — 셀프수사·이해충돌 차단.' },
+            { n: '2중', name: '법률감찰단(사법감찰관)', color: 'green', org: '독립 감찰기구 (직무상 독립)', orgDetail: '핀란드 = 정부(행정부) 소속이되 헌법상 독립인 「법무총감(Chancellor of Justice)」 / 한국 = 주권자위 「사법감시이중안전법」의 독립 사법감찰관', desc: '수사·기소 기관의 위법·유착·부실을 상시 감찰 — 개별 사건을 넘어 조직적 문제를 적발.' },
+            { n: '3중', name: '시민옴부즈만', color: 'purple', org: '★ 입법부(국회) 선출 — 행정부에서 독립', orgDetail: '핀란드 = 「의회(Eduskunta)가 선출」하는 의회 옴부즈만(oikeusasiamies) / 한국 = 국회가 선출하는 독립 사법옴부즈만', desc: '시민 민원·직권조사·현장점검으로 경찰·공소청을 상시 감시하고 시정 요구 — 최종 시민 통제.' },
         ],
+        placementNote: '핵심은 「소속」이다. 세 장치가 모두 행정부(대통령) 아래 있으면 서로를, 그리고 행정부를 견제하지 못한다. 핀란드가 옴부즈만을 「의회(입법부)」가 선출하게 한 이유가 바로 이것 — 감시자가 감시 대상(행정부)으로부터 독립해야 실효성이 있다. 따라서 독립수사팀·법률감찰단은 어느 부처에도 예속되지 않는 「독립기구」로, 최소한 3중 시민옴부즈만은 「국회(입법부) 선출」로 두어 행정부로부터 독립시켜야 한다. (국무총리·법무부 등 행정부 산하에 두면 셀프감시가 되어 장윤기식 은폐를 막지 못한다.)',
         plus: '여기에 ① 검사의 보완수사 요구권·재수사 요청권(개정안 유지)으로 개별 사건의 부실을 거르고 ② 형법 친족특례를 개정해 공무원의 직무상 은폐를 처벌하면, 장윤기식 은폐는 여러 겹에서 걸러진다.',
         conclusion: '핵심은 「한 기관(검찰)의 힘」이 아니라 「서로 견제하는 여러 겹의 독립 장치 + 주권자 시민의 상시 감시」다. 이것이 헌법 제1조(주권재민)에 부합하는 장윤기 사건의 진짜 해법이다.',
     },
@@ -1840,11 +1841,15 @@ export default function ReformAnalysis() {
                                                     <div key={i} className={`rounded-lg p-3 border flex items-start gap-3 ${l.color === 'blue' ? 'bg-blue-50 border-blue-200' : l.color === 'green' ? 'bg-green-50 border-green-200' : 'bg-purple-50 border-purple-200'}`}>
                                                         <span className={`shrink-0 px-2.5 py-1 rounded-full text-sm font-bold ${l.color === 'blue' ? 'bg-blue-200 text-blue-800' : l.color === 'green' ? 'bg-green-200 text-green-800' : 'bg-purple-200 text-purple-800'}`}>{l.n}</span>
                                                         <div>
-                                                            <p className="text-base font-bold text-gray-800">{l.name}</p>
+                                                            <p className="text-base font-bold text-gray-800 flex items-center gap-2 flex-wrap">{l.name} <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-white/80 border border-gray-300 text-gray-700">🏛️ 소속: {l.org}</span></p>
                                                             <p className="text-base text-gray-700 leading-relaxed">{l.desc}</p>
+                                                            <p className="text-sm text-gray-500 mt-0.5">{l.orgDetail}</p>
                                                         </div>
                                                     </div>
                                                 ))}
+                                            </div>
+                                            <div className="bg-amber-100 rounded-lg p-3 border border-amber-300 mb-2">
+                                                <p className="text-base font-bold text-amber-900 leading-relaxed">🏛️ 소속이 곧 독립성 — {CRIMINAL_PROCEDURE_BILLS.multiLayer.placementNote}</p>
                                             </div>
                                             <div className="bg-white/70 rounded-lg p-3 border border-emerald-200 mb-2">
                                                 <p className="text-base text-gray-700 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.multiLayer.plus}</p>
