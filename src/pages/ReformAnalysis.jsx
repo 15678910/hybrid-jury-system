@@ -102,6 +102,34 @@ const CRIMINAL_PROCEDURE_BILLS = {
         { article: '피해자 구제(불복·재정신청)', law: '제245조의7·제260조 등', kimparkArt: '제245조의7·제260조·제262조', kimpark: '★ 두텁게 정비 — 불송치 이의신청·재수사요청 + 불기소 재정신청 대폭 정비를 공소심의회 심의와 연계 + 고소인 통지·기록 열람·피해자보호', hankyuArt: '제245조의7·제260조', hankyu: '통지·이의신청 등 기본 정비 (공소심의회 없음, 재정신청 정비 상대적 약함)' },
         { article: '수사심의회(수사단계 심의)', law: '—', kimparkArt: '—', kimpark: '없음 (기소 심의 「공소심의회」만 신설)', hankyuArt: '—', hankyu: '없음' },
     ],
+
+    // 📋 신·구조문 대비표 (법안별 카테고리) — 현행 형사소송법 조문 vs 각 법안 개정안 요지
+    newOldComparison: {
+        note: '두 법안 원문(국회 의안정보시스템)의 신·구조문대비표를 주요 조문 중심으로 요지 정리한 것. 정확한 자구는 각 법안 원문(의안 2219564·2219875) 참조.',
+        categories: [
+            {
+                name: '김용민·박은정 안', billNo: '의안 2219564', color: 'red',
+                rows: [
+                    { art: '제196조 (검사의 수사)', current: '① 검사는 범죄 혐의가 있으면 범인·범죄사실·증거를 수사한다 ② 송치받은 사건도 동일성 범위 내 수사 가능 (검사 직접수사 근거)', revised: '제목을 「수사인권보호관」으로 변경. 검사 직접수사 조항 삭제 → 각 수사기관에 수사인권보호관 신설(직무상 독립, 인권침해·수사권 남용 감시·시정요구, 개방형 직위)' },
+                    { art: '제197조의2 (보완수사)', current: '검사는 사법경찰관에게 보완수사를 요구할 수 있고, 정당한 이유 없이 불이행 시 직무배제·징계 요구', revised: '검사 직접 보완수사 폐지(「요구」만 가능). 대상·방법·절차·시기 문서 명시·이행관리 / 3개월 원칙 / 불이행 시 직무배제·교체 요구' },
+                    { art: '제245조의8 (재수사 요청)', current: '검사는 불송치가 위법·부당한 때 사법경찰관에게 재수사를 요청할 수 있다', revised: '재수사 요청·기간 규정 정비' },
+                    { art: '제246조의3 등 (공소심의회)', current: '(현행 없음 — 신설)', revised: '★ 공소심의회 신설 — 기소 여부를 시민이 심의(기소권 민주 통제)' },
+                    { art: '제260조·제262조 (재정신청)', current: '고소인 등은 검사의 불기소처분에 불복해 관할 고등법원에 재정신청 가능', revised: '★ 불기소 재정신청 대폭 정비 + 공소심의회 심의와 연계 + 고소인 통지·기록열람·피해자보호' },
+                ],
+            },
+            {
+                name: '민주당(김한규) 안', billNo: '의안 2219875', color: 'orange',
+                rows: [
+                    { art: '제196조 (검사의 수사)', current: '① 검사는 범죄 혐의가 있으면 범인·범죄사실·증거를 수사한다 ② 송치받은 사건도 동일성 범위 내 수사 가능 (검사 직접수사 근거)', revised: '검사 직접수사 조항 삭제 → 수사 주체를 사법경찰관으로 일원화 (수사인권보호관은 두지 않음)' },
+                    { art: '제197조의2 (보완수사)', current: '검사는 사법경찰관에게 보완수사를 요구할 수 있고, 정당한 이유 없이 불이행 시 직무배제·징계 요구', revised: '★ 보완수사 완료기간 1개월로 단축 + ★ 수사관서 지정·변경권 신설 / 불이행 시 직무배제·교체·징계 요구' },
+                    { art: '제245조의8 (재수사 요청)', current: '검사는 불송치가 위법·부당한 때 사법경찰관에게 재수사를 요청할 수 있다', revised: '★ 요청기간 90일 명문화(새 증거·허위/위조 정황 시 무제한) + 고소인 통지의무 + 재수사 3개월 + "다시 요청" 신설 + 불이행 제재' },
+                    { art: '공소심의회·수사인권보호관', current: '(현행 없음)', revised: '두지 않음 — 수사·기소 분리 원칙 구현에 집중' },
+                    { art: '제260조 (재정신청)', current: '고소인 등은 검사의 불기소처분에 불복해 관할 고등법원에 재정신청 가능', revised: '통지·이의신청 등 기본 정비 (공소심의회 없음, 재정신청 정비 상대적 약함)' },
+                ],
+            },
+        ],
+    },
+
     debates: [
         { title: '경찰 직무배제·교체·징계 요구권 — 보완수사·재수사 불이행 시 (민주당·김한규안 조항)', pro: '부실수사 방지·공소유지 실효성 확보(수사지휘 없이도 최소한의 통제)', con: '사실상 수사지휘 부활·"제2의 검찰"화 우려, 경찰 수사 독립성 침해. 같은 민주당·김한규안의 「보완수사 수사관서 지정·변경권 신설」과 결합하면 통제 강도가 더 커진다 (김용민·박은정안엔 공소청의 징계 요구·수사관서 지정변경권이 없고, 징계는 수사인권보호관 권고로 분리)', finland: '검사에게 경찰 징계·직무배제권을 주지 않는다. 위법·부실수사 통제는 검찰이 아니라 독립 감찰기구(법률감찰단〔핀란드 법무총감〕 + 시민옴부즈만〔핀란드 의회 옴부즈만〕) + 경찰 내부 감찰이 맡는다. → 「검사가 경찰을 통제」가 아니라 「독립 감찰이 양쪽을 감시」 — 수사·기소 분리를 지키면서 통제도 확보.' },
         { title: '보완수사 1개월(김한규) vs 3개월(김용민·박은정)', pro: '1개월=신속한 사건처리 / 3개월=복잡사건 충실수사', con: '1개월=복잡사건 부실 우려 / 3개월=사건 지연·미제 누적', finland: '「기한」 다툼은 검사가 경찰에 사건을 되돌려 지휘하는 구조에서 생긴다. 핀란드는 경찰이 수사를 완결(완결수사권)하고 검사는 결과로 기소만 판단하며, 필요한 소통은 수사 초기 「협력(cooperation)」으로 처리 — 지휘가 아니다. → 보완수사 기한 규정 자체가 불필요.' },
@@ -1703,6 +1731,39 @@ export default function ReformAnalysis() {
                                                     ))}
                                                 </tbody>
                                             </table>
+                                        </div>
+                                        {/* 신·구조문 대비표 (법안별 카테고리) */}
+                                        <p className="text-base font-bold text-gray-700 mb-1">📋 신·구조문 대비표 (주요 조문)</p>
+                                        <p className="text-xs text-gray-400 mb-3">{CRIMINAL_PROCEDURE_BILLS.newOldComparison.note}</p>
+                                        <div className="space-y-5 mb-6">
+                                            {CRIMINAL_PROCEDURE_BILLS.newOldComparison.categories.map((cat, ci) => {
+                                                const head = cat.color === 'red' ? 'bg-red-100 text-red-800 border-red-300' : 'bg-orange-100 text-orange-800 border-orange-300';
+                                                return (
+                                                    <div key={ci} className="rounded-xl border border-gray-200 overflow-hidden">
+                                                        <div className={`px-4 py-2 font-bold border-b ${head}`}>📂 {cat.name} <span className="text-xs font-normal">({cat.billNo})</span></div>
+                                                        <div className="overflow-x-auto">
+                                                            <table className="w-full min-w-[640px] text-sm">
+                                                                <thead>
+                                                                    <tr className="bg-gray-50">
+                                                                        <th className="px-3 py-2 text-left font-bold text-gray-600 w-[22%]">조문</th>
+                                                                        <th className="px-3 py-2 text-left font-bold text-gray-500 w-[39%]">현행 (요지)</th>
+                                                                        <th className="px-3 py-2 text-left font-bold text-gray-800 w-[39%]">개정안 (요지)</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {cat.rows.map((r, ri) => (
+                                                                        <tr key={ri} className="border-t border-gray-100 align-top">
+                                                                            <td className="px-3 py-2 font-semibold text-gray-700">{r.art}</td>
+                                                                            <td className="px-3 py-2 text-gray-500 bg-gray-50/50">{r.current}</td>
+                                                                            <td className="px-3 py-2 text-gray-800">{r.revised}</td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                         {/* 논쟁점 (찬반) */}
                                         <p className="text-base font-bold text-gray-700 mb-2">⚖️ 주요 논쟁점 (찬반)</p>
