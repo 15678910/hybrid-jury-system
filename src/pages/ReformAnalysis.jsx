@@ -2122,6 +2122,99 @@ export default function ReformAnalysis() {
                                         </div>
                                     ))}
 
+                                    {/* 🔀 수사기구 역할 중복 해소 — 비중복·상호견제 설계 */}
+                                    <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-5 border-2 border-orange-300">
+                                        <h3 className="text-xl font-bold text-orange-900 mb-1 flex items-center gap-2"><span>🔀</span> {FINLAND_REFORM_BILL.deconfliction.title}</h3>
+                                        <p className="text-base text-gray-700 leading-relaxed mb-3">{FINLAND_REFORM_BILL.deconfliction.intro}</p>
+
+                                        {/* 기존 안에서 빠진 부분 */}
+                                        <div className="bg-white/70 rounded-lg p-3 border border-orange-200 mb-4">
+                                            <p className="text-sm text-orange-800"><span className="font-bold">🖼️ 기존 안에서 빠진 부분:</span> {FINLAND_REFORM_BILL.deconfliction.gap}</p>
+                                        </div>
+
+                                        {/* 중복·경합 사례 칩 */}
+                                        <div className="flex flex-wrap gap-2 mb-4">
+                                            {FINLAND_REFORM_BILL.deconfliction.overlaps.map((o, i) => {
+                                                const c = o.color === 'red' ? 'bg-red-100 border-red-300 text-red-800' : 'bg-amber-100 border-amber-300 text-amber-800';
+                                                return (
+                                                    <div key={i} className={`rounded-lg px-3 py-2 border ${c}`}>
+                                                        <span className="text-sm font-bold">{o.level}</span>
+                                                        <span className="text-sm"> · {o.crime} → {o.agencies}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* 기관 역할·소속 매트릭스 */}
+                                        <div className="overflow-x-auto rounded-lg border border-gray-200 mb-4 bg-white">
+                                            <table className="w-full min-w-[720px]">
+                                                <thead>
+                                                    <tr className="bg-gray-100">
+                                                        <th className="px-3 py-2 text-left text-sm font-bold text-gray-700">수사기관</th>
+                                                        <th className="px-3 py-2 text-left text-sm font-bold text-gray-700">수사 대상(관할)</th>
+                                                        <th className="px-3 py-2 text-left text-sm font-bold text-gray-700">소속</th>
+                                                        <th className="px-3 py-2 text-left text-sm font-bold text-gray-700">중복·유의점</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {FINLAND_REFORM_BILL.deconfliction.matrix.map((m, i) => {
+                                                        const oc = { green: 'text-green-700', red: 'text-red-700', amber: 'text-amber-700', gray: 'text-gray-600' }[m.orgColor] || 'text-gray-700';
+                                                        return (
+                                                            <tr key={i} className="border-t border-gray-100 align-top">
+                                                                <td className="px-3 py-2 text-sm font-bold text-gray-800">{m.agency}<div className="text-xs font-normal text-gray-400">{m.full}</div></td>
+                                                                <td className="px-3 py-2 text-sm text-gray-700">{m.target}</td>
+                                                                <td className={`px-3 py-2 text-sm font-semibold ${oc}`}>{m.org}</td>
+                                                                <td className="px-3 py-2 text-sm text-gray-500">{m.note}</td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        {/* 현행 문제 + 핀란드 모델 */}
+                                        <div className="grid md:grid-cols-2 gap-4 mb-4">
+                                            <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                                                <h4 className="text-base font-bold text-red-800 mb-2">⚠️ 현행 조정 방식의 문제</h4>
+                                                <ul className="space-y-1.5">
+                                                    {FINLAND_REFORM_BILL.deconfliction.currentProblems.map((p, i) => (
+                                                        <li key={i} className="text-sm text-red-700 flex items-start gap-1.5"><span className="mt-0.5 shrink-0">•</span><span>{p}</span></li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                                                <h4 className="text-base font-bold text-blue-800 mb-2">🇫🇮 핀란드는 어떻게 했나</h4>
+                                                <p className="text-sm text-blue-700 leading-relaxed">{FINLAND_REFORM_BILL.deconfliction.finlandModel}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* 4원칙 */}
+                                        <div className="grid md:grid-cols-2 gap-3 mb-4">
+                                            {FINLAND_REFORM_BILL.deconfliction.principles.map((pr, i) => {
+                                                const cmap = { blue: 'bg-blue-50 border-blue-300', green: 'bg-green-50 border-green-300', purple: 'bg-purple-50 border-purple-300', red: 'bg-rose-50 border-rose-300' }[pr.color] || 'bg-gray-50 border-gray-300';
+                                                return (
+                                                    <div key={i} className={`rounded-lg p-4 border ${cmap}`}>
+                                                        <p className="text-base font-bold text-gray-900 mb-1">{pr.n}. {pr.title}</p>
+                                                        <p className="text-sm text-gray-700 leading-relaxed">{pr.desc}</p>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* 결론 */}
+                                        <div className="bg-orange-100 rounded-lg p-4 border border-orange-300 mb-3">
+                                            <p className="text-base font-bold text-orange-900 leading-relaxed">🎯 {FINLAND_REFORM_BILL.deconfliction.conclusion}</p>
+                                        </div>
+
+                                        {/* 출처 */}
+                                        <div className="text-xs text-gray-500">
+                                            <span className="font-semibold">출처: </span>
+                                            {FINLAND_REFORM_BILL.deconfliction.sources.map((s, i) => (
+                                                <span key={i}>{i > 0 ? ' · ' : ''}<a href={s.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{s.label}</a></span>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                     {/* 시행 타임라인 */}
                                     <div>
                                         <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
