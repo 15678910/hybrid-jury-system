@@ -54,6 +54,77 @@ const setReformNewsCache = (data) => {
 };
 
 // 개혁안 비교 데이터
+// 형사소송법 일부개정법률안 3건 비교 (2026.6~7 발의) — 국회 의안정보시스템 원문 직접 분석
+const CRIMINAL_PROCEDURE_BILLS = {
+    note: "3건 모두 형사소송법 일부개정법률안이나, 서영교 의원안은 '재심청구권 확대'(과거사·인권침해)로 검찰개혁과는 별개 주제입니다. 실질적 검찰개혁(수사·기소 분리) 비교는 김용민·박은정 안 vs 김한규 안입니다.",
+    bills: [
+        {
+            name: '김용민·박은정 의원안',
+            billNo: '2219564',
+            proposers: '김용민·박은정 등 12인',
+            date: '2026.6.26 발의',
+            topic: '검찰개혁 (수사·기소 분리)',
+            stance: '급진·포괄형',
+            border: 'border-red-200', bg: 'bg-red-50', badge: 'bg-red-100 text-red-700',
+            purpose: '2026.10 검찰청법 폐지·공소청/중수청 출범에 맞춰 형사소송법을 전면 정비. 수사·기소 완전 분리.',
+            points: [
+                '검사 직접수사권 + 보완수사권 전면 폐지 — 수사 주체를 사법경찰관으로 일원화',
+                '공소청은 공소제기·공소유지에 전념 (검찰청→공소청 전면 용어 전환)',
+                '수사인권보호관 제도 신설 (수사 과정 인권보호)',
+                '공소심의회 신설 — 기소권 행사에 대한 민주적 통제',
+                '수사·기소 처리기한 명문화',
+                '영장·강제처분의 투명성·사법통제 확대 (전자정보 압수수색 참여·의견진술권, 조건부 석방 등)',
+            ],
+        },
+        {
+            name: '김한규 의원안',
+            billNo: '2219875',
+            proposers: '김한규 등 22인',
+            date: '2026.7.9 발의',
+            topic: '검찰개혁 (수사·기소 분리)',
+            stance: '온건·집중형',
+            border: 'border-orange-200', bg: 'bg-orange-50', badge: 'bg-orange-100 text-orange-700',
+            purpose: '수사·기소 분리 원칙에 맞춰 수사 관련 조항을 정비하되, 공소유지 실효성을 위한 보완조치를 둠.',
+            points: [
+                '검사 직접수사권 + 보완수사권 폐지 — 수사 주체를 사법경찰관으로 일원화',
+                '★ 보완조치로 검사의 「보완수사 요구권」 유지 — 공소청이 경찰에 보완수사를 요구 가능 (김용민·박은정 안과의 핵심 차이)',
+                '공소청은 공소제기·공소유지에 전념',
+                '수사인권보호관·공소심의회 등 부가 기구는 두지 않음 — 수사·기소 분리 원칙 구현에 집중',
+            ],
+        },
+        {
+            name: '서영교 의원안',
+            billNo: '2219858',
+            proposers: '서영교 등 10인',
+            date: '2026.7.9 발의',
+            topic: '재심청구권 확대 (검찰개혁과 별개)',
+            stance: '단일 조문',
+            border: 'border-slate-200', bg: 'bg-slate-50', badge: 'bg-slate-100 text-slate-700',
+            purpose: '헌재 2026.6.24 헌법불합치 결정 이행 — 과거사·인권침해 사건의 재심청구권자 확대.',
+            points: [
+                '헌재 2026.6.24 헌법불합치 결정(2021헌바145·284·290 병합) 반영',
+                '민간인 집단희생사건·중대인권침해사건은 재심청구권자를 4촌 이내 친족까지 확대 (현행: 배우자·직계친족·형제자매)',
+                '형사소송법 제424조제4호에 단서 신설 — 조작·은폐로 진상규명이 늦어져 적법 청구권자가 모두 사망한 경우에 대응',
+                '※ 수사·기소 분리(검찰개혁)와는 무관한 단일 조문 개정',
+            ],
+        },
+    ],
+    table: {
+        headers: ['쟁점', '김용민·박은정', '김한규', '서영교'],
+        rows: [
+            ['주제', '검찰개혁(수사·기소 분리)', '검찰개혁(수사·기소 분리)', '재심청구권 확대(별개)'],
+            ['검사 직접수사권', '전면 폐지', '폐지', '—'],
+            ['검사 보완수사권', '전면 폐지', '폐지(단, 「보완수사 요구권」 유지)', '—'],
+            ['수사 주체', '사법경찰관 일원화', '사법경찰관 일원화', '—'],
+            ['수사인권보호관', '신설', '없음', '—'],
+            ['공소심의회', '신설', '없음', '—'],
+            ['처리기한 명문화', '있음', '없음', '—'],
+            ['핵심 성격', '급진·포괄적 통제·인권장치', '온건·수사기소분리 집중', '헌재 결정 이행'],
+        ],
+    },
+    assessment: '김용민·박은정 안과 김한규 안은 모두 검사의 직접·보완수사권을 폐지하고 수사 주체를 사법경찰관으로 일원화한다는 점에서 방향이 같다. 핵심 차이는 ① 김한규 안이 검사의 「보완수사 요구권」을 보완조치로 남겨 공소유지의 실효성을 확보한 반면 김용민·박은정 안은 보완수사권을 전면 폐지했고, ② 김용민·박은정 안이 수사인권보호관·공소심의회·처리기한 명문화 등 인권보호·민주적 통제 장치를 대거 신설한 반면 김한규 안은 수사·기소 분리 원칙 구현에 집중했다는 점이다. 서영교 안은 검찰개혁이 아니라 헌재 헌법불합치 결정 이행(재심청구권 확대) 법안으로 성격이 다르다.',
+};
+
 const reformData = [
     {
         id: 'prosecution',
@@ -1502,6 +1573,63 @@ export default function ReformAnalysis() {
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+
+                                    {/* 섹션 A-2: 형사소송법 개정안 3건 비교 (2026.6~7 발의, 원문 분석) */}
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                            <span>📑</span> 형사소송법 개정안 3건 비교 <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-sm rounded-full font-medium">2026.6~7 발의 · 국회 원문 분석</span>
+                                        </h3>
+                                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+                                            <p className="text-base text-amber-800">{CRIMINAL_PROCEDURE_BILLS.note}</p>
+                                        </div>
+                                        <div className="grid md:grid-cols-3 gap-4 mb-6">
+                                            {CRIMINAL_PROCEDURE_BILLS.bills.map((b, i) => (
+                                                <div key={i} className={`bg-white border-2 ${b.border} rounded-xl overflow-hidden shadow-sm`}>
+                                                    <div className={`${b.bg} px-4 py-3 border-b`}>
+                                                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                                            <h4 className="font-bold text-gray-800">{b.name}</h4>
+                                                            <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${b.badge}`}>{b.stance}</span>
+                                                        </div>
+                                                        <p className="text-xs text-gray-500">의안 {b.billNo} · {b.proposers} · {b.date}</p>
+                                                        <p className="text-base font-semibold text-gray-600 mt-1">{b.topic}</p>
+                                                    </div>
+                                                    <div className="px-4 py-3 space-y-2">
+                                                        <p className="text-base text-gray-600">{b.purpose}</p>
+                                                        <ul className="space-y-1">
+                                                            {b.points.map((p, j) => (
+                                                                <li key={j} className="text-base text-gray-700 flex items-start gap-1"><span className="text-gray-400 shrink-0">•</span>{p}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="overflow-x-auto mb-4">
+                                            <table className="w-full min-w-[640px] text-base border border-gray-200 rounded-lg overflow-hidden">
+                                                <thead>
+                                                    <tr className="bg-gray-100">
+                                                        {CRIMINAL_PROCEDURE_BILLS.table.headers.map((h, i) => (
+                                                            <th key={i} className={`px-3 py-2 text-left font-bold text-gray-700 ${i === 0 ? '' : 'border-l border-gray-200'}`}>{h}</th>
+                                                        ))}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {CRIMINAL_PROCEDURE_BILLS.table.rows.map((row, i) => (
+                                                        <tr key={i} className={i % 2 ? 'bg-gray-50' : 'bg-white'}>
+                                                            {row.map((cell, j) => (
+                                                                <td key={j} className={`px-3 py-2 align-top ${j === 0 ? 'font-semibold text-gray-700' : 'text-gray-600 border-l border-gray-200'}`}>{cell}</td>
+                                                            ))}
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                            <p className="text-base font-bold text-blue-700 mb-1">🧭 종합 분석</p>
+                                            <p className="text-base text-blue-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.assessment}</p>
+                                        </div>
+                                        <p className="text-xs text-gray-400 mt-2">출처: 국회 의안정보시스템 원문(의안 2219564·2219875·2219858) 직접 분석 · 각 법안 제안이유 및 주요내용</p>
                                     </div>
 
                                     {/* 섹션 B: 핵심 쟁점 분석 (주권자사법개혁추진준비위원회 기준) */}
