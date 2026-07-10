@@ -95,7 +95,7 @@ const CRIMINAL_PROCEDURE_BILLS = {
         { title: '공소청의 경찰 직무배제·징계요구권', pro: '부실수사 방지·공소유지 실효성 확보(수사지휘 없이도 최소한의 통제)', con: '사실상 수사지휘 부활·"제2의 검찰"화 우려, 경찰 수사 독립성 침해' },
         { title: '보완수사 1개월(김한규) vs 3개월(김용민·박은정)', pro: '1개월=신속한 사건처리 / 3개월=복잡사건 충실수사', con: '1개월=복잡사건 부실 우려 / 3개월=사건 지연·미제 누적' },
         { title: '수사인권보호관·공소심의회(김용민·박은정)', pro: '수사 인권보호·기소권 민주통제 강화', con: '기구 남설(옥상옥)·기소 지연, 실효성 의문' },
-        { title: '수사관서 지정·변경권(김한규)', pro: '부실·편파 수사관서 우회로 공정성 확보', con: '검사의 "사건 몰아주기"·수사 관할 자의적 변경 우려' },
+        { title: '수사관서 지정·변경권 + 직무배제·징계요구권(김한규) — 「수사지휘의 부활」 논란', pro: '부실·편파 수사관서를 우회해 공소유지 실효성 확보', con: '★ 사실상 「수사지휘의 부활」 — 공소청이 수사관서를 지정·변경하고 경찰관 직무배제·징계까지 요구하면, 형식상 "요구"라도 실질은 검사가 경찰 수사를 좌우하는 지휘. 수사·기소 분리 원칙이 형해화되고 검찰권력이 「공소청」 이름으로 존속할 우려' },
         { title: '검사 직접수사 전면 폐지', pro: '수사·기소 분리로 검찰권 남용 차단', con: '경제·부패 등 전문수사 공백(→중수청 이관)·과도기 혼란' },
     ],
     international: [
@@ -105,6 +105,16 @@ const CRIMINAL_PROCEDURE_BILLS = {
         { flag: '🇫🇮', country: '핀란드', model: '수사(경찰)·기소(검사) 분리, 검사는 중요사건 수사 협력·법률자문', tag: '완전 분리 + 협력 (핀란드식 사법개혁안 탭 참조)' },
     ],
     sovereign: '주권자사법개혁추진준비위원회 안은 「독립기소청법·수사기관독립법·시민사법참여법·사법감시이중안전법」의 4법 체계로 공소청을 법무부에서 독립시키고 기소심사위원회·시민감사 등 시민통제를 제도화하는 데 초점이 있다. 반면 형사소송법 개정 2건(김용민·박은정/김한규)은 형사절차 내에서 수사·기소 분리를 구현하는 데 집중한다. 즉 층위가 다르며(주권자위 안=공소청 조직 독립·시민통제 / 형소법 개정=형사절차 정비), 두 접근은 상호 보완될 수 있다.',
+    constitutionalEval: {
+        title: '헌법 제1조·민주주의 부합성 평가',
+        intro: '헌법 제1조(①민주공화국 ②주권은 국민에게 있고 모든 권력은 국민으로부터)의 관점에서 핵심 질문은 "수사·기소 권력을 얼마나 주권자인 국민의 민주적 통제 아래 두고, 특정 기관의 자의적 권력 독점을 막느냐"이다. 이 기준으로 보면 —',
+        ranking: [
+            { rank: '가장 부합', color: 'green', model: '핀란드식 완전분리 + 시민통제', reason: '수사(경찰)와 기소(검사)를 완전히 분리하고, 참심제·시민 사법참여·이중 감시로 주권자(국민)가 사법권력을 직접 통제한다. 어느 기관도 수사·기소를 독점하지 못하므로 헌법 제1조의 주권재민 원리에 가장 근접한다.' },
+            { rank: '상대적 부합', color: 'blue', model: '김용민·박은정 안', reason: '검사의 직접수사·직접 보완수사를 폐지하고 수사인권보호관·공소심의회 등 민주적 통제 장치를 신설한다. 수사지휘 부활 요소가 상대적으로 적어, 두 형소법 개정안 중에서는 최소한 이 안이 우선 통과되어야 한다.' },
+            { rank: '후퇴 우려', color: 'amber', model: '김한규 안', reason: '수사관서 지정·변경권 + 직무배제·징계요구권 등 강한 이행강제는 "수사지휘 없는 통제"의 경계를 넘어 사실상 검사(공소청)의 수사지휘를 부활시킬 소지가 크다. 이는 수사·기소 분리 원칙을 형해화해, 헌법 제1조가 요구하는 권력 분산·민주적 통제에 역행할 우려가 있다.' },
+        ],
+        conclusion: '두 형소법 개정안 중에서는 수사지휘 부활 요소가 적고 민주적 통제 장치를 갖춘 김용민·박은정 안이 최소한 우선 통과되어야 한다. 그러나 더 근본적인 물음은 "어느 모델이 헌법 제1조(주권재민)와 민주주의에 부합하는가"이며, 그 답은 핀란드식 완전분리와 시민통제(참심제·기소심의·시민감사)를 결합한 모델이다. 검찰개혁의 최종 좌표는 "검찰을 공소청으로 개명하는 것"이 아니라 "사법권력을 주권자인 국민의 통제 아래 두는 것"이어야 한다.',
+    },
     assessment: '두 개정안은 검사의 직접수사·직접 보완수사를 폐지하고 수사 주체를 사법경찰관으로 일원화하되, 공소청 검사의 보완수사 요구권·재수사 요청권을 유지·강화한다는 큰 틀이 동일하다. 차이는 강조점이다. 김용민·박은정 안은 수사인권보호관·공소심의회 등 인권보호·민주통제 기구를 대거 신설한 "포괄형"이고, 김한규 안은 보완수사 1개월 단축·수사관서 지정변경권·재수사요청 강화 등 공소청의 실질적 이행강제 수단을 촘촘히 설계한 "이행강제형"이다. 공통 쟁점은 "수사지휘 없는 통제"의 경계 — 직무배제·징계요구권이 자칫 수사지휘의 부활로 비칠 수 있다는 점이다.',
 };
 
@@ -1644,7 +1654,23 @@ export default function ReformAnalysis() {
                                             <p className="text-base font-bold text-blue-700 mb-1">🧭 종합 분석</p>
                                             <p className="text-base text-blue-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.assessment}</p>
                                         </div>
-                                        <p className="text-xs text-gray-400 mt-2">출처: 국회 의안정보시스템 원문(의안 2219564 김용민·박은정, 2219875 김한규) 제안이유·조문 직접 분석</p>
+                                        {/* 헌법 제1조·민주주의 부합성 평가 (핵심 결론) */}
+                                        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-300 rounded-xl p-4 mt-4">
+                                            <p className="text-lg font-bold text-indigo-800 mb-1 flex items-center gap-2">🏛️ {CRIMINAL_PROCEDURE_BILLS.constitutionalEval.title} <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium">주권자 사법개혁 관점 평가</span></p>
+                                            <p className="text-base text-indigo-900 leading-relaxed mb-3">{CRIMINAL_PROCEDURE_BILLS.constitutionalEval.intro}</p>
+                                            <div className="space-y-2 mb-3">
+                                                {CRIMINAL_PROCEDURE_BILLS.constitutionalEval.ranking.map((r, i) => (
+                                                    <div key={i} className={`rounded-lg p-3 border ${r.color === 'green' ? 'bg-green-50 border-green-200' : r.color === 'blue' ? 'bg-blue-50 border-blue-200' : 'bg-amber-50 border-amber-200'}`}>
+                                                        <p className="text-base font-bold text-gray-800"><span className={`px-2 py-0.5 rounded-full text-sm mr-2 ${r.color === 'green' ? 'bg-green-200 text-green-800' : r.color === 'blue' ? 'bg-blue-200 text-blue-800' : 'bg-amber-200 text-amber-800'}`}>{r.rank}</span>{r.model}</p>
+                                                        <p className="text-base text-gray-700 mt-1">{r.reason}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="bg-white/70 rounded-lg p-3 border border-indigo-200">
+                                                <p className="text-base font-bold text-indigo-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.constitutionalEval.conclusion}</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-gray-400 mt-2">출처: 국회 의안정보시스템 원문(의안 2219564 김용민·박은정, 2219875 김한규) 제안이유·조문 직접 분석 · 평가는 주권자 사법개혁 관점</p>
                                     </div>
 
                                     {/* 섹션 B: 핵심 쟁점 분석 (주권자사법개혁추진준비위원회 기준) */}
