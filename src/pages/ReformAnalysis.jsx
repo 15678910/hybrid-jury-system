@@ -90,6 +90,8 @@ const CRIMINAL_PROCEDURE_BILLS = {
         { article: '보완수사 요구·이행강제', law: '제197조의2', kimpark: '대상·방법·절차·시기 문서 명시 요구·이행관리 / 3개월 원칙 / 불이행 시 직무배제·교체 요구', hankyu: '★ 1개월로 단축 + ★ 수사관서 지정·변경권 / 불이행 시 직무배제·교체·징계 요구' },
         { article: '불송치 재수사 요청', law: '제245조의8', kimpark: '재수사 요청·기간 규정 정비', hankyu: '★ 90일 명문화(예외 무제한) + 고소인 통지의무 + 재수사 3개월 + "다시 요청" 신설 + 불이행 제재' },
         { article: '인권보호·민주통제 기구', law: '제196조·제246조의3', kimpark: '★ 수사인권보호관 + ★ 공소심의회 신설', hankyu: '두지 않음 (수사·기소 분리 원칙 구현에 집중)' },
+        { article: '피해자 구제(불복·재정신청)', law: '제245조의7·제260조 등', kimpark: '★ 두텁게 정비 — 불송치 이의신청·재수사요청 + 불기소 재정신청 대폭 정비를 공소심의회 심의와 연계 + 고소인 통지·기록 열람·피해자보호', hankyu: '통지·이의신청 등 기본 정비 (공소심의회 없음, 재정신청 정비 상대적 약함)' },
+        { article: '수사심의회(수사단계 심의)', law: '—', kimpark: '없음 (기소 심의 「공소심의회」만 신설)', hankyu: '없음' },
     ],
     debates: [
         { title: '공소청의 경찰 직무배제·징계요구권', pro: '부실수사 방지·공소유지 실효성 확보(수사지휘 없이도 최소한의 통제)', con: '사실상 수사지휘 부활·"제2의 검찰"화 우려, 경찰 수사 독립성 침해' },
@@ -105,6 +107,19 @@ const CRIMINAL_PROCEDURE_BILLS = {
         { flag: '🇫🇮', country: '핀란드', model: '수사(경찰)·기소(검사) 분리, 검사는 중요사건 수사 협력·법률자문', tag: '완전 분리 + 협력 (핀란드식 사법개혁안 탭 참조)' },
     ],
     sovereign: '주권자사법개혁추진준비위원회 안은 「독립기소청법·수사기관독립법·시민사법참여법·사법감시이중안전법」의 4법 체계로 공소청을 법무부에서 독립시키고 기소심사위원회·시민감사 등 시민통제를 제도화하는 데 초점이 있다. 반면 형사소송법 개정 2건(김용민·박은정/김한규)은 형사절차 내에서 수사·기소 분리를 구현하는 데 집중한다. 즉 층위가 다르며(주권자위 안=공소청 조직 독립·시민통제 / 형소법 개정=형사절차 정비), 두 접근은 상호 보완될 수 있다.',
+    remedyAnalysis: {
+        title: '피해자 구제안 · 시민옴부즈만 — 무엇이 더 필요한가',
+        victimRelief: {
+            q: '피해자 구제안이 필요한가?',
+            a: '필요하다. 검사의 직접수사·직접 보완수사가 폐지되면 사건이 경찰 수사 중심으로 이동해 부실수사·불송치·불기소로 피해자 권리가 약화될 위험이 커진다. 따라서 불송치 이의신청(제245조의7)·재수사요청(제245조의8)·불기소 재정신청(제260조)·처분 통지·기록 열람 같은 사후 구제 통로가 반드시 강화되어야 한다. 김용민·박은정 안은 재정신청을 대폭 정비하고 공소심의회 심의와 연계해 이를 두텁게 설계했다. 김한규 안은 상대적으로 약하다(공소심의회 없음).',
+        },
+        ombudsman: {
+            q: '평소 감시·견제하는 「시민옴부즈만」 제도가 필요한가?',
+            a: '필요하다. 피해자 구제(이의신청·재정신청)는 피해가 발생하고 처분이 난 뒤 당사자가 신청해야 작동하는 「사후·개별」 구제다. 반면 시민옴부즈만은 특정 사건 당사자가 아니어도 주권자인 시민이 수사·기소권 행사 전반을 「평소·상시」 감시하고 시정을 요구하는 시스템적 견제다. 두 형소법 개정안에는 옴부즈만·상시 시민감시 기구가 없다(김용민·박은정의 수사인권보호관은 수사기관 내부 인권 담당, 공소심의회는 기소 심의로, 독립적 시민 옴부즈만이 아니다). 주권자사법개혁추진준비위원회 안의 「사법감시이중안전법」(사법감찰관+사법옴부즈만)이 이 상시 감시 기능을 담당한다.',
+        },
+        conclusion: '「사후 구제(피해자 구제) + 상시 감시(시민옴부즈만)」의 병행이 필요하다. 사후 구제만으로는 권력 남용을 사전에 억제하지 못하고, 상시 감시가 없으면 남용이 반복된다. 헌법 제1조(주권재민)가 요구하는 것은 주권자인 국민이 수사·기소 권력을 「평소에」 통제하는 것이며, 시민옴부즈만은 그 상시적 통제의 핵심 장치다.',
+        note: '※ 수사심의회(수사 단계 심의 기구)는 두 개정안 모두 두지 않는다. 김용민·박은정 안에는 「공소심의회」(기소 여부 심의, 제246조의3)만 있다. 현행 대검찰청 「수사심의위원회」는 검찰 내부 자문기구로 이 법안들의 공식 기구와 별개다.',
+    },
     constitutionalEval: {
         title: '헌법 제1조·민주주의 부합성 평가',
         intro: '헌법 제1조(①민주공화국 ②주권은 국민에게 있고 모든 권력은 국민으로부터)의 관점에서 핵심 질문은 "수사·기소 권력을 얼마나 주권자인 국민의 민주적 통제 아래 두고, 특정 기관의 자의적 권력 독점을 막느냐"이다. 이 기준으로 보면 —',
@@ -1653,6 +1668,24 @@ export default function ReformAnalysis() {
                                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                                             <p className="text-base font-bold text-blue-700 mb-1">🧭 종합 분석</p>
                                             <p className="text-base text-blue-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.assessment}</p>
+                                        </div>
+                                        {/* 피해자 구제 · 시민옴부즈만 분석 */}
+                                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mt-4">
+                                            <p className="text-lg font-bold text-amber-800 mb-2">🛟 {CRIMINAL_PROCEDURE_BILLS.remedyAnalysis.title}</p>
+                                            <div className="space-y-3">
+                                                <div className="bg-white/70 rounded-lg p-3 border border-amber-200">
+                                                    <p className="text-base font-bold text-gray-800 mb-1">Q. {CRIMINAL_PROCEDURE_BILLS.remedyAnalysis.victimRelief.q}</p>
+                                                    <p className="text-base text-gray-700 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.remedyAnalysis.victimRelief.a}</p>
+                                                </div>
+                                                <div className="bg-white/70 rounded-lg p-3 border border-amber-200">
+                                                    <p className="text-base font-bold text-gray-800 mb-1">Q. {CRIMINAL_PROCEDURE_BILLS.remedyAnalysis.ombudsman.q}</p>
+                                                    <p className="text-base text-gray-700 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.remedyAnalysis.ombudsman.a}</p>
+                                                </div>
+                                                <div className="bg-orange-100 rounded-lg p-3 border border-orange-300">
+                                                    <p className="text-base font-bold text-orange-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.remedyAnalysis.conclusion}</p>
+                                                </div>
+                                                <p className="text-sm text-gray-500 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.remedyAnalysis.note}</p>
+                                            </div>
                                         </div>
                                         {/* 헌법 제1조·민주주의 부합성 평가 (핵심 결론) */}
                                         <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-300 rounded-xl p-4 mt-4">
