@@ -95,12 +95,12 @@ const CRIMINAL_PROCEDURE_BILLS = {
         },
     ],
     articles: [
-        { article: '검사 직접수사·직접 보완수사', law: '제196조 등', kimpark: '폐지 — 송치사건도 검사는 직접 보완수사 불가, 사법경찰관에 「요구」만 가능', hankyu: '폐지 — 수사 주체를 사법경찰관으로 일원화' },
-        { article: '보완수사 요구·이행강제', law: '제197조의2', kimpark: '대상·방법·절차·시기 문서 명시 요구·이행관리 / 3개월 원칙 / 불이행 시 직무배제·교체 요구', hankyu: '★ 1개월로 단축 + ★ 수사관서 지정·변경권 / 불이행 시 직무배제·교체·징계 요구' },
-        { article: '불송치 재수사 요청', law: '제245조의8', kimpark: '재수사 요청·기간 규정 정비', hankyu: '★ 90일 명문화(예외 무제한) + 고소인 통지의무 + 재수사 3개월 + "다시 요청" 신설 + 불이행 제재' },
-        { article: '인권보호·민주통제 기구', law: '제196조·제246조의3', kimpark: '★ 수사인권보호관 + ★ 공소심의회 신설', hankyu: '두지 않음 (수사·기소 분리 원칙 구현에 집중)' },
-        { article: '피해자 구제(불복·재정신청)', law: '제245조의7·제260조 등', kimpark: '★ 두텁게 정비 — 불송치 이의신청·재수사요청 + 불기소 재정신청 대폭 정비를 공소심의회 심의와 연계 + 고소인 통지·기록 열람·피해자보호', hankyu: '통지·이의신청 등 기본 정비 (공소심의회 없음, 재정신청 정비 상대적 약함)' },
-        { article: '수사심의회(수사단계 심의)', law: '—', kimpark: '없음 (기소 심의 「공소심의회」만 신설)', hankyu: '없음' },
+        { article: '검사 직접수사·직접 보완수사', law: '제196조 등', kimparkArt: '제196조·제197조의2', kimpark: '폐지 — 송치사건도 검사는 직접 보완수사 불가, 사법경찰관에 「요구」만 가능', hankyuArt: '제196조·제197조의2', hankyu: '폐지 — 수사 주체를 사법경찰관으로 일원화' },
+        { article: '보완수사 요구·이행강제', law: '제197조의2', kimparkArt: '제197조의2', kimpark: '대상·방법·절차·시기 문서 명시 요구·이행관리 / 3개월 원칙 / 불이행 시 직무배제·교체 요구', hankyuArt: '제197조의2', hankyu: '★ 1개월로 단축 + ★ 수사관서 지정·변경권 / 불이행 시 직무배제·교체·징계 요구' },
+        { article: '불송치 재수사 요청', law: '제245조의8', kimparkArt: '제245조의8', kimpark: '재수사 요청·기간 규정 정비', hankyuArt: '제245조의8', hankyu: '★ 90일 명문화(예외 무제한) + 고소인 통지의무 + 재수사 3개월 + "다시 요청" 신설 + 불이행 제재' },
+        { article: '인권보호·민주통제 기구', law: '제196조·제246조의3', kimparkArt: '제196조(수사인권보호관)·제246조의3(공소심의회)', kimpark: '★ 수사인권보호관 + ★ 공소심의회 신설', hankyuArt: '해당 조문 미신설', hankyu: '두지 않음 (수사·기소 분리 원칙 구현에 집중)' },
+        { article: '피해자 구제(불복·재정신청)', law: '제245조의7·제260조 등', kimparkArt: '제245조의7·제260조·제262조', kimpark: '★ 두텁게 정비 — 불송치 이의신청·재수사요청 + 불기소 재정신청 대폭 정비를 공소심의회 심의와 연계 + 고소인 통지·기록 열람·피해자보호', hankyuArt: '제245조의7·제260조', hankyu: '통지·이의신청 등 기본 정비 (공소심의회 없음, 재정신청 정비 상대적 약함)' },
+        { article: '수사심의회(수사단계 심의)', law: '—', kimparkArt: '—', kimpark: '없음 (기소 심의 「공소심의회」만 신설)', hankyuArt: '—', hankyu: '없음' },
     ],
     debates: [
         { title: '경찰 직무배제·교체·징계 요구권 — 보완수사·재수사 불이행 시 (민주당·김한규안 조항)', pro: '부실수사 방지·공소유지 실효성 확보(수사지휘 없이도 최소한의 통제)', con: '사실상 수사지휘 부활·"제2의 검찰"화 우려, 경찰 수사 독립성 침해. 같은 민주당·김한규안의 「보완수사 수사관서 지정·변경권 신설」과 결합하면 통제 강도가 더 커진다 (김용민·박은정안엔 공소청의 징계 요구·수사관서 지정변경권이 없고, 징계는 수사인권보호관 권고로 분리)', finland: '검사에게 경찰 징계·직무배제권을 주지 않는다. 위법·부실수사 통제는 검찰이 아니라 독립 감찰기구(법률감찰단〔핀란드 법무총감〕 + 시민옴부즈만〔핀란드 의회 옴부즈만〕) + 경찰 내부 감찰이 맡는다. → 「검사가 경찰을 통제」가 아니라 「독립 감찰이 양쪽을 감시」 — 수사·기소 분리를 지키면서 통제도 확보.' },
@@ -1697,8 +1697,8 @@ export default function ReformAnalysis() {
                                                     {CRIMINAL_PROCEDURE_BILLS.articles.map((a, i) => (
                                                         <tr key={i} className={i % 2 ? 'bg-gray-50' : 'bg-white'}>
                                                             <td className="px-3 py-2 align-top font-semibold text-gray-700">{a.article}<span className="block text-xs font-normal text-gray-400">{a.law}</span></td>
-                                                            <td className="px-3 py-2 align-top text-gray-600 border-l border-gray-200">{a.kimpark}</td>
-                                                            <td className="px-3 py-2 align-top text-gray-600 border-l border-gray-200">{a.hankyu}</td>
+                                                            <td className="px-3 py-2 align-top text-gray-600 border-l border-gray-200">{a.kimparkArt && <span className="inline-block text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded px-1.5 py-0.5 mb-1">📌 {a.kimparkArt}</span>}<span className="block">{a.kimpark}</span></td>
+                                                            <td className="px-3 py-2 align-top text-gray-600 border-l border-gray-200">{a.hankyuArt && <span className="inline-block text-xs font-bold text-orange-600 bg-orange-50 border border-orange-200 rounded px-1.5 py-0.5 mb-1">📌 {a.hankyuArt}</span>}<span className="block">{a.hankyu}</span></td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
