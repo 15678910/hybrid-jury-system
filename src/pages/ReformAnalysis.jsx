@@ -130,6 +130,29 @@ const CRIMINAL_PROCEDURE_BILLS = {
         ],
         conclusion: '두 형소법 개정안 중에서는 수사지휘 부활 요소가 적고 민주적 통제 장치를 갖춘 김용민·박은정 안이 최소한 우선 통과되어야 한다. 그러나 더 근본적인 물음은 "어느 모델이 헌법 제1조(주권재민)와 민주주의에 부합하는가"이며, 그 답은 핀란드식 완전분리와 시민통제(참심제·기소심의·시민감사)를 결합한 모델이다. 검찰개혁의 최종 좌표는 "검찰을 공소청으로 개명하는 것"이 아니라 "사법권력을 주권자인 국민의 통제 아래 두는 것"이어야 한다.',
     },
+    finlandModel: {
+        title: '핀란드는 어떻게 했나 — 구체적 대안',
+        facts: [
+            { label: '수사·기소 분리 + 협력 (1996 개혁)', text: '경찰(수사기관)이 수사를 담당하고, 검사는 수사에 「협력」하며 수사 종료 후 기소 여부를 최종 판단한다. 검사는 수사지휘관이 아니라 협력자이자 기소 판단자다.' },
+            { label: '검사의 독립성', text: '검사(국가검찰청, Syyttäjälaitos)는 수사 전 단계·기소·재판에 관여하는 유일한 기관이지만, 기소 결정에서 「자율적·독립적」 사법 행정관으로 활동한다.' },
+            { label: '경찰 범죄는 검사가 수사 지휘', text: '경찰관이 저지른 범죄는 예외적으로 검사가 수사 단계부터 「수사의 장」으로 지휘한다. 2024.10부터 검찰총장실 산하 「경찰범죄수사부」로 집중 — 경찰의 셀프수사를 원천 차단.' },
+            { label: '★ 의회가 선출하는 옴부즈만(oikeusasiamies)', text: '의회(Eduskunta)가 선출하는 「최고 적법성 감시관」. 법원·행정청·공무원은 물론 경찰과 검찰총장의 적법성을 상시 감시한다. ① 시민 민원 조사 ② 직권 조사 ③ 현장 점검 ④ 입법 의견 — 특히 경찰 수사·강제처분·수사절차를 집중 감시.' },
+            { label: '이중 안전장치 — 법무총감(Chancellor of Justice)', text: '옴부즈만과 별도로 법무총감(oikeuskansleri)이 병행 감시 — 상시 감시를 이중으로.' },
+        ],
+        contrast: '한국의 두 개정안은 핀란드식 「협력구조」 대신 검사의 「요구권 + 이행강제(직무배제·교체·징계요구, 김한규는 수사관서 지정·변경권까지)」로 설계돼 검사가 경찰을 지휘하는 색채가 강하다. 무엇보다 핀란드의 핵심인 「의회 선출 독립 옴부즈만(상시 시민감시)」이 두 법안 모두 빠져 있다. 김용민·박은정의 수사인권보호관은 수사기관 내부 인권 담당(독립기구 아님), 공소심의회는 기소 심의로, 옴부즈만이 아니다.',
+        alternative: [
+            '① 수사–기소 「협력구조」로 전환 — 이행강제(직무배제·징계요구·수사관서 지정변경) 대신 검사의 조기 자문·협력. 검사는 지휘가 아니라 기소 판단에 집중.',
+            '② 경찰 범죄 전담 독립수사 — 경찰이 저지른 범죄는 별도 독립 수사기구(핀란드 경찰범죄수사부 모델)가 담당해 셀프수사 차단(중수청·공수처와 연계).',
+            '③ ★ 「의회 선출 시민옴부즈만(사법옴부즈만)」 신설 — 국회가 선출하는 독립기구가 경찰·공소청의 적법성을 상시 감시(민원 조사+직권 조사+현장 점검+입법 의견). = 주권자위 안 「사법감시이중안전법」(사법감찰관+사법옴부즈만).',
+            '④ 피해자 구제 이중화 — 불기소·불송치 재정신청(사후) + 옴부즈만 민원(상시)을 병행.',
+            '⑤ 공소청의 조직 독립 — 공소청을 법무부에서 독립(주권자위 「독립기소청법」)해 검사 독립성을 제도적으로 보장.',
+        ],
+        conclusion: '핀란드의 교훈은 "검사에게 경찰에 대한 강한 이행강제권을 주는 것"이 아니라 "① 수사–기소를 협력구조로 분리하고 ② 의회가 선출한 독립 옴부즈만이 양쪽을 상시 감시"하는 것이다. 인권·통제 기구 없이 이행강제만 강화하면, 제도가 부실하다는 비판이 나올 때 「역시 검사(검찰)의 지휘가 필요하다」는 검찰 부활론의 빌미가 될 수 있다 — 이것이 김한규 안이 인권·통제 기구를 두지 않은 데 대한 주권자 관점의 우려다. 최소한 김용민·박은정 안의 통제·인권 장치를 갖추되, 궁극적으로는 핀란드식 「협력 + 의회 선출 시민옴부즈만」을 도입해야 한다.',
+        sources: [
+            { name: '핀란드 국가검찰청', url: 'https://syyttajalaitos.fi/en/the-national-prosecution-authority' },
+            { name: '핀란드 의회 옴부즈만', url: 'https://oikeusasiamies.fi/en/parliamentary-ombudsman' },
+        ],
+    },
     assessment: '두 개정안은 검사의 직접수사·직접 보완수사를 폐지하고 수사 주체를 사법경찰관으로 일원화하되, 공소청 검사의 보완수사 요구권·재수사 요청권을 유지·강화한다는 큰 틀이 동일하다. 차이는 강조점이다. 김용민·박은정 안은 수사인권보호관·공소심의회 등 인권보호·민주통제 기구를 대거 신설한 "포괄형"이고, 김한규 안은 보완수사 1개월 단축·수사관서 지정변경권·재수사요청 강화 등 공소청의 실질적 이행강제 수단을 촘촘히 설계한 "이행강제형"이다. 공통 쟁점은 "수사지휘 없는 통제"의 경계 — 직무배제·징계요구권이 자칫 수사지휘의 부활로 비칠 수 있다는 점이다.',
 };
 
@@ -1703,7 +1726,38 @@ export default function ReformAnalysis() {
                                                 <p className="text-base font-bold text-indigo-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.constitutionalEval.conclusion}</p>
                                             </div>
                                         </div>
-                                        <p className="text-xs text-gray-400 mt-2">출처: 국회 의안정보시스템 원문(의안 2219564 김용민·박은정, 2219875 김한규) 제안이유·조문 직접 분석 · 평가는 주권자 사법개혁 관점</p>
+                                        {/* 핀란드 모델 — 구체적 대안 */}
+                                        <div className="bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-300 rounded-xl p-4 mt-4">
+                                            <p className="text-lg font-bold text-cyan-900 mb-2 flex items-center gap-2">🇫🇮 {CRIMINAL_PROCEDURE_BILLS.finlandModel.title}</p>
+                                            <p className="text-base font-bold text-gray-700 mb-2">핀란드 실제 제도</p>
+                                            <div className="space-y-2 mb-3">
+                                                {CRIMINAL_PROCEDURE_BILLS.finlandModel.facts.map((f, i) => (
+                                                    <div key={i} className="bg-white/70 rounded-lg p-2.5 border border-cyan-200">
+                                                        <p className="text-base font-bold text-cyan-800">{f.label}</p>
+                                                        <p className="text-base text-gray-700 leading-relaxed">{f.text}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
+                                                <p className="text-base font-bold text-amber-700 mb-1">⚠️ 한국 두 법안과의 대조</p>
+                                                <p className="text-base text-amber-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.finlandModel.contrast}</p>
+                                            </div>
+                                            <p className="text-base font-bold text-gray-700 mb-2">💡 구체적 대안 (핀란드 벤치마킹)</p>
+                                            <ul className="space-y-1 mb-3">
+                                                {CRIMINAL_PROCEDURE_BILLS.finlandModel.alternative.map((a, i) => (
+                                                    <li key={i} className="text-base text-gray-800 bg-white/70 rounded-lg p-2 border border-cyan-100 leading-relaxed">{a}</li>
+                                                ))}
+                                            </ul>
+                                            <div className="bg-cyan-100 rounded-lg p-3 border border-cyan-300">
+                                                <p className="text-base font-bold text-cyan-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.finlandModel.conclusion}</p>
+                                            </div>
+                                            <div className="flex flex-wrap gap-1 mt-2">
+                                                {CRIMINAL_PROCEDURE_BILLS.finlandModel.sources.map((s, i) => (
+                                                    <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" className="text-sm px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded hover:bg-gray-200">{s.name}</a>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-gray-400 mt-2">출처: 국회 의안정보시스템 원문(의안 2219564 김용민·박은정, 2219875 김한규) 제안이유·조문 직접 분석 · 핀란드 국가검찰청/의회 옴부즈만 공식자료 · 평가는 주권자 사법개혁 관점</p>
                                     </div>
 
                                     {/* 섹션 B: 핵심 쟁점 분석 (주권자사법개혁추진준비위원회 기준) */}
