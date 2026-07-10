@@ -54,75 +54,58 @@ const setReformNewsCache = (data) => {
 };
 
 // 개혁안 비교 데이터
-// 형사소송법 일부개정법률안 3건 비교 (2026.6~7 발의) — 국회 의안정보시스템 원문 직접 분석
+// 형사소송법 검찰개혁 개정안 2건 심층 비교 (2026.6~7 발의) — 국회 의안정보시스템 원문(조문) 직접 분석
 const CRIMINAL_PROCEDURE_BILLS = {
-    note: "3건 모두 형사소송법 일부개정법률안이나, 서영교 의원안은 '재심청구권 확대'(과거사·인권침해)로 검찰개혁과는 별개 주제입니다. 실질적 검찰개혁(수사·기소 분리) 비교는 김용민·박은정 안 vs 김한규 안입니다.",
+    intro: '2026.10 「검찰청법」 폐지·공소청/중대범죄수사청 출범(수사·기소 분리)의 후속으로 형사소송법을 정비하는 검찰개혁 법안 2건. 두 안 모두 ① 검사의 직접수사와 직접 보완수사를 폐지하고 ② 수사 주체를 사법경찰관으로 일원화하되, ③ 공소청 검사의 「보완수사 요구권」·「재수사 요청권」은 유지·강화한다. 차이는 무엇을 얼마나 강하게 정비하느냐에 있다.',
     bills: [
         {
             name: '김용민·박은정 의원안',
-            billNo: '2219564',
-            proposers: '김용민·박은정 등 12인',
-            date: '2026.6.26 발의',
-            topic: '검찰개혁 (수사·기소 분리)',
-            stance: '급진·포괄형',
-            border: 'border-red-200', bg: 'bg-red-50', badge: 'bg-red-100 text-red-700',
-            purpose: '2026.10 검찰청법 폐지·공소청/중수청 출범에 맞춰 형사소송법을 전면 정비. 수사·기소 완전 분리.',
+            billNo: '2219564', proposers: '김용민·박은정 등 12인', date: '2026.6.26 발의',
+            stance: '포괄·인권통제형', border: 'border-red-200', bg: 'bg-red-50', badge: 'bg-red-100 text-red-700',
+            purpose: '형사소송법 전면 정비 + 인권보호·민주통제 기구를 대거 신설.',
             points: [
-                '검사 직접수사권 + 보완수사권 전면 폐지 — 수사 주체를 사법경찰관으로 일원화',
-                '공소청은 공소제기·공소유지에 전념 (검찰청→공소청 전면 용어 전환)',
-                '수사인권보호관 제도 신설 (수사 과정 인권보호)',
-                '공소심의회 신설 — 기소권 행사에 대한 민주적 통제',
-                '수사·기소 처리기한 명문화',
-                '영장·강제처분의 투명성·사법통제 확대 (전자정보 압수수색 참여·의견진술권, 조건부 석방 등)',
+                '검사 직접수사·직접 보완수사 폐지 — 검사는 사법경찰관에게 보완수사를 「요구」만 가능(제197조의2①1호)',
+                '보완수사 완료기간 3개월 원칙 / 불이행 시 공소청장이 수사관서장에게 직무배제·교체 요구',
+                '수사인권보호관 신설(제196조) — 개방형 직위, 인권침해·수사권 남용 민원 처리, 수사방식 변경·수사관 교체·징계 권고',
+                '공소심의회 신설(제246조의3) — 검사의 공소권 행사에 대한 민주적 통제',
+                '수사·기소 처리기한 명문화, 전자정보 압수수색 참여·의견진술권 등',
             ],
         },
         {
             name: '김한규 의원안',
-            billNo: '2219875',
-            proposers: '김한규 등 22인',
-            date: '2026.7.9 발의',
-            topic: '검찰개혁 (수사·기소 분리)',
-            stance: '온건·집중형',
-            border: 'border-orange-200', bg: 'bg-orange-50', badge: 'bg-orange-100 text-orange-700',
-            purpose: '수사·기소 분리 원칙에 맞춰 수사 관련 조항을 정비하되, 공소유지 실효성을 위한 보완조치를 둠.',
+            billNo: '2219875', proposers: '김한규 등 22인', date: '2026.7.9 발의',
+            stance: '이행강제·집중형', border: 'border-orange-200', bg: 'bg-orange-50', badge: 'bg-orange-100 text-orange-700',
+            purpose: '수사·기소 분리 원칙 구현 + 공소청의 수사 통제(이행강제)를 촘촘히 설계.',
             points: [
-                '검사 직접수사권 + 보완수사권 폐지 — 수사 주체를 사법경찰관으로 일원화',
-                '★ 보완조치로 검사의 「보완수사 요구권」 유지 — 공소청이 경찰에 보완수사를 요구 가능 (김용민·박은정 안과의 핵심 차이)',
-                '공소청은 공소제기·공소유지에 전념',
-                '수사인권보호관·공소심의회 등 부가 기구는 두지 않음 — 수사·기소 분리 원칙 구현에 집중',
-            ],
-        },
-        {
-            name: '서영교 의원안',
-            billNo: '2219858',
-            proposers: '서영교 등 10인',
-            date: '2026.7.9 발의',
-            topic: '재심청구권 확대 (검찰개혁과 별개)',
-            stance: '단일 조문',
-            border: 'border-slate-200', bg: 'bg-slate-50', badge: 'bg-slate-100 text-slate-700',
-            purpose: '헌재 2026.6.24 헌법불합치 결정 이행 — 과거사·인권침해 사건의 재심청구권자 확대.',
-            points: [
-                '헌재 2026.6.24 헌법불합치 결정(2021헌바145·284·290 병합) 반영',
-                '민간인 집단희생사건·중대인권침해사건은 재심청구권자를 4촌 이내 친족까지 확대 (현행: 배우자·직계친족·형제자매)',
-                '형사소송법 제424조제4호에 단서 신설 — 조작·은폐로 진상규명이 늦어져 적법 청구권자가 모두 사망한 경우에 대응',
-                '※ 수사·기소 분리(검찰개혁)와는 무관한 단일 조문 개정',
+                '검사 직접수사·직접 보완수사 폐지 — 수사 주체 사법경찰관 일원화',
+                '★ 보완수사 완료기간 1개월로 단축(제197조의2) — 김용민·박은정 안(3개월)보다 신속',
+                '★ 보완수사 수사관서 지정·변경권 신설 — 특정 수사관서의 적정 이행이 어려운 사정이 있으면 검사가 관서를 지정·변경',
+                '★ 재수사요청 강화(제245조의8) — 요청기간 90일 명문화(새 증거·허위/위조 정황 시 제한 없음), 고소인 통지의무, 재수사 기간 3개월, "다시 재수사 요청" 규정 신설',
+                '보완수사·재수사 불이행 시 직무배제·교체·징계 요구 / 수사인권보호관·공소심의회 등 부가 기구는 두지 않음',
             ],
         },
     ],
-    table: {
-        headers: ['쟁점', '김용민·박은정', '김한규', '서영교'],
-        rows: [
-            ['주제', '검찰개혁(수사·기소 분리)', '검찰개혁(수사·기소 분리)', '재심청구권 확대(별개)'],
-            ['검사 직접수사권', '전면 폐지', '폐지', '—'],
-            ['검사 보완수사권', '전면 폐지', '폐지(단, 「보완수사 요구권」 유지)', '—'],
-            ['수사 주체', '사법경찰관 일원화', '사법경찰관 일원화', '—'],
-            ['수사인권보호관', '신설', '없음', '—'],
-            ['공소심의회', '신설', '없음', '—'],
-            ['처리기한 명문화', '있음', '없음', '—'],
-            ['핵심 성격', '급진·포괄적 통제·인권장치', '온건·수사기소분리 집중', '헌재 결정 이행'],
-        ],
-    },
-    assessment: '김용민·박은정 안과 김한규 안은 모두 검사의 직접·보완수사권을 폐지하고 수사 주체를 사법경찰관으로 일원화한다는 점에서 방향이 같다. 핵심 차이는 ① 김한규 안이 검사의 「보완수사 요구권」을 보완조치로 남겨 공소유지의 실효성을 확보한 반면 김용민·박은정 안은 보완수사권을 전면 폐지했고, ② 김용민·박은정 안이 수사인권보호관·공소심의회·처리기한 명문화 등 인권보호·민주적 통제 장치를 대거 신설한 반면 김한규 안은 수사·기소 분리 원칙 구현에 집중했다는 점이다. 서영교 안은 검찰개혁이 아니라 헌재 헌법불합치 결정 이행(재심청구권 확대) 법안으로 성격이 다르다.',
+    articles: [
+        { article: '검사 직접수사·직접 보완수사', law: '제196조 등', kimpark: '폐지 — 송치사건도 검사는 직접 보완수사 불가, 사법경찰관에 「요구」만 가능', hankyu: '폐지 — 수사 주체를 사법경찰관으로 일원화' },
+        { article: '보완수사 요구·이행강제', law: '제197조의2', kimpark: '대상·방법·절차·시기 문서 명시 요구·이행관리 / 3개월 원칙 / 불이행 시 직무배제·교체 요구', hankyu: '★ 1개월로 단축 + ★ 수사관서 지정·변경권 / 불이행 시 직무배제·교체·징계 요구' },
+        { article: '불송치 재수사 요청', law: '제245조의8', kimpark: '재수사 요청·기간 규정 정비', hankyu: '★ 90일 명문화(예외 무제한) + 고소인 통지의무 + 재수사 3개월 + "다시 요청" 신설 + 불이행 제재' },
+        { article: '인권보호·민주통제 기구', law: '제196조·제246조의3', kimpark: '★ 수사인권보호관 + ★ 공소심의회 신설', hankyu: '두지 않음 (수사·기소 분리 원칙 구현에 집중)' },
+    ],
+    debates: [
+        { title: '공소청의 경찰 직무배제·징계요구권', pro: '부실수사 방지·공소유지 실효성 확보(수사지휘 없이도 최소한의 통제)', con: '사실상 수사지휘 부활·"제2의 검찰"화 우려, 경찰 수사 독립성 침해' },
+        { title: '보완수사 1개월(김한규) vs 3개월(김용민·박은정)', pro: '1개월=신속한 사건처리 / 3개월=복잡사건 충실수사', con: '1개월=복잡사건 부실 우려 / 3개월=사건 지연·미제 누적' },
+        { title: '수사인권보호관·공소심의회(김용민·박은정)', pro: '수사 인권보호·기소권 민주통제 강화', con: '기구 남설(옥상옥)·기소 지연, 실효성 의문' },
+        { title: '수사관서 지정·변경권(김한규)', pro: '부실·편파 수사관서 우회로 공정성 확보', con: '검사의 "사건 몰아주기"·수사 관할 자의적 변경 우려' },
+        { title: '검사 직접수사 전면 폐지', pro: '수사·기소 분리로 검찰권 남용 차단', con: '경제·부패 등 전문수사 공백(→중수청 이관)·과도기 혼란' },
+    ],
+    international: [
+        { flag: '🇬🇧', country: '영국(잉글랜드·웨일스)', model: 'CPS(왕립검찰청) 기소 전담·경찰 수사, 검사 수사지휘 없음. 조기수사자문(Early Advice)으로 공소유지 협력', tag: '두 개정안의 공소청 모델과 가장 유사' },
+        { flag: '🇺🇸', country: '미국', model: '검사가 경찰 수사 지휘·대배심 기소(주별 상이). 수사·기소 밀접', tag: '한국 개정안과 반대 방향' },
+        { flag: '🇩🇪', country: '독일', model: '검사가 "수사의 주재자(Herrin des Verfahrens)", 경찰은 보조. 수사·기소 통합 지휘', tag: '분리보다 통합형' },
+        { flag: '🇫🇮', country: '핀란드', model: '수사(경찰)·기소(검사) 분리, 검사는 중요사건 수사 협력·법률자문', tag: '완전 분리 + 협력 (핀란드식 사법개혁안 탭 참조)' },
+    ],
+    sovereign: '주권자사법개혁추진준비위원회 안은 「독립기소청법·수사기관독립법·시민사법참여법·사법감시이중안전법」의 4법 체계로 공소청을 법무부에서 독립시키고 기소심사위원회·시민감사 등 시민통제를 제도화하는 데 초점이 있다. 반면 형사소송법 개정 2건(김용민·박은정/김한규)은 형사절차 내에서 수사·기소 분리를 구현하는 데 집중한다. 즉 층위가 다르며(주권자위 안=공소청 조직 독립·시민통제 / 형소법 개정=형사절차 정비), 두 접근은 상호 보완될 수 있다.',
+    assessment: '두 개정안은 검사의 직접수사·직접 보완수사를 폐지하고 수사 주체를 사법경찰관으로 일원화하되, 공소청 검사의 보완수사 요구권·재수사 요청권을 유지·강화한다는 큰 틀이 동일하다. 차이는 강조점이다. 김용민·박은정 안은 수사인권보호관·공소심의회 등 인권보호·민주통제 기구를 대거 신설한 "포괄형"이고, 김한규 안은 보완수사 1개월 단축·수사관서 지정변경권·재수사요청 강화 등 공소청의 실질적 이행강제 수단을 촘촘히 설계한 "이행강제형"이다. 공통 쟁점은 "수사지휘 없는 통제"의 경계 — 직무배제·징계요구권이 자칫 수사지휘의 부활로 비칠 수 있다는 점이다.',
 };
 
 const reformData = [
@@ -1575,15 +1558,16 @@ export default function ReformAnalysis() {
                                         </div>
                                     </div>
 
-                                    {/* 섹션 A-2: 형사소송법 개정안 3건 비교 (2026.6~7 발의, 원문 분석) */}
+                                    {/* 섹션 A-2: 형사소송법 검찰개혁 개정안 2건 심층 비교 (조문·논쟁점·해외사례·주권자위) */}
                                     <div>
                                         <h3 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-                                            <span>📑</span> 형사소송법 개정안 3건 비교 <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-sm rounded-full font-medium">2026.6~7 발의 · 국회 원문 분석</span>
+                                            <span>📑</span> 형사소송법 검찰개혁 개정안 2건 심층 비교 <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-sm rounded-full font-medium">2026.6~7 발의 · 국회 원문(조문) 분석</span>
                                         </h3>
-                                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
-                                            <p className="text-base text-amber-800">{CRIMINAL_PROCEDURE_BILLS.note}</p>
+                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                                            <p className="text-base text-blue-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.intro}</p>
                                         </div>
-                                        <div className="grid md:grid-cols-3 gap-4 mb-6">
+                                        {/* 2개 법안 카드 */}
+                                        <div className="grid md:grid-cols-2 gap-4 mb-6">
                                             {CRIMINAL_PROCEDURE_BILLS.bills.map((b, i) => (
                                                 <div key={i} className={`bg-white border-2 ${b.border} rounded-xl overflow-hidden shadow-sm`}>
                                                     <div className={`${b.bg} px-4 py-3 border-b`}>
@@ -1592,10 +1576,9 @@ export default function ReformAnalysis() {
                                                             <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${b.badge}`}>{b.stance}</span>
                                                         </div>
                                                         <p className="text-xs text-gray-500">의안 {b.billNo} · {b.proposers} · {b.date}</p>
-                                                        <p className="text-base font-semibold text-gray-600 mt-1">{b.topic}</p>
+                                                        <p className="text-base font-semibold text-gray-600 mt-1">{b.purpose}</p>
                                                     </div>
-                                                    <div className="px-4 py-3 space-y-2">
-                                                        <p className="text-base text-gray-600">{b.purpose}</p>
+                                                    <div className="px-4 py-3">
                                                         <ul className="space-y-1">
                                                             {b.points.map((p, j) => (
                                                                 <li key={j} className="text-base text-gray-700 flex items-start gap-1"><span className="text-gray-400 shrink-0">•</span>{p}</li>
@@ -1605,31 +1588,63 @@ export default function ReformAnalysis() {
                                                 </div>
                                             ))}
                                         </div>
-                                        <div className="overflow-x-auto mb-4">
-                                            <table className="w-full min-w-[640px] text-base border border-gray-200 rounded-lg overflow-hidden">
+                                        {/* 조문별 비교표 */}
+                                        <p className="text-base font-bold text-gray-700 mb-2">📜 조문별 비교</p>
+                                        <div className="overflow-x-auto mb-6">
+                                            <table className="w-full min-w-[720px] text-base border border-gray-200 rounded-lg overflow-hidden">
                                                 <thead>
                                                     <tr className="bg-gray-100">
-                                                        {CRIMINAL_PROCEDURE_BILLS.table.headers.map((h, i) => (
-                                                            <th key={i} className={`px-3 py-2 text-left font-bold text-gray-700 ${i === 0 ? '' : 'border-l border-gray-200'}`}>{h}</th>
-                                                        ))}
+                                                        <th className="px-3 py-2 text-left font-bold text-gray-700">쟁점 (조문)</th>
+                                                        <th className="px-3 py-2 text-left font-bold text-red-700 border-l border-gray-200">김용민·박은정</th>
+                                                        <th className="px-3 py-2 text-left font-bold text-orange-700 border-l border-gray-200">김한규</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {CRIMINAL_PROCEDURE_BILLS.table.rows.map((row, i) => (
+                                                    {CRIMINAL_PROCEDURE_BILLS.articles.map((a, i) => (
                                                         <tr key={i} className={i % 2 ? 'bg-gray-50' : 'bg-white'}>
-                                                            {row.map((cell, j) => (
-                                                                <td key={j} className={`px-3 py-2 align-top ${j === 0 ? 'font-semibold text-gray-700' : 'text-gray-600 border-l border-gray-200'}`}>{cell}</td>
-                                                            ))}
+                                                            <td className="px-3 py-2 align-top font-semibold text-gray-700">{a.article}<span className="block text-xs font-normal text-gray-400">{a.law}</span></td>
+                                                            <td className="px-3 py-2 align-top text-gray-600 border-l border-gray-200">{a.kimpark}</td>
+                                                            <td className="px-3 py-2 align-top text-gray-600 border-l border-gray-200">{a.hankyu}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
                                             </table>
                                         </div>
+                                        {/* 논쟁점 (찬반) */}
+                                        <p className="text-base font-bold text-gray-700 mb-2">⚖️ 주요 논쟁점 (찬반)</p>
+                                        <div className="space-y-2 mb-6">
+                                            {CRIMINAL_PROCEDURE_BILLS.debates.map((d, i) => (
+                                                <div key={i} className="border border-gray-200 rounded-lg overflow-hidden">
+                                                    <p className="bg-gray-100 px-3 py-1.5 text-base font-semibold text-gray-800">{d.title}</p>
+                                                    <div className="grid md:grid-cols-2">
+                                                        <p className="px-3 py-2 text-base text-green-800 bg-green-50 md:border-r border-gray-200"><span className="font-bold">찬성 </span>{d.pro}</p>
+                                                        <p className="px-3 py-2 text-base text-red-800 bg-red-50"><span className="font-bold">우려 </span>{d.con}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {/* 해외사례 */}
+                                        <p className="text-base font-bold text-gray-700 mb-2">🌍 해외 사례 비교</p>
+                                        <div className="grid sm:grid-cols-2 gap-3 mb-6">
+                                            {CRIMINAL_PROCEDURE_BILLS.international.map((c, i) => (
+                                                <div key={i} className="bg-white border border-gray-200 rounded-lg p-3">
+                                                    <p className="text-base font-bold text-gray-800">{c.flag} {c.country}</p>
+                                                    <p className="text-base text-gray-600 mt-0.5">{c.model}</p>
+                                                    <p className="text-sm text-blue-600 mt-1">→ {c.tag}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {/* 주권자위 비교 */}
+                                        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+                                            <p className="text-base font-bold text-green-700 mb-1">🏛️ 주권자사법개혁추진준비위원회 개정안과의 관계</p>
+                                            <p className="text-base text-green-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.sovereign}</p>
+                                        </div>
+                                        {/* 종합 */}
                                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                                             <p className="text-base font-bold text-blue-700 mb-1">🧭 종합 분석</p>
                                             <p className="text-base text-blue-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.assessment}</p>
                                         </div>
-                                        <p className="text-xs text-gray-400 mt-2">출처: 국회 의안정보시스템 원문(의안 2219564·2219875·2219858) 직접 분석 · 각 법안 제안이유 및 주요내용</p>
+                                        <p className="text-xs text-gray-400 mt-2">출처: 국회 의안정보시스템 원문(의안 2219564 김용민·박은정, 2219875 김한규) 제안이유·조문 직접 분석</p>
                                     </div>
 
                                     {/* 섹션 B: 핵심 쟁점 분석 (주권자사법개혁추진준비위원회 기준) */}
