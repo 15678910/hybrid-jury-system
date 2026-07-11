@@ -62,7 +62,7 @@ const CRIMINAL_PROCEDURE_BILLS = {
             name: '김용민·박은정 의원안',
             billNo: '2219564', proposers: '김용민(민주당)·박은정(조국혁신당) 등 12인 · 개혁파 공동발의', date: '2026.6.26 발의',
             stance: '포괄·인권통제형', border: 'border-red-200', bg: 'bg-red-50', badge: 'bg-red-100 text-red-700',
-            purpose: '형사소송법 전면 정비 + 인권보호·민주통제 기구를 신설.',
+            purpose: '형사소송법 전면 정비 + 인권보호·민주통제 기구 신설.',
             points: [
                 '검사 직접수사·직접 보완수사 폐지 — 검사는 사법경찰관에게 보완수사를 「요구」만 가능(제197조의2①1호)',
                 '보완수사 완료기간 3개월 원칙 / 불이행 시 공소청장이 수사관서장에게 직무배제·교체 요구',
@@ -78,7 +78,7 @@ const CRIMINAL_PROCEDURE_BILLS = {
             name: '더불어민주당 형사소송법 개정안',
             billNo: '2219875', proposers: '김한규 의원 대표발의 · 김한규 등 22인 (민주당 검찰개혁 TF)', date: '2026.7.9 발의',
             stance: '이행강제·집중형 (민주당 당론성)', border: 'border-orange-200', bg: 'bg-orange-50', badge: 'bg-orange-100 text-orange-700',
-            purpose: '더불어민주당 검찰개혁 TF가 발의한 당론성 법안. 수사·기소 분리 원칙 구현 + 공소청의 수사 통제(이행강제)를 설계.',
+            purpose: '더불어민주당 검찰개혁 TF가 발의한 당론성 법안. 수사·기소 분리 원칙 구현 + 공소청의 수사 통제(이행강제) 설계.',
             points: [
                 '검사 직접수사·직접 보완수사 폐지 — 수사 주체 사법경찰관 일원화',
                 '★ 보완수사 완료기간 1개월로 단축(제197조의2) — 김용민·박은정 안(3개월)보다 신속',
@@ -1724,7 +1724,7 @@ export default function ReformAnalysis() {
                                                 <tbody>
                                                     {CRIMINAL_PROCEDURE_BILLS.articles.map((a, i) => (
                                                         <tr key={i} className={i % 2 ? 'bg-gray-50' : 'bg-white'}>
-                                                            <td className="px-3 py-2 align-top font-semibold text-gray-700"><span title={`📜 관련 조문: ${a.law}`} className="cursor-help border-b border-dotted border-gray-400">{a.article}</span></td>
+                                                            <td className="px-3 py-2 align-top font-semibold text-gray-700"><span className="relative group inline-block cursor-help border-b border-dotted border-gray-400">{a.article}{a.law && a.law !== '—' && (<span className="pointer-events-none absolute left-0 top-full mt-1 z-30 hidden group-hover:block whitespace-nowrap rounded-md bg-gray-800 px-2.5 py-1.5 text-xs font-normal text-white shadow-lg">📜 관련 조문: {a.law}</span>)}</span></td>
                                                             <td className="px-3 py-2 align-top text-gray-600 border-l border-gray-200">{a.kimparkArt && <span className="inline-block text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded px-1.5 py-0.5 mb-1">📌 {a.kimparkArt}</span>}<span className="block">{a.kimpark}</span></td>
                                                             <td className="px-3 py-2 align-top text-gray-600 border-l border-gray-200">{a.hankyuArt && <span className="inline-block text-xs font-bold text-orange-600 bg-orange-50 border border-orange-200 rounded px-1.5 py-0.5 mb-1">📌 {a.hankyuArt}</span>}<span className="block">{a.hankyu}</span></td>
                                                         </tr>
