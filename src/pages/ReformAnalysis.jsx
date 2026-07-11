@@ -221,6 +221,30 @@ const CRIMINAL_PROCEDURE_BILLS = {
         plus: '여기에 ① 검사의 보완수사 요구권·재수사 요청권(개정안 유지)으로 개별 사건의 부실을 거르고 ② 형법 친족특례를 개정해 공무원의 직무상 은폐를 처벌하면, 장윤기식 은폐는 여러 겹에서 걸러진다.',
         conclusion: '핵심은 「한 기관(검찰)의 힘」이 아니라 「서로 견제하는 여러 겹의 독립 장치 + 주권자 시민의 상시 감시」다. 이것이 헌법 제1조(주권재민)에 부합하는 장윤기 사건의 진짜 해법이다.',
     },
+
+    // 🤝 주권자 협업·상호견제 모델 (수직 이행강제 → 수평 협업 + 입법부 산하 독립기구 문제제기)
+    collabModel: {
+        title: '주권자 협업·상호견제 모델 — 수직 이행강제를 넘어',
+        intro: '김한규 TF안의 「검사 이행강제(수사관서 지정·직무배제·징계 요구)」는 검사가 경찰을 내리누르는 수직 통제다. 헌법 제1조가 요구하는 권력 분산·상호 견제에 어긋난다. 대안은 「수직 지휘」가 아니라 대등한 협력 + 입법부 산하 독립기구로의 「문제제기」다 — 어느 기관도 상대를 직접 강제하지 않고, 감시 대상 밖의 독립기구가 판단한다.',
+        contrast: [
+            { axis: '관계', vertical: '검사(공소청) → 경찰 수직 지휘·강제', horizontal: '공소청 ↔ 수사기관 대등 협력' },
+            { axis: '수사 부실 통제', vertical: '검사가 직무배제·교체·징계 요구(이행강제)', horizontal: '보완수사는 「요구」만(강제 없음) → 불이행 시 독립기구에 문제제기' },
+            { axis: '사건 배당', vertical: '검사가 수사관서 지정·변경', horizontal: '수사기관이 자율 배당(검사 개입 없음)' },
+            { axis: '불기소·봐주기 통제', vertical: '장치 없음 — 검사 견제 공백', horizontal: '★ 수사기관(중수청·경찰)이 독립기구에 문제제기' },
+            { axis: '수사 인권침해 구제', vertical: '수사기관 내부 수사인권보호관(집안 감싸기 우려)', horizontal: '★ 피해자·피의자 등 시민이 입법부 산하 독립기구에 직접 이의제기' },
+            { axis: '판단 주체', vertical: '검사(당사자)', horizontal: '법률감찰단·시민옴부즈만(감시 대상 밖·입법부)' },
+        ],
+        circuits: [
+            { n: 'ⓐ', trigger: '수사 부실·오남용', who: '공소청(기소기관)', to: '→ 법률감찰단·시민옴부즈만에 문제제기', color: 'blue' },
+            { n: 'ⓑ', trigger: '불기소·봐주기(기소 오남용)', who: '수사기관(중수청·경찰)', to: '→ 법률감찰단·시민옴부즈만에 문제제기', color: 'green' },
+            { n: 'ⓒ', trigger: '수사·기소 과정 인권침해', who: '피해자·피의자 등 시민(직접)', to: '→ 법률감찰단·시민옴부즈만에 직접 이의제기', color: 'purple' },
+        ],
+        whyLegislature: '감시·이의제기 기구가 감시 대상(수사·기소기관, 행정부) 산하에 있으면 「집안 감싸기」가 된다. 김용민·박은정 안의 수사인권보호관은 「각 수사기관 내부」 직위라 이 한계가 남고, 공소심의회도 기소기관 계열이다. 통제의 방아쇠를 기관이 아니라 「주권자(시민)」가 당기고, 판단은 감시 대상 밖 「입법부 산하 법률감찰단·시민옴부즈만」이 하도록 해야 소속=독립성이 보장된다.',
+        effect: '독립기구가 이의를 인용하면 시정요구 + 재수사·재기소 권고 + 징계·수사 개시 요구까지. 남소 방지를 위해 위법·인권침해 소명 요건·선별 절차를 둔다. 재정신청(법원)=「불기소 당부」, 이의제기(독립 감찰)=「적법성·인권」으로 역할을 구분해 병행한다.',
+        conclusion: '이 모델은 김한규 TF안(수직 이행강제)은 물론, 김용민·박은정 안(내부 통제기구)보다도 헌법 제1조·핀란드 협력구조에 더 부합한다. 핵심 진전은 ① 검사의 수직 강제를 제거하고 ② 불기소까지 견제 대상에 넣어 견제를 「쌍방」으로 만들며 ③ 인권 구제의 방아쇠를 「시민」에게 주고 판단을 「입법부 산하 독립기구」에 맡긴 것이다.',
+        note: '※ 주권자사법개혁추진준비위원회 제안 모델 (핀란드 「협력 + 의회 선출 옴부즈만」 + 사법감시이중안전법 응용).',
+    },
+
     assessment: '두 개정안은 검사의 직접수사·직접 보완수사를 폐지하고 수사 주체를 사법경찰관으로 일원화하되, 공소청 검사의 보완수사 요구권·재수사 요청권을 유지·강화한다는 큰 틀이 동일하다. 차이는 강조점이다. 김용민·박은정 의원안은 수사인권보호관·공소심의회 등 인권보호·민주통제 기구를 대거 신설한 "포괄형"이고, 더불어민주당 검찰개혁 TF안은 보완수사 1개월 단축·수사관서 지정변경권·재수사요청 강화 등 공소청의 실질적 이행강제 수단을 촘촘히 설계한 "이행강제형"이다. 공통 쟁점은 "수사지휘 없는 통제"의 경계 — 직무배제·징계요구권이 자칫 수사지휘의 부활로 비칠 수 있다는 점이다.',
 };
 
@@ -1923,6 +1947,55 @@ export default function ReformAnalysis() {
                                             <div className="bg-emerald-100 rounded-lg p-3 border border-emerald-300">
                                                 <p className="text-base font-bold text-emerald-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.multiLayer.conclusion}</p>
                                             </div>
+                                        </div>
+
+                                        {/* 🤝 주권자 협업·상호견제 모델 */}
+                                        <div className="bg-gradient-to-br from-indigo-50 to-violet-50 border-2 border-indigo-300 rounded-xl p-4 mt-4">
+                                            <p className="text-lg font-bold text-indigo-900 mb-1 flex items-center gap-2">🤝 {CRIMINAL_PROCEDURE_BILLS.collabModel.title}</p>
+                                            <p className="text-base text-indigo-900 leading-relaxed mb-3">{CRIMINAL_PROCEDURE_BILLS.collabModel.intro}</p>
+                                            <div className="overflow-x-auto rounded-lg border border-indigo-200 mb-3 bg-white">
+                                                <table className="w-full min-w-[640px] text-sm">
+                                                    <thead>
+                                                        <tr className="bg-gray-100">
+                                                            <th className="px-3 py-2 text-left font-bold text-gray-600 w-[16%]">비교</th>
+                                                            <th className="px-3 py-2 text-left font-bold text-red-700 w-[42%]">🔺 수직 이행강제 (김한규 TF안)</th>
+                                                            <th className="px-3 py-2 text-left font-bold text-indigo-700 w-[42%]">🔵 수평 협업·문제제기 (주권자 모델)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {CRIMINAL_PROCEDURE_BILLS.collabModel.contrast.map((c, i) => (
+                                                            <tr key={i} className="border-t border-gray-100 align-top">
+                                                                <td className="px-3 py-2 font-semibold text-gray-700">{c.axis}</td>
+                                                                <td className="px-3 py-2 text-red-700">{c.vertical}</td>
+                                                                <td className="px-3 py-2 text-indigo-800">{c.horizontal}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <p className="text-base font-bold text-indigo-900 mb-2">🔁 오남용은 「입법부 산하 독립기구로의 문제제기」로 — 3개 회로</p>
+                                            <div className="grid md:grid-cols-3 gap-3 mb-3">
+                                                {CRIMINAL_PROCEDURE_BILLS.collabModel.circuits.map((c, i) => {
+                                                    const cmap = { blue: 'bg-blue-50 border-blue-200', green: 'bg-green-50 border-green-200', purple: 'bg-purple-50 border-purple-200' }[c.color] || 'bg-gray-50 border-gray-200';
+                                                    return (
+                                                        <div key={i} className={`rounded-lg p-3 border ${cmap}`}>
+                                                            <p className="text-base font-bold text-gray-800 mb-1">{c.n} {c.trigger}</p>
+                                                            <p className="text-sm font-semibold text-gray-700">{c.who}</p>
+                                                            <p className="text-sm font-semibold text-indigo-700">{c.to}</p>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                            <div className="bg-amber-100 rounded-lg p-3 border border-amber-300 mb-2">
+                                                <p className="text-base font-bold text-amber-900 leading-relaxed">🏛️ 왜 입법부 산하인가 — {CRIMINAL_PROCEDURE_BILLS.collabModel.whyLegislature}</p>
+                                            </div>
+                                            <div className="bg-white/70 rounded-lg p-3 border border-indigo-200 mb-2">
+                                                <p className="text-base text-gray-700 leading-relaxed"><span className="font-bold">⚖️ 이의 인용의 효력: </span>{CRIMINAL_PROCEDURE_BILLS.collabModel.effect}</p>
+                                            </div>
+                                            <div className="bg-indigo-100 rounded-lg p-3 border border-indigo-300 mb-2">
+                                                <p className="text-base font-bold text-indigo-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.collabModel.conclusion}</p>
+                                            </div>
+                                            <p className="text-xs text-gray-500">{CRIMINAL_PROCEDURE_BILLS.collabModel.note}</p>
                                         </div>
                                         <p className="text-xs text-gray-400 mt-2">출처: 국회 의안정보시스템 원문(의안 2219564 김용민·박은정 등 12인, 2219875 더불어민주당 김한규 등 22인) 제안이유·조문 직접 분석 · 경향·아주경제·한국일보(민주당 발의) · 핀란드 국가검찰청/의회 옴부즈만 공식자료 · 장윤기 사건 언론 교차확인 · 평가·반론은 주권자 사법개혁 관점</p>
                                     </div>
