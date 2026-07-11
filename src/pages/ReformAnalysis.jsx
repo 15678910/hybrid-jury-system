@@ -108,7 +108,7 @@ const CRIMINAL_PROCEDURE_BILLS = {
         note: '두 법안 원문(국회 의안정보시스템)의 신·구조문대비표를 주요 조문 중심으로 요지 정리한 것. 정확한 자구는 각 법안 원문(의안 2219564·2219875) 참조.',
         categories: [
             {
-                name: '김용민·박은정 안', billNo: '의안 2219564', color: 'red',
+                name: '김용민·박은정 의원안', billNo: '의안 2219564', color: 'red',
                 rows: [
                     { art: '제196조 (검사의 수사)', current: '① 검사는 범죄 혐의가 있으면 범인·범죄사실·증거를 수사한다 ② 송치받은 사건도 동일성 범위 내 수사 가능 (검사 직접수사 근거)', revised: '제목을 「수사인권보호관」으로 변경. 검사 직접수사 조항 삭제 → 각 수사기관에 수사인권보호관 신설(직무상 독립, 인권침해·수사권 남용 감시·시정요구, 개방형 직위)' },
                     { art: '제197조의2 (보완수사)', current: '검사는 사법경찰관에게 보완수사를 요구할 수 있고, 정당한 이유 없이 불이행 시 직무배제·징계 요구', revised: '검사 직접 보완수사 폐지(「요구」만 가능). 대상·방법·절차·시기 문서 명시·이행관리 / 3개월 원칙 / 불이행 시 직무배제·교체 요구' },
@@ -118,7 +118,7 @@ const CRIMINAL_PROCEDURE_BILLS = {
                 ],
             },
             {
-                name: '민주당(김한규) 안', billNo: '의안 2219875', color: 'orange',
+                name: '더불어민주당 검찰개혁 TF(김한규 외 22인)안', billNo: '의안 2219875', color: 'orange',
                 rows: [
                     { art: '제196조 (검사의 수사)', current: '① 검사는 범죄 혐의가 있으면 범인·범죄사실·증거를 수사한다 ② 송치받은 사건도 동일성 범위 내 수사 가능 (검사 직접수사 근거)', revised: '검사 직접수사 조항 삭제 → 수사 주체를 사법경찰관으로 일원화 (수사인권보호관은 두지 않음)' },
                     { art: '제197조의2 (보완수사)', current: '검사는 사법경찰관에게 보완수사를 요구할 수 있고, 정당한 이유 없이 불이행 시 직무배제·징계 요구', revised: '★ 보완수사 완료기간 1개월로 단축 + ★ 수사관서 지정·변경권 신설 / 불이행 시 직무배제·교체·징계 요구' },
@@ -1717,14 +1717,14 @@ export default function ReformAnalysis() {
                                                 <thead>
                                                     <tr className="bg-gray-100">
                                                         <th className="px-3 py-2 text-left font-bold text-gray-700">쟁점 (조문)</th>
-                                                        <th className="px-3 py-2 text-left font-bold text-red-700 border-l border-gray-200">김용민·박은정</th>
-                                                        <th className="px-3 py-2 text-left font-bold text-orange-700 border-l border-gray-200">민주당(김한규)</th>
+                                                        <th className="px-3 py-2 text-left font-bold text-red-700 border-l border-gray-200">김용민·박은정 의원안</th>
+                                                        <th className="px-3 py-2 text-left font-bold text-orange-700 border-l border-gray-200">더불어민주당 검찰개혁 TF(김한규 외 22인)안</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {CRIMINAL_PROCEDURE_BILLS.articles.map((a, i) => (
                                                         <tr key={i} className={i % 2 ? 'bg-gray-50' : 'bg-white'}>
-                                                            <td className="px-3 py-2 align-top font-semibold text-gray-700">{a.article}<span className="block text-xs font-normal text-gray-400">{a.law}</span></td>
+                                                            <td className="px-3 py-2 align-top font-semibold text-gray-700"><span title={`📜 관련 조문: ${a.law}`} className="cursor-help border-b border-dotted border-gray-400">{a.article}</span></td>
                                                             <td className="px-3 py-2 align-top text-gray-600 border-l border-gray-200">{a.kimparkArt && <span className="inline-block text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded px-1.5 py-0.5 mb-1">📌 {a.kimparkArt}</span>}<span className="block">{a.kimpark}</span></td>
                                                             <td className="px-3 py-2 align-top text-gray-600 border-l border-gray-200">{a.hankyuArt && <span className="inline-block text-xs font-bold text-orange-600 bg-orange-50 border border-orange-200 rounded px-1.5 py-0.5 mb-1">📌 {a.hankyuArt}</span>}<span className="block">{a.hankyu}</span></td>
                                                         </tr>
