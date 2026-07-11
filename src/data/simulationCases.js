@@ -695,24 +695,25 @@ export const SIMULATION_CASES = [
     name: '김태효',
     position: '전 국가안보실 제1차장',
     photo: '/김태효.png',
-    status: '불구속',
-    statusColor: 'green',
+    status: '구속',
+    statusColor: 'red',
     charges: [
       {
         id: 1,
-        name: '내란 공모 의혹',
-        law: '형법 제87조',
-        description: '내란특검 수사 중',
-        prosecutionRequest: '수사 중',
-        actualVerdict: '수사 중',
+        name: '내란중요임무종사·직권남용',
+        law: '형법 제87조·제123조',
+        description: '계엄 정당화 대미 메시지 전파 의혹 — 종합특검 수사',
+        prosecutionRequest: '구속영장 발부 (2026.7.10)',
+        actualVerdict: '구속 (수사 중)',
         sentencingRange: { min: '징역 5년', max: '무기징역' },
       },
     ],
     keyFacts: [
+      '2026.7.10 구속 (서울중앙지법 내란 전담 영장부, "증거인멸 염려")',
       '계엄 직후 휴대전화 3회 교체, 증거인멸 의혹',
       '출국금지 조치 상태',
     ],
-    summary: { prosecutionTotal: '수사 중', verdictTotal: '수사 중' },
+    summary: { prosecutionTotal: '구속영장 발부', verdictTotal: '구속 (수사 중)' },
   },
 ];
 

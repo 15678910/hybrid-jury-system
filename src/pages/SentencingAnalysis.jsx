@@ -1884,9 +1884,9 @@ const personsData = {
         id: 'kimtaehyo',
         name: '김태효',
         position: '전 국가안보실 제1차장',
-        status: '구속영장 청구',
-        statusColor: 'amber',
-        court: '서울중앙지방법원 (구속 전 피의자심문 대기)',
+        status: '구속',
+        statusColor: 'red',
+        court: '서울중앙지방법원 내란 전담 영장부 (2026.7.10 구속)',
         charges: [
             {
                 id: 1,
@@ -1894,8 +1894,8 @@ const personsData = {
                 law: '형법 제87조',
                 description: '12·3 비상계엄 직후 외무 공무원을 통해 미국 등 우방국에 계엄 정당화 메시지를 전달한 혐의',
                 prosecutionRequest: '구속영장 청구 (2026.7.7, 종합특검)',
-                verdict: '영장심사 대기',
-                reason: '-'
+                verdict: '구속영장 발부 (2026.7.10)',
+                reason: '증거인멸 염려'
             },
             {
                 id: 2,
@@ -1903,16 +1903,17 @@ const personsData = {
                 law: '형법 제123조',
                 description: '국가안보실 직원에게 "대통령 지시"라며 대미(對美) 계엄 정당화 메시지를 받아적게 한 혐의',
                 prosecutionRequest: '구속영장 청구 (2026.7.7, 종합특검)',
-                verdict: '영장심사 대기',
-                reason: '-'
+                verdict: '구속영장 발부 (2026.7.10)',
+                reason: '증거인멸 염려'
             }
         ],
         summary: {
-            prosecutionTotal: '구속영장 청구',
-            verdictTotal: '영장심사 대기',
+            prosecutionTotal: '구속영장 발부',
+            verdictTotal: '구속 (2026.7.10)',
             ratio: '-'
         },
         keyFacts: [
+            '2026.7.10 서울중앙지법 내란 전담 영장부(부동식 부장판사) 구속영장 발부 — "증거인멸 염려"',
             '2차 종합특검(특별검사 권창영)이 2026.7.7 구속영장 청구 — 내란중요임무종사·직권남용권리행사방해',
             '12·3 계엄 직후 필립 골드버그 당시 주한미국대사에게 계엄 정당성을 설득했다는 의혹',
             '외무 공무원을 통해 미국 등 우방국에 "자유민주주의 수호를 위한 조치"라는 취지의 계엄 정당화 메시지를 전파했다는 혐의',
@@ -1920,8 +1921,11 @@ const personsData = {
             '2022년 군사기밀 유출 유죄 후 대통령 사면',
             '※ 같은 혐의로 입건된 신원식 전 국가안보실장은 가담 정도가 상대적으로 가볍다고 보고 영장 미청구'
         ],
-        trialStatus: '2차 종합특검(권창영) 구속영장 청구 (2026.7.7) — 구속 전 피의자심문(영장실질심사) 대기',
+        trialStatus: '2026.7.10 구속 (서울중앙지법 내란 전담 영장부, "증거인멸 염려") — 2차 종합특검(권창영) 7.7 청구',
         sources: [
+            { label: '서울신문', title: "'계엄 정당화 메시지 전파 혐의' 김태효 구속…'증거인멸 염려'", url: 'https://www.seoul.co.kr/news/society/2026/07/10/20260710500260', date: '2026.7.10' },
+            { label: '법률신문', title: "종합특검, '계엄 정당화 메시지' 김태효 구속", url: 'https://www.lawtimes.co.kr/news/articleView.html?idxno=223443', date: '2026.7.10' },
+            { label: 'MBC', title: "'우방국에 계엄 정당화 메시지' 김태효 전 국가안보실 1차장 구속", url: 'https://imnews.imbc.com/news/2026/society/article/6836642_36918.html', date: '2026.7.10' },
             { label: '한국일보', title: "종합특검, 김태효 전 안보실 차장 구속영장 청구… '계엄 정당화 메시지 전파' 혐의", url: 'https://www.hankookilbo.com/news/article/A2026070721040003325', date: '2026.7.7' },
             { label: '뉴스1', title: '특검, 김태효 구속영장 청구…계엄 정당화 메시지 전파 혐의', url: 'https://www.news1.kr/society/court-prosecution/6220804', date: '2026.7.7' },
             { label: '헤럴드경제', title: "우방국에 '계엄 정당화 메시지' 보낸 김태효 전 차장 구속영장", url: 'https://biz.heraldcorp.com/article/10801379', date: '2026.7.7' }
