@@ -203,6 +203,21 @@ const CRIMINAL_PROCEDURE_BILLS = {
             { title: '⑤ 은폐를 끝내 드러낸 것은 언론·시민의 감시였다', text: '경찰 내부 은폐 정황을 세상에 드러낸 결정적 힘은 언론 보도와 시민의 감시였다. 상시 「시민옴부즈만(핀란드식)」이 제도화돼 있었다면 경찰의 은폐가 더 일찍·체계적으로 걸러졌을 것이다. 사건이 가리키는 방향은 「검찰 권한 강화」가 아니라 「독립 수사 + 상시 시민감시」다.' },
         ],
         conclusion: '장윤기 사건의 진짜 교훈은 「검찰에 권한을 몰아주자」가 아니라 ① 경찰 유착 사건은 독립 수사기구가 맡고 ② 검사의 보완수사 요구권·재수사 요청권은 유지하되(개정안이 이미 그렇다) ③ 형법 친족특례를 손보고 ④ 의회 선출 시민옴부즈만이 경찰·공소청을 상시 감시하는 것이다. 한 기관의 권력 강화가 아니라 「분리·독립·시민감시」가 헌법 제1조(주권재민)에 부합하는 해법이다.',
+        pollData: {
+            title: '여론 데이터 — 민변도 「전면 폐지」보다 「부분 존치(요구권 유지)」가 다수',
+            survey: '민주사회를 위한 변호사모임(민변)이 회원 403명을 대상으로 실시한 「형사소송법 개정 방안 의견조사」(2026.6.30~7.3)에서, 검사 보완수사권에 대해 67.0%가 「존치」에 찬성했다.',
+            breakdown: [
+                { label: '부분 존치', pct: '45.9%', n: '185명', color: 'blue', note: '요구·요청권은 유지, 강한 이행강제는 배제 — 우리 입장과 결이 같음' },
+                { label: '전면 존치', pct: '21.1%', n: '85명', color: 'amber', note: '검사 보완수사권 그대로' },
+                { label: '전면 폐지', pct: '31.3%', n: '126명', color: 'gray', note: '검사 보완수사권 완전 삭제' },
+            ],
+            analysis: '핵심은 「부분 존치가 다수(45.9%)」라는 점이다. 진보 성향으로 분류되는 민변에서도 다수가 「전면 존치(강한 검사 권한)」도 「전면 폐지」도 아닌 「부분 존치」를 택했다. 이는 검사가 직접 수사하는 게 아니라 「요구·요청」만 하는 최소한의 보완수사권은 남기되, 직무배제·징계·수사관서 지정 같은 강한 이행강제(김한규 TF안)는 빼자는 방향과 정확히 맞닿는다. 「민변도 보완수사권 유지를 원한다」로만 인용하면 오해다 — 「부분 존치(요구권 유지)가 다수」라는 결이 핵심이다.',
+            sources: [
+                { name: '오마이뉴스', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003249503' },
+                { name: '경향신문', url: 'https://www.khan.co.kr/article/202607071528001/' },
+                { name: '한국일보', url: 'https://www.hankookilbo.com/news/article/A2026070718490001832' },
+            ],
+        },
         sources: [
             { name: '한국일보', url: 'https://www.hankookilbo.com/news/article/A2026070911060003280' },
             { name: 'YTN(친족특례)', url: 'https://www.ytn.co.kr/_ln/0103_202607041858392707' },
@@ -1915,6 +1930,30 @@ export default function ReformAnalysis() {
                                             </div>
                                             <div className="bg-rose-100 rounded-lg p-3 border border-rose-300">
                                                 <p className="text-base font-bold text-rose-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.jangCase.conclusion}</p>
+                                            </div>
+                                            {/* 여론 데이터 — 민변 조사 */}
+                                            <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 mt-3">
+                                                <p className="text-base font-bold text-sky-900 mb-1">📊 {CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.title}</p>
+                                                <p className="text-sm text-gray-700 leading-relaxed mb-2">{CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.survey}</p>
+                                                <div className="grid sm:grid-cols-3 gap-2 mb-2">
+                                                    {CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.breakdown.map((b, i) => {
+                                                        const cmap = { blue: 'bg-blue-100 border-blue-300 text-blue-800', amber: 'bg-amber-100 border-amber-300 text-amber-800', gray: 'bg-gray-100 border-gray-300 text-gray-700' }[b.color] || 'bg-gray-100 border-gray-300 text-gray-700';
+                                                        return (
+                                                            <div key={i} className={`rounded-lg p-2 border ${cmap}`}>
+                                                                <p className="text-sm font-bold">{b.label} <span className="text-base">{b.pct}</span> <span className="text-xs font-normal">({b.n})</span></p>
+                                                                <p className="text-xs text-gray-600 mt-0.5">{b.note}</p>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                                <div className="bg-white/70 rounded-lg p-2 border border-sky-200 mb-2">
+                                                    <p className="text-sm text-gray-700 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.analysis}</p>
+                                                </div>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.sources.map((s, i) => (
+                                                        <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" className="text-sm px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded hover:bg-gray-200">{s.name}</a>
+                                                    ))}
+                                                </div>
                                             </div>
                                             <div className="flex flex-wrap gap-1 mt-2">
                                                 {CRIMINAL_PROCEDURE_BILLS.jangCase.sources.map((s, i) => (
