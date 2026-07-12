@@ -2845,26 +2845,33 @@ export default function ReformAnalysis() {
                                     </p>
                                 )}
                                 <ul className="space-y-3">
-                                    {activeNews.news.map((item, idx) => (
-                                        <li key={idx} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0">
-                                            <span className="text-blue-500 mt-0.5 shrink-0">📌</span>
-                                            <div className="flex-1 min-w-0">
-                                                <a
-                                                    href={item.link}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
-                                                >
-                                                    {item.title}
-                                                </a>
-                                                {item.pubDate && (
-                                                    <p className="text-xs text-gray-400 mt-1">
-                                                        {new Date(item.pubDate).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </li>
-                                    ))}
+                                    {activeNews.news.map((item, idx) => {
+                                        const safeLink = typeof item.link === 'string' && /^https?:\/\//i.test(item.link) ? item.link : null;
+                                        return (
+                                            <li key={idx} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0">
+                                                <span className="text-blue-500 mt-0.5 shrink-0">📌</span>
+                                                <div className="flex-1 min-w-0">
+                                                    {safeLink ? (
+                                                        <a
+                                                            href={safeLink}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
+                                                        >
+                                                            {item.title}
+                                                        </a>
+                                                    ) : (
+                                                        <span className="text-sm font-medium text-gray-900 line-clamp-2">{item.title}</span>
+                                                    )}
+                                                    {item.pubDate && (
+                                                        <p className="text-xs text-gray-400 mt-1">
+                                                            {new Date(item.pubDate).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </li>
+                                        );
+                                    })}
                                 </ul>
                                 {activeNews.lastUpdated && (
                                     <p className="text-xs text-gray-400 mt-3 text-right">
