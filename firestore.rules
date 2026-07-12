@@ -312,6 +312,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // 사법개혁 관련 뉴스: 읽기 허용 (Cloud Function이 Admin SDK로만 쓰기 → 클라이언트 쓰기 차단)
+    match /reformNews/{areaId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // 방문자 분석 데이터: 카운터 기반 (increment)
     match /dailyStats/{dateId} {
       allow read: if true;
