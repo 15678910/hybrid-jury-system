@@ -1478,6 +1478,18 @@ export default function ReformAnalysis() {
     }, []);
 
     const activeReform = reformData.find(r => r.id === activeTab);
+    // 탭 id → reformNews 문서 id 매핑 (신설 분석 탭은 관련 영역 뉴스를 재사용, id 불일치 보정)
+    const NEWS_AREA_MAP = {
+        'prosecution-reform': 'prosecution',
+        'finland-reform': 'prosecution',
+        'judicial-appeal': 'trial-appeal',
+    };
+    const newsAreaId = activeReform ? (NEWS_AREA_MAP[activeReform.id] || activeReform.id) : null;
+    const activeNews = newsAreaId ? reformNews[newsAreaId] : null;
+    // 플레이스홀더 요약("...관련 최신 뉴스 N건")은 감추고, 실제 AI 요약만 표시
+    const activeNewsSummary = activeNews?.aiSummary && !/관련 최신 뉴스\s*\d+건$/.test(activeNews.aiSummary.trim())
+        ? activeNews.aiSummary
+        : null;
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -2817,6 +2829,54 @@ export default function ReformAnalysis() {
                             </div>
                         )}
                     </div>
+
+                        {/* 관련 최신 뉴스 */}
+                        {activeNews?.news?.length > 0 && (
+                            <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 flex-wrap">
+                                    <span>📰</span> 관련 최신 뉴스
+                                    {activeNews.areaTitle && (
+                                        <span className="text-sm font-normal text-gray-400">· {activeNews.areaTitle}</span>
+                                    )}
+                                </h3>
+                                {activeNewsSummary && (
+                                    <p className="text-sm text-gray-700 bg-blue-50 rounded-lg p-3 mb-4">
+                                        💡 {activeNewsSummary}
+                                    </p>
+                                )}
+                                <ul className="space-y-3">
+                                    {activeNews.news.map((item, idx) => (
+                                        <li key={idx} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0">
+                                            <span className="text-blue-500 mt-0.5 shrink-0">📌</span>
+                                            <div className="flex-1 min-w-0">
+                                                <a
+                                                    href={item.link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
+                                                >
+                                                    {item.title}
+                                                </a>
+                                                {item.pubDate && (
+                                                    <p className="text-xs text-gray-400 mt-1">
+                                                        {new Date(item.pubDate).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                                {activeNews.lastUpdated && (
+                                    <p className="text-xs text-gray-400 mt-3 text-right">
+                                        마지막 업데이트: {
+                                            activeNews.lastUpdated?.seconds
+                                                ? new Date(activeNews.lastUpdated.seconds * 1000).toLocaleDateString('ko-KR')
+                                                : ''
+                                        }
+                                    </p>
+                                )}
+                            </div>
+                        )}
 
                         </div>{/* 메인 컨텐츠 끝 */}
                     </div>{/* flex 컨테이너 끝 */}
