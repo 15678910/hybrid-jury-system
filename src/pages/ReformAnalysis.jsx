@@ -1722,34 +1722,56 @@ export default function ReformAnalysis() {
                                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                                             <p className="text-base text-blue-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.intro}</p>
                                         </div>
-                                        {/* 2개 법안 카드 */}
-                                        <div className="grid md:grid-cols-2 gap-4 mb-6">
-                                            {CRIMINAL_PROCEDURE_BILLS.bills.map((b, i) => (
-                                                <div key={i} className={`bg-white border-2 ${b.border} rounded-xl overflow-hidden shadow-sm`}>
-                                                    <div className={`${b.bg} px-4 py-3 border-b`}>
-                                                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                                            <h4 className="font-bold text-gray-800">{b.name}</h4>
-                                                            <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${b.badge}`}>{b.stance}</span>
+                                        {/* 2개 법안 카드 (PPT형) */}
+                                        <div className="grid md:grid-cols-2 gap-5 mb-6">
+                                            {CRIMINAL_PROCEDURE_BILLS.bills.map((b, i) => {
+                                                const c = i === 0
+                                                    ? { bar: 'bg-red-500', text: 'text-red-700', badge: 'bg-red-100 text-red-700', soft: 'bg-red-50', key: 'bg-red-500 text-white' }
+                                                    : { bar: 'bg-orange-500', text: 'text-orange-700', badge: 'bg-orange-100 text-orange-700', soft: 'bg-orange-50', key: 'bg-orange-500 text-white' };
+                                                return (
+                                                    <div key={i} className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
+                                                        <div className={`h-1.5 ${c.bar}`}></div>
+                                                        <div className="px-5 pt-4 pb-3 border-b border-gray-100">
+                                                            <div className="flex items-center justify-between gap-2 mb-1.5">
+                                                                <span className={`px-2.5 py-1 text-xs rounded-full font-bold ${c.badge}`}>{b.stance}</span>
+                                                                <span className="text-xs text-gray-400">의안 {b.billNo}</span>
+                                                            </div>
+                                                            <h4 className={`text-lg font-extrabold ${c.text} leading-tight`}>{b.name}</h4>
+                                                            <p className="text-xs text-gray-500 mt-0.5">{b.proposers} · {b.date}</p>
+                                                            <div className={`mt-2 rounded-lg px-3 py-2 ${c.soft}`}>
+                                                                <p className="text-sm font-semibold text-gray-700 leading-snug">{b.purpose}</p>
+                                                            </div>
                                                         </div>
-                                                        <p className="text-xs text-gray-500">의안 {b.billNo} · {b.proposers} · {b.date}</p>
-                                                        <p className="text-base font-semibold text-gray-600 mt-1">{b.purpose}</p>
-                                                    </div>
-                                                    <div className="px-4 py-3">
-                                                        <ul className="space-y-1">
-                                                            {b.points.map((p, j) => (
-                                                                <li key={j} className="text-base text-gray-700 flex items-start gap-1"><span className="text-gray-400 shrink-0">•</span>{p}</li>
-                                                            ))}
-                                                        </ul>
+                                                        <div className="px-5 py-4 flex-1">
+                                                            <ul className="space-y-3">
+                                                                {b.points.map((p, j) => {
+                                                                    const isKey = p.trim().charAt(0) === '★';
+                                                                    const body = isKey ? p.replace(/^★\s*/, '') : p;
+                                                                    const di = body.indexOf('—');
+                                                                    const title = di > -1 ? body.slice(0, di).trim() : body.trim();
+                                                                    const desc = di > -1 ? body.slice(di + 1).trim() : '';
+                                                                    return (
+                                                                        <li key={j} className="flex items-start gap-2.5">
+                                                                            <span className={`mt-0.5 shrink-0 w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-bold ${isKey ? c.key : 'bg-gray-200 text-gray-500'}`}>{isKey ? '★' : (j + 1)}</span>
+                                                                            <div className="min-w-0">
+                                                                                <p className="text-[15px] font-bold text-gray-800 leading-snug">{title}</p>
+                                                                                {desc && <p className="text-sm text-gray-600 leading-snug mt-0.5">{desc}</p>}
+                                                                            </div>
+                                                                        </li>
+                                                                    );
+                                                                })}
+                                                            </ul>
+                                                        </div>
                                                         {b.sources && (
-                                                            <div className="flex flex-wrap gap-1 mt-2 pt-2 border-t border-gray-100">
+                                                            <div className="px-5 py-2.5 border-t border-gray-100 bg-gray-50/60 flex flex-wrap gap-1.5">
                                                                 {b.sources.map((s, j) => (
-                                                                    s.url ? <a key={j} href={s.url} target="_blank" rel="noopener noreferrer" className="text-sm px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded hover:bg-gray-200">{s.name}</a> : <span key={j} className="text-sm px-1.5 py-0.5 text-gray-400">{s.name}</span>
+                                                                    s.url ? <a key={j} href={s.url} target="_blank" rel="noopener noreferrer" className="text-xs px-2 py-0.5 bg-white border border-gray-200 text-gray-500 rounded-full hover:bg-gray-100">{s.name}</a> : <span key={j} className="text-xs px-2 py-0.5 text-gray-400">{s.name}</span>
                                                                 ))}
                                                             </div>
                                                         )}
                                                     </div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                         {/* 조문별 비교표 */}
                                         <p className="text-base font-bold text-gray-700 mb-2">📜 조문별 비교</p>
