@@ -1861,7 +1861,7 @@ export default function ReformAnalysis() {
                                         <div className="grid sm:grid-cols-2 gap-3 mb-6">
                                             {CRIMINAL_PROCEDURE_BILLS.international.map((c, i) => (
                                                 <div key={i} className="bg-white border border-gray-200 rounded-lg p-3">
-                                                    <p className="text-base font-bold text-gray-800">{c.flag} {c.country}</p>
+                                                    <p className="text-base font-bold text-gray-800">{c.country}</p>
                                                     <p className="text-base text-gray-600 mt-0.5">{c.model}</p>
                                                     <p className="text-sm text-blue-600 mt-1">→ {c.tag}</p>
                                                 </div>
@@ -2158,7 +2158,7 @@ export default function ReformAnalysis() {
                                                         <th className="bg-gray-100 px-3 py-3 text-left text-base font-bold text-gray-700 w-[12%]">비교 항목</th>
                                                         {INTERNATIONAL_COMPARISON.map((c, idx) => (
                                                             <th key={idx} className={`${c.bgColor} border-t-4 ${c.color} px-3 py-3 text-center text-base font-bold text-gray-800 w-[22%]`}>
-                                                                {c.flag} {c.country}
+                                                                {c.country}
                                                                 <div className="text-sm font-normal text-gray-500 mt-1">{c.model}</div>
                                                                 <div className="mt-1">
                                                                     <span className={`px-1.5 py-0.5 text-[10px] rounded-full font-medium ${
@@ -2232,8 +2232,7 @@ export default function ReformAnalysis() {
                                                     const total = DEMOCRATIZATION_SCORECARD.categories.reduce((sum, cat) => sum + cat[c.key], 0);
                                                     return (
                                                         <div key={idx} className="p-4 text-center border-r last:border-r-0">
-                                                            <p className="text-3xl mb-1">{c.flag}</p>
-                                                            <p className="text-base font-bold text-gray-800">{c.name}</p>
+                                                            <p className="text-lg font-bold text-gray-800 mt-1">{c.name}</p>
                                                             <p className={`text-3xl font-bold mt-1 ${total >= 40 ? 'text-green-600' : total >= 30 ? 'text-yellow-600' : 'text-red-600'}`}>
                                                                 {total}<span className="text-base text-gray-400">/{DEMOCRATIZATION_SCORECARD.totalMax}</span>
                                                             </p>
@@ -2253,7 +2252,7 @@ export default function ReformAnalysis() {
                                                         <div className="space-y-1.5">
                                                             {DEMOCRATIZATION_SCORECARD.countries.map((country, coIdx) => (
                                                                 <div key={coIdx} className="flex items-center gap-2">
-                                                                    <span className="text-base w-12 text-right text-gray-500">{country.flag} {country.name}</span>
+                                                                    <span className="text-base w-16 shrink-0 whitespace-nowrap text-right text-gray-500">{country.name}</span>
                                                                     <div className="flex-1 bg-gray-100 rounded-full h-4 relative">
                                                                         <div
                                                                             className={`h-4 rounded-full transition-all ${country.color}`}
