@@ -11,6 +11,7 @@
 - **검찰개혁 심층분석**(`/reform-analysis?tab=prosecution-reform`):
   - 두 법안 카드 **PPT형** 디자인 (정책색 바·배지·목적박스·★/번호 배지·pill 출처)
   - 하단 **「관련 최신 뉴스」 섹션** — 네이버에서 매일 자동 수집(아래)
+  - **SNS 공유 OG**: 이미지=`public/검찰개혁심층분석.png`(찬반 쟁점 이미지), 설명=3법안(정부안·김용민박은정·민주당TF 김한규외22인). ⚠️ 변경 시 **2곳 동시 수정** — 프론트 `SEOHead`(ReformAnalysis.jsx) + SSR `reformAnalysisPage`(functions/index.js) + 캐시버스터 `?v=` 갱신. 크롤러 검증: `curl -A "KakaoTalk-Scrap" "<url>" | grep -i og:`. (로컬 dev 프리뷰는 helmet 미적용이라 OG 확인 불가 → 배포 후 크롤러 UA로만 검증)
 
 ## 🆕 개혁안 뉴스 네이버 무료 자동화 (이번 세션 신규)
 - **출처**: 네이버 공식 검색 API (`functions/.env`의 `NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET`, 무료 하루 25k)
@@ -32,6 +33,9 @@
 | `d95e125` | 「관련 최신 뉴스」 표시 섹션 복원(과거 삭제분, 승인 후) |
 | `9ca20d0` | 네이버 무료 자동화(외부 크론 + 토큰 트리거 + 보안) — 실행 테스트 Success |
 | `21b44d3` | 재판일정에 윤석열 1심 선고 2건 추가(정치자금법 7/13 형사33부 이진관·공직선거법 7/27 형사21부 조순표) |
+| `79629e1` | 검찰개혁 심층분석 SNS 공유 이미지를 사용자 찬반 이미지(`public/검찰개혁심층분석.png`)로 교체 |
+| `825f3fa` | 국가 비교 나라명 1행 표시(whitespace-nowrap) + 국기(Windows에서 KR/DE/JP/FI 코드로 보임) 제거 |
+| `875ea1e` | 공유 설명(og:description)에 더불어민주당 검찰개혁 TF안(김한규 외 22인) 추가 |
 - 그 외: 화면의 영어 토스트는 미리보기 도구 안내(사이트 오류 아님)로 규명
 
 ## 📋 재판일정(trialSchedule.js) 갱신 방식 — 결정: **수동(무료)**
