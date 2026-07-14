@@ -259,6 +259,26 @@ const CRIMINAL_PROCEDURE_BILLS = {
         conclusion: '이 모델은 김한규 TF안(수직 이행강제)은 물론, 김용민·박은정 안(내부 통제기구)보다도 헌법 제1조·핀란드 협력구조에 더 부합한다. 핵심 진전은 ① 검사의 수직 강제를 제거하고 ② 불기소까지 견제 대상에 넣어 견제를 「쌍방」으로 만들며 ③ 인권 구제의 방아쇠를 「시민」에게 주고 판단을 「입법부 산하 독립기구」에 맡긴 것이다.',
         note: '※ 주권자사법개혁추진준비위원회 제안 모델 (핀란드 「협력 + 의회 선출 옴부즈만」 + 사법감시이중안전법 응용).',
     },
+    // 🛡️ 보완수사권 완전 폐지 시에도 경찰은 이렇게 견제된다 (우리 안 관점 재구성)
+    policeCheck: {
+        title: '보완수사권 완전 폐지 시에도 경찰은 이렇게 견제된다',
+        intro: '검사 보완수사권을 완전히 폐지해도 경찰 수사를 견제할 다층 장치가 남는다. 다만 「직무배제·징계요구·수사관서 지정」 같은 검사(공소청)의 수직 강제는 「수사지휘 부활」 우려가 있어, 우리 안은 이를 입법부 산하 독립 감찰기구(법률감찰단·시민옴부즈만)로의 「문제제기」로 대체한다(★ 표시 행).',
+        rows: [
+            { problem: '송치 사건의 증거·조사가 부족함', device: '보완수사 요구(강제 없는 요청)', org: '공소청', star: false },
+            { problem: '경찰이 보완수사를 지연함', device: '처리기한 지정·요구', org: '공소청', star: false },
+            { problem: '담당 경찰관이 부적절함', device: '독립기구에 문제제기 → 시정·징계 권고', org: '법률감찰단·시민옴부즈만', star: true, orig: '일반안: 직무배제·교체·징계 요구 → 공소청(수직 강제)' },
+            { problem: '해당 경찰서가 사건을 제대로 수사하기 어려움', device: '수사기관 자율 재배당 / 독립기구 문제제기', org: '수사기관·독립 감찰기구', star: true, orig: '일반안: 다른 수사관서 지정 → 공소청장(수직 강제)' },
+            { problem: '수사 과정에서 위법·인권침해·권한남용 발생', device: '피해자·시민이 직접 이의제기 → 시정·수사 개시 권고', org: '독립 감찰기구(법률감찰단·시민옴부즈만)', star: true, orig: '일반안: 시정조치 요구·사건 이송 → 공소청' },
+            { problem: '경찰이 사건을 부당하게 불송치함', device: '재수사 요구 / 고발인 이의신청', org: '공소청·사건관계인', star: false },
+            { problem: '피해자·고소인·고발인이 수사 결과에 불복', device: '이의신청·검사 신고', org: '피해자·사건관계인', star: false },
+            { problem: '경찰관이 증거인멸·직무유기·정보유출 등을 저지름', device: '경찰관 범죄 직접수사', org: '중수청', star: false },
+            { problem: '고위 경찰관이 공직범죄를 저지름', device: '직접수사·일부 직접기소', org: '공수처', star: false },
+            { problem: '압수수색·구속 등 강제수사가 과도함', device: '영장 청구·발부 통제(심사)', org: '공소청·법원', star: false },
+            { problem: '경찰 내부에서 수사가 부당하게 처리됨', device: '수사심의 신청·감찰', org: '경찰 상급기관·독립 감찰기구', star: false },
+        ],
+        conclusion: '「보완수사권 하나」에 의존하지 않아도 공소청(요구)·중수청·공수처·법원·시민·입법부 산하 독립기구가 층층이 경찰을 견제한다. 특정 기관의 권한 독점이 아니라 「분산된 다층 견제」가 헌법 제1조에 부합한다.',
+        note: '★ = 우리 안 조정 행. 원본(일반안)은 검사(공소청)의 수직 강제이나 「수사지휘 부활」 우려로 입법부 산하 독립기구 문제제기로 대체함. (표 아이디어 참고 · 우리 안 관점 재구성)',
+    },
 
     assessment: '두 개정안은 검사의 직접수사·직접 보완수사를 폐지하고 수사 주체를 사법경찰관으로 일원화하되, 공소청 검사의 보완수사 요구권·재수사 요청권을 유지·강화한다는 큰 틀이 동일하다. 차이는 강조점이다. 김용민·박은정 의원안은 수사인권보호관·공소심의회 등 인권보호·민주통제 기구를 대거 신설한 "포괄형"이고, 더불어민주당 검찰개혁 TF안은 보완수사 1개월 단축·수사관서 지정변경권·재수사요청 강화 등 공소청의 실질적 이행강제 수단을 촘촘히 설계한 "이행강제형"이다. 공통 쟁점은 "수사지휘 없는 통제"의 경계 — 직무배제·징계요구권이 자칫 수사지휘의 부활로 비칠 수 있다는 점이다.',
 };
@@ -2069,6 +2089,39 @@ export default function ReformAnalysis() {
                                                 <p className="text-base font-bold text-indigo-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.collabModel.conclusion}</p>
                                             </div>
                                             <p className="text-xs text-gray-500">{CRIMINAL_PROCEDURE_BILLS.collabModel.note}</p>
+                                        </div>
+
+                                        {/* 🛡️ 보완수사권 완전 폐지 시 경찰 견제 방법 (우리 안 관점) */}
+                                        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-300 rounded-xl p-4 mt-4">
+                                            <p className="text-lg font-bold text-emerald-900 mb-1 flex items-center gap-2">🛡️ {CRIMINAL_PROCEDURE_BILLS.policeCheck.title}</p>
+                                            <p className="text-base text-emerald-900 leading-relaxed mb-3">{CRIMINAL_PROCEDURE_BILLS.policeCheck.intro}</p>
+                                            <div className="overflow-x-auto rounded-lg border border-emerald-200 mb-3 bg-white">
+                                                <table className="w-full min-w-[680px] text-sm">
+                                                    <thead>
+                                                        <tr className="bg-emerald-100">
+                                                            <th className="px-3 py-2 text-left font-bold text-gray-700 w-[38%]">🛡️ 경찰 수사의 문제</th>
+                                                            <th className="px-3 py-2 text-left font-bold text-gray-700 w-[38%]">⚖️ 견제 장치</th>
+                                                            <th className="px-3 py-2 text-left font-bold text-gray-700 w-[24%]">🏛️ 담당 기관</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {CRIMINAL_PROCEDURE_BILLS.policeCheck.rows.map((r, i) => (
+                                                            <tr key={i} className={`border-t border-gray-100 align-top ${r.star ? 'bg-indigo-50/60' : ''}`}>
+                                                                <td className="px-3 py-2 text-gray-700">{r.problem}</td>
+                                                                <td className="px-3 py-2 text-gray-800 font-medium">
+                                                                    {r.star && <span className="text-indigo-600 font-bold mr-1">★</span>}{r.device}
+                                                                    {r.orig && <span className="block text-xs text-gray-400 mt-0.5">↔ {r.orig}</span>}
+                                                                </td>
+                                                                <td className="px-3 py-2 font-semibold text-emerald-800">{r.org}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div className="bg-emerald-100 rounded-lg p-3 border border-emerald-300 mb-2">
+                                                <p className="text-base font-bold text-emerald-900 leading-relaxed">✅ {CRIMINAL_PROCEDURE_BILLS.policeCheck.conclusion}</p>
+                                            </div>
+                                            <p className="text-xs text-gray-500">{CRIMINAL_PROCEDURE_BILLS.policeCheck.note}</p>
                                         </div>
                                         <p className="text-xs text-gray-400 mt-2">출처: 국회 의안정보시스템 원문(의안 2219564 김용민·박은정 등 12인, 2219875 더불어민주당 김한규 등 22인) 제안이유·조문 직접 분석 · 경향·아주경제·한국일보(민주당 발의) · 핀란드 국가검찰청/의회 옴부즈만 공식자료 · 장윤기 사건 언론 교차확인 · 평가·반론은 주권자 사법개혁 관점</p>
                                     </div>
