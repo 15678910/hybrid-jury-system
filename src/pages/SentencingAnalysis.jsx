@@ -26,6 +26,7 @@ const PERSON_PHOTOS = {
     '노상원': '/노상원.jpg',
     '목현태': '/목현태.png',
     '문상호': '/문상호.png',
+    '명태균': '/명태균.png',
     '박성재': '/박성재.png',
     '박안수': '/박안수.jpg',
     '박종준': '/박종준.jpg',
@@ -449,9 +450,9 @@ const personsData = {
                 period: '2021.6 ~ 2022.3',
                 amount: '명태균 무상 여론조사 58회, 2억 7,000만원 + 허위사실 공표',
                 prosecutionRequest: '특검, 윤석열 불구속 기소 (공직선거법·정치자금법 위반)',
-                verdict: '정치자금법 위반: 김건희 무죄 (1심·항소심) / 윤석열: 재판 진행 중',
-                appealChange: '무죄유지',
-                reason: '유죄 확정 시 당선무효(벌금 100만원 이상) → 국민의힘 선거보조금 약 400억원 반환'
+                verdict: '정치자금법(무상 여론조사): 김건희 무죄 / 윤석열 1심 징역 2년·추징 1,396만원(2026.7.13 유죄·항소) / 명태균 징역 1년 6개월·법정구속 · 공직선거법(허위사실): 윤석열 7.27 선고 예정',
+                appealChange: '엇갈림',
+                reason: '2026.7.13 서울중앙지법 형사33부(이진관)는 같은 무상 여론조사 혐의에 대해 김건희(별건)는 무죄, 윤석열은 유죄(징역 2년)로 엇갈리게 판단. 공직선거법(허위사실) 유죄 확정 시 당선무효(벌금 100만원 이상) → 국민의힘 선거보조금 약 400억원 반환'
             },
             {
                 id: 5,
@@ -1931,12 +1932,54 @@ const personsData = {
             { label: '헤럴드경제', title: "우방국에 '계엄 정당화 메시지' 보낸 김태효 전 차장 구속영장", url: 'https://biz.heraldcorp.com/article/10801379', date: '2026.7.7' }
         ]
     },
+    '명태균': {
+        id: 'myungtaegyun',
+        name: '명태균',
+        position: '정치 브로커 (미래한국연구소)',
+        status: '구속',
+        statusColor: 'red',
+        court: '서울중앙지방법원 형사합의33부',
+        verdictDate: '2026년 7월 13일 (무상 여론조사 정치자금법 1심)',
+        charges: [
+            {
+                id: 1,
+                name: '무상 여론조사 제공 (윤석열·김건희 공범)',
+                law: '정치자금법 위반',
+                description: '2021.6~2022.3 윤석열 부부에게 대선 여론조사 58회(약 2억7,000만원 상당)를 무상 제공하고, 그 대가로 김영선 전 의원 공천 약속 등을 받은 혐의',
+                prosecutionRequest: '징역 3년 (특검 구형)',
+                verdict: '1심 징역 1년 6개월·법정구속 (2026.7.13, 58회 중 14회 유죄)',
+                reason: "재판부(형사33부 이진관): 윤석열 부부와 명태균 사이 '순차적·암묵적 의사합치' 인정 — 여론조사 결과뿐 아니라 판세 분석·선거 전략 상담까지 제공. 증거인멸 우려로 법정구속. 명태균 측 항소 예고. (같은 무상 여론조사 혐의로 별건 기소된 김건희는 1심·항소심 무죄로 엇갈림)"
+            },
+            {
+                id: 2,
+                name: '김영선 공천 관련 정치자금·증거은닉 (창원 별건)',
+                law: '정치자금법 위반 / 증거은닉교사',
+                description: "2022.8~2023.4 김영선 전 의원 공천·회계 관련 금품 수수 혐의, 수사 착수 후 처남에게 휴대전화 3대·USB('황금폰') 은닉 지시",
+                prosecutionRequest: '-',
+                verdict: '1심(창원지법) 정치자금법 무죄, 증거은닉교사만 유죄 징역 6개월·집행유예 1년 (2026.2.5) → 항소심 진행 중(다음 공판 8.21)',
+                reason: '재판부: 공천 대가 돈거래로 보기 어려워 정치자금법 무죄. 증거은닉은 유죄이나 기소 후 증거물 자발적 제출 등 정상 참작.'
+            }
+        ],
+        summary: {
+            prosecutionTotal: '무상 여론조사 정치자금법 징역 3년 구형(특검)',
+            verdictTotal: '무상 여론조사 정치자금법 1심 징역 1년 6개월·법정구속(2026.7.13) + 창원 별건 증거은닉만 유죄',
+            ratio: '-'
+        },
+        keyFacts: [
+            "'명태균 게이트'의 핵심 정치 브로커 — 윤석열·김건희 대선 캠프에 대선 여론조사를 무상 제공한 의혹의 중심 인물",
+            '2026.7.13 무상 여론조사 정치자금법 1심에서 징역 1년 6개월 선고·법정구속(증거인멸 우려)',
+            '같은 무상 여론조사 혐의로 별건 기소된 김건희는 1심·항소심 무죄 — 윤석열(유죄)과 엇갈림',
+            "창원 김영선 공천 관련 정치자금은 1심 무죄, 증거은닉교사('황금폰' 은닉)만 유죄",
+            '윤석열·명태균 양측 모두 항소 예고'
+        ],
+        trialStatus: '무상 여론조사 정치자금법 1심 유죄·법정구속(항소 예정) / 창원 별건 항소심 진행 중'
+    },
     '심우정': {
         id: 'simwoojung',
         name: '심우정',
         position: '전 검찰총장',
-        status: '불구속',
-        statusColor: 'green',
+        status: '구속영장 청구 (내란)',
+        statusColor: 'amber',
         court: '서울중앙지방법원',
         charges: [
             {
@@ -1956,19 +1999,30 @@ const personsData = {
                 prosecutionRequest: '조사 중',
                 verdict: '재판 진행 중',
                 reason: '-'
+            },
+            {
+                id: 3,
+                name: '내란중요임무종사·직권남용 (구속영장 청구)',
+                law: '형법 제87조, 제123조',
+                description: '2024.12.3 비상계엄 후 박성재 전 법무장관 지시로 계엄사 합동수사본부 검사 파견을 검토하고 「비상계엄 하 재판 관할」 문건 작성에 관여한 혐의',
+                prosecutionRequest: '구속영장 청구 (2026.7.14, 권창영 2차 종합특검) — 영장실질심사 예정',
+                verdict: '수사 중 (영장심사 대기)',
+                reason: '전무곤 전 대검 기획조정부장(검사장)과 함께 내란중요임무종사·직권남용 혐의로 구속영장이 청구됨.'
             }
         ],
         summary: {
-            prosecutionTotal: '재판 진행 중',
-            verdictTotal: '재판 진행 중',
+            prosecutionTotal: '내란 구속영장 청구(2026.7.14) + 범인도피·직권남용 불구속 기소',
+            verdictTotal: '내란 영장심사 대기 / 기존 혐의 1심 재판 진행 중',
             ratio: '-'
         },
         keyFacts: [
+            '2026.7.14 권창영 2차 종합특검이 내란중요임무종사·직권남용 혐의로 구속영장 청구(전무곤 검사장과 함께) — 영장실질심사 예정',
+            '혐의: 계엄 후 박성재 지시로 합수부 검사 파견 검토·「비상계엄 하 재판 관할」 문건 작성 관여',
             '윤석열 구속취소 결정 후 즉시항고 포기 논란',
             '계엄 당일~4일간 특별활동비 3억 4,200만원 사용',
-            '범인도피·직권남용 혐의 불구속 기소'
+            '범인도피(채상병 특검)·직권남용 혐의 불구속 기소 상태'
         ],
-        trialStatus: '1심 재판 진행 중'
+        trialStatus: '내란 혐의 구속영장 청구·심사 대기 / 범인도피·직권남용 1심 재판 진행 중'
     },
     '이완규': {
         id: 'leewankyu',
@@ -3393,7 +3447,7 @@ export default function SentencingAnalysis() {
                         {loading && (
                             <div className="text-center py-4 mb-4">
                                 <div className="inline-block w-6 h-6 border-3 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                                <p className="text-sm text-gray-500 mt-2">최신 데이터 확인 중...</p>
+                                <p className="text-base text-gray-500 mt-2">최신 데이터 확인 중...</p>
                             </div>
                         )}
 
@@ -3402,10 +3456,10 @@ export default function SentencingAnalysis() {
                             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                                 12.3 내란 관련 재판 분석
                             </h1>
-                            <p className="text-gray-500 text-sm">
+                            <p className="text-gray-500 text-base">
                                 2024년 12월 3일 비상계엄 관련 기소·수사 인물 현황
                             </p>
-                            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-full text-sm">
+                            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-full text-base">
                                 <span>⚖️</span>
                                 <span>총 {sortedPersons.length}명 | 이름을 클릭하면 상세 분석을 볼 수 있습니다</span>
                             </div>
@@ -3418,37 +3472,37 @@ export default function SentencingAnalysis() {
                         <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-gray-900">{sortedPersons.length}</p>
-                                <p className="text-sm text-gray-500">총 인원</p>
+                                <p className="text-base text-gray-500">총 인원</p>
                             </div>
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-red-600">
                                     {sortedPersons.filter(name => { const s = personsData[name].status || ''; return (s.startsWith('구속') && !s.startsWith('구속영장')) || s.startsWith('법정구속'); }).length}
                                 </p>
-                                <p className="text-sm text-gray-500">구속</p>
+                                <p className="text-base text-gray-500">구속</p>
                             </div>
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-green-600">
                                     {sortedPersons.filter(name => (personsData[name].status || '').startsWith('불구속')).length}
                                 </p>
-                                <p className="text-sm text-gray-500">불구속</p>
+                                <p className="text-base text-gray-500">불구속</p>
                             </div>
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-orange-600">
                                     {sortedPersons.filter(name => (personsData[name].status || '').startsWith('보석')).length}
                                 </p>
-                                <p className="text-sm text-gray-500">보석</p>
+                                <p className="text-base text-gray-500">보석</p>
                             </div>
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center" title="구속·불구속·보석 어디에도 속하지 않는 상태(수사 중·직무배제·직무정지·파면 등)">
                                 <p className="text-2xl font-bold text-amber-600">
                                     {sortedPersons.filter(name => { const s = personsData[name].status || ''; return !((s.startsWith('구속') && !s.startsWith('구속영장')) || s.startsWith('법정구속')) && !s.startsWith('불구속') && !s.startsWith('보석'); }).length}
                                 </p>
-                                <p className="text-sm text-gray-500">수사중·기타</p>
+                                <p className="text-base text-gray-500">수사중·기타</p>
                             </div>
                             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
                                 <p className="text-2xl font-bold text-blue-600">
                                     {sortedPersons.filter(name => personsData[name].verdictDate).length}
                                 </p>
-                                <p className="text-sm text-gray-500">선고 완료</p>
+                                <p className="text-base text-gray-500">선고 완료</p>
                             </div>
                         </div>
 
@@ -3524,7 +3578,7 @@ export default function SentencingAnalysis() {
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-900">{name}</p>
-                                                    <p className="text-sm text-gray-500">{p.position}</p>
+                                                    <p className="text-base text-gray-500">{p.position}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
@@ -3555,7 +3609,7 @@ export default function SentencingAnalysis() {
 
                         {/* 출처 안내 */}
                         <div className="mt-8 p-4 bg-gray-100 rounded-xl text-center">
-                            <p className="text-gray-600 text-sm">
+                            <p className="text-gray-600 text-base">
                                 이 정보는 공개된 뉴스 보도를 바탕으로 작성되었습니다.<br />
                                 재판 진행 상황에 따라 내용이 변경될 수 있습니다.
                             </p>
@@ -3609,7 +3663,7 @@ export default function SentencingAnalysis() {
                 <footer className="bg-gray-900 text-gray-400 py-6 px-4">
                     <div className="container mx-auto text-center">
                         <p>&copy; 주권자사법개혁추진준비위원회</p>
-                        <p className="mt-2 text-sm">문의: siminbupjung@gmail.com</p>
+                        <p className="mt-2 text-base">문의: siminbupjung@gmail.com</p>
                     </div>
                 </footer>
             </div>
@@ -3673,7 +3727,7 @@ export default function SentencingAnalysis() {
                     {/* 페이지 헤더 */}
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 mb-4">
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            <span className={`px-3 py-1 rounded-full text-base font-medium ${
                                 (person.status || '').startsWith('구속영장')
                                     ? 'bg-amber-100 text-amber-800'
                                     : ((person.status || '').startsWith('구속') || (person.status || '').startsWith('법정구속'))
@@ -3688,7 +3742,7 @@ export default function SentencingAnalysis() {
                             }`}>
                                 {person.status}
                             </span>
-                            <span className="text-sm text-gray-500">
+                            <span className="text-base text-gray-500">
                                 {person.trialStatus}
                                 {person._hasLiveData && (
                                     <span className="ml-2 text-xs text-green-600">• 실시간 데이터</span>
@@ -3698,17 +3752,17 @@ export default function SentencingAnalysis() {
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                             {person.name} 재판 분석
                         </h1>
-                        <p className="text-gray-500 text-sm">
+                        <p className="text-gray-500 text-base">
                             {person.position} | {person.court}
                             {person.judge && ` | 재판장 ${person.judge}`}
                         </p>
                         {person.verdictDate && (
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p className="text-base text-gray-500 mt-1">
                                 선고일: {person.verdictDate}
                             </p>
                         )}
                         {person.summary.ratio !== '-' && (
-                            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-full text-sm">
+                            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-full text-base">
                                 <span>⚖️</span>
                                 <span>{person.summary.ratio}</span>
                             </div>
@@ -3718,13 +3772,13 @@ export default function SentencingAnalysis() {
                     {/* 재판부별 사건 분리 (우인성/조순표 등 복수 재판부) */}
                     {person.matters && (
                         <div className="mb-8 bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                            <p className="text-center text-sm text-gray-600 mb-3">
+                            <p className="text-center text-base text-gray-600 mb-3">
                                 ⚖️ 이 인물은 <b className="text-gray-900">서로 다른 재판부</b>의 별개 재판이 진행되었습니다. 재판부별로 나눠 보세요.
                             </p>
                             <div className="flex flex-wrap justify-center gap-2">
                                 <button
                                     onClick={() => setSelectedMatter(null)}
-                                    className={`px-4 py-2 rounded-full text-sm font-medium transition ${!selectedMatter ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                    className={`px-4 py-2 rounded-full text-base font-medium transition ${!selectedMatter ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
                                 >
                                     전체 보기
                                 </button>
@@ -3732,14 +3786,14 @@ export default function SentencingAnalysis() {
                                     <button
                                         key={m.key}
                                         onClick={() => setSelectedMatter(m.key)}
-                                        className={`px-4 py-2 rounded-full text-sm font-medium transition ${selectedMatter === m.key ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'}`}
+                                        className={`px-4 py-2 rounded-full text-base font-medium transition ${selectedMatter === m.key ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'}`}
                                     >
                                         ⚖️ {m.label} · {m.verdict.split('(')[0].trim()}
                                     </button>
                                 ))}
                             </div>
                             {selMatter && (
-                                <div className="mt-4 bg-blue-50 border border-blue-100 rounded-lg p-4 text-sm">
+                                <div className="mt-4 bg-blue-50 border border-blue-100 rounded-lg p-4 text-base">
                                     <p className="font-bold text-blue-900 mb-1">{selMatter.label} — {selMatter.sub}</p>
                                     <p className="text-gray-700"><span className="text-gray-500">법원·재판부: </span>{selMatter.court}</p>
                                     <p className="text-gray-700"><span className="text-gray-500">검찰 구형: </span>{selMatter.prosecution}</p>
@@ -3760,11 +3814,11 @@ export default function SentencingAnalysis() {
                             {person.verdictDate && (
                                 <div className="grid md:grid-cols-2 gap-4">
                                     <div className="bg-white rounded-xl p-6 shadow-sm border-l-4 border-blue-500">
-                                        <h3 className="text-sm text-gray-500 mb-2">검찰 구형{selMatter ? ` · ${selMatter.label}` : ''}</h3>
+                                        <h3 className="text-base text-gray-500 mb-2">검찰 구형{selMatter ? ` · ${selMatter.label}` : ''}</h3>
                                         <p className="text-lg font-bold text-gray-900">{selMatter ? selMatter.prosecution : person.summary.prosecutionTotal}</p>
                                     </div>
                                     <div className="bg-white rounded-xl p-6 shadow-sm border-l-4 border-red-500">
-                                        <h3 className="text-sm text-gray-500 mb-2">법원 선고{selMatter ? ` · ${selMatter.label}` : ''}</h3>
+                                        <h3 className="text-base text-gray-500 mb-2">법원 선고{selMatter ? ` · ${selMatter.label}` : ''}</h3>
                                         <p className="text-lg font-bold text-red-600">{selMatter ? selMatter.verdict : person.summary.verdictTotal}</p>
                                     </div>
                                 </div>
@@ -3773,9 +3827,9 @@ export default function SentencingAnalysis() {
                             {/* 재판 진행 중인 경우 */}
                             {!person.verdictDate && (
                                 <div className="bg-white rounded-xl p-6 shadow-sm border-l-4 border-yellow-500">
-                                    <h3 className="text-sm text-gray-500 mb-2">재판 현황</h3>
+                                    <h3 className="text-base text-gray-500 mb-2">재판 현황</h3>
                                     <p className="text-lg font-bold text-yellow-700">재판 진행 중</p>
-                                    <p className="text-sm text-gray-600 mt-1">아직 판결이 선고되지 않았습니다.</p>
+                                    <p className="text-base text-gray-600 mt-1">아직 판결이 선고되지 않았습니다.</p>
                                 </div>
                             )}
 
@@ -3806,9 +3860,9 @@ export default function SentencingAnalysis() {
                                         <div key={charge.id} className="p-4 flex items-center justify-between">
                                             <div>
                                                 <p className="font-medium text-gray-900">{charge.name}</p>
-                                                <p className="text-sm text-gray-500">{charge.law}</p>
+                                                <p className="text-base text-gray-500">{charge.law}</p>
                                             </div>
-                                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                            <span className={`px-3 py-1 rounded-full text-base font-medium ${
                                                 charge.appealChange === '무죄→유죄' ? 'bg-orange-100 text-orange-700'
                                                     : charge.appealChange === '유죄확대' ? 'bg-red-100 text-red-700'
                                                     : charge.appealChange === '무죄유지' ? 'bg-green-100 text-green-700'
@@ -3850,7 +3904,7 @@ export default function SentencingAnalysis() {
                                     }`}>
                                         <div className="flex items-center justify-between">
                                             <h3 className="font-bold text-gray-900">{charge.name}</h3>
-                                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                            <span className={`px-3 py-1 rounded-full text-base font-medium ${
                                                 charge.appealChange === '무죄→유죄' ? 'bg-orange-200 text-orange-800'
                                                     : charge.appealChange === '유죄확대' ? 'bg-red-200 text-red-800'
                                                     : charge.appealChange === '무죄유지' ? 'bg-green-200 text-green-800'
@@ -3864,7 +3918,7 @@ export default function SentencingAnalysis() {
                                         </div>
                                     </div>
                                     <div className="p-4 space-y-3">
-                                        <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div className="grid grid-cols-2 gap-4 text-base">
                                             <div>
                                                 <p className="text-gray-500">적용 법률</p>
                                                 <p className="font-medium">{charge.law}</p>
@@ -3894,7 +3948,7 @@ export default function SentencingAnalysis() {
                                         </div>
                                         {charge.reason !== '-' && (
                                             <div className="pt-3 border-t">
-                                                <p className="text-gray-500 text-sm mb-1">재판부 판단 이유</p>
+                                                <p className="text-gray-500 text-base mb-1">재판부 판단 이유</p>
                                                 <p className="text-gray-900">{charge.reason}</p>
                                             </div>
                                         )}
@@ -3913,7 +3967,7 @@ export default function SentencingAnalysis() {
                                     <div className="p-4 bg-purple-50 border-b">
                                         <div className="flex items-center justify-between">
                                             <h3 className="font-bold text-gray-900">{guideline.crime}</h3>
-                                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                            <span className={`px-3 py-1 rounded-full text-base font-medium ${
                                                 guideline.verdict === '무죄'
                                                     ? 'bg-green-200 text-green-800'
                                                     : 'bg-red-200 text-red-800'
@@ -3925,30 +3979,30 @@ export default function SentencingAnalysis() {
                                     <div className="p-4 space-y-4">
                                         <div className="grid md:grid-cols-2 gap-4">
                                             <div className="bg-blue-50 rounded-lg p-3">
-                                                <p className="text-sm text-blue-600 font-medium mb-1">양형기준 권고형</p>
+                                                <p className="text-base text-blue-600 font-medium mb-1">양형기준 권고형</p>
                                                 <p className="font-bold text-blue-900">{guideline.standardRange}</p>
                                             </div>
                                             <div className="bg-gray-50 rounded-lg p-3">
-                                                <p className="text-sm text-gray-600 font-medium mb-1">실제 선고</p>
+                                                <p className="text-base text-gray-600 font-medium mb-1">실제 선고</p>
                                                 <p className="font-bold text-gray-900">{guideline.verdict}</p>
                                             </div>
                                         </div>
                                         <div className="grid md:grid-cols-2 gap-4">
                                             <div>
-                                                <p className="text-sm text-red-600 font-medium mb-2">가중 요소</p>
+                                                <p className="text-base text-red-600 font-medium mb-2">가중 요소</p>
                                                 <ul className="space-y-1">
                                                     {guideline.aggravating.map((item, i) => (
-                                                        <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                                                        <li key={i} className="text-base text-gray-700 flex items-start gap-2">
                                                             <span className="text-red-500">▲</span> {item}
                                                         </li>
                                                     ))}
                                                 </ul>
                                             </div>
                                             <div>
-                                                <p className="text-sm text-green-600 font-medium mb-2">감경 요소</p>
+                                                <p className="text-base text-green-600 font-medium mb-2">감경 요소</p>
                                                 <ul className="space-y-1">
                                                     {guideline.mitigating.map((item, i) => (
-                                                        <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                                                        <li key={i} className="text-base text-gray-700 flex items-start gap-2">
                                                             <span className="text-green-500">▼</span> {item}
                                                         </li>
                                                     ))}
@@ -3956,7 +4010,7 @@ export default function SentencingAnalysis() {
                                             </div>
                                         </div>
                                         <div className="pt-3 border-t">
-                                            <p className="text-sm text-gray-500 mb-1">재판부 분석</p>
+                                            <p className="text-base text-gray-500 mb-1">재판부 분석</p>
                                             <p className="text-gray-800">{guideline.analysis}</p>
                                         </div>
                                     </div>
@@ -3972,23 +4026,23 @@ export default function SentencingAnalysis() {
                             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                                 <div className="p-4 bg-amber-50 border-b">
                                     <h3 className="font-bold text-gray-900">💸 금품을 준 사람들 — 공여자 처벌 결과{selMatter ? ` · ${selMatter.label}` : ''}</h3>
-                                    <p className="text-sm text-gray-600 mt-1">김건희에게 청탁 대가로 금품을 제공한 인물들의 재판 결과입니다.</p>
+                                    <p className="text-base text-gray-600 mt-1">김건희에게 청탁 대가로 금품을 제공한 인물들의 재판 결과입니다.</p>
                                 </div>
                                 <div className="divide-y">
                                     {visibleGivers.length === 0 && (
-                                        <p className="p-4 text-sm text-gray-500">해당 재판부 관련 공여자 정보가 없습니다.</p>
+                                        <p className="p-4 text-base text-gray-500">해당 재판부 관련 공여자 정보가 없습니다.</p>
                                     )}
                                     {visibleGivers.map((g, i) => (
                                         <div key={i} className="p-4">
                                             <div className="flex items-center justify-between gap-2 flex-wrap">
-                                                <p className="font-bold text-gray-900">{g.name} <span className="text-sm font-normal text-gray-500">· {g.role}</span></p>
+                                                <p className="font-bold text-gray-900">{g.name} <span className="text-base font-normal text-gray-500">· {g.role}</span></p>
                                                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${(g.result.includes('집행유예') || g.result.includes('벌금')) ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-700'}`}>
                                                     {g.result.split('(')[0].trim()}
                                                 </span>
                                             </div>
-                                            <p className="text-sm text-gray-600 mt-1">제공: {g.gave}</p>
-                                            {g.charge && <p className="text-sm text-gray-600 mt-0.5"><span className="text-gray-500">죄명: </span>{g.charge}</p>}
-                                            <p className="text-sm text-gray-900 mt-1"><span className="text-gray-500">선고: </span>{g.result}</p>
+                                            <p className="text-base text-gray-600 mt-1">제공: {g.gave}</p>
+                                            {g.charge && <p className="text-base text-gray-600 mt-0.5"><span className="text-gray-500">죄명: </span>{g.charge}</p>}
+                                            <p className="text-base text-gray-900 mt-1"><span className="text-gray-500">선고: </span>{g.result}</p>
                                             {g.source && (
                                                 <a href={g.source.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline mt-1 inline-block">
                                                     출처: {g.source.name} ↗
@@ -4028,9 +4082,9 @@ export default function SentencingAnalysis() {
                                         <div>
                                             <p className="text-xl font-bold text-gray-900">{person.judgeHistory.judgeName} 부장판사</p>
                                             <p className="text-gray-500">{judgeFromDB?.position || person.judgeHistory.position}</p>
-                                            {judgeFromDB?.court && <p className="text-sm text-gray-400">{judgeFromDB.court}</p>}
+                                            {judgeFromDB?.court && <p className="text-base text-gray-400">{judgeFromDB.court}</p>}
                                             {judgeFromDB?.id && (
-                                                <Link to={`/judge/${judgeFromDB.id}`} className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-medium hover:bg-indigo-100 transition">
+                                                <Link to={`/judge/${judgeFromDB.id}`} className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-base font-medium hover:bg-indigo-100 transition">
                                                     AI 판사 평가 보기
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                                                 </Link>
@@ -4040,10 +4094,10 @@ export default function SentencingAnalysis() {
                                     {/* 경력사항 */}
                                     {judgeFromDB?.career?.length > 0 ? (
                                         <div className="mb-3">
-                                            <p className="text-sm font-medium text-indigo-600 mb-2">경력사항</p>
+                                            <p className="text-base font-medium text-indigo-600 mb-2">경력사항</p>
                                             <ul className="space-y-1">
                                                 {judgeFromDB.career.map((item, idx) => (
-                                                    <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
+                                                    <li key={idx} className="text-base text-gray-600 flex items-start gap-2">
                                                         <span className="text-indigo-400 mt-0.5">•</span>
                                                         <span>{item}</span>
                                                     </li>
@@ -4051,7 +4105,7 @@ export default function SentencingAnalysis() {
                                             </ul>
                                         </div>
                                     ) : null}
-                                    <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">{person.judgeHistory.profile}</p>
+                                    <p className="text-base text-gray-600 bg-gray-50 p-3 rounded-lg">{person.judgeHistory.profile}</p>
                                 </div>
                             </div>
 
@@ -4095,10 +4149,10 @@ export default function SentencingAnalysis() {
                                             ))}
                                         </div>
                                         {/* 평가 요약 */}
-                                        <p className="text-sm text-gray-700 leading-relaxed mb-3">{judgeFromDB.justiceEvaluation.summary}</p>
+                                        <p className="text-base text-gray-700 leading-relaxed mb-3">{judgeFromDB.justiceEvaluation.summary}</p>
                                         {/* 주요 이슈 미리보기 (최대 3건) */}
                                         {judgeFromDB.justiceEvaluation.issues?.slice(0, 3).map((issue, idx) => (
-                                            <div key={idx} className={`text-sm p-2 rounded mb-1 ${
+                                            <div key={idx} className={`text-base p-2 rounded mb-1 ${
                                                 issue.category === '검찰' ? 'bg-red-50 text-red-800' : 'bg-yellow-50 text-yellow-800'
                                             }`}>
                                                 <span className="font-medium">{issue.category === '검찰' ? '📋' : '⚖️'} {issue.title}</span>
@@ -4108,7 +4162,7 @@ export default function SentencingAnalysis() {
                                         {judgeFromDB.id && (
                                             <Link
                                                 to={`/judge/${judgeFromDB.id}`}
-                                                className="mt-3 inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                                                className="mt-3 inline-flex items-center gap-1 text-base text-indigo-600 hover:text-indigo-800 font-medium"
                                             >
                                                 판사 상세 평가 전체보기 →
                                             </Link>
@@ -4144,11 +4198,11 @@ export default function SentencingAnalysis() {
                                         person.judgeHistory.recentCases.map((caseItem, idx) => (
                                             <div key={idx} className="p-4">
                                                 <div className="flex items-center justify-between mb-2">
-                                                    <span className="text-sm font-medium text-indigo-600">{caseItem.year}</span>
+                                                    <span className="text-base font-medium text-indigo-600">{caseItem.year}</span>
                                                     <span className="text-xs text-gray-500">{caseItem.role}</span>
                                                 </div>
                                                 <p className="font-medium text-gray-900 mb-1">{caseItem.caseName}</p>
-                                                <p className="text-sm text-gray-600">판결: {caseItem.verdict}</p>
+                                                <p className="text-base text-gray-600">판결: {caseItem.verdict}</p>
                                                 {caseItem.source && (
                                                     <a
                                                         href={caseItem.source.url}
@@ -4177,21 +4231,21 @@ export default function SentencingAnalysis() {
                                     <div className="p-4 space-y-4">
                                         {judgeNewsData[person.judgeHistory.judgeName].tendencyAnalysis && (
                                             <div className="bg-indigo-50 rounded-lg p-3">
-                                                <p className="text-sm text-indigo-600 font-medium mb-1">판결 성향 분석</p>
-                                                <p className="text-sm text-gray-800">{judgeNewsData[person.judgeHistory.judgeName].tendencyAnalysis}</p>
+                                                <p className="text-base text-indigo-600 font-medium mb-1">판결 성향 분석</p>
+                                                <p className="text-base text-gray-800">{judgeNewsData[person.judgeHistory.judgeName].tendencyAnalysis}</p>
                                             </div>
                                         )}
                                         {judgeNewsData[person.judgeHistory.judgeName].cases?.length > 0 && (
                                             <div>
-                                                <p className="text-sm font-medium text-gray-700 mb-2">뉴스에서 발견된 판결 사례</p>
+                                                <p className="text-base font-medium text-gray-700 mb-2">뉴스에서 발견된 판결 사례</p>
                                                 <div className="space-y-2">
                                                     {judgeNewsData[person.judgeHistory.judgeName].cases.map((c, idx) => (
                                                         <div key={idx} className="bg-gray-50 rounded-lg p-3">
                                                             <div className="flex items-center gap-2 mb-1">
                                                                 <span className="text-xs text-indigo-600 font-medium">{c.year}</span>
-                                                                <span className="font-medium text-sm text-gray-900">{c.caseName}</span>
+                                                                <span className="font-medium text-base text-gray-900">{c.caseName}</span>
                                                             </div>
-                                                            <p className="text-sm text-gray-600">{c.verdict}</p>
+                                                            <p className="text-base text-gray-600">{c.verdict}</p>
                                                             {c.controversy && (
                                                                 <p className="text-xs text-orange-600 mt-1">논란: {c.controversy}</p>
                                                             )}
@@ -4202,10 +4256,10 @@ export default function SentencingAnalysis() {
                                         )}
                                         {judgeNewsData[person.judgeHistory.judgeName].publicOpinion?.length > 0 && (
                                             <div>
-                                                <p className="text-sm font-medium text-gray-700 mb-2">여론 및 비판</p>
+                                                <p className="text-base font-medium text-gray-700 mb-2">여론 및 비판</p>
                                                 <ul className="space-y-1">
                                                     {judgeNewsData[person.judgeHistory.judgeName].publicOpinion.map((opinion, idx) => (
-                                                        <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                                                        <li key={idx} className="text-base text-gray-700 flex items-start gap-2">
                                                             <span className="text-blue-500 mt-0.5">•</span>
                                                             <span>{opinion}</span>
                                                         </li>
@@ -4229,13 +4283,13 @@ export default function SentencingAnalysis() {
                                     <div className="p-4 space-y-4">
                                         {judgeYouTubeData[person.judgeHistory.judgeName].overallSentiment && (
                                             <div className="bg-red-50 rounded-lg p-3">
-                                                <p className="text-sm text-red-600 font-medium mb-1">전체 여론 평가</p>
-                                                <p className="text-sm text-gray-800">{judgeYouTubeData[person.judgeHistory.judgeName].overallSentiment}</p>
+                                                <p className="text-base text-red-600 font-medium mb-1">전체 여론 평가</p>
+                                                <p className="text-base text-gray-800">{judgeYouTubeData[person.judgeHistory.judgeName].overallSentiment}</p>
                                             </div>
                                         )}
                                         {judgeYouTubeData[person.judgeHistory.judgeName].mentions?.length > 0 && (
                                             <div>
-                                                <p className="text-sm font-medium text-gray-700 mb-2">영상 언급</p>
+                                                <p className="text-base font-medium text-gray-700 mb-2">영상 언급</p>
                                                 <div className="space-y-3">
                                                     {judgeYouTubeData[person.judgeHistory.judgeName].mentions.map((mention, idx) => (
                                                         <div key={idx} className="bg-gray-50 rounded-lg p-3">
@@ -4244,9 +4298,9 @@ export default function SentencingAnalysis() {
                                                                     mention.sentiment === '부정' ? 'bg-red-500' :
                                                                     mention.sentiment === '긍정' ? 'bg-green-500' : 'bg-gray-400'
                                                                 }`}></span>
-                                                                <p className="font-medium text-sm text-gray-900">{mention.videoTitle}</p>
+                                                                <p className="font-medium text-base text-gray-900">{mention.videoTitle}</p>
                                                             </div>
-                                                            <p className="text-sm text-gray-600 mb-1">{mention.context}</p>
+                                                            <p className="text-base text-gray-600 mb-1">{mention.context}</p>
                                                             {mention.keyQuotes?.length > 0 && (
                                                                 <div className="mt-2 space-y-1">
                                                                     {mention.keyQuotes.map((quote, qIdx) => (
@@ -4263,10 +4317,10 @@ export default function SentencingAnalysis() {
                                         )}
                                         {judgeYouTubeData[person.judgeHistory.judgeName].controversies?.length > 0 && (
                                             <div>
-                                                <p className="text-sm font-medium text-gray-700 mb-2">주요 논란</p>
+                                                <p className="text-base font-medium text-gray-700 mb-2">주요 논란</p>
                                                 <ul className="space-y-1">
                                                     {judgeYouTubeData[person.judgeHistory.judgeName].controversies.map((c, idx) => (
-                                                        <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                                                        <li key={idx} className="text-base text-gray-700 flex items-start gap-2">
                                                             <span className="text-red-500 mt-0.5">▪</span>
                                                             <span>{c}</span>
                                                         </li>
@@ -4291,10 +4345,10 @@ export default function SentencingAnalysis() {
                                         {judgeCourtData[person.judgeHistory.judgeName].cases.slice(0, 10).map((courtCase, idx) => (
                                             <div key={idx} className="p-4">
                                                 <div className="flex items-center justify-between mb-1">
-                                                    <span className="text-sm font-medium text-green-700">{courtCase.verdictDate}</span>
+                                                    <span className="text-base font-medium text-green-700">{courtCase.verdictDate}</span>
                                                     <span className="text-xs text-gray-500">{courtCase.courtName}</span>
                                                 </div>
-                                                <p className="font-medium text-gray-900 text-sm mb-1">{courtCase.caseName || courtCase.caseNumber}</p>
+                                                <p className="font-medium text-gray-900 text-base mb-1">{courtCase.caseName || courtCase.caseNumber}</p>
                                                 {courtCase.verdictType && (
                                                     <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{courtCase.verdictType}</span>
                                                 )}
@@ -4325,15 +4379,15 @@ export default function SentencingAnalysis() {
                                             <div className="grid md:grid-cols-3 gap-3">
                                                 <div className="bg-blue-50 rounded-lg p-3">
                                                     <p className="text-xs text-blue-600 font-medium mb-1">검찰 측 주장</p>
-                                                    <p className="text-sm text-gray-800">{issue.opinion.prosecution}</p>
+                                                    <p className="text-base text-gray-800">{issue.opinion.prosecution}</p>
                                                 </div>
                                                 <div className="bg-gray-50 rounded-lg p-3">
                                                     <p className="text-xs text-gray-600 font-medium mb-1">변호인 측 주장</p>
-                                                    <p className="text-sm text-gray-800">{issue.opinion.defense}</p>
+                                                    <p className="text-base text-gray-800">{issue.opinion.defense}</p>
                                                 </div>
                                                 <div className="bg-purple-50 rounded-lg p-3">
                                                     <p className="text-xs text-purple-600 font-medium mb-1">재판부 판단</p>
-                                                    <p className="text-sm text-gray-800">{issue.opinion.court}</p>
+                                                    <p className="text-base text-gray-800">{issue.opinion.court}</p>
                                                 </div>
                                             </div>
                                         )}
@@ -4341,7 +4395,7 @@ export default function SentencingAnalysis() {
                                         {/* 비교 테이블 (comparison이 있는 경우) */}
                                         {issue.comparison && (
                                             <div className="overflow-x-auto">
-                                                <table className="w-full text-sm">
+                                                <table className="w-full text-base">
                                                     <thead>
                                                         <tr className="bg-gradient-to-r from-indigo-100 to-purple-100">
                                                             <th className="px-4 py-3 text-left font-semibold text-gray-700 border-b">항목</th>
@@ -4383,10 +4437,10 @@ export default function SentencingAnalysis() {
                         <div className="space-y-6">
                             {/* AI 모델 선택 — 데이터 있는 모델만 활성화 */}
                             <div className="flex items-center justify-center gap-2 bg-white rounded-xl shadow-sm p-3">
-                                <span className="text-sm text-gray-500 mr-2">AI 모델:</span>
+                                <span className="text-base text-gray-500 mr-2">AI 모델:</span>
                                 <button
                                     onClick={() => setSelectedAiModel('gemini')}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                    className={`px-4 py-2 rounded-lg text-base font-medium transition-all ${
                                         selectedAiModel === 'gemini'
                                             ? 'bg-blue-600 text-white shadow-sm'
                                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -4396,7 +4450,7 @@ export default function SentencingAnalysis() {
                                 </button>
                                 <button
                                     onClick={() => setSelectedAiModel('claude')}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                    className={`px-4 py-2 rounded-lg text-base font-medium transition-all ${
                                         selectedAiModel === 'claude'
                                             ? 'bg-orange-600 text-white shadow-sm'
                                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -4408,7 +4462,7 @@ export default function SentencingAnalysis() {
 
                             {/* 면책 고지 */}
                             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                                <p className="text-amber-800 text-sm">
+                                <p className="text-amber-800 text-base">
                                     ⚠️ 이 분석은 {selectedAiModel === 'gemini' ? 'Google Gemini AI' : 'Anthropic Claude AI'}가 공개된 뉴스 보도와 역사적 선례를 기반으로 예측한 것이며, 실제 법원 판결과 다를 수 있습니다. 법적 조언이 아닌 참고 자료로만 활용하시기 바랍니다.
                                 </p>
                             </div>
@@ -4425,15 +4479,15 @@ export default function SentencingAnalysis() {
                                             <div className="p-4">
                                                 <div className="grid md:grid-cols-3 gap-4">
                                                     <div className="bg-blue-50 rounded-lg p-4 text-center">
-                                                        <p className="text-sm text-blue-600 mb-1">예측 양형 범위</p>
+                                                        <p className="text-base text-blue-600 mb-1">예측 양형 범위</p>
                                                         <p className="text-lg font-bold text-blue-900">{pred.predictedSentence?.range}</p>
                                                     </div>
                                                     <div className="bg-red-50 rounded-lg p-4 text-center">
-                                                        <p className="text-sm text-red-600 mb-1">가장 유력한 양형</p>
+                                                        <p className="text-base text-red-600 mb-1">가장 유력한 양형</p>
                                                         <p className="text-lg font-bold text-red-900">{pred.predictedSentence?.mostLikely}</p>
                                                     </div>
                                                     <div className="bg-gray-50 rounded-lg p-4 text-center">
-                                                        <p className="text-sm text-gray-600 mb-1">예측 신뢰도</p>
+                                                        <p className="text-base text-gray-600 mb-1">예측 신뢰도</p>
                                                         <p className={`text-lg font-bold ${
                                                             pred.predictedSentence?.confidence === 'high' ? 'text-green-600' :
                                                             pred.predictedSentence?.confidence === 'medium' ? 'text-yellow-600' :
@@ -4455,11 +4509,11 @@ export default function SentencingAnalysis() {
                                                 </div>
                                                 <div className="p-4 grid md:grid-cols-2 gap-4">
                                                     <div className="bg-indigo-50 rounded-lg p-4 text-center">
-                                                        <p className="text-sm text-indigo-600 mb-1">AI 예측</p>
+                                                        <p className="text-base text-indigo-600 mb-1">AI 예측</p>
                                                         <p className="text-xl font-bold text-indigo-900">{pred.predictedSentence?.mostLikely}</p>
                                                     </div>
                                                     <div className="bg-red-50 rounded-lg p-4 text-center">
-                                                        <p className="text-sm text-red-600 mb-1">실제 선고</p>
+                                                        <p className="text-base text-red-600 mb-1">실제 선고</p>
                                                         <p className="text-xl font-bold text-red-900">{person.summary.verdictTotal}</p>
                                                     </div>
                                                 </div>
@@ -4478,24 +4532,24 @@ export default function SentencingAnalysis() {
                                                         <div className="border border-gray-200 rounded-lg p-4">
                                                             <div className="flex items-center gap-3 mb-3">
                                                                 <span className="text-lg font-bold text-gray-900">전두환</span>
-                                                                <span className="text-sm text-gray-500">1996년 | 내란수괴</span>
+                                                                <span className="text-base text-gray-500">1996년 | 내란수괴</span>
                                                                 <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">
                                                                     1심: 사형 → 항소심: 무기징역
                                                                 </span>
                                                             </div>
                                                             <div className="grid md:grid-cols-2 gap-3 mb-3">
                                                                 <div className="bg-blue-50 rounded-lg p-3">
-                                                                    <p className="text-sm text-blue-700 font-medium mb-1">유사점</p>
-                                                                    <p className="text-sm text-gray-700">{pred.historicalComparison.chundoohwan.similarity}</p>
+                                                                    <p className="text-base text-blue-700 font-medium mb-1">유사점</p>
+                                                                    <p className="text-base text-gray-700">{pred.historicalComparison.chundoohwan.similarity}</p>
                                                                 </div>
                                                                 <div className="bg-orange-50 rounded-lg p-3">
-                                                                    <p className="text-sm text-orange-700 font-medium mb-1">차이점</p>
-                                                                    <p className="text-sm text-gray-700">{pred.historicalComparison.chundoohwan.difference}</p>
+                                                                    <p className="text-base text-orange-700 font-medium mb-1">차이점</p>
+                                                                    <p className="text-base text-gray-700">{pred.historicalComparison.chundoohwan.difference}</p>
                                                                 </div>
                                                             </div>
                                                             <div className="bg-gray-50 rounded-lg p-3">
-                                                                <p className="text-sm text-gray-600 font-medium mb-1">양형 영향</p>
-                                                                <p className="text-sm text-gray-700">{pred.historicalComparison.chundoohwan.sentenceImpact}</p>
+                                                                <p className="text-base text-gray-600 font-medium mb-1">양형 영향</p>
+                                                                <p className="text-base text-gray-700">{pred.historicalComparison.chundoohwan.sentenceImpact}</p>
                                                             </div>
                                                         </div>
                                                     )}
@@ -4505,24 +4559,24 @@ export default function SentencingAnalysis() {
                                                         <div className="border border-gray-200 rounded-lg p-4">
                                                             <div className="flex items-center gap-3 mb-3">
                                                                 <span className="text-lg font-bold text-gray-900">노태우</span>
-                                                                <span className="text-sm text-gray-500">1996년 | 내란중요임무종사</span>
+                                                                <span className="text-base text-gray-500">1996년 | 내란중요임무종사</span>
                                                                 <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">
                                                                     1심: 22년6월 → 항소심: 17년
                                                                 </span>
                                                             </div>
                                                             <div className="grid md:grid-cols-2 gap-3 mb-3">
                                                                 <div className="bg-blue-50 rounded-lg p-3">
-                                                                    <p className="text-sm text-blue-700 font-medium mb-1">유사점</p>
-                                                                    <p className="text-sm text-gray-700">{pred.historicalComparison.nohtaewoo.similarity}</p>
+                                                                    <p className="text-base text-blue-700 font-medium mb-1">유사점</p>
+                                                                    <p className="text-base text-gray-700">{pred.historicalComparison.nohtaewoo.similarity}</p>
                                                                 </div>
                                                                 <div className="bg-orange-50 rounded-lg p-3">
-                                                                    <p className="text-sm text-orange-700 font-medium mb-1">차이점</p>
-                                                                    <p className="text-sm text-gray-700">{pred.historicalComparison.nohtaewoo.difference}</p>
+                                                                    <p className="text-base text-orange-700 font-medium mb-1">차이점</p>
+                                                                    <p className="text-base text-gray-700">{pred.historicalComparison.nohtaewoo.difference}</p>
                                                                 </div>
                                                             </div>
                                                             <div className="bg-gray-50 rounded-lg p-3">
-                                                                <p className="text-sm text-gray-600 font-medium mb-1">양형 영향</p>
-                                                                <p className="text-sm text-gray-700">{pred.historicalComparison.nohtaewoo.sentenceImpact}</p>
+                                                                <p className="text-base text-gray-600 font-medium mb-1">양형 영향</p>
+                                                                <p className="text-base text-gray-700">{pred.historicalComparison.nohtaewoo.sentenceImpact}</p>
                                                             </div>
                                                         </div>
                                                     )}
@@ -4543,7 +4597,7 @@ export default function SentencingAnalysis() {
                                                                 <span className="font-bold text-gray-900">{codef.name}</span>
                                                                 <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">{codef.sentence}</span>
                                                             </div>
-                                                            <p className="text-sm text-gray-700">{codef.comparedToDefendant}</p>
+                                                            <p className="text-base text-gray-700">{codef.comparedToDefendant}</p>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -4559,10 +4613,10 @@ export default function SentencingAnalysis() {
                                                 <div className="p-4 space-y-4">
                                                     {pred.legalAnalysis.applicableLaws?.length > 0 && (
                                                         <div>
-                                                            <h4 className="text-sm font-bold text-gray-700 mb-2">적용 법률 및 양형 기준</h4>
+                                                            <h4 className="text-base font-bold text-gray-700 mb-2">적용 법률 및 양형 기준</h4>
                                                             <ul className="space-y-1">
                                                                 {pred.legalAnalysis.applicableLaws.map((law, i) => (
-                                                                    <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                                                                    <li key={i} className="text-base text-gray-600 flex items-start gap-2">
                                                                         <span className="text-blue-500 mt-0.5">•</span>
                                                                         <span>{law}</span>
                                                                     </li>
@@ -4573,10 +4627,10 @@ export default function SentencingAnalysis() {
                                                     <div className="grid md:grid-cols-2 gap-4">
                                                         {pred.legalAnalysis.aggravatingFactors?.length > 0 && (
                                                             <div className="bg-red-50 rounded-lg p-3">
-                                                                <h4 className="text-sm font-bold text-red-700 mb-2">가중 사유</h4>
+                                                                <h4 className="text-base font-bold text-red-700 mb-2">가중 사유</h4>
                                                                 <ul className="space-y-1">
                                                                     {pred.legalAnalysis.aggravatingFactors.map((f, i) => (
-                                                                        <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                                                                        <li key={i} className="text-base text-gray-700 flex items-start gap-2">
                                                                             <span className="text-red-400 mt-0.5">▲</span>
                                                                             <span>{f}</span>
                                                                         </li>
@@ -4586,10 +4640,10 @@ export default function SentencingAnalysis() {
                                                         )}
                                                         {pred.legalAnalysis.mitigatingFactors?.length > 0 && (
                                                             <div className="bg-blue-50 rounded-lg p-3">
-                                                                <h4 className="text-sm font-bold text-blue-700 mb-2">감경 사유</h4>
+                                                                <h4 className="text-base font-bold text-blue-700 mb-2">감경 사유</h4>
                                                                 <ul className="space-y-1">
                                                                     {pred.legalAnalysis.mitigatingFactors.map((f, i) => (
-                                                                        <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                                                                        <li key={i} className="text-base text-gray-700 flex items-start gap-2">
                                                                             <span className="text-blue-400 mt-0.5">▼</span>
                                                                             <span>{f}</span>
                                                                         </li>
@@ -4600,10 +4654,10 @@ export default function SentencingAnalysis() {
                                                     </div>
                                                     {pred.legalAnalysis.keyLegalIssues?.length > 0 && (
                                                         <div>
-                                                            <h4 className="text-sm font-bold text-gray-700 mb-2">핵심 법적 쟁점</h4>
+                                                            <h4 className="text-base font-bold text-gray-700 mb-2">핵심 법적 쟁점</h4>
                                                             <ul className="space-y-1">
                                                                 {pred.legalAnalysis.keyLegalIssues.map((issue, i) => (
-                                                                    <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                                                                    <li key={i} className="text-base text-gray-600 flex items-start gap-2">
                                                                         <span className="text-purple-500 mt-0.5">◆</span>
                                                                         <span>{issue}</span>
                                                                     </li>
@@ -4651,7 +4705,7 @@ export default function SentencingAnalysis() {
                                                                 <div key={i} className="bg-gray-50 rounded-lg p-3 text-center">
                                                                     <p className="text-xs text-gray-500 mb-1">{item.label}</p>
                                                                     <p className={`text-2xl font-bold ${item.score <= 30 ? 'text-red-600' : item.score <= 60 ? 'text-yellow-600' : 'text-green-600'}`}>
-                                                                        {item.score}<span className="text-sm font-normal text-gray-400">/100</span>
+                                                                        {item.score}<span className="text-base font-normal text-gray-400">/100</span>
                                                                     </p>
                                                                     <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                                                                         <div
@@ -4664,7 +4718,7 @@ export default function SentencingAnalysis() {
                                                         </div>
                                                     )}
                                                     {pred.judicialIntegrity.integrityScore?.reasoning && (
-                                                        <p className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3 leading-relaxed">
+                                                        <p className="text-base text-gray-600 bg-gray-50 rounded-lg p-3 leading-relaxed">
                                                             {pred.judicialIntegrity.integrityScore.reasoning}
                                                         </p>
                                                     )}
@@ -4672,7 +4726,7 @@ export default function SentencingAnalysis() {
                                                     {/* 특검·검찰 문제점 */}
                                                     {pred.judicialIntegrity.prosecutorialIssues?.length > 0 && (
                                                         <div>
-                                                            <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1">
+                                                            <h4 className="text-base font-bold text-gray-800 mb-2 flex items-center gap-1">
                                                                 <span>📋</span> 특검·검찰 문제점
                                                             </h4>
                                                             <div className="space-y-2">
@@ -4687,7 +4741,7 @@ export default function SentencingAnalysis() {
                                                                                 issue.severity === 'critical' ? 'bg-red-500' :
                                                                                 issue.severity === 'major' ? 'bg-yellow-500' : 'bg-gray-400'
                                                                             }`} />
-                                                                            <span className="text-sm font-bold text-gray-900">{issue.title}</span>
+                                                                            <span className="text-base font-bold text-gray-900">{issue.title}</span>
                                                                         </div>
                                                                         <p className="text-xs text-gray-600 ml-4">{issue.description}</p>
                                                                         {issue.impact && <p className="text-xs text-red-600 ml-4 mt-1 font-medium">→ {issue.impact}</p>}
@@ -4716,7 +4770,7 @@ export default function SentencingAnalysis() {
                                                     {/* 재판부 문제점 */}
                                                     {pred.judicialIntegrity.judicialIssues?.length > 0 && (
                                                         <div>
-                                                            <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1">
+                                                            <h4 className="text-base font-bold text-gray-800 mb-2 flex items-center gap-1">
                                                                 <span>⚖️</span> 재판부 문제점
                                                             </h4>
                                                             <div className="space-y-2">
@@ -4731,7 +4785,7 @@ export default function SentencingAnalysis() {
                                                                                 issue.severity === 'critical' ? 'bg-red-500' :
                                                                                 issue.severity === 'major' ? 'bg-yellow-500' : 'bg-gray-400'
                                                                             }`} />
-                                                                            <span className="text-sm font-bold text-gray-900">{issue.title}</span>
+                                                                            <span className="text-base font-bold text-gray-900">{issue.title}</span>
                                                                         </div>
                                                                         <p className="text-xs text-gray-600 ml-4">{issue.description}</p>
                                                                         {issue.impact && <p className="text-xs text-red-600 ml-4 mt-1 font-medium">→ {issue.impact}</p>}
@@ -4760,14 +4814,14 @@ export default function SentencingAnalysis() {
                                                     {/* 미처리·누락 증거 */}
                                                     {pred.judicialIntegrity.omittedEvidence?.length > 0 && (
                                                         <div>
-                                                            <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1">
+                                                            <h4 className="text-base font-bold text-gray-800 mb-2 flex items-center gap-1">
                                                                 <span>📎</span> 미처리·누락 증거
                                                             </h4>
                                                             <div className="space-y-2">
                                                                 {pred.judicialIntegrity.omittedEvidence.map((ev, i) => (
                                                                     <div key={i} className="p-3 bg-amber-50 rounded-lg border border-amber-200">
                                                                         <div className="flex items-center justify-between">
-                                                                            <span className="text-sm font-medium text-gray-900">{ev.title}</span>
+                                                                            <span className="text-base font-medium text-gray-900">{ev.title}</span>
                                                                             {ev.status && (
                                                                                 <span className="text-xs px-2 py-0.5 bg-amber-200 text-amber-800 rounded-full">{ev.status}</span>
                                                                             )}
@@ -4829,7 +4883,7 @@ export default function SentencingAnalysis() {
                                                     {/* 검색 트렌드 분석 */}
                                                     {pred.judicialIntegrity.trendInsight && (
                                                         <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-3 border border-green-100">
-                                                            <h4 className="text-sm font-bold text-gray-800 mb-1 flex items-center gap-1">
+                                                            <h4 className="text-base font-bold text-gray-800 mb-1 flex items-center gap-1">
                                                                 <span>📈</span> 검색 트렌드 분석
                                                             </h4>
                                                             <p className="text-xs text-gray-600 leading-relaxed">{pred.judicialIntegrity.trendInsight}</p>
@@ -4839,7 +4893,7 @@ export default function SentencingAnalysis() {
                                                     {/* 점수 산출 방법론 */}
                                                     {pred.judicialIntegrity.integrityScore?.methodology && (
                                                         <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                                                            <h4 className="text-sm font-bold text-gray-800 mb-1 flex items-center gap-1">
+                                                            <h4 className="text-base font-bold text-gray-800 mb-1 flex items-center gap-1">
                                                                 <span>🔬</span> 평가 방법론
                                                             </h4>
                                                             <p className="text-xs text-gray-600 leading-relaxed">{pred.judicialIntegrity.integrityScore.methodology}</p>
@@ -4849,7 +4903,7 @@ export default function SentencingAnalysis() {
                                                     {/* 핵심 발견사항 */}
                                                     {pred.judicialIntegrity.evidenceSummary.keyFindings?.length > 0 && (
                                                         <div>
-                                                            <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1">
+                                                            <h4 className="text-base font-bold text-gray-800 mb-2 flex items-center gap-1">
                                                                 <span>💡</span> 핵심 발견사항
                                                             </h4>
                                                             <ul className="space-y-1.5">
@@ -4893,7 +4947,7 @@ export default function SentencingAnalysis() {
                                                     {/* 비교 테이블 */}
                                                     {pred.aiJudgeComparison.differences?.length > 0 && (
                                                         <div className="overflow-x-auto">
-                                                            <table className="w-full text-sm">
+                                                            <table className="w-full text-base">
                                                                 <thead>
                                                                     <tr className="bg-gray-100">
                                                                         <th className="p-2 text-left text-gray-700 font-bold rounded-tl-lg">판단 항목</th>
@@ -4919,7 +4973,7 @@ export default function SentencingAnalysis() {
                                                     {/* 필요성 요약 */}
                                                     {pred.aiJudgeComparison.necessityReasoning && (
                                                         <div className="bg-indigo-50 rounded-lg p-3">
-                                                            <p className="text-sm text-indigo-800 leading-relaxed">
+                                                            <p className="text-base text-indigo-800 leading-relaxed">
                                                                 💡 {pred.aiJudgeComparison.necessityReasoning}
                                                             </p>
                                                         </div>
@@ -4928,7 +4982,7 @@ export default function SentencingAnalysis() {
                                                     {/* AI 사법 시스템 도입 현황 */}
                                                     {pred.aiJudgeComparison.aiJudgeStatus && (
                                                         <div className="border-t pt-4">
-                                                            <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-1">
+                                                            <h4 className="text-base font-bold text-gray-800 mb-3 flex items-center gap-1">
                                                                 <span>🌍</span> AI 사법 시스템 도입 현황
                                                             </h4>
                                                             <div className="grid md:grid-cols-2 gap-3">
@@ -4961,7 +5015,7 @@ export default function SentencingAnalysis() {
                                     <h3 className="text-lg font-bold text-gray-700 mb-2">
                                         {selectedAiModel === 'gemini' ? 'Gemini' : 'Claude'} AI 양형 예측이 아직 생성되지 않았습니다
                                     </h3>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-base text-gray-500">
                                         {person.aiPrediction || person.claudePrediction ? (
                                             <>다른 AI 모델의 예측을 확인하려면 위 버튼을 전환해보세요.</>
                                         ) : (
@@ -4982,7 +5036,7 @@ export default function SentencingAnalysis() {
                                     <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
                                         <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full whitespace-nowrap">{src.label}</span>
                                         <div className="flex-1">
-                                            <a href={src.url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:text-blue-800 hover:underline font-medium">
+                                            <a href={src.url} target="_blank" rel="noopener noreferrer" className="text-base text-blue-600 hover:text-blue-800 hover:underline font-medium">
                                                 {src.title}
                                             </a>
                                             <p className="text-xs text-gray-400 mt-1">{src.date}</p>
@@ -5003,12 +5057,12 @@ export default function SentencingAnalysis() {
                             <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
                                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                                     <span>📰</span> 관련 뉴스
-                                    <span className="text-sm font-normal text-gray-500">(네이버 뉴스 검색)</span>
+                                    <span className="text-base font-normal text-gray-500">(네이버 뉴스 검색)</span>
                                 </h3>
                                 {newsLoading ? (
                                     <div className="text-center py-4">
                                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-                                        <p className="mt-2 text-sm text-gray-500">뉴스 검색 중...</p>
+                                        <p className="mt-2 text-base text-gray-500">뉴스 검색 중...</p>
                                     </div>
                                 ) : items.length > 0 ? (
                                     <ul className="space-y-3">
@@ -5017,7 +5071,7 @@ export default function SentencingAnalysis() {
                                                 <a href={news.link} target="_blank" rel="noopener noreferrer" className="block hover:bg-gray-50 p-2 rounded -m-2">
                                                     <h4 className="text-blue-600 hover:underline font-medium" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(news.title || '') }} />
                                                     {news.description && (
-                                                        <p className="text-sm text-gray-600 mt-1 line-clamp-2" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(news.description) }} />
+                                                        <p className="text-base text-gray-600 mt-1 line-clamp-2" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(news.description) }} />
                                                     )}
                                                     {news.pubDate && (
                                                         <p className="text-xs text-gray-400 mt-1">{new Date(news.pubDate).toLocaleDateString('ko-KR')}</p>
@@ -5035,7 +5089,7 @@ export default function SentencingAnalysis() {
 
                     {/* 하단 안내 */}
                     <div className="mt-8 p-4 bg-gray-100 rounded-xl text-center">
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-gray-600 text-base">
                             이 분석은 공개된 뉴스와 법률 정보를 바탕으로 작성되었습니다.<br />
                             정확한 법률 자문은 전문 변호사에게 문의하세요.
                         </p>
@@ -5044,7 +5098,7 @@ export default function SentencingAnalysis() {
                                 href="https://sc.scourt.go.kr"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-600 text-sm hover:underline"
+                                className="text-blue-600 text-base hover:underline"
                             >
                                 대법원 양형위원회 →
                             </a>
@@ -5052,7 +5106,7 @@ export default function SentencingAnalysis() {
                                 href="https://glaw.scourt.go.kr"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-600 text-sm hover:underline"
+                                className="text-blue-600 text-base hover:underline"
                             >
                                 종합법률정보 →
                             </a>
@@ -5108,7 +5162,7 @@ export default function SentencingAnalysis() {
             <footer className="bg-gray-900 text-gray-400 py-6 px-4">
                 <div className="container mx-auto text-center">
                     <p>&copy; 주권자사법개혁추진준비위원회</p>
-                    <p className="mt-2 text-sm">문의: siminbupjung@gmail.com</p>
+                    <p className="mt-2 text-base">문의: siminbupjung@gmail.com</p>
                 </div>
             </footer>
         </div>
