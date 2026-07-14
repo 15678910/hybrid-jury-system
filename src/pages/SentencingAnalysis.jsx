@@ -3510,7 +3510,7 @@ export default function SentencingAnalysis() {
                         <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
                             <div className="p-4 bg-amber-50 border-b">
                                 <h2 className="font-bold text-gray-900">🎖️ 12·3 계엄 군 자체 징계 현황</h2>
-                                <p className="text-xs text-gray-600 mt-1">형사 재판과 <b>별개</b>인 군 인사·징계 조치입니다. 12·3 이후 창군 이래 최대 규모 — <b>파면·해임 장군 14명(별 31개 추락)</b>, 대령 4명 파면 등.</p>
+                                <p className="text-base text-gray-600 mt-1">형사 재판과 <b>별개</b>인 군 인사·징계 조치입니다. 12·3 이후 창군 이래 최대 규모 — <b>파면·해임 장군 14명(별 31개 추락)</b>, 대령 4명 파면 등.</p>
                             </div>
                             <div className="divide-y">
                                 {[
@@ -3535,15 +3535,15 @@ export default function SentencingAnalysis() {
                                                 <span className={`text-base font-bold text-gray-600 ${PERSON_PHOTOS[d.name] ? 'hidden' : 'flex'} items-center justify-center w-full h-full`}>{d.name[0]}</span>
                                             </div>
                                             <div className="min-w-0">
-                                                <p className="font-bold text-gray-900">{d.name} <span className="text-xs font-normal text-gray-500">· {d.rank}</span></p>
-                                                <p className="text-xs text-gray-600 mt-0.5">{d.note}</p>
+                                                <p className="font-bold text-gray-900">{d.name} <span className="text-sm font-normal text-gray-500">· {d.rank}</span></p>
+                                                <p className="text-base text-gray-600 mt-0.5">{d.note}</p>
                                             </div>
                                         </div>
-                                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold whitespace-nowrap ${d.color === 'red' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}`}>{d.action}</span>
+                                        <span className={`px-2.5 py-0.5 rounded-full text-sm font-bold whitespace-nowrap ${d.color === 'red' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}`}>{d.action}</span>
                                     </div>
                                 ))}
                             </div>
-                            <div className="p-3 bg-gray-50 text-xs text-gray-400">※ 군 징계(파면·해임·직무배제)는 형사 처벌과 별개의 행정 조치입니다. 출처: 뉴스토마토·매일신문·뉴데일리 등.</div>
+                            <div className="p-3 bg-gray-50 text-sm text-gray-400">※ 군 징계(파면·해임·직무배제)는 형사 처벌과 별개의 행정 조치입니다. 출처: 뉴스토마토·매일신문·뉴데일리 등.</div>
                         </div>
 
                         {/* 인물 목록 */}
