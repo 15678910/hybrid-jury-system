@@ -105,7 +105,7 @@ const CRIMINAL_PROCEDURE_BILLS = {
                 '검사 수사개시권 완전 폐지 — 수사기관에 보완수사를 「요구」하는 것이 기본 원칙(제196조①)',
                 '★ 보완수사권 부분 존치 — 특정강력·성폭력·아동청소년·장애인·노인학대·스토킹·가정폭력 등 사회적 약자 대상 범죄 + 보이스피싱·유사수신·다단계 등 민생범죄 + 병합·구속·공소시효 임박·피해자 이의신청 사건에 한해 검사 보완수사 허용(송치 범죄와 동일성 인정 범위)',
                 '★ 남용 방지 장치 — 강제처분(체포·구속·압수수색·검증) 시 지방공소청장 승인, 사건관계인 신청 시 사건심의위원회(민간 50~200명)가 사후 적정성 심의(제196조②)',
-                '이행강제 — 보완수사 요구에 이행기한 설정·연장 신청, 정당한 이유 없는 지연·불이행 시 이행촉구·직무배제·징계 요구(제197조의2)',
+                '이행강제 — 보완수사 요구 시 3개월의 범위에서 이행기한 지정, 경찰은 만료 7일 전까지 연장 신청. 정당한 이유 없는 지연·불이행 시 이행촉구·직무배제·징계 요구(제197조의2)',
                 '사회적 약자 대상 범죄는 혐의 발견 여부와 무관하게 의무 송치(제245조의5①다목) / 고발인 이의신청권 부활 + 사건기록 열람·등사 청구권(제245조의7②~⑥)',
                 '근거로 든 대검 실증조사(2026.3~4, 전국 12개 검찰청) — 검사 보완수사의 80% 이상이 단순 사실관계 확인·누락 증빙 보완, 강제수사는 약 0.5%',
             ],
@@ -118,18 +118,18 @@ const CRIMINAL_PROCEDURE_BILLS = {
         },
     ],
     articles: [
-        { article: '검사 직접수사·직접 보완수사', law: '제196조 등', current: '제196조(검사의 수사): 검사는 범죄 혐의가 있다고 사료하는 때에는 범인·범죄사실과 증거를 수사한다. 송치·영장 관련 사건에서 보완수사를 할 수 있다. → 검사의 직접수사·직접 보완수사의 근거 조항.', kimparkArt: '제196조·제197조의2', kimpark: '폐지 — 송치사건도 검사는 직접 보완수사 불가, 사법경찰관에 「요구」만 가능', hankyuArt: '제196조·제197조의2', hankyu: '폐지 — 수사 주체를 사법경찰관으로 일원화' },
-        { article: '보완수사 요구·이행강제', law: '제197조의2', current: '제197조의2(보완수사요구): 검사는 공소제기 여부 결정·영장 청구를 위해 사법경찰관에게 보완수사를 요구할 수 있고, 사법경찰관은 정당한 이유가 없으면 이행한다. 불이행 시 검찰총장·검사장이 직무배제·징계를 요구할 수 있다.', kimparkArt: '제197조의2', kimpark: '대상·방법·절차·시기 문서 명시 요구·이행관리 / 3개월 원칙 / 불이행 시 직무배제·교체 요구', hankyuArt: '제197조의2', hankyu: '★ 1개월로 단축 + ★ 수사관서 지정·변경권 + ★ 사건 이송권(⑦항 신설 — 공정성 고려해 다른 수사기관에 이송) / 불이행 시 직무배제·교체·징계 요구' },
-        { article: '불송치 재수사 요청', law: '제245조의8', current: '제245조의8(재수사요청): 검사는 사법경찰관의 불송치가 위법·부당한 때 이유를 문서로 명시하여 재수사를 요청할 수 있고, 사법경찰관은 재수사하여야 한다.', kimparkArt: '제245조의8', kimpark: '재수사 요청·기간 규정 정비', hankyuArt: '제245조의8', hankyu: '★ 90일 명문화(예외 무제한) + 고소인 통지의무 + 재수사 3개월 + "다시 요청" 신설 + 불이행 제재' },
-        { article: '고발인 이의신청권 부활', law: '제245조의7', current: '현행 제245조의7은 2022년 개정으로 이의신청권자에서 「고발인을 제외」 — 고발인은 경찰의 불송치에 이의신청을 할 수 없다.', kimparkArt: '제245조의7', kimpark: '「사람(고발인을 제외한다)」 문구 삭제 → 고발인의 이의신청권 부활 (양 법안 공통)', hankyuArt: '제245조의7', hankyu: '「사람(고발인을 제외한다)」 문구 삭제 → 고발인의 이의신청권 부활 (양 법안 공통)' },
-        { article: '인권보호·민주통제 기구', law: '제196조·제246조의3', current: '현행 없음 — 수사인권보호관(제196조로 신설)·공소심의회(제246조의3으로 신설)는 개정안이 새로 두는 조항이다.', kimparkArt: '제196조(수사인권보호관)·제246조의3(공소심의회)', kimpark: '★ 수사인권보호관 + ★ 공소심의회 신설', hankyuArt: '해당 조문 미신설', hankyu: '두지 않음 (수사·기소 분리 원칙 구현에 집중)' },
-        { article: '피해자 구제(불복·재정신청)', law: '제245조의7·제260조 등', current: '제245조의7(고소인 등의 이의신청)·제260조(재정신청): 고소인 등은 사법경찰관의 불송치·검사의 불기소에 불복하여 이의신청·재정신청을 할 수 있다.', kimparkArt: '제245조의7·제260조·제262조', kimpark: '★ 두텁게 정비 — 불송치 이의신청·재수사요청 + 불기소 재정신청 대폭 정비를 공소심의회 심의와 연계 + 고소인 통지·기록 열람·피해자보호', hankyuArt: '제245조의7·제260조', hankyu: '통지·이의신청 등 기본 정비 (공소심의회 없음, 재정신청 정비 상대적 약함)' },
-        { article: '수사심의회(수사단계 심의)', law: '—', current: '현행 없음 — 수사 단계의 심의 기구는 두 개정안 모두 두지 않는다.', kimparkArt: '—', kimpark: '없음 (기소 심의 「공소심의회」만 신설)', hankyuArt: '—', hankyu: '없음' },
+        { article: '검사 직접수사·직접 보완수사', law: '제196조 등', current: '제196조(검사의 수사): 검사는 범죄 혐의가 있다고 사료하는 때에는 범인·범죄사실과 증거를 수사한다. 송치·영장 관련 사건에서 보완수사를 할 수 있다. → 검사의 직접수사·직접 보완수사의 근거 조항.', kimparkArt: '제196조·제197조의2', kimpark: '폐지 — 송치사건도 검사는 직접 보완수사 불가, 사법경찰관에 「요구」만 가능', hankyuArt: '제196조·제197조의2', hankyu: '폐지 — 수사 주체를 사법경찰관으로 일원화', hongArt: '제196조①~④', hong: '★ 수사개시권은 폐지(보완수사 「요구」가 원칙)하되, 특정강력·성폭력·아동청소년·스토킹·가정폭력·노인학대 등 + 유사수신·다단계 등 민생범죄 + 구속·공소시효 임박·병합·이의신청 송치 사건은 검사가 송치범죄와 동일성 범위에서 직접 수사 가능(①). 강제처분 시 지방공소청장 보고·승인(②) + 사건심의위원회 사후 적정성 심의(③). 그 외 사건도 진술·의견 청취·자료 요청으로 사실관계 확인 가능(④)' },
+        { article: '보완수사 요구·이행강제', law: '제197조의2', current: '제197조의2(보완수사요구): 검사는 공소제기 여부 결정·영장 청구를 위해 사법경찰관에게 보완수사를 요구할 수 있고, 사법경찰관은 정당한 이유가 없으면 이행한다. 불이행 시 검찰총장·검사장이 직무배제·징계를 요구할 수 있다.', kimparkArt: '제197조의2', kimpark: '대상·방법·절차·시기 문서 명시 요구·이행관리 / 3개월 원칙 / 불이행 시 직무배제·교체 요구', hankyuArt: '제197조의2', hankyu: '★ 1개월로 단축 + ★ 수사관서 지정·변경권 + ★ 사건 이송권(⑦항 신설 — 공정성 고려해 다른 수사기관에 이송) / 불이행 시 직무배제·교체·징계 요구', hongArt: '제197조의2', hong: '★ 이행기한을 3개월의 범위에서 지정(②) — 경찰은 만료 7일 전까지 연장 신청(④) / 정당한 이유 없이 불이행·현저히 지연 시 이행촉구·직무배제·징계 요구(⑤~)' },
+        { article: '불송치 재수사 요청', law: '제245조의8', current: '제245조의8(재수사요청): 검사는 사법경찰관의 불송치가 위법·부당한 때 이유를 문서로 명시하여 재수사를 요청할 수 있고, 사법경찰관은 재수사하여야 한다.', kimparkArt: '제245조의8', kimpark: '재수사 요청·기간 규정 정비', hankyuArt: '제245조의8', hankyu: '★ 90일 명문화(예외 무제한) + 고소인 통지의무 + 재수사 3개월 + "다시 요청" 신설 + 불이행 제재', hongArt: '—', hong: '실질 정비 없음 — 현행 유지 (원문상 「검찰청」→「공소청」 용어 정비 외 재수사요청 관련 개정 없음)' },
+        { article: '고발인 이의신청권 부활', law: '제245조의7', current: '현행 제245조의7은 2022년 개정으로 이의신청권자에서 「고발인을 제외」 — 고발인은 경찰의 불송치에 이의신청을 할 수 없다.', kimparkArt: '제245조의7', kimpark: '「사람(고발인을 제외한다)」 문구 삭제 → 고발인의 이의신청권 부활 (3개 법안 공통)', hankyuArt: '제245조의7', hankyu: '「사람(고발인을 제외한다)」 문구 삭제 → 고발인의 이의신청권 부활 (3개 법안 공통)', hongArt: '제245조의7①~⑥', hong: '「사람(고발인을 제외한다)」 문구 삭제 → 고발인 이의신청권 부활 (3개 법안 공통) + ★ 사건기록 열람·등사 신청권과 거부사유·불복절차 신설(②~⑥)' },
+        { article: '인권보호·민주통제 기구', law: '제196조·제246조의3', current: '현행 없음 — 수사인권보호관(제196조로 신설)·공소심의회(제246조의3으로 신설)는 개정안이 새로 두는 조항이다.', kimparkArt: '제196조(수사인권보호관)·제246조의3(공소심의회)', kimpark: '★ 수사인권보호관 + ★ 공소심의회 신설', hankyuArt: '해당 조문 미신설', hankyu: '두지 않음 (수사·기소 분리 원칙 구현에 집중)', hongArt: '제196조③ (공소청법 제21조 연계)', hong: '수사인권보호관·공소심의회는 두지 않음. 대신 ★ 「공소청법」 제21조 사건심의위원회(민간 50~200명)가 사건관계인 신청에 따라 검사 강제처분의 적정성을 사후 심의' },
+        { article: '피해자 구제(불복·재정신청)', law: '제245조의7·제260조 등', current: '제245조의7(고소인 등의 이의신청)·제260조(재정신청): 고소인 등은 사법경찰관의 불송치·검사의 불기소에 불복하여 이의신청·재정신청을 할 수 있다.', kimparkArt: '제245조의7·제260조·제262조', kimpark: '★ 두텁게 정비 — 불송치 이의신청·재수사요청 + 불기소 재정신청 대폭 정비를 공소심의회 심의와 연계 + 고소인 통지·기록 열람·피해자보호', hankyuArt: '제245조의7·제260조', hankyu: '통지·이의신청 등 기본 정비 (공소심의회 없음, 재정신청 정비 상대적 약함)', hongArt: '제245조의7②~⑥·제196조①2호라목', hong: '★ 불송치 이의신청에 사건기록 열람·등사 신청권·거부사유·불복절차 신설 + 고발인 이의신청권 부활. 이의신청으로 송치된 사건은 검사 보완수사 허용 대상에 포함. 재정신청 정비는 별도 없음' },
+        { article: '수사심의회(수사단계 심의)', law: '—', current: '현행 없음 — 수사 단계의 심의 기구는 세 개정안 모두 두지 않는다.', kimparkArt: '—', kimpark: '없음 (기소 심의 「공소심의회」만 신설)', hankyuArt: '—', hankyu: '없음', hongArt: '제196조③', hong: '수사단계 심의기구는 두지 않음. 다만 검사 강제처분의 적정성은 공소청법상 사건심의위원회가 사후 심의' },
     ],
 
     // 📋 신·구조문 대비표 (법안별 카테고리) — 현행 형사소송법 조문 vs 각 법안 개정안 요지
     newOldComparison: {
-        note: '두 법안 원문(국회 의안정보시스템)의 신·구조문대비표를 주요 조문 중심으로 요지 정리한 것. 정확한 자구는 각 법안 원문(의안 2219564·2219875) 참조.',
+        note: '세 법안 원문(국회 의안정보시스템)의 신·구조문대비표를 주요 조문 중심으로 요지 정리한 것. 정확한 자구는 각 법안 원문(의안 2219564·2219875·2219937) 참조.',
         categories: [
             {
                 name: '김용민·박은정 의원안', billNo: '의안 2219564', color: 'red',
@@ -151,10 +151,23 @@ const CRIMINAL_PROCEDURE_BILLS = {
                     { art: '제260조 (재정신청)', current: '고소인 등은 검사의 불기소처분에 불복해 관할 고등법원에 재정신청 가능', revised: '통지·이의신청 등 기본 정비 (공소심의회 없음, 재정신청 정비 상대적 약함)' },
                 ],
             },
+            {
+                name: '홍기원 의원안 (부분 존치)', billNo: '의안 2219937', color: 'slate',
+                rows: [
+                    { art: '제196조 (검사의 수사)', current: '① 검사는 범죄의 혐의가 있다고 사료하는 때에는 범인, 범죄사실과 증거를 수사한다 (검사 직접수사 근거)', revised: '① 검사는 수사를 개시할 수 없고, 송치받은 사건에 보완수사가 필요하면 제197조의2에 따라 「보완수사 요구」를 하는 것을 원칙으로 한다. ★ 다만 다음은 송치한 범죄와 동일성이 인정되는 범위에서 검사가 직접 수사 가능 — 1호: 특정강력범죄·성폭력범죄·아동청소년대상성범죄·스토킹·가정폭력·노인학대 등 + 유사수신행위·방문판매(다단계) 등, 2호: 구속사건·공소시효 임박 사건·병합 필요 사건·이의신청 등으로 송치된 사건' },
+                    { art: '제196조 ②③④ (신설)', current: '(현행 없음)', revised: '② 검사가 위 수사를 하며 강제처분을 하려면 필요성을 소속 지방공소청장에게 보고하고 승인을 받아야 함 ③ ★「공소청법」제21조 사건심의위원회(민간 50~200명)가 강제처분 후 사건관계인(피의자·고소인·기관고발인·피해자·변호인)의 신청에 따라 적정성 심의 ④ 제1항 각 호 외 사건도 진술·의견 청취, 자료 제출·요청 방법으로 필요한 사실관계 확인 가능' },
+                    { art: '제197조의2 (보완수사요구)', current: '검사는 사법경찰관에게 보완수사를 요구할 수 있고, 사법경찰관은 정당한 이유가 없는 한 지체 없이 이행. 불이행 시 직무배제·징계 요구', revised: '★ ② 보완수사요구 시 3개월의 범위에서 이행기한을 정하여야 함 / ③ "정당한 이유 없는 한 지체 없이" → "이행기한 내에" / ④ 경찰은 기한 만료 7일 전까지 연장 신청 / ⑤~ 정당한 이유 없이 불이행·현저히 지연 시 이행촉구·직무배제·징계 요구' },
+                    { art: '제245조의5 (사법경찰관 송치)', current: '사법경찰관은 「범죄의 혐의가 있다고 인정되는」 경우 검사에게 송치한다', revised: '★ 1호를 가~다목으로 세분 — 가. 혐의 인정 시 나. 고소·고발 외 단서로 인지·수사한 경우 다. 피의사실이 제196조①1호 각 목(사회적 약자·민생범죄)에 해당하는 경우 → 혐의 발견 여부와 무관하게 의무 송치(경찰은 의견 제시 가능)' },
+                    { art: '제245조의7 (이의신청)', current: '불송치 통지를 받은 「사람(고발인을 제외한다)」은 이의신청 가능', revised: '「(고발인을 제외한다)」 삭제 → 고발인 이의신청권 부활(3개 법안 공통) + ★ ②~⑥ 신설: 사건기록 열람·등사 신청권, 거부사유, 신청인의 불복절차' },
+                    { art: '제195조의2·제197조의5 (신설)', current: '(현행 없음)', revised: '★ 제195조의2: 중요·긴급사건은 경찰이 수사 개시 시 사건정보를 검사와 공유하고 송치 여부 등 결정을 위해 협의 / ★ 제197조의5: 송치·송부 사건과 관련해 다른 범죄혐의를 발견하면 수사기관에 통보' },
+                    { art: '제245조의8 (재수사 요청)', current: '검사는 불송치가 위법·부당한 때 사법경찰관에게 재수사를 요청할 수 있다', revised: '실질 정비 없음 — 현행 유지 (「검찰청」→「공소청」 용어 정비 외 개정 없음)' },
+                ],
+            },
         ],
     },
 
     debates: [
+        { title: '보완수사권 「부분 존치」 — 사회적 약자·민생범죄 예외 허용 (홍기원 의원안)', pro: '전면 폐지 시 수사 결과에 대한 교차검증이 무너져 부실·암장 수사를 바로잡지 못하고, 보완수사 요구 이행 지연으로 수사 공백이 생겨 성폭력·아동/노인학대·보이스피싱 등 사회적 약자·민생범죄 피해자가 2차 피해에 노출된다는 우려. 대검 실증조사(2026.3~4, 전국 12개 검찰청)상 검사 보완수사의 80% 이상이 단순 사실관계 확인·누락 증빙 보완이고 강제수사는 약 0.5%에 불과해, 경미한 사안까지 「요구」 절차를 거치면 사건처리 지연이 심해진다는 주장.', con: '예외 범위(사회적 약자 범죄 + 민생범죄 + 구속·공소시효 임박·병합·이의신청 사건)가 넓어 실무상 상당수 송치사건이 예외에 포섭될 수 있다. 검사가 직접 수사하는 통로가 남는 한 수사·기소 분리 원칙은 형해화되고 「예외」가 원칙을 잠식할 위험이 크다. 보완수사의 80%가 단순 확인이라는 통계는 오히려 「그 정도면 경찰이 하거나 요구로 충분하다」는 반증이기도 하다.', finland: '핀란드는 범죄 유형으로 검사의 직접수사를 나누지 않는다. 사회적 약자 사건이라도 수사는 경찰이 완결(완결수사권)하고, 검사는 수사 초기부터 「협력」하며 기소만 판단한다. 피해자 보호는 검사의 직접수사가 아니라 ① 경찰 내 전담 전문수사부서(국가수사국 KRP 등) ② 피해자 지원·대리 제도 ③ 독립 감찰(법률감찰단〔핀란드 법무총감〕·시민옴부즈만〔핀란드 의회 옴부즈만〕)로 확보한다. → 「약자 보호 = 검사 수사권 존치」가 아니라 「약자 보호 = 전문 수사 + 독립 감시 + 피해자 지원」.' },
         { title: '경찰 직무배제·교체·징계 요구권 — 보완수사·재수사 불이행 시 (더불어민주당 검찰개혁 TF안 조항)', pro: '부실수사 방지·공소유지 실효성 확보(수사지휘 없이도 최소한의 통제)', con: '사실상 수사지휘 부활·"제2의 검찰"화 우려, 경찰 수사 독립성 침해. 같은 더불어민주당 검찰개혁 TF안의 「보완수사 수사관서 지정·변경권 신설」과 결합하면 통제 강도가 더 커진다 (김용민·박은정 의원안엔 공소청의 징계 요구·수사관서 지정변경권이 없고, 징계는 수사인권보호관 권고로 분리)', finland: '검사에게 경찰 징계·직무배제권을 주지 않는다. 위법·부실수사 통제는 검찰이 아니라 독립 감찰기구(법률감찰단〔핀란드 법무총감〕 + 시민옴부즈만〔핀란드 의회 옴부즈만〕) + 경찰 내부 감찰이 맡는다. → 「검사가 경찰을 통제」가 아니라 「독립 감찰이 양쪽을 감시」 — 수사·기소 분리를 지키면서 통제도 확보.' },
         { title: '보완수사 1개월(더불어민주당 검찰개혁 TF안) vs 3개월(김용민·박은정 의원안)', pro: '1개월=신속한 사건처리 / 3개월=복잡사건 충실수사', con: '1개월=복잡사건 부실 우려 / 3개월=사건 지연·미제 누적', finland: '「기한」 다툼은 검사가 경찰에 사건을 되돌려 지휘하는 구조에서 생긴다. 핀란드는 경찰이 수사를 완결(완결수사권)하고 검사는 결과로 기소만 판단하며, 필요한 소통은 수사 초기 「협력(cooperation)」으로 처리 — 지휘가 아니다. → 보완수사 기한 규정 자체가 불필요.' },
         { title: '수사인권보호관·공소심의회(김용민·박은정 의원안)', pro: '수사 인권보호·기소권 민주통제 강화', con: '기구 남설(옥상옥)·기소 지연, 실효성 의문', finland: '핀란드는 기구를 새로 늘리기보다 이미 있는 이중 감시(법률감찰단〔핀란드 법무총감〕 + 시민옴부즈만〔핀란드 의회 옴부즈만〕)가 인권·적법성을 상시 점검한다. 기소 통제는 「내부 심의회」가 아니라 시민이 참여하는 통제(참심제)와 입법부 옴부즈만으로. → 「옥상옥」 대신 독립·상설 감시로 같은 목적(인권보호·민주통제)을 달성.' },
@@ -1837,12 +1850,13 @@ export default function ReformAnalysis() {
                                         {/* 조문별 비교표 */}
                                         <p className="text-base font-bold text-gray-700 mb-2">📜 조문별 비교</p>
                                         <div className="overflow-x-auto mb-6">
-                                            <table className="w-full min-w-[720px] text-base border border-gray-200 rounded-lg overflow-hidden">
+                                            <table className="w-full min-w-[980px] text-base border border-gray-200 rounded-lg overflow-hidden">
                                                 <thead>
                                                     <tr className="bg-gray-100">
                                                         <th className="px-3 py-2 text-left font-bold text-gray-700">쟁점 (조문)</th>
                                                         <th className="px-3 py-2 text-left font-bold text-red-700 border-l border-gray-200">김용민·박은정 의원안</th>
                                                         <th className="px-3 py-2 text-left font-bold text-orange-700 border-l border-gray-200">더불어민주당 검찰개혁 TF(김한규 외 22인)안</th>
+                                                        <th className="px-3 py-2 text-left font-bold text-slate-700 border-l border-gray-200">홍기원 의원안 (부분 존치)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -1851,6 +1865,7 @@ export default function ReformAnalysis() {
                                                             <td className="px-3 py-2 align-top font-semibold text-gray-700"><span onClick={() => setLawModal(a)} className="relative group inline-block cursor-pointer border-b border-dotted border-blue-400 text-blue-700 hover:text-blue-900">{a.article}<span className="pointer-events-none absolute left-0 top-full mt-1 z-30 hidden group-hover:block whitespace-nowrap rounded-md bg-gray-800 px-2.5 py-1.5 text-xs font-normal text-white shadow-lg">📜 {a.law !== '—' ? `관련 조문: ${a.law} · ` : ''}클릭 시 조항 보기</span></span></td>
                                                             <td className="px-3 py-2 align-top text-gray-600 border-l border-gray-200">{a.kimparkArt && <button type="button" onClick={() => setLawModal(a)} title="클릭 시 발의 조항 보기" className="inline-block text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded px-1.5 py-0.5 mb-1 cursor-pointer hover:bg-red-100">📌 {a.kimparkArt}</button>}<span className="block">{a.kimpark}</span></td>
                                                             <td className="px-3 py-2 align-top text-gray-600 border-l border-gray-200">{a.hankyuArt && <button type="button" onClick={() => setLawModal(a)} title="클릭 시 발의 조항 보기" className="inline-block text-xs font-bold text-orange-600 bg-orange-50 border border-orange-200 rounded px-1.5 py-0.5 mb-1 cursor-pointer hover:bg-orange-100">📌 {a.hankyuArt}</button>}<span className="block">{a.hankyu}</span></td>
+                                                            <td className="px-3 py-2 align-top text-gray-600 border-l border-gray-200">{a.hongArt && <button type="button" onClick={() => setLawModal(a)} title="클릭 시 발의 조항 보기" className="inline-block text-xs font-bold text-slate-600 bg-slate-100 border border-slate-300 rounded px-1.5 py-0.5 mb-1 cursor-pointer hover:bg-slate-200">📌 {a.hongArt}</button>}<span className="block">{a.hong}</span></td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -1861,7 +1876,7 @@ export default function ReformAnalysis() {
                                         <p className="text-xs text-gray-400 mb-3">{CRIMINAL_PROCEDURE_BILLS.newOldComparison.note}</p>
                                         <div className="space-y-5 mb-6">
                                             {CRIMINAL_PROCEDURE_BILLS.newOldComparison.categories.map((cat, ci) => {
-                                                const head = cat.color === 'red' ? 'bg-red-100 text-red-800 border-red-300' : 'bg-orange-100 text-orange-800 border-orange-300';
+                                                const head = cat.color === 'red' ? 'bg-red-100 text-red-800 border-red-300' : cat.color === 'slate' ? 'bg-slate-200 text-slate-800 border-slate-400' : 'bg-orange-100 text-orange-800 border-orange-300';
                                                 return (
                                                     <div key={ci} className="rounded-xl border border-gray-200 overflow-hidden">
                                                         <div className={`px-4 py-2 font-bold border-b ${head}`}>📂 {cat.name} <span className="text-xs font-normal">({cat.billNo})</span></div>
@@ -3008,7 +3023,13 @@ export default function ReformAnalysis() {
                                 <p className="text-sm font-bold text-orange-700 mb-1">🅱️ 더불어민주당 검찰개혁 TF(김한규 외 22인)안 발의 조항 <span className="font-normal text-orange-500">({lawModal.hankyuArt})</span></p>
                                 <p className="text-base text-gray-700 leading-relaxed">{lawModal.hankyu}</p>
                             </div>
-                            <p className="text-xs text-gray-400">※ 요지 정리 — 정확한 자구는 국가법령정보센터(현행) 및 국회 의안정보시스템 원문(의안 2219564·2219875) 참조.</p>
+                            {lawModal.hong && (
+                                <div className="bg-slate-100 rounded-lg p-4 border border-slate-300">
+                                    <p className="text-sm font-bold text-slate-700 mb-1">🅲 홍기원 의원안(부분 존치) 발의 조항 <span className="font-normal text-slate-500">({lawModal.hongArt})</span></p>
+                                    <p className="text-base text-gray-700 leading-relaxed">{lawModal.hong}</p>
+                                </div>
+                            )}
+                            <p className="text-xs text-gray-400">※ 요지 정리 — 정확한 자구는 국가법령정보센터(현행) 및 국회 의안정보시스템 원문(의안 2219564·2219875·2219937) 참조.</p>
                         </div>
                     </div>
                 </div>
