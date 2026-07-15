@@ -205,6 +205,38 @@ const CRIMINAL_PROCEDURE_BILLS = {
         ],
         conclusion: '세 형소법 개정안 중에서는 수사지휘 부활 요소가 적고 민주적 통제 장치를 갖춘 김용민·박은정 의원안이 최소한 우선 통과되어야 한다. 그러나 더 근본적인 물음은 "어느 모델이 헌법 제1조(주권재민)와 민주주의에 부합하는가"이며, 그 답은 핀란드식 완전분리와 시민통제(참심제·기소심의·시민감사)를 결합한 모델이다. 검찰개혁의 최종 좌표는 "검찰을 공소청으로 개명하는 것"이 아니라 "사법권력을 주권자인 국민의 통제 아래 두는 것"이어야 한다.',
     },
+    // ⚖️ 홍기원안과 헌법 제1조 — 지적과 반론 (주권자 사법개혁 관점)
+    hongCritique: {
+        title: '홍기원안은 헌법에 부합하는가 — 제1조·인간의 존엄, 그리고 독일 기본법과의 비교',
+        intro: '검찰개혁의 헌법적 좌표는 두 조문에서 나온다. 헌법 제1조(민주공화국·모든 권력은 국민으로부터)는 수사·기소 권력이 누구의 통제를 받아야 하는지를, 헌법 제10조(인간의 존엄과 가치·국가의 기본권 보장 의무)는 그 권력이 무엇을 침해하는지를 말한다. 독일 기본법 제1조는 여기에 결정적 원리를 더한다 — 기본권은 「입법·행정·사법을 직접 구속」한다. 즉 국회조차 기본권 보호수준을 임의로 낮추는 입법을 할 수 없다. 이 세 기준으로 홍기원안을 심사한다.',
+        basis: [
+            { flag: '🇰🇷', law: '대한민국 헌법 제1조', text: '① 대한민국은 민주공화국이다. ② 대한민국의 주권은 국민에게 있고, 모든 권력은 국민으로부터 나온다.', meaning: '수사·기소도 국가권력인 이상 그 정당성의 원천은 국민이며 국민의 통제 아래 있어야 한다. 권력이 특정 기관에 집중·독점되면 그것은 「국민으로부터 나온 권력」이 아니라 「기관이 스스로 갖는 권력」이 된다.' },
+            { flag: '🇰🇷', law: '대한민국 헌법 제10조', text: '모든 국민은 인간으로서의 존엄과 가치를 가지며, 행복을 추구할 권리를 가진다. 국가는 개인이 가지는 불가침의 기본적 인권을 확인하고 이를 보장할 의무를 진다.', meaning: '수사는 체포·구속·압수수색으로 인간의 존엄에 가장 직접 개입하는 국가작용이다. 따라서 수사권을 누구에게 어떻게 주고 어떻게 통제할 것인가는 「인간의 존엄」 문제이며, 국가는 이를 보장할 적극적 의무를 진다.' },
+            { flag: '🇩🇪', law: '독일 기본법(Grundgesetz) 제1조', text: '① 인간의 존엄은 불가침이다. 이를 존중하고 보호하는 것은 모든 국가권력의 의무이다. ③ 이하의 기본권은 직접 효력을 갖는 법으로서 입법·행정(집행권)·사법을 구속한다.', meaning: '기본권이 「입법」까지 직접 구속한다는 선언은, 국회조차 예외 조항으로 기본권 보호수준을 낮출 수 없다는 뜻이다. 예외 입법은 정당화의 근거가 아니라 헌법적 심사의 대상이 된다. 우리 헌법 제10조 후단(국가의 기본권 확인·보장 의무)도 같은 취지다.' },
+        ],
+        tests: [
+            { axis: '헌법 제1조 — 민주공화국·주권재민', question: '수사·기소 권력이 「국민으로부터」 나오고 국민의 통제 아래 있는가?', finding: '2026.10 검찰청 폐지·공소청 출범은 「수사·기소 분리」라는 주권자의 결정을 제도로 옮긴 것이다. 홍기원안은 그 원칙을 명목으로 남긴 채 단서로 검사 직접수사를 복원하고, 예외의 문(「대통령령으로 정하는 공소시효 임박 사건」)은 국민의 대표(국회)가 아니라 행정부의 시행령이 연다. 권력의 크기를 권력 자신이 정하는 구조다. 더구나 예외 범위에 강력·성폭력·구속사건이 포함돼 원칙이 명목화될 수 있다.', verdict: '위배 소지 큼', color: 'red' },
+            { axis: '헌법 제10조 — 인간의 존엄·기본권 보장 의무', question: '기본권을 가장 강하게 침해하는 수사권에 국가가 실효적 보장 의무를 다하는가?', finding: '검사가 직접수사에 나설지를 통제하는 관문은 「소속 지방공소청장」 — 같은 조직의 상급자다(법원 영장은 개별 강제처분의 적법성 통제일 뿐, 직접수사 권한 발동 자체에 대한 외부 통제가 아니다). 시민 통제 장치인 사건심의위원회(민간 50~200명)마저 ⓐ강제처분이 「있은 후에」 ⓑ사건관계인의 「신청에 따라」 ⓒ「심의할 수 있다」로 설계돼 사후·임의적이고 구속력도 불명확하다. 존엄의 보장은 「사후 심의」가 아니라 「사전 차단」이어야 한다.', verdict: '보장 의무 미흡', color: 'amber' },
+            { axis: '독일 기본법 제1조③ — 기본권은 입법도 구속한다', question: '「예외 입법」으로 방금 세운 통제 구조를 완화하는 것이 정당화되는가?', finding: '독일은 인간의 존엄을 불가침으로 선언하고(①) 기본권이 입법·행정·사법을 직접 구속한다고 명시한다(③). 입법자도 기본권에 구속되므로, 보호수준을 낮추는 예외 입법은 그 자체로 심사 대상이다. 홍기원안은 입법자가 스스로 예외를 만들어 통제를 완화하고, 그 범위를 다시 행정부 시행령에 위임한다 — 「기본권이 입법을 구속한다」는 원리와 정반대 방향이다. 또 독일은 통제를 「기본권의 직접 구속 + 시민 참여(참심제 Schöffen)」로 확보한다. 본 페이지 국가 비교에서도 시민 통제·참여는 독일 8/10, 한국 2/10이다 — 우리에게 부족한 것은 검사의 수사권이 아니라 시민의 통제권이다.', verdict: '정당화 어려움', color: 'red' },
+        ],
+        issues: [
+            { n: '①', title: '주권자가 명한 분리를 대리인이 「예외」로 되돌린다', text: '수사·기소 분리는 검찰의 권한 독점이 낳은 표적·봐주기 수사에 대한 주권자의 응답이었고, 국회는 그 위임에 따라 검찰청을 폐지했다. 홍기원안은 분리를 「원칙」으로 남겨두되 단서로 직접수사를 복원한다. 대리인(국회)이 주권자가 명한 구조를 후속 법률의 단서로 되돌리는 것은 형식은 합법이나 실질은 위임의 우회다.' },
+            { n: '②', title: '「예외」가 원칙을 잠식 — 권력 분산의 형해화', text: '예외는 특정강력·성폭력·아동청소년·스토킹·가정폭력·노인학대 등 + 유사수신·다단계 등 민생범죄 + 구속사건·공소시효 임박·병합 필요·이의신청 송치 사건까지 이른다. 강력·성폭력·구속 사건은 형사사건의 큰 몫이며, 「구속사건」 한 항목만으로도 중요사건 상당수가 포섭된다. 원칙이 명목이 되고 예외가 실질이 되면 헌법 제1조가 전제하는 권력 분산은 형해화된다.' },
+            { n: '③', title: '예외의 문을 행정부(대통령령)가 연다', text: '예외 사유 중 「대통령령으로 정하는 공소시효가 임박한 사건」은 그 범위를 행정부가 정한다. 검사의 수사권이 어디까지 미치는지를 국민의 대표(국회)가 아니라 행정부의 시행령이 좌우하게 된다. 권력의 크기를 권력 자신이 정하는 구조는 「모든 권력은 국민으로부터」라는 명령과 어긋난다.' },
+            { n: '④', title: '수사와 기소의 융합 — 자기가 만든 증거로 자기가 기소', text: '검사가 직접 수사한 사건을 검사가 기소하면 증거의 생산자와 판단자가 같아진다. 잘못된 수사를 스스로 걸러낼 유인이 사라지며, 이것이 검찰이 반복해온 봐주기·표적 수사의 구조적 원인이었다. 「약자 사건일수록 신중해야 한다」는 명제는 오히려 그 사건일수록 수사와 기소를 분리해 교차검증해야 한다는 결론으로 이어진다.' },
+            { n: '⑤', title: '통제는 사후·임의적이고, 승인은 조직 내부에서 이뤄진다', text: '강제처분 승인 주체는 「소속 지방공소청장」 — 같은 조직 상급자가 승인하는 사실상 셀프 통제다. 시민 통제 장치인 사건심의위원회(민간 50~200명)도 ⓐ강제처분이 「있은 후에」 ⓑ사건관계인의 「신청에 따라」 ⓒ「심의할 수 있다」로 설계돼, 사전 통제가 아니고 발동도 임의적이며 결과의 구속력도 분명치 않다. 주권자의 실질적 통제로는 약하다.' },
+            { n: '⑥', title: '검사의 수직 이행강제도 그대로 남는다', text: '보완수사 요구 불이행 시 이행촉구·직무배제·징계 요구는 홍기원안에도 유지된다. 검사가 경찰을 내리누르는 수직 통제는 대등한 기관 간 상호 견제라는 민주적 권력 배치와 어긋난다(→ 위 「주권자 협업·상호견제 모델」 참조).' },
+        ],
+        rebuttals: [
+            { claim: '전면 폐지 시 교차검증이 무너져 「광주여고생 살인사건」 같은 부실·암장 수사를 바로잡지 못한다', rebuttal: '교차검증의 수단은 「검사의 직접수사」만이 아니다. 보완수사 요구·재수사 요청·고발인 이의신청·중수청의 경찰범죄 직접수사·공수처·법원 영장심사·독립 감찰이 층층이 작동한다(→ 위 「보완수사권 폐지 시 경찰 견제 방법」 표). 더구나 검찰 자신도 김건희·통일교 사건 등에서 봐주기·부실수사 논란을 반복했다. 한 기관에 권한을 몰아주는 것은 교차검증이 아니라 교차검증의 포기다.' },
+            { claim: '대검 실증조사상 보완수사의 80% 이상이 단순 사실확인이고 강제수사는 0.5%뿐이니, 경미한 건 검사가 직접 하는 것이 신속하다', rebuttal: '80%가 단순 확인이라면 그것은 「경찰이 하거나 요구로 충분하다」는 반증이다. 0.5%의 강제수사를 위해 직접수사의 문을 여는 것은 비례성에 어긋난다. 게다가 이 조사는 권한의 이해당사자인 「대검찰청」이 스스로 실시해 자기 권한 존치의 논거로 제시한 것 — 자기 권한을 지키려는 기관의 자체 통계는 그 자체로 검증 대상이지 근거가 아니다. 더욱이 홍기원안은 제196조④에서 「예외가 아닌 사건도 진술·의견 청취·자료 요청으로 사실관계를 확인」할 수 있게 한다. 경미한 확인은 그 조항으로 족하며, 별도의 직접수사권은 불필요하다.' },
+            { claim: '성폭력·아동/노인학대 등 사회적 약자 보호를 위해 검사 수사권이 필요하다', rebuttal: '약자 보호의 수단이 「검사 직접수사」여야 할 필연성은 없다. 핀란드는 범죄 유형으로 검사 수사권을 나누지 않고 ①경찰 내 전담 전문수사부서 ②피해자 지원·대리 제도 ③독립 감찰(법률감찰단·시민옴부즈만)로 약자를 보호한다. 약자 보호가 목적이라면 경찰의 전문 수사역량과 피해자 지원에 투자하는 것이 정공법이다. 「약자 보호」를 명분으로 권력을 되살리면 명분은 남고 권력만 복원된다.' },
+            { claim: '보완수사 요구 절차만 거치면 사건 처리가 지연된다', rebuttal: '지연의 원인은 「분리」 자체가 아니라 인력·전문성·시스템이다. 실제로 홍기원안은 이행기한을 「3개월의 범위」로 정해 김한규 TF안(1개월)보다 오히려 긴 기한을 두었다 — 지연을 걱정한다면서 기한은 늘린 셈이다. 지연이 문제라면 경찰 수사인력 확충과 수사 초기 협력 절차(검사-경찰 협의) 정비가 답이지, 사건을 검사에게 되돌리는 것이 답일 수 없다.' },
+        ],
+        conclusion: '홍기원안이 지적하는 문제(피해자 2차 피해·수사 공백)는 실재한다. 그러나 그 해법이 「검사 직접수사의 부활」일 이유는 없다. 헌법 제1조의 답은 권력을 되돌리는 것이 아니라 ① 경찰 수사역량·전담 전문부서 강화 ② 입법부 산하 독립 감찰(법률감찰단·시민옴부즈만) ③ 시민 참여의 상설·사전화(참심제, 사건심의위원회의 상설화·사전 심의·구속력 부여) ④ 피해자 지원·대리 제도다. 검찰개혁의 좌표는 「검찰을 공소청으로 개명하는 것」도 「예외로 수사권을 남겨두는 것」도 아니라, 사법권력을 주권자의 통제 아래 두는 것이다.',
+        credit: '다만 홍기원안의 민간 50~200명 「사건심의위원회」, 고발인 이의신청권 부활과 사건기록 열람·등사권은 시민통제를 넓히는 요소다. 이 부분은 폐지가 아니라 강화(상설화·사전 심의·구속력 부여)해 개혁안에 흡수하는 것이 옳다.',
+        note: '※ 지적·반론은 주권자사법개혁추진준비위원회의 평가 관점이며, 법안 내용은 의안 2219937 원문(제안이유·주요내용·신구조문대비표)을 직접 분석한 것이다.',
+    },
     finlandModel: {
         title: '핀란드는 어떻게 했나 — 구체적 대안',
         facts: [
@@ -1975,6 +2007,70 @@ export default function ReformAnalysis() {
                                                 <p className="text-base font-bold text-indigo-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.constitutionalEval.conclusion}</p>
                                             </div>
                                         </div>
+
+                                        {/* ⚖️ 홍기원안과 헌법 제1조 — 지적과 반론 */}
+                                        <div className="bg-gradient-to-br from-rose-50 to-red-50 border-2 border-rose-300 rounded-xl p-4 mt-4">
+                                            <p className="text-lg font-bold text-rose-900 mb-1 flex items-center gap-2 flex-wrap">⚖️ {CRIMINAL_PROCEDURE_BILLS.hongCritique.title} <span className="px-2 py-0.5 bg-rose-100 text-rose-700 text-xs rounded-full font-medium">주권자 사법개혁 관점</span></p>
+                                            <p className="text-base text-rose-900 leading-relaxed mb-3">{CRIMINAL_PROCEDURE_BILLS.hongCritique.intro}</p>
+
+                                            {/* 심사 기준 — 헌법 근거 3개 */}
+                                            <p className="text-base font-bold text-rose-900 mb-2">📜 심사 기준 — 헌법 근거</p>
+                                            <div className="grid md:grid-cols-3 gap-3 mb-4">
+                                                {CRIMINAL_PROCEDURE_BILLS.hongCritique.basis.map((b, i) => (
+                                                    <div key={i} className="bg-white rounded-lg p-3 border border-rose-200 flex flex-col">
+                                                        <p className="text-base font-bold text-gray-800 mb-1">{b.flag} {b.law}</p>
+                                                        <p className="text-sm text-gray-700 bg-gray-50 rounded p-2 border border-gray-200 leading-relaxed mb-2">{b.text}</p>
+                                                        <p className="text-sm text-rose-800 leading-relaxed">{b.meaning}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* 3대 기준 심사 */}
+                                            <p className="text-base font-bold text-rose-900 mb-2">🔍 세 기준으로 본 홍기원안</p>
+                                            <div className="space-y-2 mb-4">
+                                                {CRIMINAL_PROCEDURE_BILLS.hongCritique.tests.map((t, i) => (
+                                                    <div key={i} className="bg-white rounded-lg border border-rose-200 overflow-hidden">
+                                                        <div className="flex items-center justify-between gap-2 px-3 py-2 bg-rose-50 border-b border-rose-200 flex-wrap">
+                                                            <p className="text-base font-bold text-rose-900">{t.axis}</p>
+                                                            <span className={`px-2 py-0.5 rounded-full text-sm font-bold whitespace-nowrap ${t.color === 'red' ? 'bg-red-200 text-red-800' : 'bg-amber-200 text-amber-800'}`}>{t.verdict}</span>
+                                                        </div>
+                                                        <div className="px-3 py-2">
+                                                            <p className="text-base font-semibold text-gray-600 mb-1">Q. {t.question}</p>
+                                                            <p className="text-base text-gray-800 leading-relaxed">{t.finding}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <p className="text-base font-bold text-rose-900 mb-2">🚨 구체적 위배 지점</p>
+                                            <div className="space-y-2 mb-4">
+                                                {CRIMINAL_PROCEDURE_BILLS.hongCritique.issues.map((it, i) => (
+                                                    <div key={i} className="bg-white rounded-lg p-3 border border-rose-200">
+                                                        <p className="text-base font-bold text-rose-800 mb-1">{it.n} {it.title}</p>
+                                                        <p className="text-base text-gray-700 leading-relaxed">{it.text}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <p className="text-base font-bold text-rose-900 mb-2">💬 법안 논거에 대한 반론</p>
+                                            <div className="space-y-2 mb-4">
+                                                {CRIMINAL_PROCEDURE_BILLS.hongCritique.rebuttals.map((r, i) => (
+                                                    <div key={i} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                                        <p className="text-base text-gray-700 bg-gray-100 px-3 py-2 leading-relaxed"><span className="font-bold text-gray-600">📢 법안 주장</span> — {r.claim}</p>
+                                                        <p className="text-base text-gray-800 px-3 py-2 leading-relaxed"><span className="font-bold text-rose-700">↩️ 반론</span> — {r.rebuttal}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-300 mb-2">
+                                                <p className="text-base text-emerald-900 leading-relaxed"><span className="font-bold">✅ 흡수할 부분 — </span>{CRIMINAL_PROCEDURE_BILLS.hongCritique.credit}</p>
+                                            </div>
+                                            <div className="bg-rose-100 rounded-lg p-3 border border-rose-300 mb-2">
+                                                <p className="text-base font-bold text-rose-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.hongCritique.conclusion}</p>
+                                            </div>
+                                            <p className="text-xs text-gray-500">{CRIMINAL_PROCEDURE_BILLS.hongCritique.note}</p>
+                                        </div>
+
                                         {/* 핀란드 모델 — 구체적 대안 */}
                                         <div className="bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-300 rounded-xl p-4 mt-4">
                                             <p className="text-lg font-bold text-cyan-900 mb-2 flex items-center gap-2">🇫🇮 {CRIMINAL_PROCEDURE_BILLS.finlandModel.title}</p>
