@@ -56,11 +56,12 @@ const setReformNewsCache = (data) => {
 // 개혁안 비교 데이터
 // 형사소송법 검찰개혁 개정안 2건 심층 비교 (2026.6~7 발의) — 국회 의안정보시스템 원문(조문) 직접 분석
 const CRIMINAL_PROCEDURE_BILLS = {
-    intro: '2026.10 「검찰청법」 폐지·공소청/중대범죄수사청 출범(수사·기소 분리)의 후속으로 형사소송법을 정비하는 검찰개혁 법안 2건. 두 안 모두 ① 검사의 직접수사와 직접 보완수사를 폐지하고 ② 수사 주체를 사법경찰관으로 일원화하되, ③ 공소청 검사의 「보완수사 요구권」·「재수사 요청권」은 유지·강화한다. 차이는 무엇을 얼마나 강하게 정비하느냐에 있다. (2219564는 김용민(민주당)·박은정(조국혁신당) 등 개혁파 공동안, 2219875는 더불어민주당 검찰개혁 TF가 발의한 당론성 안.)',
+    intro: '2026.10 「검찰청법」 폐지·공소청/중대범죄수사청 출범(수사·기소 분리)의 후속으로 형사소송법을 정비하는 개정안 3건. 앞의 두 안(2219564·2219875)은 ① 검사의 직접수사와 직접 보완수사를 모두 폐지하고 ② 수사 주체를 사법경찰관으로 일원화하되 ③ 검사의 「보완수사 요구권」·「재수사 요청권」은 유지·강화한다 — 차이는 얼마나 강하게 정비하느냐다. 반면 세 번째 2219937(홍기원 등 11인)은 검사 수사개시권은 폐지하되, 사회적 약자·민생범죄 등 특정 유형에 한해 검사의 「직접 보완수사권」 자체를 예외적으로 존치하려는 여당 내 부분 존치 노선이다. (2219564는 김용민(민주당)·박은정(조국혁신당) 등 개혁파 공동안, 2219875는 더불어민주당 검찰개혁 TF 당론성 안, 2219937은 더불어민주당 홍기원 의원 등 11인 안.)',
     bills: [
         {
             name: '김용민·박은정 의원안',
             billNo: '2219564', proposers: '김용민(민주당)·박은정(조국혁신당) 등 12인 · 개혁파 공동발의', date: '2026.6.26 발의',
+            proposerList: '김용민·박은정·박성준·박지원·최혁진·김영호·서영교·부승찬·김승원·황운하·한창민·박민규 (12인)',
             stance: '포괄·인권통제형', border: 'border-red-200', bg: 'bg-red-50', badge: 'bg-red-100 text-red-700',
             purpose: '형사소송법 전면 정비 + 인권보호·민주통제 기구 신설.',
             points: [
@@ -77,6 +78,7 @@ const CRIMINAL_PROCEDURE_BILLS = {
         {
             name: '더불어민주당 형사소송법 개정안',
             billNo: '2219875', proposers: '김한규 의원 대표발의 · 김한규 등 22인 (민주당 검찰개혁 TF)', date: '2026.7.9 발의',
+            proposerList: '김한규·박희승·박균택·박선원·문금주·박정현·김준혁·임미애·한병도·이재관·이주희·천준호·김성회·안도걸·이정헌·송재봉·전용기·김윤·박상혁·김승원·이해식·서미화 (22인)',
             stance: '이행강제·집중형 (민주당 당론성)', border: 'border-orange-200', bg: 'bg-orange-50', badge: 'bg-orange-100 text-orange-700',
             purpose: '더불어민주당 검찰개혁 TF가 발의한 당론성 법안. 수사·기소 분리 원칙 구현 + 공소청의 수사 통제(이행강제) 설계.',
             points: [
@@ -91,6 +93,27 @@ const CRIMINAL_PROCEDURE_BILLS = {
                 { name: '아주경제(보완수사요구권)', url: 'https://www.ajunews.com/view/20260709173302438' },
                 { name: '한국일보(당 TF 발의)', url: 'https://www.hankookilbo.com/news/article/A2026070917320002317' },
                 { name: '국회 의안 2219875(열려라국회)', url: 'https://watch.peoplepower21.org/BillDetail/2219875' },
+            ],
+        },
+        {
+            name: '홍기원 의원안',
+            billNo: '2219937', proposers: '홍기원 의원 대표발의 · 홍기원 등 11인 (더불어민주당)', date: '2026.7.14 발의',
+            proposerList: '홍기원·모경종·문진석·고민정·민홍철·김남희·곽상언·박균택·이소영·박희승·주철현 (11인)',
+            stance: '보완수사권 부분 존치형 (여당 내 이견)', border: 'border-slate-300', bg: 'bg-slate-50', badge: 'bg-slate-200 text-slate-700',
+            purpose: '검사 수사개시권은 완전 폐지하되, 사회적 약자·민생범죄 등 특정 유형에 한해 검사 보완수사권을 「예외적으로」 존치. 전면 폐지 시 피해자 2차 피해·수사 지연 우려에 대응하려는 취지.',
+            points: [
+                '검사 수사개시권 완전 폐지 — 수사기관에 보완수사를 「요구」하는 것이 기본 원칙(제196조①)',
+                '★ 보완수사권 부분 존치 — 특정강력·성폭력·아동청소년·장애인·노인학대·스토킹·가정폭력 등 사회적 약자 대상 범죄 + 보이스피싱·유사수신·다단계 등 민생범죄 + 병합·구속·공소시효 임박·피해자 이의신청 사건에 한해 검사 보완수사 허용(송치 범죄와 동일성 인정 범위)',
+                '★ 남용 방지 장치 — 강제처분(체포·구속·압수수색·검증) 시 지방공소청장 승인, 사건관계인 신청 시 사건심의위원회(민간 50~200명)가 사후 적정성 심의(제196조②)',
+                '이행강제 — 보완수사 요구에 이행기한 설정·연장 신청, 정당한 이유 없는 지연·불이행 시 이행촉구·직무배제·징계 요구(제197조의2)',
+                '사회적 약자 대상 범죄는 혐의 발견 여부와 무관하게 의무 송치(제245조의5①다목) / 고발인 이의신청권 부활 + 사건기록 열람·등사 청구권(제245조의7②~⑥)',
+                '근거로 든 대검 실증조사(2026.3~4, 전국 12개 검찰청) — 검사 보완수사의 80% 이상이 단순 사실관계 확인·누락 증빙 보완, 강제수사는 약 0.5%',
+            ],
+            sources: [
+                { name: '국회 의안 2219937 원문(제안이유·주요내용 직접 분석)', url: null },
+                { name: '뉴스핌(일부 존치 발의)', url: 'https://www.newspim.com/news/view/20260714000261' },
+                { name: '이투데이', url: 'https://www.etoday.co.kr/news/view/2603613' },
+                { name: '한국경제(여당 11명)', url: 'https://www.hankyung.com/article/2026071449311' },
             ],
         },
     ],
@@ -165,8 +188,9 @@ const CRIMINAL_PROCEDURE_BILLS = {
             { rank: '가장 부합', color: 'green', model: '핀란드식 완전분리 + 시민통제', reason: '수사(경찰)와 기소(검사)를 완전히 분리하고, 참심제·시민 사법참여·이중 감시로 주권자(국민)가 사법권력을 직접 통제한다. 어느 기관도 수사·기소를 독점하지 못하므로 헌법 제1조의 주권재민 원리에 가장 근접한다.' },
             { rank: '상대적 부합', color: 'blue', model: '김용민·박은정 의원안', reason: '검사의 직접수사·직접 보완수사를 폐지하고 수사인권보호관·공소심의회 등 민주적 통제 장치를 신설한다. 수사지휘 부활 요소가 상대적으로 적어, 두 형소법 개정안 중에서는 최소한 이 안이 우선 통과되어야 한다.' },
             { rank: '후퇴 우려', color: 'amber', model: '더불어민주당 검찰개혁 TF안', reason: '수사관서 지정·변경권 + 직무배제·징계요구권 등 강한 이행강제는 "수사지휘 없는 통제"의 경계를 넘어 사실상 검사(공소청)의 수사지휘를 부활시킬 소지가 크다. 이는 수사·기소 분리 원칙을 형해화해, 헌법 제1조가 요구하는 권력 분산·민주적 통제에 역행할 우려가 있다.' },
+            { rank: '분리 원칙 최대 후퇴', color: 'red', model: '홍기원 의원안 (부분 존치)', reason: '검사 수사개시권은 폐지하나, 사회적 약자·민생범죄 등 특정 유형에서 검사의 「직접 보완수사권」 자체를 존치한다. 앞의 두 안이 「요구권」만 남긴 것과 달리 검사가 직접 수사하는 통로가 남아, 수사·기소 분리 원칙에서 가장 크게 후퇴한다. 「예외」의 범위(사회적 약자+민생범죄+병합·구속·공소시효 임박·이의신청)가 넓어 실무상 상당수 사건이 예외에 포섭될 수 있다는 점도 우려다. 다만 강제처분 시 지방공소청장 승인 + 민간 50~200명 「사건심의위원회」의 사후 적정성 심의, 고발인 이의신청권·기록 열람등사권은 오히려 시민통제를 강화하는 요소로, 이 부분은 개혁안에 흡수할 가치가 있다.' },
         ],
-        conclusion: '두 형소법 개정안 중에서는 수사지휘 부활 요소가 적고 민주적 통제 장치를 갖춘 김용민·박은정 의원안이 최소한 우선 통과되어야 한다. 그러나 더 근본적인 물음은 "어느 모델이 헌법 제1조(주권재민)와 민주주의에 부합하는가"이며, 그 답은 핀란드식 완전분리와 시민통제(참심제·기소심의·시민감사)를 결합한 모델이다. 검찰개혁의 최종 좌표는 "검찰을 공소청으로 개명하는 것"이 아니라 "사법권력을 주권자인 국민의 통제 아래 두는 것"이어야 한다.',
+        conclusion: '세 형소법 개정안 중에서는 수사지휘 부활 요소가 적고 민주적 통제 장치를 갖춘 김용민·박은정 의원안이 최소한 우선 통과되어야 한다. 그러나 더 근본적인 물음은 "어느 모델이 헌법 제1조(주권재민)와 민주주의에 부합하는가"이며, 그 답은 핀란드식 완전분리와 시민통제(참심제·기소심의·시민감사)를 결합한 모델이다. 검찰개혁의 최종 좌표는 "검찰을 공소청으로 개명하는 것"이 아니라 "사법권력을 주권자인 국민의 통제 아래 두는 것"이어야 한다.',
     },
     finlandModel: {
         title: '핀란드는 어떻게 했나 — 구체적 대안',
@@ -1754,12 +1778,14 @@ export default function ReformAnalysis() {
                                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                                             <p className="text-base text-blue-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.intro}</p>
                                         </div>
-                                        {/* 2개 법안 카드 (PPT형) */}
+                                        {/* 3개 법안 카드 (PPT형) */}
                                         <div className="grid md:grid-cols-2 gap-5 mb-6">
                                             {CRIMINAL_PROCEDURE_BILLS.bills.map((b, i) => {
-                                                const c = i === 0
-                                                    ? { bar: 'bg-red-500', text: 'text-red-700', badge: 'bg-red-100 text-red-700', soft: 'bg-red-50', key: 'bg-red-500 text-white' }
-                                                    : { bar: 'bg-orange-500', text: 'text-orange-700', badge: 'bg-orange-100 text-orange-700', soft: 'bg-orange-50', key: 'bg-orange-500 text-white' };
+                                                const c = [
+                                                    { bar: 'bg-red-500', text: 'text-red-700', badge: 'bg-red-100 text-red-700', soft: 'bg-red-50', key: 'bg-red-500 text-white' },
+                                                    { bar: 'bg-orange-500', text: 'text-orange-700', badge: 'bg-orange-100 text-orange-700', soft: 'bg-orange-50', key: 'bg-orange-500 text-white' },
+                                                    { bar: 'bg-slate-500', text: 'text-slate-700', badge: 'bg-slate-200 text-slate-700', soft: 'bg-slate-50', key: 'bg-slate-500 text-white' },
+                                                ][i] || { bar: 'bg-gray-400', text: 'text-gray-700', badge: 'bg-gray-100 text-gray-700', soft: 'bg-gray-50', key: 'bg-gray-400 text-white' };
                                                 return (
                                                     <div key={i} className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
                                                         <div className={`h-1.5 ${c.bar}`}></div>
@@ -1770,6 +1796,9 @@ export default function ReformAnalysis() {
                                                             </div>
                                                             <h4 className={`text-lg font-extrabold ${c.text} leading-tight`}>{b.name}</h4>
                                                             <p className="text-xs text-gray-500 mt-0.5">{b.proposers} · {b.date}</p>
+                                                        {b.proposerList && (
+                                                            <p className="text-xs text-gray-500 mt-1 leading-relaxed"><span className="font-semibold text-gray-600">👥 발의자 전체</span> — {b.proposerList}</p>
+                                                        )}
                                                             <div className={`mt-2 rounded-lg px-3 py-2 ${c.soft}`}>
                                                                 <p className="text-sm font-semibold text-gray-700 leading-snug">{b.purpose}</p>
                                                             </div>
@@ -1921,8 +1950,8 @@ export default function ReformAnalysis() {
                                             <p className="text-base text-indigo-900 leading-relaxed mb-3">{CRIMINAL_PROCEDURE_BILLS.constitutionalEval.intro}</p>
                                             <div className="space-y-2 mb-3">
                                                 {CRIMINAL_PROCEDURE_BILLS.constitutionalEval.ranking.map((r, i) => (
-                                                    <div key={i} className={`rounded-lg p-3 border ${r.color === 'green' ? 'bg-green-50 border-green-200' : r.color === 'blue' ? 'bg-blue-50 border-blue-200' : 'bg-amber-50 border-amber-200'}`}>
-                                                        <p className="text-base font-bold text-gray-800"><span className={`px-2 py-0.5 rounded-full text-sm mr-2 ${r.color === 'green' ? 'bg-green-200 text-green-800' : r.color === 'blue' ? 'bg-blue-200 text-blue-800' : 'bg-amber-200 text-amber-800'}`}>{r.rank}</span>{r.model}</p>
+                                                    <div key={i} className={`rounded-lg p-3 border ${r.color === 'green' ? 'bg-green-50 border-green-200' : r.color === 'blue' ? 'bg-blue-50 border-blue-200' : r.color === 'red' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
+                                                        <p className="text-base font-bold text-gray-800"><span className={`px-2 py-0.5 rounded-full text-sm mr-2 ${r.color === 'green' ? 'bg-green-200 text-green-800' : r.color === 'blue' ? 'bg-blue-200 text-blue-800' : r.color === 'red' ? 'bg-red-200 text-red-800' : 'bg-amber-200 text-amber-800'}`}>{r.rank}</span>{r.model}</p>
                                                         <p className="text-base text-gray-700 mt-1">{r.reason}</p>
                                                     </div>
                                                 ))}
