@@ -76,7 +76,7 @@ const CRIMINAL_PROCEDURE_BILLS = {
             ],
         },
         {
-            name: '더불어민주당 형사소송법 개정안',
+            name: '더불어민주당 TF 형사소송법 개정안',
             billNo: '2219875', proposers: '김한규 의원 대표발의 · 김한규 등 22인 (민주당 검찰개혁 TF)', date: '2026.7.9 발의',
             proposerList: '김한규·박희승·박균택·박선원·문금주·박정현·김준혁·임미애·한병도·이재관·이주희·천준호·김성회·안도걸·이정헌·송재봉·전용기·김윤·박상혁·김승원·이해식·서미화 (22인)',
             stance: '이행강제·집중형 (민주당 당론성)', border: 'border-orange-200', bg: 'bg-orange-50', badge: 'bg-orange-100 text-orange-700',
