@@ -281,9 +281,32 @@ const CRIMINAL_PROCEDURE_BILLS = {
                 { label: '전면 폐지', pct: '31.3%', n: '126명', color: 'gray', note: '검사 보완수사권 완전 삭제' },
             ],
             analysis: '핵심은 「부분 존치가 다수(45.9%)」라는 점이다. 진보 성향으로 분류되는 민변에서도 다수가 「전면 존치(강한 검사 권한)」도 「전면 폐지」도 아닌 「부분 존치」를 택했다. 이는 검사가 직접 수사하는 게 아니라 「요구·요청」만 하는 최소한의 보완수사권은 남기되, 직무배제·징계·수사관서 지정 같은 강한 이행강제(김한규 TF안)는 빼자는 방향과 정확히 맞닿는다. 「민변도 보완수사권 유지를 원한다」로만 인용하면 오해다 — 「부분 존치(요구권 유지)가 다수」라는 결이 핵심이다.',
+            songchi: {
+                title: '전건송치(경찰이 모든 사건을 검찰에 송치) 복원 문항',
+                rows: [
+                    { label: '현행 유지(불송치 유지)', pct: '43.2%', n: '174명', color: 'blue' },
+                    { label: '부분적 전건송치 도입', pct: '23.8%', n: '96명', color: 'amber' },
+                    { label: '완전한 전건송치 복원', pct: '23.6%', n: '95명', color: 'gray' },
+                ],
+                note: '전건송치는 「현행 유지(불송치 제도 유지)」가 43.2%로 가장 많았다. 부분·완전 복원(합 47.4%)과 팽팽하나, 단일 항목으로는 「현행 유지」가 최다 — 경찰의 1차 수사종결권(불송치)을 되돌리자는 요구가 압도적이지는 않다.',
+            },
+            remedies: {
+                title: '「보완수사권 폐지 시 필요한 대책」 문항 (복수응답)',
+                rows: [
+                    { label: '보완수사요구 제도의 실효성 강화', pct: '78.3%' },
+                    { label: '재수사 요청 제도 개선', pct: '58.7%' },
+                    { label: '수사심의위원회 강화', pct: '47.2%' },
+                ],
+                note: '폐지 시 대책으로 「보완수사요구 제도 실효성 강화」(78.3%)가 압도적 1위 — 즉 회원 다수의 지향점은 「검사 직접수사 존치」가 아니라 「요구권을 실효성 있게 다듬는 것」이다. 이는 우리 「협업·상호견제 모델」(요구 + 독립기구 문제제기)과 방향이 같다.',
+            },
+            centerBill: {
+                title: '⚖️ 민변 사법센터(공식 기구)의 별도 개정안 — 회원 여론과 엇갈림',
+                text: '주목할 점은 회원 다수(67%)가 존치로 기운 것과 달리, 민변 사법센터는 「수사권과 기소권의 분리를 원칙으로」 삼아 검사의 보완수사권을 폐지하고 「보완수사요구권」만 인정하는 개정안을 별도로 제안했다는 것이다. 사법센터 안은 ① 검사의 영장 지휘권 삭제 ② 직접 보완수사권 폐지 ③ 보완수사 요구에 대한 (경찰의) 응답 의무 부과를 담았다. 즉 민변 안에서 「회원 여론(부분 존치)」과 「사법센터의 제도안(폐지+요구권)」이 갈리며, 사법센터의 공식 설계는 오히려 우리·김용민박은정 안과 같은 「분리+요구권」 방향이다. 「민변이 존치를 원한다」는 인용은 이 층위 차이를 지운 단순화다.',
+            },
             sources: [
+                { name: '스페셜타임스', url: 'https://www.specialtimes.co.kr/news/articleView.html?idxno=444511' },
                 { name: '오마이뉴스', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003249503' },
-                { name: '경향신문', url: 'https://www.khan.co.kr/article/202607071528001/' },
+                { name: '뉴스핌(사법센터 개정안)', url: 'https://www.newspim.com/news/view/20260707000834' },
                 { name: '한국일보', url: 'https://www.hankookilbo.com/news/article/A2026070718490001832' },
             ],
         },
@@ -327,6 +350,18 @@ const CRIMINAL_PROCEDURE_BILLS = {
         effect: '독립기구가 이의를 인용하면 시정요구 + 재수사·재기소 권고 + 징계·수사 개시 요구까지. 남소 방지를 위해 위법·인권침해 소명 요건·선별 절차를 둔다. 재정신청(법원)=「불기소 당부」, 이의제기(독립 감찰)=「적법성·인권」으로 역할을 구분해 병행한다.',
         conclusion: '이 모델은 김한규 TF안(수직 이행강제)은 물론, 김용민·박은정 안(내부 통제기구)보다도 헌법 제1조·핀란드 협력구조에 더 부합한다. 핵심 진전은 ① 검사의 수직 강제를 제거하고 ② 불기소까지 견제 대상에 넣어 견제를 「쌍방」으로 만들며 ③ 인권 구제의 방아쇠를 「시민」에게 주고 판단을 「입법부 산하 독립기구」에 맡긴 것이다.',
         note: '※ 주권자사법개혁추진준비위원회 제안 모델 (핀란드 「협력 + 의회 선출 옴부즈만」 + 사법감시이중안전법 응용).',
+    },
+    // ⚖️ TF안 3대 이행강제 기제 vs 김용민·박은정 안 (원문 대조)
+    enforcementCompare: {
+        title: '더불어민주당 TF안의 3대 이행강제 vs 김용민·박은정 안 — 「수사지휘 부활」 논란',
+        intro: '더불어민주당 TF안(2219875)은 검사 직접수사를 폐지한다면서도 「① 수사관서 지정·변경권 ② 사건 이송권(제197조의2 ⑦ 신설) ③ 직무배제·교체·징계 요구」라는 세 가지 강한 이행강제를 새로 두었다. 김용민·박은정 안(2219564)과 원문으로 대조하면, 검사가 경찰 수사를 「지휘」하는 강도가 확연히 다르다.',
+        rows: [
+            { device: '① 수사관서 지정·변경권', tf: '★ 신설(제197조의2⑤) — 특정 수사관서가 적정 이행하기 어려운 「대통령령이 정하는 경우」 공소청장이 보완수사할 수사관서를 지정', kimpark: '없음 — 대신 제197조의4에 「수사권 관할 조정협의회」(수사기관 간 대등 협의)', problem: '검사가 「어느 경찰서가 수사할지」를 정한다 = 수사 주체·배당의 통제. 게다가 발동 범위가 「대통령령」에 위임돼 행정부가 검사 통제권의 문을 연다 → 헌법 제1조(모든 권력은 국민으로부터)와 충돌.' },
+            { device: '② 사건 이송권 (제197조의2 ⑦)', tf: '★ 신설 — 송치받은 검사가 「수사의 공정성 등을 고려하여」 수사권한 있는 다른 수사기관에 사건을 이송', kimpark: '없음', problem: '「공정성 등」이라는 넓은 불확정 개념으로 검사가 사건을 원하는 기관으로 옮길 수 있다 → 표적(특정 기관으로 몰기)·회피(빼돌리기) 수사의 통로가 될 소지.' },
+            { device: '③ 불이행 시 인사 제재', tf: '★ 검사(공소청장)가 직무배제·교체에 더해 「징계」까지 직접 요구(제197조의2④·⑨)', kimpark: '직무배제·교체만 공소청장이 요구 / 「징계」는 독립 직위 「수사인권보호관」이 권고·요구(제196조) — 검사의 직접 인사강제와 분리', problem: '검사가 경찰관 인사(배제·교체·징계)에 직접 개입 = 수직 강제. 김용민·박은정 안은 징계를 독립기구로 분리해 수직성을 낮췄다.' },
+        ],
+        conclusion: '세 기제를 합치면 검사는 ① 어느 관서가 수사할지 정하고(지정) ② 마음에 안 들면 다른 기관으로 옮기고(이송) ③ 담당자를 배제·징계까지 요구할 수 있다. 이 결합효과는 「수사지휘 없는 통제」의 경계를 넘어 사실상 검사(공소청)의 수사지휘를 부활시킨다. 김용민·박은정 안이 「요구권 + 징계는 독립기구 분리」로 수직성을 낮춘 것과 대비된다. 다만 두 안 모두 「검사가 경찰을 통제」하는 틀 안에 있다는 점에서, 우리 안(협업·상호견제 모델)은 한 걸음 더 나아가 수직 강제 자체를 제거하고 「불이행 시 입법부 산하 독립기구에 문제제기」로 대체한다.',
+        note: '※ 조문 요지는 의안 2219875·2219564 원문(신구조문대비표)을 직접 대조한 것. 정확한 자구는 국회 의안정보시스템 원문 참조.',
     },
     // 🛡️ 보완수사권 완전 폐지 시에도 경찰은 이렇게 견제된다 (우리 안 관점 재구성)
     policeCheck: {
@@ -2143,6 +2178,52 @@ export default function ReformAnalysis() {
                                                 <div className="bg-white/70 rounded-lg p-2 border border-sky-200 mb-2">
                                                     <p className="text-sm text-gray-700 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.analysis}</p>
                                                 </div>
+
+                                                {/* 전건송치 문항 */}
+                                                {CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.songchi && (
+                                                    <div className="bg-white/70 rounded-lg p-2.5 border border-sky-200 mb-2">
+                                                        <p className="text-sm font-bold text-sky-900 mb-1.5">📋 {CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.songchi.title}</p>
+                                                        <div className="grid sm:grid-cols-3 gap-2 mb-1.5">
+                                                            {CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.songchi.rows.map((b, i) => {
+                                                                const cmap = { blue: 'bg-blue-100 border-blue-300 text-blue-800', amber: 'bg-amber-100 border-amber-300 text-amber-800', gray: 'bg-gray-100 border-gray-300 text-gray-700' }[b.color] || 'bg-gray-100 border-gray-300 text-gray-700';
+                                                                return (
+                                                                    <div key={i} className={`rounded-lg p-2 border ${cmap}`}>
+                                                                        <p className="text-sm font-bold">{b.label} <span className="text-base">{b.pct}</span> <span className="text-xs font-normal">({b.n})</span></p>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                        <p className="text-xs text-gray-600 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.songchi.note}</p>
+                                                    </div>
+                                                )}
+
+                                                {/* 폐지 시 대책 문항 */}
+                                                {CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.remedies && (
+                                                    <div className="bg-white/70 rounded-lg p-2.5 border border-sky-200 mb-2">
+                                                        <p className="text-sm font-bold text-sky-900 mb-1.5">🧰 {CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.remedies.title}</p>
+                                                        <div className="space-y-1 mb-1.5">
+                                                            {CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.remedies.rows.map((b, i) => (
+                                                                <div key={i} className="flex items-center gap-2">
+                                                                    <span className="text-sm font-bold text-sky-800 w-14 text-right shrink-0">{b.pct}</span>
+                                                                    <div className="flex-1 bg-gray-100 rounded-full h-3 relative overflow-hidden">
+                                                                        <div className="h-3 rounded-full bg-sky-400" style={{ width: b.pct }} />
+                                                                    </div>
+                                                                    <span className="text-sm text-gray-700 flex-1">{b.label}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        <p className="text-xs text-gray-600 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.remedies.note}</p>
+                                                    </div>
+                                                )}
+
+                                                {/* 민변 사법센터 별도 개정안 */}
+                                                {CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.centerBill && (
+                                                    <div className="bg-indigo-50 rounded-lg p-2.5 border border-indigo-300 mb-2">
+                                                        <p className="text-sm font-bold text-indigo-900 mb-1">{CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.centerBill.title}</p>
+                                                        <p className="text-sm text-gray-700 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.centerBill.text}</p>
+                                                    </div>
+                                                )}
+
                                                 <div className="flex flex-wrap gap-1">
                                                     {CRIMINAL_PROCEDURE_BILLS.jangCase.pollData.sources.map((s, i) => (
                                                         <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" className="text-sm px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded hover:bg-gray-200">{s.name}</a>
@@ -2229,6 +2310,38 @@ export default function ReformAnalysis() {
                                                 <p className="text-base font-bold text-indigo-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.collabModel.conclusion}</p>
                                             </div>
                                             <p className="text-xs text-gray-500">{CRIMINAL_PROCEDURE_BILLS.collabModel.note}</p>
+                                        </div>
+
+                                        {/* ⚖️ TF안 3대 이행강제 vs 김용민·박은정 안 */}
+                                        <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-300 rounded-xl p-4 mt-4">
+                                            <p className="text-lg font-bold text-orange-900 mb-1 flex items-center gap-2 flex-wrap">⚖️ {CRIMINAL_PROCEDURE_BILLS.enforcementCompare.title}</p>
+                                            <p className="text-base text-orange-900 leading-relaxed mb-3">{CRIMINAL_PROCEDURE_BILLS.enforcementCompare.intro}</p>
+                                            <div className="overflow-x-auto rounded-lg border border-orange-200 mb-3 bg-white">
+                                                <table className="w-full min-w-[880px] text-sm">
+                                                    <thead>
+                                                        <tr className="bg-orange-100">
+                                                            <th className="px-3 py-2 text-left font-bold text-gray-700 w-[18%]">이행강제 기제</th>
+                                                            <th className="px-3 py-2 text-left font-bold text-orange-700 w-[30%] border-l border-gray-200">더불어민주당 TF안</th>
+                                                            <th className="px-3 py-2 text-left font-bold text-red-700 w-[26%] border-l border-gray-200">김용민·박은정 안</th>
+                                                            <th className="px-3 py-2 text-left font-bold text-gray-700 w-[26%] border-l border-gray-200">문제점 (주권자 관점)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {CRIMINAL_PROCEDURE_BILLS.enforcementCompare.rows.map((r, i) => (
+                                                            <tr key={i} className={`border-t border-gray-100 align-top ${i % 2 ? 'bg-gray-50' : 'bg-white'}`}>
+                                                                <td className="px-3 py-2 font-bold text-gray-800">{r.device}</td>
+                                                                <td className="px-3 py-2 text-gray-700 border-l border-gray-200">{r.tf}</td>
+                                                                <td className="px-3 py-2 text-gray-700 border-l border-gray-200">{r.kimpark}</td>
+                                                                <td className="px-3 py-2 text-red-800 border-l border-gray-200">{r.problem}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div className="bg-orange-100 rounded-lg p-3 border border-orange-300 mb-2">
+                                                <p className="text-base font-bold text-orange-900 leading-relaxed">⚠️ {CRIMINAL_PROCEDURE_BILLS.enforcementCompare.conclusion}</p>
+                                            </div>
+                                            <p className="text-xs text-gray-500">{CRIMINAL_PROCEDURE_BILLS.enforcementCompare.note}</p>
                                         </div>
 
                                         {/* 🛡️ 보완수사권 완전 폐지 시 경찰 견제 방법 (우리 안 관점) */}
