@@ -402,7 +402,7 @@ const personsData = {
             { matter: 'maegwan', name: '서성빈', role: '드롬돈 대표', charge: '청탁금지법 위반', gave: '바쉐론 콘스탄틴 시계 3,990만원 상당', result: '징역 10개월·집행유예 2년', source: { name: '오마이뉴스', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003246627' } },
             { matter: 'maegwan', name: '최재영', role: '목사', charge: '청탁금지법 위반', gave: '디올백 등', result: '벌금 800만원', source: { name: '오마이뉴스', url: 'https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003246627' } },
             { matter: 'maegwan', name: '이배용', role: '전 국가교육위원장', charge: '증거인멸 교사', gave: '금거북이(265만원)·세한도 복제본 (국가교육위원장 임명 청탁)', result: '징역 10개월·집행유예 2년', source: { name: '뉴스핌', url: 'https://www.newspim.com/news/view/20260626000886' } },
-            { matter: 'maegwan', name: '김상민', role: '전 부장검사', charge: '청탁금지법·정치자금법 위반', gave: '이우환 그림 1억4,000만원 상당 (총선 공천 청탁)', result: '2심 징역 3년·집행유예 3년 (그림 청탁 유죄로 뒤집힘) — 대법원 계류', source: { name: '뉴스1', url: 'https://www.news1.kr/society/court-prosecution/6160956' } },
+            { matter: 'maegwan', name: '김상민', role: '전 부장검사', charge: '청탁금지법·정치자금법 위반', gave: '이우환 그림 1억4,000만원 상당(2023.2 김건희 측에 전달, 22대 총선 공천 청탁) + 선거차량 리스 등 4,200만원 불법 정치자금', result: '1심 정치자금법만 유죄(징역 6개월·집유 1년) → 2심 청탁금지법(그림 청탁)도 유죄로 뒤집혀 징역 3년·집유 3년·추징 4,100만원 → 대법원 3부(주심 이흥구) 상고심 2026.7.23 오전 11시 선고(결과 확인 후 반영)', source: { name: '이데일리', url: 'https://www.edaily.co.kr/News/Read?newsId=04693686645514848&mediaCodeNo=257' } },
             { matter: 'doichi', name: '전성배', role: "'건진법사'", charge: '특정범죄가중처벌법 위반(알선수재) 등', gave: '통일교 청탁 명목 금품 전달 (샤넬백·그라프 목걸이 등)', result: '대법원 징역 5년 확정 (2026.7.9, 1심 6년→2심 5년), 그라프 목걸이 몰수·1억8,078만원 추징', source: { name: '파이낸셜뉴스', url: 'https://www.fnnews.com/news/202607091148166576' } },
             { matter: 'doichi', name: '윤영호', role: '전 통일교 세계본부장', charge: '정치자금법·청탁금지법 위반, 횡령', gave: '김건희·권성동 측 청탁 명목 금품 (한학자 지시로 권성동에 1억 전달)', result: '대법원 징역 1년 6개월 확정 (2026.7.9, 1심 1년2개월→2심 1년6개월)', source: { name: '한국일보', url: 'https://www.hankookilbo.com/news/article/A2026070912090002715' } }
         ],
@@ -2110,7 +2110,7 @@ const personsData = {
     '추경호': {
         id: 'chukyungho',
         name: '추경호',
-        position: '국민의힘 의원 (전 원내대표)',
+        position: '대구시장 (전 국민의힘 원내대표)',
         status: '불구속',
         statusColor: 'green',
         court: '서울중앙지방법원 형사합의34부',
@@ -2136,11 +2136,12 @@ const personsData = {
             '계엄 해제 결의안은 재석 190명 전원 찬성으로 통과됐으나 국민의힘 108명 중 90명 불참',
             '특검: "한 명이라도 더 표결 참여해야 할 위중한 상황에서 당사 집결 공지 = 사실상 표결 불참 유도"',
             '2026.3.25 첫 공판에서 혐의 부인 ("내란몰이 정치공작")',
-            '서울중앙지법 형사합의34부(한성진 부장판사) 심리',
-            '2026.6.10 공판기일',
+            '2026.6.3 지방선거에서 대구시장 당선 — 당선·취임 이후에도 매주 수요일 서울중앙지법에 출석해 내란재판',
+            '서울중앙지법 형사합의34부(한성진 부장판사) 심리, 지선 이후 매주 수요일 공판',
+            '증인으로 채택된 국민의힘 인사(안철수·서범수·김종혁)가 잇따라 불출석해 증인신문 무산·재판 공전 (6.10·6.17·7월)',
             '구속영장 기각 후 불구속 기소'
         ],
-        trialStatus: '1심 재판 진행 중 (형사34부 한성진, 2026.6.10 공판)'
+        trialStatus: '1심 재판 진행 중 — 대구시장 당선 후에도 매주 수요일 출석, 증인 불출석으로 공전 (형사34부 한성진)'
     },
     '김용군': {
         id: 'kimyonggun',
