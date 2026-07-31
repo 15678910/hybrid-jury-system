@@ -360,13 +360,198 @@ const CRIMINAL_PROCEDURE_BILLS = {
             { device: '② 사건 이송권 (제197조의2 ⑦)', tf: '★ 신설 — 송치받은 검사가 「수사의 공정성 등을 고려하여」 수사권한 있는 다른 수사기관에 사건을 이송', kimpark: '없음', problem: '「공정성 등」이라는 넓은 불확정 개념으로 검사가 사건을 원하는 기관으로 옮길 수 있다 → 표적(특정 기관으로 몰기)·회피(빼돌리기) 수사의 통로가 될 소지.' },
             { device: '③ 불이행 시 인사 제재', tf: '★ 검사(공소청장)가 직무배제·교체에 더해 「징계」까지 직접 요구(제197조의2④·⑨)', kimpark: '직무배제·교체만 공소청장이 요구 / 「징계」는 독립 직위 「수사인권보호관」이 권고·요구(제196조) — 검사의 직접 인사강제와 분리', problem: '검사가 경찰관 인사(배제·교체·징계)에 직접 개입 = 수직 강제. 김용민·박은정 안은 징계를 독립기구로 분리해 수직성을 낮췄다.' },
         ],
-        conclusion: '세 기제를 합치면 검사는 ① 어느 관서가 수사할지 정하고(지정) ② 마음에 안 들면 다른 기관으로 옮기고(이송) ③ 담당자를 배제·징계까지 요구할 수 있다. 이 결합효과는 「수사지휘 없는 통제」의 경계를 넘어 사실상 검사(공소청)의 수사지휘를 부활시킨다. 김용민·박은정 안이 「요구권 + 징계는 독립기구 분리」로 수직성을 낮춘 것과 대비된다. 다만 두 안 모두 「검사가 경찰을 통제」하는 틀 안에 있다는 점에서, 우리 안(협업·상호견제 모델)은 한 걸음 더 나아가 수직 강제 자체를 제거하고 「불이행 시 입법부 산하 독립기구에 문제제기」로 대체한다.',
+        conclusion: '세 기제를 합치면 검사는 ① 어느 관서가 수사할지 정하고(지정) ② 마음에 안 들면 다른 기관으로 옮기고(이송) ③ 담당자를 배제·징계까지 요구할 수 있다. 이 결합효과는 「수사지휘 없는 통제」의 경계를 넘어 사실상 검사(공소청)의 수사지휘를 부활시킨다. 김용민·박은정 안이 「요구권 + 징계는 독립기구 분리」로 수직성을 낮춘 것과 대비된다. 다만 두 안 모두 「검사가 경찰을 통제」하는 틀 안에 있다는 점에서, 주권자사법개혁추진(준) 안(협업·상호견제 모델)은 한 걸음 더 나아가 수직 강제 자체를 제거하고 「불이행 시 입법부 산하 독립기구에 문제제기」로 대체한다.',
         note: '※ 조문 요지는 의안 2219875·2219564 원문(신구조문대비표)을 직접 대조한 것. 정확한 자구는 국회 의안정보시스템 원문 참조.',
     },
-    // 🛡️ 보완수사권 완전 폐지 시에도 경찰은 이렇게 견제된다 (우리 안 관점 재구성)
+    // 🏛️ 2026.7.31 본회의 통과안(법사위 대안 2220257) 조항별 분석 — 원문 대조
+    passedLaw: {
+        title: '2026.7.31 본회의 통과 「형사소송법 개정법률(법사위 대안)」 조항별 분석',
+        meta: [
+            { k: '의안번호', v: '2220257 (법제사법위원장 대안)' },
+            { k: '통과일', v: '2026.7.31 — 7.30 상정 → 국민의힘 필리버스터 → 7.31 표결' },
+            { k: '표결', v: '재석 178인 중 찬성 175 · 반대 2 · 기권 1 (국민의힘 대부분 불참)' },
+            { k: '시행일', v: '2026.10.2 (원칙) / 영상녹화·녹음 의무는 공포 후 1년, 수사권 관할조정협의회·재정신청은 공포 후 6개월' },
+            { k: '통합 법안', v: '김용민·박은정안(2219564), 차규근안(2219614), 김한규안(2219875) 등 10건을 법사위가 하나의 대안으로 통합' },
+        ],
+        // 「한밤중 끼워넣기」 논란 원문 팩트체크
+        factCheck: {
+            title: '「공소기각 조항 한밤중 끼워넣기」 논란 — 의안 원문 대조 결과',
+            items: [
+                { verdict: 'true', label: '사실', claim: '"공소기각 조항은 김용민·박은정 의원안에 처음부터 포함돼 있었다"(김승원 법사위 간사)', evidence: '원문 확인 결과 사실이다. 김용민·박은정 의원안(2219564, 2026.6.26 발의) 38쪽에 이미 「제327조제2호를 제8호로 하고 … 같은 조에 제2호 및 제3호를 각각 다음과 같이 신설」하며 "2. 중대한 위법수사에 기하여 공소가 제기되었을 때 / 3. 소추재량권을 현저히 일탈하여 공소가 제기되었을 때"가 명시돼 있다. 통과안(2220257)과 비교하면 종전 제2호의 자구가 "기타 공소제기의"(원안) → "그 밖에 공소제기"(통과안)로 바뀐 것뿐, 신설 조항의 내용은 완전히 동일하다.' },
+                { verdict: 'true', label: '사실', claim: '"새로운 법리가 아니라 대법원 판례를 반영한 것이다"', evidence: '판례 근거가 실재한다. ① 중대한 위법수사 → 대법원 2008.10.23. 선고 2008도7362(2005.10.28. 선고 2005도1247 참조): "함정수사는 위법함을 면할 수 없고, 이러한 함정수사에 기한 공소제기는 그 절차가 법률의 규정에 위반하여 무효인 때에 해당한다". ② 소추재량권 일탈 → 서울고법 2016.9.1. 선고 2015노2312: "검사가 자의적으로 공소권을 행사하여 피고인에게 실질적인 불이익을 줌으로써 소추재량권을 현저히 일탈하였다고 보여지는 경우에 이를 공소권의 남용으로 보아 공소제기의 효력을 부인할 수 있다". 다만 판례를 「법률 문언」으로 격상하면서 판례가 요구해 온 엄격한 요건(대법원은 공소권 남용에 미필적으로라도 어떤 의도가 있을 것을 요구)은 조문에 옮겨 담지 않았다.' },
+                { verdict: 'partly', label: '절반만 사실 — 우리가 짚는 지점', claim: '"밀실·기습 처리가 아니다"', evidence: '절차 자체는 공개적이었다. 법안심사제1소위 9차례(7.10~7.28), 법사위 전체회의, 안건조정위(7.29)를 거쳤다. 그러나 결정적 문제가 하나 있다 — 통과안(2220257)의 「대안의 주요내용」은 가~아 8개 항목으로 정리돼 있는데, 그 어디에도 제327조 공소기각 신설에 대한 설명이 단 한 줄도 없다. 이 조항은 법률 본문(37~38쪽)과 신구조문대비표(108쪽)에만 존재한다. 조항이 몰래 삽입된 것은 아니지만, 가장 다투어질 조항이 요약 문서에서 빠진 탓에 공론화의 기회가 좁아진 것은 사실이다. 이것이 「끼워넣기」 공방의 실질적 빌미가 됐다.' },
+                { verdict: 'true', label: '사실', claim: '"공소기각과 공소취소는 전혀 다르다"', evidence: '법적으로 명백히 다르다. 공소기각(형사소송법 제327조)은 법률상 요건이 충족되면 법원이 하는 재판이고, 공소취소(제255조)는 검사가 하는 소송행위다. 주체(법원/검사)·요건(법정 요건 충족/검사의 재량)·효과(재판 종결/공소 유지 포기)가 모두 다르다. 다만 두 제도 모두 「실체 판단 없이 사건이 끝난다」는 결과는 같아, 피해자 입장에서 체감되는 상실감은 유사할 수 있다 — 이 지점이 뒤에서 보완이 필요한 이유다.' },
+            ],
+        },
+        // 근원 진단 — 수직 통제의 재배치인가, 평등·상호견제로의 전환인가
+        rootDiagnosis: {
+            title: '근원 진단 — 이 법이 만든 것은 「새로운 수직선」이다',
+            intro: '조항 하나하나를 손보기 전에, 이 개정이 권력의 구조를 어떻게 바꿨는지부터 봐야 한다. 결론부터 말하면 수직선의 방향과 개수가 달라졌을 뿐, 「누가 누구를 내리누르는가」라는 구조 자체는 그대로다.',
+            lines: [
+                { when: '종전 (2020 검경수사권 조정 이전)', arrow: '검사 → 경찰', desc: '수사지휘권으로 검사가 경찰을 직접 지휘. 명백한 수직.' },
+                { when: '통과안 (2026.7.31)', arrow: '검사 → 경찰  +  법원 → 검사', desc: '검사는 수사권을 잃었지만 보완수사요구·징계 요구·수사관서 지정으로 여전히 경찰 위에 선다. 여기에 법원이 공소기각으로 검사 위에 서는 선이 하나 더 생겼다. 수직선이 줄어든 게 아니라 한 겹 늘었다.' },
+                { when: '주권자사법개혁추진(준) 안', arrow: '공소청 ↔ 수사기관 (대등)  ↕  독립기구·시민', desc: '기관 사이의 수직선을 지우고 모두 대등하게 놓는다. 어느 기관도 상대를 직접 강제하지 않고, 감시 대상 밖(입법부 산하)의 독립기구가 판단한다. 그리고 통제의 방아쇠를 기관이 아니라 주권자인 시민에게 준다.' },
+            ],
+            why: '수직 통제는 두 가지 이유로 실패한다. 첫째, 실효성이 없다 — 검사가 경찰 징계를 「요구」해도 판단은 경찰 내부 징계위가 하므로 제 식구 감싸기를 구조적으로 막지 못한다. 둘째, 헌법에 어긋난다 — 헌법 제1조 제2항은 모든 권력이 국민으로부터 나온다고 선언하는데, 기관끼리 서열을 정하는 방식은 그 권력을 국민에게 돌려주지 않는다. 감시자가 감시 대상과 같은 장(場) 안에 있으면 감시는 작동하지 않는다.',
+            circuits: [
+                { n: 'ⓐ', label: '수사 부실·오남용', who: '공소청(기소기관)이', to: '법률감찰단·시민옴부즈만에 문제제기' },
+                { n: 'ⓑ', label: '불기소·봐주기', who: '수사기관(중수청·경찰)이', to: '법률감찰단·시민옴부즈만에 문제제기' },
+                { n: 'ⓒ', label: '수사·기소 과정 인권침해', who: '피해자·피의자 등 시민이 직접', to: '법률감찰단·시민옴부즈만에 이의제기' },
+            ],
+            circuitNote: '핵심은 ⓑ다. 통과안의 공소기각(제327조 2·3호)은 「검사가 지나치게 기소한 경우」만 잡는다. 검사가 봐주고 기소하지 않은 경우는 여전히 사각지대다. 견제가 한 방향으로만 흐르면 그것은 견제가 아니다. 주권자사법개혁추진(준) 안은 수사기관이 검사의 불기소를 문제 삼을 수 있게 해 견제를 쌍방으로 만든다.',
+        },
+        // 조항별 문제점 + 보완조항
+        articles: [
+            {
+                art: '제327조제2호 (신설)',
+                title: '「중대한 위법수사에 기하여 공소가 제기되었을 때」 공소기각',
+                text: '2. 중대한 위법수사에 기하여 공소가 제기되었을 때',
+                good: '위법수사로 만들어진 사건을 법원이 본안 판단 전에 끊어낼 수 있게 해, 위법수사의 「열매」를 재판으로 세탁하는 통로를 막는다. 수사권이 경찰로 일원화된 새 체계에서 사후 통제 장치로서의 의미가 있다.',
+                problem: '① 「중대한」의 판단 기준이 조문에 없다. 종전 제2호(현 제8호)의 "절차가 법률의 규정을 위반하여 무효"는 60년간 판례가 축적됐지만, "중대한 위법수사"는 새 문언이라 초기 수년간 기준이 흔들린다. ② 대법원 2008도7362는 함정수사에 기한 공소제기를 이미 「무효인 때」(현 제8호)로 처리해 왔다 — 즉 새 제2호가 없어도 가능했던 일을 별도 호로 옮긴 것이어서, 실익은 명확화에 그치는 반면 본안 전 절차 다툼은 늘어난다. ③ 가장 중요한 결함: 위법수사를 한 주체는 경찰인데 불이익은 「공소기각」이라는 형태로 사건과 피해자에게 돌아간다. 위법수사를 한 수사관에 대한 책임 추궁은 이 법에 없다.',
+                remedy: [
+                    '「중대한 위법수사」의 예시적 정의를 신설한다 — 영장주의 위반, 함정수사, 진술거부권 미고지, 변호인 참여권 배제, 별건 압수·수색 등을 열거하고 「그 밖에 이에 준하는 경우」로 마감(제327조의2 신설).',
+                    '공소기각 판결이 확정되면 해당 위법수사에 관여한 수사관에 대한 감찰·징계 절차를 의무적으로 개시하도록 한다 — 위법의 대가가 피해자가 아니라 위법을 저지른 쪽에 가도록.',
+                    '피해자 보호 장치: 공소기각으로 사건이 종결되는 경우 피해자에게 사유를 서면 통지하고, 재정신청 또는 국가배상 안내를 의무화한다.',
+                ],
+                ourRemedy: {
+                    principle: '통제의 방아쇠를 시민에게 · 위법의 대가는 위법한 쪽에',
+                    diagnosis: '통과안에서 위법수사를 통제하는 주체는 검사(수직 사후 통제) 아니면 법원(공소기각)뿐이다. 정작 위법이 벌어지는 현장에는 아무도 없다. 게다가 공소기각은 위법의 대가를 「사건을 없애는 것」으로 치른다 — 위법을 저지른 수사관은 그대로 있고, 사라지는 것은 피해자의 사건이다.',
+                    items: [
+                        'ⓒ 회로 — 피의자·피해자 등 시민이 수사가 진행되는 중에 입법부 산하 법률감찰단·시민옴부즈만에 직접 이의제기한다. 사후에 사건을 없애는 대신, 위법이 진행되는 단계에서 시민이 방아쇠를 당긴다.',
+                        '1중 독립수사팀 — 수사기관이 연루된 위법은 소속과 분리된 독립 수사기구가 전담한다(핀란드 모델). 셀프수사·이해충돌을 구조적으로 차단.',
+                        '3중 시민옴부즈만(국회 선출) — 직권조사·현장점검으로 강제수사 현장을 상시 감시한다. 감시자가 감시 대상 밖에 있어야 감시가 작동한다.',
+                    ],
+                    diff: '통과안: 위법 → 사건 소멸(피해자 부담). 주권자사법개혁추진(준) 안: 위법 → 위법한 사람에게 책임, 사건은 살린다.',
+                },
+            },
+            {
+                art: '제327조제3호 (신설)',
+                title: '「소추재량권을 현저히 일탈하여 공소가 제기되었을 때」 공소기각',
+                text: '3. 소추재량권을 현저히 일탈하여 공소가 제기되었을 때',
+                good: '기소독점·기소편의주의 아래 사실상 통제 밖에 있던 검사의 기소권에 법원이 제동을 걸 수 있는 명문 근거가 생겼다. 표적기소·보복기소에 대한 사후 통제 수단이다.',
+                problem: '① 근거 판례가 대법원이 아니라 서울고법 2015노2312(하급심)다. 대법원은 공소권 남용을 인정하면서도 「미필적으로라도 어떤 의도가 있어야」 한다는 엄격한 요건을 요구해 왔는데, 통과안은 그 요건을 조문에 옮기지 않고 "현저히 일탈"만 남겼다. ② 그 결과 정치적 사건마다 「표적기소」 주장이 본안 전에 상시 제기돼 재판이 장기화될 수 있다. ③ 근본적으로 이 조항은 기소 통제의 주체를 「검사 → 법원」으로 옮긴 것일 뿐, 주권자인 시민에게 옮긴 것이 아니다. 법조 내부의 권한 재배치에 머문다.',
+                remedy: [
+                    '「현저한 일탈」의 판단요소를 법정화한다 — 동종·유사 사건과의 현저한 형평 위반, 차별적 선별기소, 보복·압박 목적, 수사 착수 경위의 부당성 등을 고려하도록 명시.',
+                    '공소기각 결정 전 검사에게 의견진술 기회를 보장하고, 공소기각 판결에 대한 검사의 즉시항고를 명문화해 심급 통제를 확보한다.',
+                    '근본 해법: 기소 단계의 통제를 법원 독점에 맡기지 말고 시민기소심사위원회(일본 검찰심사회 모델)를 도입해, 기소·불기소 양방향을 주권자가 심사하게 한다.',
+                ],
+                ourRemedy: {
+                    principle: '견제는 쌍방으로 · 심사자는 법조 밖의 시민으로',
+                    diagnosis: '이 조항의 가장 큰 결함은 견제가 한 방향으로만 흐른다는 점이다. 제327조제3호는 「검사가 지나치게 기소한 경우」만 잡는다. 검사가 봐주고 기소하지 않은 경우 — 실제로 시민이 더 자주 겪는 불의 — 는 여전히 통제 밖이다. 그리고 심사 주체를 법원(직업법관)에 둔 것은 통제권을 법조 내부에서 옮긴 것일 뿐이다.',
+                    items: [
+                        '시민기소심사위원회 — 무작위 추첨으로 선정된 시민이 기소·불기소를 양방향으로 심사하고, 2회 「기소 상당」 의결 시 강제기소로 이어지게 한다(일본 검찰심사회 모델).',
+                        'ⓑ 회로 — 수사기관(중수청·경찰)이 검사의 봐주기 불기소를 법률감찰단·시민옴부즈만에 문제제기할 수 있게 해, 견제를 쌍방향으로 만든다. 통과안에는 이 회로가 아예 없다.',
+                        '역할 분담 — 재정신청(법원)은 「불기소의 당부」를, 독립기구 이의제기는 「적법성·인권」을 맡아 병행한다. 하나의 통로에 몰아넣지 않는다.',
+                    ],
+                    diff: '통과안: 과잉기소만 법원이 사후 심사(일방). 주권자사법개혁추진(준) 안: 과잉기소·봐주기 양쪽을 시민과 독립기구가 심사(쌍방).',
+                },
+            },
+            {
+                art: '제196조 삭제 + 제245조의13 (신설)',
+                title: '검사 수사권 폐지와 「사실관계 확인」의 증거능력 전면 배제',
+                text: '제245조의13 ③ 검사는 제1항에 따른 사실관계 확인 및 제2항에 따른 고소인등의 면담을 통해 취득한 진술ㆍ자료를 재판에서 증거로 사용할 수 없다.',
+                good: '검사의 「사실관계 확인」이 사실상의 수사로 변질되는 것을 막는 안전장치다. 확인한 내용을 증거로 못 쓰게 함으로써 우회 수사를 차단한다.',
+                problem: '① 검사는 공소유지를 해야 하는데, 확인한 사실을 증거로 쓸 수 없어 공소유지 역량이 구조적으로 약해진다. 보완이 필요하면 보완수사요구(1개월 소요)로 돌아가야 해 재판 지연 요인이 된다. ② 피해자 면담(제2항)은 검사가 「수리 여부를 결정할 수 있다」고 돼 있어 순전히 재량이다. ③ 법사위는 부대의견으로 "7대 범죄 피해자가 면담을 신청하면 그 의견을 최대한 들어야 한다"고 했지만, 부대의견은 법적 구속력이 없다. 가장 보호가 필요한 피해자의 권리를 법률 본문이 아니라 구속력 없는 부대의견에 둔 것은 명백한 입법 미비다.',
+                remedy: [
+                    '부대의견의 「7대 범죄(가정폭력·노인학대·아동청소년 성범죄·아동학대·장애인학대·성폭력·스토킹) 피해자 면담」을 법률 본문으로 끌어올려 의무화한다 — 신청이 있으면 원칙적으로 수리하되, 거부 시 서면으로 사유를 통지.',
+                    '증거능력 전면 배제를 완화한다 — 피고인이 동의하는 경우, 또는 피해자 진술의 일관성 탄핵 등 제한적 용도로는 사용할 수 있도록 예외를 둔다.',
+                    '피해자 국선변호사 선정 대상을 특정강력범죄를 넘어 7대 범죄 전반으로 확대한다.',
+                ],
+                ourRemedy: {
+                    principle: '피해자를 「신청하는 사람」이 아니라 시민을 「판단하는 사람」으로',
+                    diagnosis: '통과안에서 피해자의 권리는 검사의 재량에 달려 있다 — 면담을 신청해도 검사가 「수리 여부를 결정」한다. 이것은 권리가 아니라 시혜다. 부대의견으로 "최대한 들어야 한다"고 적은 것이 그 성격을 그대로 보여준다. 절차적 배려를 아무리 늘려도, 판단하는 자리에 시민이 없으면 구조는 바뀌지 않는다.',
+                    items: [
+                        '참심제(시민 3 + 법관 1) — 유무죄와 양형을 시민이 법관과 함께 판단한다. 피해자 보호는 「절차적 배려」의 문제를 넘어 「누가 판단하는가」의 문제다.',
+                        'ⓒ 회로 — 피해자가 검사의 문턱(수리 여부 결정)을 거치지 않고 입법부 산하 독립기구에 직접 이의제기한다. 권리 행사가 상대방의 재량에 걸리지 않게 한다.',
+                        '7대 범죄 피해자 의견 청취를 부대의견이 아니라 법률 본문의 의무로 규정하고, 국선변호 지원을 그 범위로 확대한다.',
+                    ],
+                    diff: '통과안: 피해자는 검사에게 신청하는 사람. 주권자사법개혁추진(준) 안: 시민이 재판에서 판단하는 사람.',
+                },
+            },
+            {
+                art: '제197조의2 (보완수사요구)',
+                title: '이행강제의 실효성 — 「징계 요구권」일 뿐 징계권이 아니다',
+                text: '⑦ … 각급 공소청의 장은 … 징계를 요구할 수 있다. 이 경우 징계절차는 징계 관련 법령에 따른다. / ⑧ … 적정한 보완수사를 기대하기 어려운 경우에는 … 상급 수사관서 또는 다른 수사기관을 지정하여 보완수사요구를 할 수 있다.',
+                good: '보완수사 이행기간을 1개월로 명시하고 횟수 제한을 두지 않았으며, 형사사법정보시스템(KICS) 사건번호를 유지해 이행 여부를 추적하도록 했다. 부실 이행 시 상급 관서·다른 수사기관 지정도 가능해 종전보다 실효성이 높아졌다.',
+                problem: '① 검사에게 있는 것은 「징계 요구권」이지 징계권이 아니다. "징계절차는 징계 관련 법령에 따른다" — 즉 실제 판단은 경찰 내부 징계위원회가 한다. 제 식구를 징계할 유인이 구조적으로 약하다. ② 요구가 거부돼도 그 사실이 공개되지 않아 여론·국회의 통제도 작동하지 않는다. ③ 제197조의5는 수사기관장에게 소속 공무원 범죄혐의 발견 시 통보 의무를 지웠지만, 은폐해도 제재가 없다. ④ 박은정 의원이 제시한 「국가수사본부장 직속 경찰 내부비리수사대 신설」·「법왜곡죄 신설」은 각각 경찰법·형법 소관이라 이번 형사소송법에는 담기지 않았다 — 책임성 패키지가 미완성 상태로 시행된다.',
+                remedy: [
+                    '징계 요구에 불응하는 경우 수사기관의 장이 사유를 서면으로 통지하고 이를 공개하도록 의무화한다.',
+                    '보완수사요구 이행률·거부 사유를 국회에 정기 보고하도록 하여 입법부의 감시 아래 둔다.',
+                    '제197조의5의 통보 의무를 위반해 은폐한 경우 제재 규정을 신설한다.',
+                    '근본 해법: 감찰을 수사기관 내부가 아니라 입법부 산하 독립기구(법률감찰단·사법옴부즈만)에 두어 수사·기소 양쪽을 상시 감시한다.',
+                ],
+                ourRemedy: {
+                    principle: '수직 강제를 제거하고 대등 협력 + 감시 대상 밖의 판단자로',
+                    diagnosis: '이 조항이 수직 구조를 가장 선명하게 보여준다. 검사는 수사권을 잃었는데도 ① 보완수사를 요구하고 ② 이행하지 않으면 직무배제·징계를 요구하며 ③ 다른 수사관서를 지정할 수 있다. 검사가 경찰을 내리누르는 선은 그대로 남았다. 그런데 실효성마저 없다 — 징계 판단은 경찰 내부 징계위가 하기 때문이다. 수직이면서 무력한, 최악의 조합이다.',
+                    items: [
+                        '보완수사는 「요구」에 그치고 강제하지 않는다 — 대신 불이행 시 공소청이 ⓐ 회로로 입법부 산하 법률감찰단·시민옴부즈만에 문제제기한다. 검사가 직접 인사를 흔들지 않고, 판단은 감시 대상 밖에서 한다.',
+                        '사건 배당은 수사기관이 자율적으로 한다 — 검사의 수사관서 지정·변경권을 두지 않는다. 배당권은 수사 주체 통제의 핵심이라 이것이 남으면 수사지휘가 사실상 부활한다.',
+                        '징계·시정 판단은 법률감찰단(2중)·시민옴부즈만(3중, 국회 선출)이 한다 — 소속이 곧 독립성이다. 감시자가 행정부나 당사자 기관 산하에 있으면 집안 감싸기를 피할 수 없다.',
+                    ],
+                    diff: '통과안: 검사가 경찰에 징계를 요구(수직) → 경찰이 자기를 판단(무력). 주권자사법개혁추진(준) 안: 양쪽 모두 제3의 독립기구에 문제제기(대등) → 감시 대상 밖에서 판단(실효).',
+                },
+            },
+            {
+                art: '부칙 제1조제2호 (제220조의2·제244조의6)',
+                title: '인권보장 장치만 1년 늦게 시행되는 「보호 공백」',
+                text: '부칙 제1조 2. 제220조의2 및 제244조의6의 개정규정: 공포 후 1년이 경과한 날',
+                good: '압수·수색·검증의 전 과정 영상녹화와 피의자 신문 녹음(요청 시)을 의무화한 것은 강제수사 통제의 획기적 진전이다. 장비·예산 준비를 위한 유예기간에는 현실적 이유가 있다.',
+                problem: '검사의 수사권 폐지(본체)는 2026.10.2에 시행되는데, 그 수사를 통제할 영상녹화·녹음 의무는 공포 후 1년이 지나야 시행된다. 결과적으로 약 1년 동안 「검사의 사전 통제는 사라졌는데 영상 기록 의무는 아직 없는」 공백 구간이 생긴다. 인권보장 장치가 권한 이전보다 늦게 도착하는 순서는 위험하다.',
+                remedy: [
+                    '영상녹화·녹음 의무의 시행일을 본체 시행일(2026.10.2)에 맞추거나 유예기간을 대폭 단축한다.',
+                    '유예기간 중에는 대체 통제수단을 둔다 — 변호인 참여권 확대, 신문 과정 서면 기록 강화, 피의자의 녹음 요청권 즉시 시행.',
+                ],
+                ourRemedy: {
+                    principle: '기록 의무만이 아니라 「누가 확인하는가」를 함께 설계',
+                    diagnosis: '영상녹화 의무를 만든 것은 옳다. 그러나 통과안에는 그 녹화가 실제로 이뤄졌는지, 보존됐는지, 삭제되지 않았는지를 확인할 주체가 없다. 확인자 없는 의무는 종이 규정이 된다. 게다가 확인을 수사기관 내부에 맡기면 위반 사실 자체가 드러나지 않는다.',
+                    items: [
+                        '3중 시민옴부즈만(국회 선출)이 직권조사·현장점검으로 녹화 이행·보존 실태를 상시 확인한다. 감시는 기관 안이 아니라 밖에 있어야 한다.',
+                        '녹화 미이행·훼손·삭제를 ⓒ 회로의 이의제기 대상으로 명시해, 시민이 직접 문제를 제기할 수 있게 한다.',
+                        '유예기간을 두더라도 「감시 장치」는 본체와 함께 시행한다 — 장비 준비에는 시간이 걸려도, 감시 기구를 세우는 데는 시간이 걸리지 않는다.',
+                    ],
+                    diff: '통과안: 의무는 1년 뒤에 시행되고 확인자는 없다. 주권자사법개혁추진(준) 안: 감시 기구를 먼저 세우고, 시민이 이행을 확인한다.',
+                },
+            },
+            {
+                art: '제260조 (재정신청)',
+                title: '재정신청 확대 — 5개 유형에만 열린 반쪽 문',
+                text: '고발사건 재정신청 대상을 확대하되 가정폭력·노인학대·아동청소년 대상 성범죄·아동학대·장애인학대 관련 범죄로 한정하고, 고발자도 각 해당 법률의 신고의무자로 한정. 관할은 지방법원 본원 합의부로 변경.',
+                good: '사회적 약자 대상 범죄에서 고발인의 재정신청 길이 열렸고, 관할을 고등법원에서 지방법원 본원 합의부로 낮춰 접근성이 개선됐다.',
+                problem: '① 확대 대상이 5개 유형으로 한정돼, 일반 고발인은 여전히 검사의 불기소에 대해 재정신청을 할 수 없다. ② 고발자도 「해당 법률상 신고의무자」로 좁혀져 시민·시민단체의 고발은 대부분 제외된다. ③ 검사의 수사권이 폐지되어 기소권만 남은 상황에서, 그 유일한 권한인 기소·불기소에 대한 시민 통제는 오히려 여전히 좁다.',
+                remedy: [
+                    '재정신청 대상을 전면 확대하거나, 최소한 공직자 범죄·권력형 비리에는 고발인 재정신청을 허용한다.',
+                    '핵심 대안: 시민기소심사위원회를 도입해 불기소 처분을 무작위 추첨으로 선정된 시민이 심사하고, 2회 「기소 상당」 의결 시 강제기소로 이어지게 한다(일본 검찰심사회 모델).',
+                ],
+                ourRemedy: {
+                    principle: '문을 조금 여는 것이 아니라, 문을 시민이 직접 여는 구조로',
+                    diagnosis: '검사는 이번 개정으로 수사권을 잃고 기소권만 남았다. 그렇다면 그 유일한 권한에 대한 시민 통제는 더 넓어져야 마땅한데, 통과안은 재정신청을 5개 유형·신고의무자에게만 열었다. 일반 시민과 시민단체의 고발은 여전히 검사의 불기소 앞에서 멈춘다. 통제의 열쇠를 계속 법원과 검사가 쥐고 있는 구조다.',
+                    items: [
+                        '시민기소심사위원회 — 법원의 문턱을 거치지 않고 무작위 추첨 시민이 불기소를 직접 심사한다. 재정신청이 「법률가에게 호소하는 통로」라면, 이것은 「시민이 스스로 판단하는 통로」다.',
+                        'ⓑ 회로 병행 — 수사기관도 검사의 봐주기 불기소를 독립기구에 문제제기할 수 있게 해, 시민 통로와 기관 통로를 이중으로 둔다.',
+                        '재정신청 자체도 공직자 범죄·권력형 비리에는 고발인 전반으로 확대한다 — 권력 감시는 신고의무자만의 몫이 아니다.',
+                    ],
+                    diff: '통과안: 5개 유형·신고의무자에게만 법원의 문이 열린다. 주권자사법개혁추진(준) 안: 시민이 추첨으로 심사석에 앉아 직접 판단한다.',
+                },
+            },
+        ],
+        // 주권자사법개혁추진(준) 안과의 차이
+        ourDiff: {
+            title: '통과안 vs 주권자사법개혁추진(준) 안 — 권력은 어디로 옮겨졌나',
+            rows: [
+                { issue: '기소권 통제', passed: '법원이 공소기각으로 사후 통제 (제327조 2·3호)', ours: '시민기소심사위원회가 기소·불기소를 사전 심사, 2회 의결 시 강제기소', gap: '통제 주체가 직업법관 → 시민으로 달라진다. 통과안은 법조 내부의 권한 이동에 머문다.' },
+                { issue: '재판 참여', passed: '없음 — 유무죄 판단은 여전히 직업법관 독점', ours: '참심제(시민 3 + 법관 1)로 시민이 유무죄·양형을 함께 판단', gap: '이번 개정으로도 재판은 법조 독점 그대로다. 헌법 제1조 제2항이 사법에 닿지 않는다.' },
+                { issue: '감찰·책임', passed: '검사가 경찰에 징계 「요구」, 실제 징계는 경찰 내부 징계위', ours: '입법부 산하 법률감찰단·사법옴부즈만이 수사·기소 양쪽을 상시 감찰', gap: '통과안은 감찰자와 감찰 대상이 같은 장(場) 안에 있어 제 식구 감싸기를 구조적으로 막지 못한다.' },
+                { issue: '피해자 권리', passed: '면담 신청 가능하나 검사가 수리 여부 결정, 7대 범죄 의무는 부대의견(구속력 없음)', ours: '7대 범죄 피해자 의견 청취 의무화 + 국선변호 확대 + 기록 열람권 실질화', gap: '통과안은 가장 두터운 보호가 필요한 지점을 법률이 아닌 부대의견에 남겼다.' },
+                { issue: '개혁의 방향', passed: '검찰 → 경찰(수사), 검사 → 법원(기소 통제)', ours: '법조 → 주권자(시민)', gap: '통과안은 권한을 법조 내부에서 재배치했다. 파이를 나누는 사람은 여전히 법률가다.' },
+            ],
+        },
+        conclusion: '이번 개정은 수사·기소 분리라는 오랜 과제를 법률로 확정한 분명한 진전이다. 검사의 직접수사가 폐지되고, 강제수사 영상녹화가 의무화되며, 피해자의 절차적 권리가 여러 단계에서 확충됐다. 공소기각 조항 역시 판례에 근거가 있고 원안부터 존재했던 것으로 원문에서 확인된다. 그러나 세 가지가 남는다. 첫째, 가장 다투어질 제327조가 대안의 「주요내용」에서 빠져 공론화의 기회가 좁아졌다. 둘째, 인권보장 장치(영상녹화)가 권한 이전보다 1년 늦게 도착하고, 이행강제는 「요구권」에 머물러 실효성이 담보되지 않는다. 셋째, 그리고 가장 근본적으로 — 이 개혁은 권력을 검찰에서 경찰로, 검사에서 법원으로 옮겼을 뿐 주권자인 시민에게 옮기지 않았다. 헌법 제1조 제2항은 모든 권력이 국민으로부터 나온다고 선언한다. 사법개혁의 다음 질문은 「검사에게서 무엇을 더 뺄까」가 아니라 「국민에게 사법의 어떤 몫을 돌려줄까」여야 한다. 참심제와 시민기소심사위원회는 그 질문의 이름이다.',
+        note: '※ 이 분석은 의안 2220257(법사위 대안)·2219564(김용민·박은정안) 원문 PDF와 법사위 검토보고서를 직접 대조해 작성했다. 조문 요지는 원문을 옮긴 것이며, 정확한 자구는 국회 의안정보시스템 원문을 참조.',
+    },
+    // 🛡️ 보완수사권 완전 폐지 시에도 경찰은 이렇게 견제된다 (주권자사법개혁추진(준) 관점 재구성)
     policeCheck: {
         title: '보완수사권 완전 폐지 시에도 경찰은 이렇게 견제된다',
-        intro: '검사 보완수사권을 완전히 폐지해도 경찰 수사를 견제할 다층 장치가 남는다. 다만 「직무배제·징계요구·수사관서 지정」 같은 검사(공소청)의 수직 강제는 「수사지휘 부활」 우려가 있어, 우리 안은 이를 입법부 산하 독립 감찰기구(법률감찰단·시민옴부즈만)로의 「문제제기」로 대체한다(★ 표시 행).',
+        intro: '검사 보완수사권을 완전히 폐지해도 경찰 수사를 견제할 다층 장치가 남는다. 다만 「직무배제·징계요구·수사관서 지정」 같은 검사(공소청)의 수직 강제는 「수사지휘 부활」 우려가 있어, 주권자사법개혁추진(준) 안은 이를 입법부 산하 독립 감찰기구(법률감찰단·시민옴부즈만)로의 「문제제기」로 대체한다(★ 표시 행).',
         rows: [
             { problem: '송치 사건의 증거·조사가 부족함', device: '보완수사 요구(강제 없는 요청)', org: '공소청', star: false },
             { problem: '경찰이 보완수사를 지연함', device: '처리기한 지정·요구', org: '공소청', star: false },
@@ -381,7 +566,7 @@ const CRIMINAL_PROCEDURE_BILLS = {
             { problem: '경찰 내부에서 수사가 부당하게 처리됨', device: '수사심의 신청·감찰', org: '경찰 상급기관·독립 감찰기구', star: false },
         ],
         conclusion: '「보완수사권 하나」에 의존하지 않아도 공소청(요구)·중수청·공수처·법원·시민·입법부 산하 독립기구가 층층이 경찰을 견제한다. 특정 기관의 권한 독점이 아니라 「분산된 다층 견제」가 헌법 제1조에 부합한다.',
-        note: '★ = 우리 안 조정 행. 원본(일반안)은 검사(공소청)의 수직 강제이나 「수사지휘 부활」 우려로 입법부 산하 독립기구 문제제기로 대체함. (표 아이디어 참고 · 우리 안 관점 재구성)',
+        note: '★ = 주권자사법개혁추진(준) 조정 행. 원본(일반안)은 검사(공소청)의 수직 강제이나 「수사지휘 부활」 우려로 입법부 산하 독립기구 문제제기로 대체함. (표 아이디어 참고 · 주권자사법개혁추진(준) 관점 재구성)',
     },
 
     assessment: '두 개정안은 검사의 직접수사·직접 보완수사를 폐지하고 수사 주체를 사법경찰관으로 일원화하되, 공소청 검사의 보완수사 요구권·재수사 요청권을 유지·강화한다는 큰 틀이 동일하다. 차이는 강조점이다. 김용민·박은정 의원안은 수사인권보호관·공소심의회 등 인권보호·민주통제 기구를 대거 신설한 "포괄형"이고, 더불어민주당 검찰개혁 TF안은 보완수사 1개월 단축·수사관서 지정변경권·재수사요청 강화 등 공소청의 실질적 이행강제 수단을 촘촘히 설계한 "이행강제형"이다. 공통 쟁점은 "수사지휘 없는 통제"의 경계 — 직무배제·징계요구권이 자칫 수사지휘의 부활로 비칠 수 있다는 점이다.',
@@ -1694,6 +1879,165 @@ export default function ReformAnalysis() {
 
                             {activeReform.customRender && activeTab === 'prosecution-reform' ? (
                                 <div className="space-y-8">
+                                    {/* 섹션 0: 2026.7.31 본회의 통과안 조항별 분석 (최신) */}
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 flex-wrap">
+                                            <span>🏛️</span> {CRIMINAL_PROCEDURE_BILLS.passedLaw.title}
+                                            <span className="px-2 py-0.5 bg-red-100 text-red-700 text-sm rounded-full font-bold">2026.7.31 통과</span>
+                                        </h3>
+
+                                        {/* 메타 정보 */}
+                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
+                                            <div className="divide-y">
+                                                {CRIMINAL_PROCEDURE_BILLS.passedLaw.meta.map((m, i) => (
+                                                    <div key={i} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 px-4 py-2.5">
+                                                        <span className="text-base font-bold text-gray-500 sm:w-24 shrink-0">{m.k}</span>
+                                                        <span className="text-base text-gray-800">{m.v}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* 팩트체크 */}
+                                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4">
+                                            <p className="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">🔍 {CRIMINAL_PROCEDURE_BILLS.passedLaw.factCheck.title}</p>
+                                            <div className="space-y-3">
+                                                {CRIMINAL_PROCEDURE_BILLS.passedLaw.factCheck.items.map((f, i) => (
+                                                    <div key={i} className={`bg-white rounded-lg p-3 border-l-4 ${f.verdict === 'true' ? 'border-green-500' : 'border-amber-500'}`}>
+                                                        <div className="flex items-start gap-2 mb-1.5 flex-wrap">
+                                                            <span className={`px-2 py-0.5 rounded-full text-sm font-bold whitespace-nowrap ${f.verdict === 'true' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-800'}`}>{f.label}</span>
+                                                            <span className="text-base font-bold text-gray-800 flex-1 min-w-0">{f.claim}</span>
+                                                        </div>
+                                                        <p className="text-base text-gray-700 leading-relaxed">{f.evidence}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* 근원 진단 — 수직 vs 평등 */}
+                                        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-4 mb-4">
+                                            <p className="text-lg font-bold text-indigo-900 mb-2 flex items-center gap-2">🧭 {CRIMINAL_PROCEDURE_BILLS.passedLaw.rootDiagnosis.title}</p>
+                                            <p className="text-base text-indigo-900 leading-relaxed mb-3">{CRIMINAL_PROCEDURE_BILLS.passedLaw.rootDiagnosis.intro}</p>
+                                            <div className="space-y-2 mb-3">
+                                                {CRIMINAL_PROCEDURE_BILLS.passedLaw.rootDiagnosis.lines.map((l, i) => (
+                                                    <div key={i} className={`bg-white rounded-lg p-3 border-l-4 ${i === 2 ? 'border-indigo-500' : 'border-gray-300'}`}>
+                                                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-1">
+                                                            <span className="text-sm font-bold text-gray-500 sm:w-44 shrink-0">{l.when}</span>
+                                                            <span className={`text-base font-bold ${i === 2 ? 'text-indigo-700' : 'text-gray-800'}`}>{l.arrow}</span>
+                                                        </div>
+                                                        <p className="text-base text-gray-700 leading-relaxed">{l.desc}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="bg-white border border-indigo-200 rounded-lg p-3 mb-3">
+                                                <p className="text-base text-indigo-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.passedLaw.rootDiagnosis.why}</p>
+                                            </div>
+                                            <p className="text-base font-bold text-indigo-900 mb-2">주권자사법개혁추진(준) 안의 3대 견제 회로</p>
+                                            <div className="grid sm:grid-cols-3 gap-2 mb-3">
+                                                {CRIMINAL_PROCEDURE_BILLS.passedLaw.rootDiagnosis.circuits.map((c, i) => (
+                                                    <div key={i} className="bg-white border border-indigo-200 rounded-lg p-3">
+                                                        <p className="text-lg font-bold text-indigo-600 mb-1">{c.n} {c.label}</p>
+                                                        <p className="text-base text-gray-700 leading-relaxed">{c.who} <span className="font-bold text-indigo-800">{c.to}</span></p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="bg-amber-50 border-l-4 border-amber-400 px-3 py-2 rounded-r">
+                                                <p className="text-base font-bold text-amber-900 leading-relaxed">💡 {CRIMINAL_PROCEDURE_BILLS.passedLaw.rootDiagnosis.circuitNote}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* 조항별 분석 */}
+                                        <div className="space-y-4 mb-4">
+                                            {CRIMINAL_PROCEDURE_BILLS.passedLaw.articles.map((a, i) => (
+                                                <div key={i} className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                                                    <div className="px-4 py-3 bg-gray-50 border-b">
+                                                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                                                            <span className="px-2 py-0.5 bg-gray-800 text-white text-sm rounded font-bold whitespace-nowrap">{a.art}</span>
+                                                            <span className="text-base font-bold text-gray-900">{a.title}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="p-4 space-y-3">
+                                                        <div className="bg-gray-50 border-l-4 border-gray-300 px-3 py-2 rounded-r">
+                                                            <p className="text-sm font-bold text-gray-500 mb-0.5">조문</p>
+                                                            <p className="text-base text-gray-800 leading-relaxed">{a.text}</p>
+                                                        </div>
+                                                        <div className="bg-green-50 border-l-4 border-green-400 px-3 py-2 rounded-r">
+                                                            <p className="text-sm font-bold text-green-700 mb-0.5">✅ 진전된 점</p>
+                                                            <p className="text-base text-green-900 leading-relaxed">{a.good}</p>
+                                                        </div>
+                                                        <div className="bg-red-50 border-l-4 border-red-400 px-3 py-2 rounded-r">
+                                                            <p className="text-sm font-bold text-red-700 mb-0.5">⚠️ 문제점</p>
+                                                            <p className="text-base text-red-900 leading-relaxed">{a.problem}</p>
+                                                        </div>
+                                                        <div className="bg-blue-50 border-l-4 border-blue-400 px-3 py-2 rounded-r">
+                                                            <p className="text-sm font-bold text-blue-700 mb-1">🔧 보완 조항 제안 <span className="font-normal text-blue-500">— 통과안 틀 안의 수선</span></p>
+                                                            <ul className="space-y-1.5">
+                                                                {a.remedy.map((r, ri) => (
+                                                                    <li key={ri} className="text-base text-blue-900 leading-relaxed flex gap-2">
+                                                                        <span className="text-blue-400 shrink-0">›</span>
+                                                                        <span>{r}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                        {a.ourRemedy && (
+                                                            <div className="bg-indigo-50 border-2 border-indigo-300 px-3 py-3 rounded-lg">
+                                                                <div className="flex items-start gap-2 mb-2 flex-wrap">
+                                                                    <span className="px-2 py-0.5 bg-indigo-600 text-white text-sm rounded font-bold">주권자사법개혁추진(준)</span>
+                                                                    <span className="text-base font-bold text-indigo-900 flex-1 min-w-0">{a.ourRemedy.principle}</span>
+                                                                </div>
+                                                                <p className="text-base text-indigo-900 leading-relaxed mb-2">{a.ourRemedy.diagnosis}</p>
+                                                                <ul className="space-y-1.5 mb-2">
+                                                                    {a.ourRemedy.items.map((r, ri) => (
+                                                                        <li key={ri} className="text-base text-indigo-900 leading-relaxed flex gap-2">
+                                                                            <span className="text-indigo-500 shrink-0 font-bold">▸</span>
+                                                                            <span>{r}</span>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                                <div className="bg-white border border-indigo-200 rounded px-3 py-2">
+                                                                    <p className="text-base font-bold text-indigo-900 leading-relaxed">⚖️ {a.ourRemedy.diff}</p>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* 주권자사법개혁추진(준) 안과의 차이 */}
+                                        <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-4">
+                                            <p className="text-lg font-bold text-indigo-900 mb-3 flex items-center gap-2">⚖️ {CRIMINAL_PROCEDURE_BILLS.passedLaw.ourDiff.title}</p>
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-base border-collapse min-w-[640px]">
+                                                    <thead>
+                                                        <tr className="bg-indigo-100">
+                                                            <th className="p-2 text-left font-bold text-indigo-900 border border-indigo-200 w-28">쟁점</th>
+                                                            <th className="p-2 text-left font-bold text-indigo-900 border border-indigo-200">통과안 (2026.7.31)</th>
+                                                            <th className="p-2 text-left font-bold text-indigo-900 border border-indigo-200">주권자사법개혁추진(준) 안</th>
+                                                            <th className="p-2 text-left font-bold text-indigo-900 border border-indigo-200">차이의 의미</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {CRIMINAL_PROCEDURE_BILLS.passedLaw.ourDiff.rows.map((r, i) => (
+                                                            <tr key={i} className="bg-white align-top">
+                                                                <td className="p-2 border border-indigo-200 font-bold text-gray-800">{r.issue}</td>
+                                                                <td className="p-2 border border-indigo-200 text-gray-700">{r.passed}</td>
+                                                                <td className="p-2 border border-indigo-200 text-indigo-800 font-medium">{r.ours}</td>
+                                                                <td className="p-2 border border-indigo-200 text-gray-600">{r.gap}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg mb-2">
+                                            <p className="text-base font-bold text-amber-900 leading-relaxed">📌 {CRIMINAL_PROCEDURE_BILLS.passedLaw.conclusion}</p>
+                                        </div>
+                                        <p className="text-xs text-gray-500">{CRIMINAL_PROCEDURE_BILLS.passedLaw.note}</p>
+                                    </div>
+
                                     {/* 섹션 A: 검찰개혁 법안 수정안 비교 */}
                                     <div>
                                         <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
@@ -2344,7 +2688,7 @@ export default function ReformAnalysis() {
                                             <p className="text-xs text-gray-500">{CRIMINAL_PROCEDURE_BILLS.enforcementCompare.note}</p>
                                         </div>
 
-                                        {/* 🛡️ 보완수사권 완전 폐지 시 경찰 견제 방법 (우리 안 관점) */}
+                                        {/* 🛡️ 보완수사권 완전 폐지 시 경찰 견제 방법 (주권자사법개혁추진(준) 안 관점) */}
                                         <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-300 rounded-xl p-4 mt-4">
                                             <p className="text-lg font-bold text-emerald-900 mb-1 flex items-center gap-2">🛡️ {CRIMINAL_PROCEDURE_BILLS.policeCheck.title}</p>
                                             <p className="text-base text-emerald-900 leading-relaxed mb-3">{CRIMINAL_PROCEDURE_BILLS.policeCheck.intro}</p>
