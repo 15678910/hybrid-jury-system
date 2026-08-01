@@ -3061,6 +3061,11 @@ exports.reformAnalysisPage = functions.https.onRequest(async (req, res) => {
         description = `3개 형사소송법 개정안 비교 — 조문별 비교·신구조문 대비표·찬반 논쟁점·헌법 제1조·인간의 존엄 부합성 평가 (${dateStr} 기준)`;
         imageUrl = `${BASE}/${encodeURIComponent('검찰개혁심층분석')}.png?v=20260716`;
         pageUrl = `${BASE}/reform-analysis?tab=prosecution-reform`;
+    } else if (tab === 'prosecution-roadmap') {
+        title = '[검찰개혁 시행 로드맵] 2026.7.31 통과 이후의 대응 전략';
+        description = `시행령·인사·조직 전환 타임라인, 예상 저항 5개 전선과 대응, 중수청 인적 구성 위험, 인사 설계의 법적 가능성 (${dateStr} 기준)`;
+        imageUrl = `${BASE}/${encodeURIComponent('검찰개혁시행로드맵')}.png?v=20260801`;
+        pageUrl = `${BASE}/reform-analysis?tab=prosecution-roadmap`;
     } else if (tab === 'finland-reform') {
         title = `[핀란드식 사법개혁안] ${dateStr}`;
         description = '수사·기소 완전 분리, 참심제, 이중 감시 체계 - 핀란드 모델 벤치마킹 종합 사법개혁 법률안';
