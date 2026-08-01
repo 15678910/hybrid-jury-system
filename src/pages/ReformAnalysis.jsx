@@ -534,6 +534,56 @@ const CRIMINAL_PROCEDURE_BILLS = {
                 },
             },
         ],
+        // 수사권을 잃은 검사에게 남은 두 권한 — 영장청구권·기소권
+        remainingPowers: {
+            title: '수사권을 잃은 검사에게 남은 두 권한 — 여기서도 「장난」은 가능하다',
+            intro: '이번 개정으로 검사의 직접수사권과 보완수사권은 사라졌다. 그러나 검사에게는 여전히 두 개의 강력한 권한이 남아 있다 — ① 헌법 제12조 제3항이 부여한 영장청구권과 ② 공소제기·유지권이다. 수사권을 뺏었으니 통제가 끝났다고 보면 위험하다. 오히려 남은 권한이 좁아진 만큼 그 권한에 힘이 집중된다. 그리고 이번 개정안에는 이 두 권한의 오남용을 다툴 절차가 사실상 없다.',
+            powers: [
+                {
+                    tag: '① 영장청구권',
+                    head: '경찰은 검사를 거치지 않으면 법원에 갈 수 없다 — 「관문 통제」',
+                    structure: '헌법 제12조 제3항은 체포·구속·압수·수색에 「검사의 신청에 의하여 법관이 발부한 영장」을 요구한다. 즉 경찰이 아무리 필요하다고 판단해도 검사가 반려하면 법원의 판단을 받아볼 기회 자체가 차단된다. 이번 개정안은 검사의 수사권을 없앴지만, 헌법 사항인 영장청구권은 그대로 두었다(법사위 대안 주요내용 「가」항 — "헌법상 권한인 영장청구권과 재판집행에 해당하는 영장집행지휘권 및 형집행권은 현행 유지"). 수사는 경찰이 하는데, 그 수사에 필요한 강제처분의 문은 여전히 검사가 열고 닫는다.',
+                    caseTitle: '실제 사례 — 최영중 전 청주시의원 사건 (2026.7)',
+                    caseFacts: [
+                        '2026.7.9 경찰이 최영중 전 청주시의원(미성년자의제강간·아동청소년성보호법 위반 혐의)에 대한 통신영장·압수수색영장을 신청했다.',
+                        '청주지검은 이를 반려했다. 사유는 「이 사건과 무관한 별건 수사와 관련됐다」, 「별건 범죄에 대한 소명이 이뤄지지 않았다」는 것이었다.',
+                        '이에 서영교 국회 법제사법위원장 등 더불어민주당 의원 6명이 7.22 청주지검을 항의방문해 반려 경위 공개와 감찰을 요구했다. 이들은 검찰과 정치인 간 유착 의혹을 제기했으나, 이는 국회의원들의 의혹 제기이며 확인된 사실은 아니다.',
+                        '7.28 경찰이 구속영장을 신청하고 청주지검이 이를 청구했다. 7.30 청주지법 태지영 영장전담 부장판사는 증거인멸·도주 우려를 이유로 구속영장을 발부했다.',
+                        '그리고 같은 날, 검찰이 「별건」이라며 반려했던 최근 1년치 통신영장도 법원이 발부했다.',
+                    ],
+                    lesson: '이 사건의 핵심은 정치적 공방이 아니라 구조다. 검사가 반려한 영장을 21일 뒤 법원은 발부했다 — 검사의 판단이 법원의 판단과 달랐다는 사실이 사후에 드러난 것이다. 그런데 그것을 드러낸 것은 제도가 아니라 국회의원들의 항의방문이었다. 만약 정치적 관심을 받지 못하는 평범한 사건이었다면, 그 반려는 아무도 모른 채 수사를 끝냈을 것이다. 통신기록은 다른 피해자와 공범을 확인하는 자료인데, 3주의 지연 동안 무엇이 사라졌는지는 확인할 방법이 없다.',
+                    gap: '이번 통과안에는 경찰이 검사의 영장 반려에 이의를 제기할 절차가 없다. 반려 사유를 서면화하거나 통계로 공개할 의무도 없다. 즉 관문은 그대로 두고 관문지기의 수사권만 뺏은 셈이다.',
+                    remedy: [
+                        '영장 신청 반려 시 사유의 서면 통지를 의무화하고, 반려 건수·사유·재신청 후 법원 발부율을 정기적으로 공개한다 — 「검사가 반려했으나 법원은 발부한 비율」이 드러나면 남용은 통계로 보인다.',
+                        '반려에 대한 이의 절차를 신설한다 — 수사기관이 반려에 불복하면 상급 공소청 또는 독립기구가 재심사하도록 해, 법원 판단을 받아볼 통로를 제도적으로 확보한다.',
+                        '장기적으로 영장청구권의 검사 독점은 헌법 제12조 제3항 사항이므로, 근본 해결은 개헌 과제로 남는다 — 다만 위 두 가지는 법률로 지금 가능하다.',
+                    ],
+                    ourRemedy: 'ⓑ 회로가 정확히 이 지점을 위한 것이다. 수사기관(경찰·중수청)이 검사의 부당한 영장 반려를 입법부 산하 법률감찰단·시민옴부즈만에 문제제기할 수 있어야 한다. 지금은 국회의원이 검찰청을 항의방문하는 것 말고는 통로가 없는데, 그것은 제도가 아니라 정치다. 정치적 주목을 받는 사건만 구제되는 구조를 제도로 바꿔야 한다. 여기에 ⓒ 회로로 피해자가 직접 이의를 제기할 수 있게 하면, 「관심받지 못하는 사건」의 사각지대가 줄어든다.',
+                },
+                {
+                    tag: '② 기소권 (공소제기·유지)',
+                    head: '봐주기·지연·부실 — 하지 않는 방식의 권력',
+                    structure: '수사권이 사라지면서 검사의 권한은 기소로 집중됐다. 그런데 기소권의 오남용은 「하는 것」보다 「하지 않는 것」에서 나온다. 표적기소(과잉)는 이번에 신설된 제327조제3호로 법원이 사후 통제할 수 있게 됐지만, 봐주기 불기소·기소 지연·공소유지 부실은 여전히 통제 장치가 얇다. 하지 않는 권력은 흔적을 남기지 않기 때문이다.',
+                    caseTitle: '어디에 구멍이 있나 — 통과안 원문 기준',
+                    caseFacts: [
+                        '봐주기 불기소 — 재정신청은 5개 유형(가정폭력·노인학대·아동청소년 성범죄·아동학대·장애인학대)과 신고의무자에게만 확대됐다(제260조). 일반 고발인은 여전히 검사의 불기소 앞에서 멈춘다.',
+                        '기소 지연 — 제257조가 신설돼 고소·고발 사건은 송치일부터 3개월 이내에 공소제기 여부를 결정하도록 했다. 그러나 이를 어겼을 때의 효과나 제재가 조문에 없다. 훈시 규정에 그칠 위험이 크다.',
+                        '공소유지 부실 — 검사는 사실관계 확인으로 얻은 진술·자료를 재판에서 증거로 쓸 수 없다(제245조의13③). 부실한 공소유지가 무죄로 이어져도, 그것이 역량 부족 때문인지 의도적 소극 대응인지 구분할 자료가 공개되지 않는다.',
+                        '반대 방향의 위험 — 제327조제2·3호로 공소기각이 늘어나면 「재판이 사건을 없앤다」는 역풍이 개혁 전체를 덮칠 수 있다. 공소기각 건수와 사유가 공개되지 않으면 이 논쟁은 인상과 정치적 서사로만 흘러간다.',
+                    ],
+                    lesson: '검사가 수사권을 잃은 뒤 남은 유일한 핵심 권한이 기소권이라면, 그 권한에 대한 시민 통제는 오히려 더 두터워져야 한다. 그런데 통과안은 재정신청의 문을 조금 열었을 뿐이고, 열린 문마저 신고의무자에게만 허용했다. 권한이 좁아질수록 통제는 촘촘해져야 한다는 원칙이 지켜지지 않았다.',
+                    gap: '결정적으로, 검사의 불기소를 견제할 주체가 여전히 법원(재정신청) 하나뿐이다. 수사기관이 검사의 봐주기를 문제 삼을 통로도, 시민이 직접 심사할 통로도 없다.',
+                    remedy: [
+                        '제257조의 3개월 기한에 실효성을 부여한다 — 미준수 시 사유의 서면 통지와 고소인 통보를 의무화하고, 사건별 처리기간 통계를 공개한다.',
+                        '검사의 기소·불기소·공소기각·무죄 통계를 사유별로 분기 공개한다 — 특히 공소기각은 제327조 제2호·제3호를 별도 집계해, 조항이 사문화되는지 과잉 사용되는지 시민이 확인할 수 있게 한다.',
+                        '재정신청을 공직자 범죄·권력형 비리에는 고발인 전반으로 확대한다.',
+                    ],
+                    ourRemedy: '시민기소심사위원회가 이 구멍의 정답이다. 무작위 추첨으로 선정된 시민이 불기소를 직접 심사하고, 2회 「기소 상당」 의결이면 강제기소로 이어진다(일본 검찰심사회 모델). 재정신청이 「법률가에게 호소하는 통로」라면 이것은 「시민이 스스로 판단하는 통로」다. 여기에 ⓑ 회로(수사기관이 검사의 봐주기를 독립기구에 문제제기)를 더하면, 기소권 견제가 처음으로 쌍방향이 된다.',
+                },
+            ],
+            conclusion: '수사권 폐지는 검사의 권한 총량을 줄였지만, 남은 권한의 밀도는 오히려 높였다. 영장청구권은 헌법 사항이라 법률로 없앨 수 없고, 기소권은 검사의 존재 이유 자체다. 그렇다면 답은 권한을 더 빼앗는 것이 아니라, 남은 권한이 어떻게 행사되는지를 「보이게」 만들고, 그것을 다툴 통로를 법조 밖에 여는 것이다. 최영중 사건에서 검사의 반려가 법원 판단과 달랐다는 사실은 국회의원들의 항의방문 덕분에 드러났다 — 다음 사건에도 국회의원이 찾아가 주기를 기대할 수는 없다. 제도가 그 자리를 대신해야 한다.',
+            note: '※ 최영중 사건 경위는 경향신문·MBC·오마이뉴스·머니투데이 등 보도를 교차 확인한 것이다. 「검찰과 정치인 간 유착 의혹」은 더불어민주당 의원들이 제기한 의혹이며 확인된 사실이 아니다. 검찰이 밝힌 반려 사유는 「별건 범죄에 대한 소명 부족」이다.',
+        },
         // 주권자사법개혁추진(준) 안과의 차이
         ourDiff: {
             title: '통과안 vs 주권자사법개혁추진(준) 안 — 권력은 어디로 옮겨졌나',
@@ -547,6 +597,115 @@ const CRIMINAL_PROCEDURE_BILLS = {
         },
         conclusion: '이번 개정은 수사·기소 분리라는 오랜 과제를 법률로 확정한 분명한 진전이다. 검사의 직접수사가 폐지되고, 강제수사 영상녹화가 의무화되며, 피해자의 절차적 권리가 여러 단계에서 확충됐다. 공소기각 조항 역시 판례에 근거가 있고 원안부터 존재했던 것으로 원문에서 확인된다. 그러나 세 가지가 남는다. 첫째, 가장 다투어질 제327조가 대안의 「주요내용」에서 빠져 공론화의 기회가 좁아졌다. 둘째, 인권보장 장치(영상녹화)가 권한 이전보다 1년 늦게 도착하고, 이행강제는 「요구권」에 머물러 실효성이 담보되지 않는다. 셋째, 그리고 가장 근본적으로 — 이 개혁은 권력을 검찰에서 경찰로, 검사에서 법원으로 옮겼을 뿐 주권자인 시민에게 옮기지 않았다. 헌법 제1조 제2항은 모든 권력이 국민으로부터 나온다고 선언한다. 사법개혁의 다음 질문은 「검사에게서 무엇을 더 뺄까」가 아니라 「국민에게 사법의 어떤 몫을 돌려줄까」여야 한다. 참심제와 시민기소심사위원회는 그 질문의 이름이다.',
         note: '※ 이 분석은 의안 2220257(법사위 대안)·2219564(김용민·박은정안) 원문 PDF와 법사위 검토보고서를 직접 대조해 작성했다. 조문 요지는 원문을 옮긴 것이며, 정확한 자구는 국회 의안정보시스템 원문을 참조.',
+    },
+    // 🗺️ 시행 로드맵과 대응 전략 — 통과 이후가 진짜 승부처
+    roadmap: {
+        title: '시행 로드맵과 대응 전략 — 통과 이후가 진짜 승부처다',
+        intro: '2026.7.31 형사소송법 개정법률이 국회를 통과했다. 그러나 법률의 통과가 개혁의 완성은 아니다. 시행일까지 두 달, 그 사이에 시행령·직제·인사가 만들어진다. 개혁이 되돌려진다면 그것은 국회가 아니라 이 두 달과 그 이후의 집행 과정에서 일어난다.',
+        lesson2022: {
+            title: '반드시 기억해야 할 선례 — 2022년, 법률은 통과됐고 시행령에서 되돌아갔다',
+            body: '2022년 4월 국회는 검찰청법을 개정해 검사가 수사할 수 있는 범죄를 6개에서 2개로 줄였다 — 「부패·경제범죄 등 대통령령으로 정하는 중요 범죄」. 그러나 법무부는 그해 8월 시행령을 개정해 직권남용·허위공문서작성(공직자범죄)과 뇌물(선거범죄)을 「부패범죄」로 재분류했다. 법률이 좁힌 범위를 시행령이 다시 넓힌 것이다. 당시 법무부는 「법률의 위임 범위를 벗어나지 않았다」고 했고, 비판 측은 「국회가 만든 법을 시행령으로 무력화하는 것은 권력분립 원칙에 어긋난다」고 맞섰다.',
+            lesson: '교훈은 분명하다. 개혁의 성패는 법률 문언이 아니라 「누가 시행령을 쓰는가」에서 갈린다. 그리고 이번 통과안에는 2022년과 똑같은 구조가 다시 들어 있다.',
+            danger: '★ 부칙 제12조① — 시행 당시 검사가 수사 중인 사건 중 「공소시효가 임박하거나 사건의 성질 등을 고려할 때 불가피한 사건」에 대해서는 「대통령령으로 정하는 바에 따라」 시행일부터 90일까지 계속 수사할 수 있다. 「불가피한 사건」을 시행령이 넓게 정의하면, 검사 수사는 90일간 사실상 폭넓게 살아남는다. 그 밖에 제197조의4③(수사권 관할조정협의회 구성·운영), 제245조의10②(특별사법경찰관 협력), 제197조의3⑨ 단서도 대통령령에 위임돼 있다.',
+        },
+        timeline: [
+            { when: '2026.8~9월', tag: '최대 승부처', color: 'red', what: '시행령·직제 입법예고', todo: '입법예고 기간(통상 40일) 의견 제출. 특히 부칙 제12조의 「불가피한 사건」 정의를 좁히도록 요구. 국회법 제98조의2에 따른 시행령 수정·변경 요구권을 법사위가 발동할 수 있도록 사전 준비. 시행령 초안 공개 요구.' },
+            { when: '2026.10.2', tag: '시행', color: 'orange', what: '검찰청 폐지 → 공소청·중대범죄수사청 출범, 형사소송법 개정법률 시행', todo: '초대 중수청장·간부진 인선 감시(국회 인사청문 활용). 검찰수사관 약 6,000명의 재배치 결과 공개 요구. 공소청 공판 인력 확보 상황 점검.' },
+            { when: '2026.10~12월', tag: '90일 유예', color: 'amber', what: '부칙 제12조에 따라 검사가 계속 수사할 수 있는 기간', todo: '이 기간에 검사가 계속 수사한 사건의 건수·유형을 공개하도록 요구. 시행령이 정한 「불가피한 사건」의 실제 적용 범위를 검증.' },
+            { when: '2027년(공포 후 1년)', tag: '인권장치 시행', color: 'blue', what: '압수·수색·검증 전 과정 영상녹화, 피의자 신문 녹음 의무 시행(부칙 제1조 제2호)', todo: '그때까지 약 1년간은 「검사의 사전 통제는 사라졌는데 영상 기록 의무는 아직 없는」 공백 구간이다. 유예기간 단축 또는 대체 통제수단(변호인 참여권 확대 등) 요구.' },
+        ],
+        fronts: [
+            {
+                n: '1', name: '시행령 전선', risk: '최고', color: 'red',
+                move: '「불가피한 사건」을 넓게 정의, 관할조정협의회를 공소청 우위로 설계, 직제에서 수사 기능을 남기는 방식',
+                counter: '입법예고 의견 제출 → 조문별 대조표 작성 → 법사위 전달 → 국회법 제98조의2 수정요구권 발동. 2022년에는 이 대응이 늦어 시행령이 먼저 확정됐다.',
+            },
+            {
+                n: '2', name: '헌법 전선', risk: '중', color: 'orange',
+                move: '권한쟁의심판·헌법소원 청구(국민의힘 검토 중). 새 쟁점으로 제327조 공소기각을 「법원의 재판권과 검사 소추권의 관계」로 구성할 가능성',
+                counter: '선례는 유리하다. 2023.3.23 헌재는 2022년 검수완박에 대해 검찰·법무부 청구를 각하(검사에겐 영장신청권 침해 가능성 없음, 법무부장관은 청구인 적격 없음)하고 국회의원 청구는 기각해 법률을 유효로 확정했다. 다만 두 사건 모두 5:4였다. 방심하지 말고 공소기각 조항의 합헌 논거를 미리 정리해 둘 것.',
+            },
+            {
+                n: '3', name: '인사·조직 전선', risk: '중', color: 'orange',
+                move: '지휘부 사퇴·집단 사표·평검사 회의를 통한 여론전. 2026.7.31 구자현 검찰총장 직무대행이 「책임을 통감한다」며 사의를 표명했다.',
+                counter: '역사적으로 「검란」은 여론에서 역효과를 낸 경우가 많다. 다만 업무 공백은 실제 피해를 낳고 그 피해는 개혁의 책임으로 돌아온다. 인력·기록 이관 계획과 공판 인력 확보 상황을 선제적으로 점검·공개해 「공백은 없다」를 데이터로 보여주는 것이 최선의 방어다.',
+            },
+            {
+                n: '4', name: '실무 태업 전선', risk: '최고', color: 'red',
+                move: '보완수사요구를 형식적으로만 이행, 공소유지 부실 → 무죄 축적 → 「수사권을 없애니 범죄자가 풀려난다」는 서사 구축. 눈에 보이지 않고 1~2년 뒤 통계로만 드러나며, 그때는 이미 여론이 기울어 있다.',
+                counter: '통계 공개 의무화가 유일한 방어선이다 — ① 보완수사요구 건수·이행률·평균 소요기간·거부 사유 ② 공소기각 건수와 사유(제327조 제2호·제3호 별도 집계) ③ 무죄율의 원인 분해(증거 부족/법리/절차 위법). 분기별 공개 + 국회 보고. 측정되지 않으면 태업은 보이지 않는다.',
+            },
+            {
+                n: '5', name: '법원 전선', risk: '양날', color: 'amber',
+                move: '제327조 공소기각을 소극 해석하면 조항이 사문화되고, 과잉 활용하면 「재판이 사건을 없앤다」는 역풍이 개혁 전체를 덮친다.',
+                counter: '공소기각 판결의 사유 공개·유형화를 정착시켜 기준이 판례로 축적되게 하고, 그 축적을 시민이 볼 수 있게 한다. 근본적으로는 참심제로 법조 내부의 해석 독점을 여는 것이 답이다.',
+            },
+        ],
+        scia: {
+            title: '중대범죄수사청 — 「간판만 바꾼 검찰」이 되지 않으려면',
+            facts: [
+                { k: '소속', v: '행정안전부장관 소속 — 법무부 지휘 라인에서 벗어난다(구조적으로 유리한 설계)' },
+                { k: '청장 임명', v: '후보추천위 3명 이상 추천 → 행안부장관 제청 → 대통령 지명 → 국회 인사청문. 임기 2년·중임 불가' },
+                { k: '청장 자격', v: '변호사 자격 유무와 무관하게 15년 이상 수사·법률 업무 종사자' },
+                { k: '직급 체계', v: '전원 수사관 1~9급 단일 체계. 당초 검사·변호사 자격자에게 부여하려던 「수사사법관」 신분은 "검찰청 구조를 다시 만드는 것"이라는 반발로 철회됐다' },
+                { k: '검사 이동', v: '공소청법 부칙 제7조① — 검사는 공소청 검사로 전환되며, 임용권자가 「본인 의사를 존중하여」 중수청 등으로 임용할 수 있다(초기 이동 인력은 봉급·정년 보장)' },
+                { k: '현재 분위기', v: '「수사사법관」 철회로 검찰 내부에서는 오히려 "인력 유인 요인이 부족하다"는 반응이 나온다 — 대거 몰려가는 상황이 아니라 안 가려는 상황에 가깝다' },
+            ],
+            risks: [
+                { level: '높음', color: 'red', name: '관성형 침투 — 조직은 나눴는데 사람이 같다', desc: '법이 수사와 기소를 분리해도, 공소청 검사와 중수청 수사관이 전 검찰 동료라면 전화 한 통으로 예전처럼 협의한다. 제도가 끊은 것을 인맥이 다시 잇는다. 직급을 1~9급으로 단일화해도 기수·서열 문화는 사람을 따라 옮겨간다. 초기 3년이 조직의 DNA를 결정한다.' },
+                { level: '높음', color: 'red', name: '공백형 실패 유도 — 「안 가는 것」도 무기다', desc: '유능한 인력이 기피하면 중수청은 인력난에 빠지고, 수사가 실패하면 「역시 검찰이 해야 한다」는 서사가 만들어진다. 음모가 없어도 무관심만으로 같은 결과가 나온다. 「수사사법관」 철회로 유인이 약해진 지금 구조가 이 위험을 키운다.' },
+                { level: '중간', color: 'orange', name: '정보 차단 — 배치 로드맵 비공개', desc: '참여연대가 공개질의로 지적했듯, 검찰수사관 약 6,000명의 재배치 계획 — 공소청 잔류 규모, 중수청 이동 규모, 일반직의 역할, 구체적 로드맵 — 이 공개되지 않고 있다. 감시할 정보가 없으면 감시도 없다.' },
+                { level: '중간', color: 'orange', name: '요직 회전문', desc: '중수청 근무 후 공소청 복귀(또는 그 반대)가 자유로우면 중수청은 「거쳐 가는 자리」가 되고, 충성의 대상은 여전히 옛 조직으로 남는다.' },
+            ],
+            counters: [
+                '초대 중수청장과 간부진 인선이 단일 최대 변수다 — 국회 인사청문을 실질적으로 활용해 검찰 출신 편중 여부를 검증한다.',
+                '간부진의 출신 다변화 목표를 공개한다 — 경찰·특별사법경찰·감사원·국세·관세·디지털포렌식·회계 전문가 비율을 명시.',
+                '검찰 출신 비율의 상한을 내부 규정으로 설정하고 공개한다 — 법률 개정 없이 지금 가능한 조치다.',
+                '회전문 제한 — 중수청과 공소청 사이 교차 임용에 냉각기간(예: 2~3년)을 두어 이해충돌을 차단한다.',
+                '성공 지표를 미리 정의한다 — 기소율·유죄율만 보면 무리한 수사로 흐른다. 영장 기각률·진술거부권 고지율·변호인 참여율·무죄 사유 분해를 함께 공표한다.',
+            ],
+        },
+        personnel: {
+            title: '인사 설계 — 무엇이 법적으로 가능하고 무엇이 불가능한가',
+            data: [
+                { k: '검사 현원 (2026.2)', v: '2,034명 / 정원 2,292명 → 259명 결원(역대 최저). 2022년 2,177 → 2024년 2,064 → 2026년 2,034로 감소 추세' },
+                { k: '2025년 퇴직', v: '175명(역대 최다). 신임 법관 모집에 현직 검사 230여 명 지원 — 검사 10명 중 1명' },
+                { k: '실근무 공백', v: '휴직·파견·연수를 포함해 일선 청에서 실근무하지 않는 검사가 약 600명(정원의 약 3분의 1)' },
+                { k: '유입 (경력검사)', v: '2026년도 지원 200여 명 — 2025년 150명 대비 33% 증가. 선발은 30명 안팎. 지원자에 대형로펌 변호사·재판연구원·국선전담변호사·감사원·금감원·경찰 출신 포함' },
+                { k: '파견 검사 (정부부처·지자체)', v: '2026.5 기준 28명 — 2021년 34명 → 2022~24년 37명 안팎 → 2025년 29명 → 2026년 28명으로 3년 새 24% 감소. 국정원은 2021~24년 매년 2~4명이었으나 2025년부터 0명, 대통령실 현직 검사는 2017년부터 0명. 감사원·교육부·방통위·복지부가 매년 1명씩 받던 파견은 끊겼고, 헌법재판소는 매년 4명에서 2025년부터 3명으로 줄었다. ※이 수치는 정부부처·지자체 파견만 집계한 것으로, 법무부 근무·파견 검사와 검찰수사관 파견은 포함되지 않는다' },
+                { k: '집계 밖 인력 (통계 공백)', v: '법무부·대검 보임 검사, 특별검사팀 파견, 그리고 검찰수사관 파견은 위 28명에 들어가지 않으며 범위별로 정리된 공개 통계가 없다. 「외부에 나가 있는 검찰 인력」의 총량이 얼마인지는 현재 공개 자료만으로 확정할 수 없다 — 이 통계 공백 자체가 정보공개 요구 대상이다' },
+            ],
+            judgments: [
+                { verdict: 'no', label: '불가능', item: '인사명령으로 검사를 붙잡아 두기', why: '검사는 신분보장(탄핵·금고 이상 형·징계 아니면 파면·정직·감봉 불가)을 받지만, 본인이 그만두겠다는 것을 막는 규정은 없다. 사표 수리 거부·지연은 직업선택의 자유(헌법 제15조) 문제로 위법 소지가 크고 여론 역효과도 크다. 유지는 「명령」이 아니라 「설계」로만 가능하다.' },
+                { verdict: 'yes', label: '가능', item: '수사관을 중수청·공수처·국가수사본부로 재배치', why: '검찰수사관은 일반직 국가공무원이라 임용권자의 전보 재량이 넓다. 실제로 이미 대통령실·법무부·공수처 등에 파견돼 왔다. 검사(공소청법 부칙 제7조①의 「본인 의사를 존중하여」)와 달리 인사명령으로 재배치할 수 있다.' },
+                { verdict: 'partly', label: '부분적', item: '공소청에 행정 인력만 남기기', why: '공소청의 본업은 공소 유지다. 공판 준비·증거 정리·증인 관리 인력을 모두 빼면 공판 실무가 마비되고, 그것이 곧 무죄 증가와 「개혁 실패」 서사로 돌아온다. 「수사 기능 인력은 이동, 공판 지원 인력은 잔류」로 나누는 설계가 정확하다.' },
+                { verdict: 'partly', label: '범위를 나눠 봐야', item: '외부기관 파견 검사 전원 복귀', why: '「정부부처·지자체 파견」만 보면 이미 28명으로 줄었고(3년 새 24% 감소) 국정원·대통령실은 0명이라 여기서 확보할 인력은 많지 않다. 그러나 이 28명은 법무부·대검 보임 검사, 특검 파견, 검찰수사관 파견을 포함하지 않은 수치이며, 그쪽은 범위별 공개 통계가 없다. 따라서 「파견 검사 전원 복귀」를 논하기 전에 먼저 할 일은 복귀시킬 대상의 총량을 확정하는 것이다 — 즉 법무부 근무·파견 검사, 특검 파견, 수사관 파견을 포함한 전체 현황의 정보공개 요구가 선행돼야 한다. 실제 복귀 인사의 무게중심은 정부부처 파견(28명)이 아니라 법무부·대검 보임 검사와 장기 휴직·해외연수 인력에 있을 가능성이 크다.' },
+            ],
+            solutions: [
+                { n: '1', name: '경력검사 선발 대폭 확대', desc: '가장 즉효이며 법 개정이 필요 없다. 제도는 이미 있고 지원자도 늘고 있다(200여 명, 전년 대비 33% 증가). 문제는 연 30명이라는 선발 규모뿐이다 — 연 175명이 나가는데 30명을 뽑으면 구조적 순감이다. 정원·예산 조정으로 연 100~150명 규모까지 확대할 수 있다.' },
+                { n: '2', name: '「공판 전문 검사」 트랙 신설', desc: '수사권이 사라진 이상 공소청 검사에게 필요한 역량은 수사력이 아니라 공판력이다. 국선전담변호사는 형사 공판 경험이 가장 풍부한 직군으로 즉시 전력이 되며, 실제로 경력검사 지원자에 포함돼 있다. 형사 전문 변호사·재판연구원 출신을 공판 트랙으로 별도 선발하면, 기존 검찰 문화와 무관한 인적 기반이 만들어져 「관성형 침투」도 함께 차단된다.' },
+                { n: '3', name: '임용 요건 조정 — 공수처 선례', desc: '공수처는 검사 임용 요건을 변호사 자격 7년에서 5년으로 완화했다. 공소청도 공판 트랙에 한해 요건을 조정할 수 있다.' },
+                { n: '4', name: '불확실성 제거가 최대의 유인책', desc: '현재 이탈의 큰 원인은 처우가 아니라 「공소청 검사가 무엇을 하는 자리인지 모르겠다」는 불확실성이다. 직무기술서·경력경로·승진구조를 시행 전에 공표하는 것이 어떤 금전적 유인보다 효과적이다.' },
+                { n: '5', name: '동시 사표 발생 시 실무 대응', desc: '순차 수리 + 직무대리 지정 + 법원과의 공판기일 조정 협의 채널 구축. 공소시효 임박 사건 우선 배정 매뉴얼을 미리 마련한다. 사표 수리 거부는 하지 않는다 — 위법 소지와 여론 역효과가 모두 크다.' },
+            ],
+            note: '참고 — 「집단 사퇴로 마비된다」는 공포는 이미 부분적으로 검증됐다. 259명이 빈 상태에서도 조직은 돌아가고 있다. 검사 지원 경쟁도 유지되고 있어(법률신문 2026: 「공소청 전환에도 검사 인기는 여전」), 과장된 공포에 자원을 쓰기보다 결원을 메우는 실무에 집중하는 편이 낫다.',
+        },
+        institutional: {
+            title: '집행을 책임질 사람이 그 법에 반대했다면 — 인물이 아니라 절차에 걸어야 한다',
+            body: '정성호 법무부장관은 전건송치 부활, 검사 수사권 강화, 보완수사 범위 확대를 주장해 더불어민주당의 당론(보완수사권 완전 폐지)과 충돌했고, 이견 끝에 사의를 표명했다("검찰개혁은 큰 틀에서 완료됐다"). 대통령실은 10월 공소청 출범을 책임질 장관이 필요하다는 이유로 유임 방침을 밝혔다. 즉 통과된 법률의 핵심 조항에 반대했던 인물이 그 법률의 시행령·직제·인사를 만드는 자리에 있다. 그리고 부칙 제12조는 「불가피한 사건」의 정의를 대통령령에 위임해 두었다.',
+            strategy: '여기서 얻을 결론은 「사람을 바꾸자」가 아니다. 인사로 푸는 접근은 정권이 바뀌면 그대로 역전되며, 2022년이 그 증거다. 필요한 것은 장관이 누구든 작동하는 절차적 안전장치다 — ① 시행령 입법예고 의견 제출 ② 국회법 제98조의2 수정요구권 사전 준비 ③ 중수청장 인사청문의 실질화 ④ 예산 심의권을 통한 중수청 인력 확보 검증 ⑤ 법사위 정례 보고(시행령·직제·인력배치) ⑥ 정보공개청구를 통한 6,000명 재배치 로드맵·공소청 준비단 명단·시행령 초안 확보.',
+            root: '그리고 가장 근본적인 답 — 인물에 의존하는 개혁은 인물이 바뀌면 되돌아간다. 장관 한 명, 대통령 한 명의 의지에 개혁의 운명이 걸리는 구조 자체가 문제다. 법조 내부 인사로만 집행되는 한 누가 장관이 되든 장(場)의 논리는 재생산된다. 참심제(재판)·시민기소심사위원회(기소)·입법부 산하 법률감찰단과 시민옴부즈만(감시) — 시민이 판단 구조 안에 들어가 있으면, 장관이 누구인지가 결정적이지 않게 된다.',
+        },
+        caution: {
+            title: '전략적으로도 중요한 정직함',
+            items: [
+                '저항을 전제로 모든 반대를 악의로 규정하면 그 자체가 함정이다. 제도 자기보존에서 나오는 반대는 구조로 대응하고, 공소유지 역량·증거 확보 시차 같은 실무상 타당한 우려는 수용해 보완해야 한다. 둘을 뭉뚱그리면 정당한 지적까지 무시하다가 실제 문제가 터졌을 때 개혁 전체의 신뢰를 잃는다.',
+                '중수청 인력 이동에 대해서도, 현재 확인된 사실로는 「대규모 이동을 통한 조직적 회귀 기도」가 입증된 바 없다. 오히려 유인 부족으로 인력이 오지 않을까 우려하는 상황이다. 위험 유형을 정확히 진단해야 대응이 맞는다 — 음모형이면 배제·감시, 관성형이면 인선 다변화와 평가지표, 공백형이면 처우와 경력경로 설계다.',
+                '정성호 장관에 대해서도 「말로만 했다」기보다 「다른 개혁안을 가지고 있었다」고 보는 편이 사실에 가깝고 전략적으로도 유리하다. 의지 부족으로 규정하면 대응책이 「사람 교체」로 좁아지지만, 입장 차이로 규정하면 대응책이 「절차적 안전장치」로 넓어지며 그것은 다음 정부에서도 계속 작동한다.',
+                '상대의 이해관계를 지적하는 것과 상대의 주장을 반박하는 것은 다른 일이다. 이익이 걸려 있다는 이유로 주장이 틀렸다고 하면 발생론적 오류가 된다. 결국 논점 자체로 이겨야 한다.',
+            ],
+        },
+        note: '※ 이 로드맵은 의안 2220257(법사위 대안) 원문, 공소청법·중대범죄수사청법 규정, 그리고 법률신문·시사저널·오마이뉴스·뉴시스·헤럴드경제 등의 보도를 교차 확인해 작성했다. 인력 통계는 보도 시점(2026년 상반기) 기준이다.',
     },
     // 🛡️ 보완수사권 완전 폐지 시에도 경찰은 이렇게 견제된다 (주권자사법개혁추진(준) 관점 재구성)
     policeCheck: {
@@ -2005,6 +2164,65 @@ export default function ReformAnalysis() {
                                             ))}
                                         </div>
 
+                                        {/* 남은 두 권한 — 영장청구권·기소권 */}
+                                        <div className="bg-rose-50 border-2 border-rose-200 rounded-xl p-4 mb-4">
+                                            <p className="text-lg font-bold text-rose-900 mb-2 flex items-center gap-2">🔑 {CRIMINAL_PROCEDURE_BILLS.passedLaw.remainingPowers.title}</p>
+                                            <p className="text-base text-rose-900 leading-relaxed mb-3">{CRIMINAL_PROCEDURE_BILLS.passedLaw.remainingPowers.intro}</p>
+                                            <div className="space-y-4">
+                                                {CRIMINAL_PROCEDURE_BILLS.passedLaw.remainingPowers.powers.map((p, i) => (
+                                                    <div key={i} className="bg-white rounded-xl border border-rose-200 overflow-hidden">
+                                                        <div className="px-4 py-3 bg-rose-100 border-b border-rose-200">
+                                                            <div className="flex items-start gap-2 flex-wrap">
+                                                                <span className="px-2 py-0.5 bg-rose-600 text-white text-sm rounded font-bold whitespace-nowrap">{p.tag}</span>
+                                                                <span className="text-base font-bold text-rose-900 flex-1 min-w-0">{p.head}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="p-4 space-y-3">
+                                                            <div className="bg-gray-50 border-l-4 border-gray-300 px-3 py-2 rounded-r">
+                                                                <p className="text-sm font-bold text-gray-500 mb-0.5">구조</p>
+                                                                <p className="text-base text-gray-800 leading-relaxed">{p.structure}</p>
+                                                            </div>
+                                                            <div className="bg-amber-50 border-l-4 border-amber-400 px-3 py-2 rounded-r">
+                                                                <p className="text-sm font-bold text-amber-800 mb-1">📌 {p.caseTitle}</p>
+                                                                <ul className="space-y-1.5">
+                                                                    {p.caseFacts.map((f, fi) => (
+                                                                        <li key={fi} className="text-base text-amber-900 leading-relaxed flex gap-2">
+                                                                            <span className="text-amber-500 shrink-0">›</span>
+                                                                            <span>{f}</span>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </div>
+                                                            <div className="bg-red-50 border-l-4 border-red-400 px-3 py-2 rounded-r">
+                                                                <p className="text-sm font-bold text-red-700 mb-0.5">⚠️ 구조가 말하는 것</p>
+                                                                <p className="text-base text-red-900 leading-relaxed mb-2">{p.lesson}</p>
+                                                                <p className="text-base font-bold text-red-900 leading-relaxed">👉 {p.gap}</p>
+                                                            </div>
+                                                            <div className="bg-blue-50 border-l-4 border-blue-400 px-3 py-2 rounded-r">
+                                                                <p className="text-sm font-bold text-blue-700 mb-1">🔧 법률로 지금 가능한 보완</p>
+                                                                <ul className="space-y-1.5">
+                                                                    {p.remedy.map((r, ri) => (
+                                                                        <li key={ri} className="text-base text-blue-900 leading-relaxed flex gap-2">
+                                                                            <span className="text-blue-400 shrink-0">›</span>
+                                                                            <span>{r}</span>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </div>
+                                                            <div className="bg-indigo-50 border-2 border-indigo-300 px-3 py-3 rounded-lg">
+                                                                <span className="inline-block px-2 py-0.5 bg-indigo-600 text-white text-sm rounded font-bold mb-2">주권자사법개혁추진(준)</span>
+                                                                <p className="text-base text-indigo-900 leading-relaxed">{p.ourRemedy}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="bg-white border border-rose-200 rounded-lg p-3 mt-3">
+                                                <p className="text-base font-bold text-rose-900 leading-relaxed">📌 {CRIMINAL_PROCEDURE_BILLS.passedLaw.remainingPowers.conclusion}</p>
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-2">{CRIMINAL_PROCEDURE_BILLS.passedLaw.remainingPowers.note}</p>
+                                        </div>
+
                                         {/* 주권자사법개혁추진(준) 안과의 차이 */}
                                         <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-4">
                                             <p className="text-lg font-bold text-indigo-900 mb-3 flex items-center gap-2">⚖️ {CRIMINAL_PROCEDURE_BILLS.passedLaw.ourDiff.title}</p>
@@ -2036,6 +2254,173 @@ export default function ReformAnalysis() {
                                             <p className="text-base font-bold text-amber-900 leading-relaxed">📌 {CRIMINAL_PROCEDURE_BILLS.passedLaw.conclusion}</p>
                                         </div>
                                         <p className="text-xs text-gray-500">{CRIMINAL_PROCEDURE_BILLS.passedLaw.note}</p>
+                                    </div>
+
+                                    {/* 섹션 0-2: 시행 로드맵과 대응 전략 */}
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 flex-wrap">
+                                            <span>🗺️</span> {CRIMINAL_PROCEDURE_BILLS.roadmap.title}
+                                        </h3>
+                                        <p className="text-base text-gray-700 leading-relaxed mb-4">{CRIMINAL_PROCEDURE_BILLS.roadmap.intro}</p>
+
+                                        {/* 2022 선례 */}
+                                        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-4">
+                                            <p className="text-lg font-bold text-red-900 mb-2 flex items-center gap-2">⚠️ {CRIMINAL_PROCEDURE_BILLS.roadmap.lesson2022.title}</p>
+                                            <p className="text-base text-red-900 leading-relaxed mb-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.lesson2022.body}</p>
+                                            <p className="text-base font-bold text-red-900 leading-relaxed mb-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.lesson2022.lesson}</p>
+                                            <div className="bg-white border-l-4 border-red-500 px-3 py-2 rounded-r">
+                                                <p className="text-base text-red-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.roadmap.lesson2022.danger}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* 타임라인 */}
+                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
+                                            <div className="px-4 py-3 bg-gray-50 border-b">
+                                                <p className="font-bold text-gray-900">📅 시행 타임라인과 할 일</p>
+                                            </div>
+                                            <div className="divide-y">
+                                                {CRIMINAL_PROCEDURE_BILLS.roadmap.timeline.map((t, i) => (
+                                                    <div key={i} className="p-4">
+                                                        <div className="flex items-start gap-2 flex-wrap mb-1.5">
+                                                            <span className="text-base font-bold text-gray-900 whitespace-nowrap">{t.when}</span>
+                                                            <span className={`px-2 py-0.5 rounded-full text-sm font-bold whitespace-nowrap ${t.color === 'red' ? 'bg-red-100 text-red-700' : t.color === 'orange' ? 'bg-orange-100 text-orange-700' : t.color === 'amber' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'}`}>{t.tag}</span>
+                                                            <span className="text-base text-gray-700 flex-1 min-w-0">{t.what}</span>
+                                                        </div>
+                                                        <p className="text-base text-gray-600 leading-relaxed bg-gray-50 rounded px-3 py-2">→ {t.todo}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* 5개 전선 */}
+                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
+                                            <div className="px-4 py-3 bg-gray-50 border-b">
+                                                <p className="font-bold text-gray-900">🛡️ 예상되는 5개 저항 전선과 대응</p>
+                                            </div>
+                                            <div className="divide-y">
+                                                {CRIMINAL_PROCEDURE_BILLS.roadmap.fronts.map((f, i) => (
+                                                    <div key={i} className="p-4">
+                                                        <div className="flex items-center gap-2 flex-wrap mb-2">
+                                                            <span className="w-6 h-6 rounded-full bg-gray-800 text-white text-sm font-bold flex items-center justify-center shrink-0">{f.n}</span>
+                                                            <span className="text-base font-bold text-gray-900">{f.name}</span>
+                                                            <span className={`px-2 py-0.5 rounded-full text-sm font-bold ${f.color === 'red' ? 'bg-red-100 text-red-700' : f.color === 'orange' ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-800'}`}>위험 {f.risk}</span>
+                                                        </div>
+                                                        <div className="bg-red-50 border-l-4 border-red-400 px-3 py-2 rounded-r mb-2">
+                                                            <p className="text-sm font-bold text-red-700 mb-0.5">예상 수단</p>
+                                                            <p className="text-base text-red-900 leading-relaxed">{f.move}</p>
+                                                        </div>
+                                                        <div className="bg-blue-50 border-l-4 border-blue-400 px-3 py-2 rounded-r">
+                                                            <p className="text-sm font-bold text-blue-700 mb-0.5">대응</p>
+                                                            <p className="text-base text-blue-900 leading-relaxed">{f.counter}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* 중수청 */}
+                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
+                                            <div className="px-4 py-3 bg-purple-50 border-b">
+                                                <p className="font-bold text-purple-900">🏢 {CRIMINAL_PROCEDURE_BILLS.roadmap.scia.title}</p>
+                                            </div>
+                                            <div className="p-4 space-y-3">
+                                                <div className="divide-y border rounded-lg overflow-hidden">
+                                                    {CRIMINAL_PROCEDURE_BILLS.roadmap.scia.facts.map((f, i) => (
+                                                        <div key={i} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 px-3 py-2 bg-white">
+                                                            <span className="text-base font-bold text-gray-500 sm:w-24 shrink-0">{f.k}</span>
+                                                            <span className="text-base text-gray-800 leading-relaxed">{f.v}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="space-y-2">
+                                                    {CRIMINAL_PROCEDURE_BILLS.roadmap.scia.risks.map((r, i) => (
+                                                        <div key={i} className={`border-l-4 px-3 py-2 rounded-r ${r.color === 'red' ? 'bg-red-50 border-red-400' : 'bg-orange-50 border-orange-400'}`}>
+                                                            <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                                                                <span className={`px-2 py-0.5 rounded-full text-sm font-bold ${r.color === 'red' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>위험 {r.level}</span>
+                                                                <span className="text-base font-bold text-gray-900">{r.name}</span>
+                                                            </div>
+                                                            <p className="text-base text-gray-800 leading-relaxed">{r.desc}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="bg-blue-50 border-l-4 border-blue-400 px-3 py-2 rounded-r">
+                                                    <p className="text-sm font-bold text-blue-700 mb-1">🔧 대응</p>
+                                                    <ul className="space-y-1.5">
+                                                        {CRIMINAL_PROCEDURE_BILLS.roadmap.scia.counters.map((c, ci) => (
+                                                            <li key={ci} className="text-base text-blue-900 leading-relaxed flex gap-2">
+                                                                <span className="text-blue-400 shrink-0">›</span><span>{c}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* 인사 설계 */}
+                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
+                                            <div className="px-4 py-3 bg-emerald-50 border-b">
+                                                <p className="font-bold text-emerald-900">👥 {CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.title}</p>
+                                            </div>
+                                            <div className="p-4 space-y-3">
+                                                <div className="divide-y border rounded-lg overflow-hidden">
+                                                    {CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.data.map((d, i) => (
+                                                        <div key={i} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 px-3 py-2 bg-white">
+                                                            <span className="text-base font-bold text-gray-500 sm:w-40 shrink-0">{d.k}</span>
+                                                            <span className="text-base text-gray-800 leading-relaxed">{d.v}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="space-y-2">
+                                                    {CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.judgments.map((j, i) => (
+                                                        <div key={i} className={`border-l-4 px-3 py-2 rounded-r ${j.verdict === 'no' ? 'bg-red-50 border-red-400' : j.verdict === 'yes' ? 'bg-green-50 border-green-400' : 'bg-amber-50 border-amber-400'}`}>
+                                                            <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                                                                <span className={`px-2 py-0.5 rounded-full text-sm font-bold ${j.verdict === 'no' ? 'bg-red-100 text-red-700' : j.verdict === 'yes' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-800'}`}>{j.label}</span>
+                                                                <span className="text-base font-bold text-gray-900">{j.item}</span>
+                                                            </div>
+                                                            <p className="text-base text-gray-800 leading-relaxed">{j.why}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                                    <p className="text-base font-bold text-blue-900 mb-2">🔧 집단 사퇴 대비 — 실행 가능한 5가지</p>
+                                                    <div className="space-y-2">
+                                                        {CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.solutions.map((s, si) => (
+                                                            <div key={si} className="bg-white rounded px-3 py-2 border border-blue-100">
+                                                                <p className="text-base font-bold text-blue-900 mb-0.5">{s.n}. {s.name}</p>
+                                                                <p className="text-base text-gray-700 leading-relaxed">{s.desc}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <p className="text-base text-gray-600 leading-relaxed bg-gray-50 rounded px-3 py-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.note}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* 인물이 아니라 절차 */}
+                                        <div className="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-4 mb-4">
+                                            <p className="text-lg font-bold text-indigo-900 mb-2 flex items-center gap-2">🏛️ {CRIMINAL_PROCEDURE_BILLS.roadmap.institutional.title}</p>
+                                            <p className="text-base text-indigo-900 leading-relaxed mb-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.institutional.body}</p>
+                                            <div className="bg-white border border-indigo-200 rounded-lg p-3 mb-2">
+                                                <p className="text-base text-indigo-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.roadmap.institutional.strategy}</p>
+                                            </div>
+                                            <div className="bg-white border-l-4 border-indigo-500 px-3 py-2 rounded-r">
+                                                <span className="inline-block px-2 py-0.5 bg-indigo-600 text-white text-sm rounded font-bold mb-1">주권자사법개혁추진(준)</span>
+                                                <p className="text-base font-bold text-indigo-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.roadmap.institutional.root}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* 정직한 단서 */}
+                                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-2">
+                                            <p className="text-lg font-bold text-amber-900 mb-2 flex items-center gap-2">🧭 {CRIMINAL_PROCEDURE_BILLS.roadmap.caution.title}</p>
+                                            <ul className="space-y-2">
+                                                {CRIMINAL_PROCEDURE_BILLS.roadmap.caution.items.map((c, i) => (
+                                                    <li key={i} className="text-base text-amber-900 leading-relaxed flex gap-2">
+                                                        <span className="text-amber-500 shrink-0 font-bold">▸</span><span>{c}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                        <p className="text-xs text-gray-500">{CRIMINAL_PROCEDURE_BILLS.roadmap.note}</p>
                                     </div>
 
                                     {/* 섹션 A: 검찰개혁 법안 수정안 비교 */}
