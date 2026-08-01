@@ -673,13 +673,14 @@ const CRIMINAL_PROCEDURE_BILLS = {
                 { k: '실근무 공백', v: '휴직·파견·연수를 포함해 일선 청에서 실근무하지 않는 검사가 약 600명(정원의 약 3분의 1)' },
                 { k: '유입 (경력검사)', v: '2026년도 지원 200여 명 — 2025년 150명 대비 33% 증가. 선발은 30명 안팎. 지원자에 대형로펌 변호사·재판연구원·국선전담변호사·감사원·금감원·경찰 출신 포함' },
                 { k: '파견 검사 (정부부처·지자체)', v: '2026.5 기준 28명 — 2021년 34명 → 2022~24년 37명 안팎 → 2025년 29명 → 2026년 28명으로 3년 새 24% 감소. 국정원은 2021~24년 매년 2~4명이었으나 2025년부터 0명, 대통령실 현직 검사는 2017년부터 0명. 감사원·교육부·방통위·복지부가 매년 1명씩 받던 파견은 끊겼고, 헌법재판소는 매년 4명에서 2025년부터 3명으로 줄었다. ※이 수치는 정부부처·지자체 파견만 집계한 것으로, 법무부 근무·파견 검사와 검찰수사관 파견은 포함되지 않는다' },
-                { k: '집계 밖 인력 (통계 공백)', v: '법무부·대검 보임 검사, 특별검사팀 파견, 그리고 검찰수사관 파견은 위 28명에 들어가지 않으며 범위별로 정리된 공개 통계가 없다. 「외부에 나가 있는 검찰 인력」의 총량이 얼마인지는 현재 공개 자료만으로 확정할 수 없다 — 이 통계 공백 자체가 정보공개 요구 대상이다' },
+                { k: '법무부 파견 검사', v: '57명 (2025.8 기준, 참여연대) — 2025.5 기준 58명, 윤석열 정부 2024년 56명으로 정권이 바뀌어도 규모가 거의 줄지 않았다. 법무부 내 과장급 이상 25개 직책에 검사가 배치돼 있다(검사만 보임 가능한 단수직제 4개 + 검사·일반직 모두 가능한 복수직제 33개 중 21개). 「법무부 탈검찰화」가 구호에 그쳤다는 지적이 나오는 근거다' },
+                { k: '파견 검사 총량 (근사)', v: '법무부 57명 + 정부부처·지자체 28명 ≈ 85명. 다만 두 수치의 기준 시점이 각각 2025.8과 2026.5로 달라 단순 합산은 근사치이며, 여기에 특별검사팀 파견과 검찰수사관 파견은 여전히 포함되지 않았다. 범위를 통일해 정리한 공개 통계가 없다는 점 자체가 정보공개 요구 대상이다' },
             ],
             judgments: [
                 { verdict: 'no', label: '불가능', item: '인사명령으로 검사를 붙잡아 두기', why: '검사는 신분보장(탄핵·금고 이상 형·징계 아니면 파면·정직·감봉 불가)을 받지만, 본인이 그만두겠다는 것을 막는 규정은 없다. 사표 수리 거부·지연은 직업선택의 자유(헌법 제15조) 문제로 위법 소지가 크고 여론 역효과도 크다. 유지는 「명령」이 아니라 「설계」로만 가능하다.' },
                 { verdict: 'yes', label: '가능', item: '수사관을 중수청·공수처·국가수사본부로 재배치', why: '검찰수사관은 일반직 국가공무원이라 임용권자의 전보 재량이 넓다. 실제로 이미 대통령실·법무부·공수처 등에 파견돼 왔다. 검사(공소청법 부칙 제7조①의 「본인 의사를 존중하여」)와 달리 인사명령으로 재배치할 수 있다.' },
                 { verdict: 'partly', label: '부분적', item: '공소청에 행정 인력만 남기기', why: '공소청의 본업은 공소 유지다. 공판 준비·증거 정리·증인 관리 인력을 모두 빼면 공판 실무가 마비되고, 그것이 곧 무죄 증가와 「개혁 실패」 서사로 돌아온다. 「수사 기능 인력은 이동, 공판 지원 인력은 잔류」로 나누는 설계가 정확하다.' },
-                { verdict: 'partly', label: '범위를 나눠 봐야', item: '외부기관 파견 검사 전원 복귀', why: '「정부부처·지자체 파견」만 보면 이미 28명으로 줄었고(3년 새 24% 감소) 국정원·대통령실은 0명이라 여기서 확보할 인력은 많지 않다. 그러나 이 28명은 법무부·대검 보임 검사, 특검 파견, 검찰수사관 파견을 포함하지 않은 수치이며, 그쪽은 범위별 공개 통계가 없다. 따라서 「파견 검사 전원 복귀」를 논하기 전에 먼저 할 일은 복귀시킬 대상의 총량을 확정하는 것이다 — 즉 법무부 근무·파견 검사, 특검 파견, 수사관 파견을 포함한 전체 현황의 정보공개 요구가 선행돼야 한다. 실제 복귀 인사의 무게중심은 정부부처 파견(28명)이 아니라 법무부·대검 보임 검사와 장기 휴직·해외연수 인력에 있을 가능성이 크다.' },
+                { verdict: 'yes', label: '실익 있음 — 단 대상은 법무부', item: '외부기관 파견 검사 복귀', why: '「정부부처·지자체 파견」만 보면 이미 28명으로 줄었고(3년 새 24% 감소) 국정원·대통령실은 0명이라 여기서 확보할 인력은 많지 않다. 그러나 참여연대 자료로 확인되는 법무부 파견 검사는 57명으로, 윤석열 정부 2024년 56명·2025년 5월 58명과 견줘 정권이 바뀌어도 거의 줄지 않았다. 즉 복귀 인사의 무게중심은 정부부처가 아니라 법무부에 있다. 검사의 수사권이 폐지되고 검찰청이 폐지되는 마당에 법무부 과장급 이상 25개 직책을 검사가 채우고 있을 이유는 약해졌다 — 이들을 공소청 공판 인력으로 돌리면 결원 259명 가운데 상당 부분을 즉시 메울 수 있다. 다만 특별검사팀 파견과 검찰수사관 파견은 여전히 범위별 공개 통계가 없어, 전체 현황의 정보공개가 함께 요구돼야 한다.' },
             ],
             solutions: [
                 { n: '1', name: '경력검사 선발 대폭 확대', desc: '가장 즉효이며 법 개정이 필요 없다. 제도는 이미 있고 지원자도 늘고 있다(200여 명, 전년 대비 33% 증가). 문제는 연 30명이라는 선발 규모뿐이다 — 연 175명이 나가는데 30명을 뽑으면 구조적 순감이다. 정원·예산 조정으로 연 100~150명 규모까지 확대할 수 있다.' },
@@ -1074,6 +1075,13 @@ const reformData = [
         title: '검찰개혁 심층분석',
         icon: '🔬',
         description: '공소청법·중수청법 법안 분석, 수사·기소 분리 실현 평가, 국제 비교를 통한 검찰 민주화 종합 평가',
+        customRender: true
+    },
+    {
+        id: 'prosecution-roadmap',
+        title: '검찰개혁 시행 로드맵',
+        icon: '🗺️',
+        description: '2026.7.31 통과 이후 — 시행령·인사·조직 전환 타임라인, 예상 저항 5개 전선과 대응, 중수청 인적 구성, 인사 설계',
         customRender: true
     },
     {
@@ -1893,7 +1901,7 @@ export default function ReformAnalysis() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [activeTab, setActiveTab] = useState(() => {
         const tabParam = searchParams.get('tab');
-        const validTabs = ['prosecution', 'prosecution-reform', 'finland-reform', 'supreme-court', 'law-distortion', 'judicial-appeal', 'court-admin', 'judge-personnel', 'citizen-trial'];
+        const validTabs = ['prosecution', 'prosecution-reform', 'prosecution-roadmap', 'finland-reform', 'supreme-court', 'law-distortion', 'judicial-appeal', 'court-admin', 'judge-personnel', 'citizen-trial'];
         return validTabs.includes(tabParam) ? tabParam : 'prosecution';
     });
 
@@ -1949,6 +1957,7 @@ export default function ReformAnalysis() {
     // 탭 id → reformNews 문서 id 매핑 (신설 분석 탭은 관련 영역 뉴스를 재사용, id 불일치 보정)
     const NEWS_AREA_MAP = {
         'prosecution-reform': 'prosecution',
+        'prosecution-roadmap': 'prosecution',
         'finland-reform': 'prosecution',
         'judicial-appeal': 'trial-appeal',
     };
@@ -1962,10 +1971,10 @@ export default function ReformAnalysis() {
     return (
         <div className="min-h-screen bg-gray-50">
             <SEOHead
-                title={activeTab === 'prosecution-reform' ? '검찰개혁 심층분석 — 김용민·박은정 의원안 vs 더불어민주당 TF안 vs 홍기원 의원안' : activeTab === 'finland-reform' ? '핀란드식 사법개혁안' : '사법개혁 분석'}
-                description={activeTab === 'prosecution-reform' ? '3개 형사소송법 개정안 비교 — 조문별 비교·신구조문 대비표·찬반 논쟁점·헌법 제1조·인간의 존엄 부합성 평가' : activeTab === 'finland-reform' ? '수사·기소 완전 분리, 참심제, 이중 감시 체계 - 핀란드 모델 벤치마킹 법률안' : '한국 사법제도 개혁 분석 - 참심제, 배심제, 국민참여재판 비교 분석'}
+                title={activeTab === 'prosecution-reform' ? '검찰개혁 심층분석 — 김용민·박은정 의원안 vs 더불어민주당 TF안 vs 홍기원 의원안' : activeTab === 'prosecution-roadmap' ? '검찰개혁 시행 로드맵 — 2026.7.31 통과 이후의 대응 전략' : activeTab === 'finland-reform' ? '핀란드식 사법개혁안' : '사법개혁 분석'}
+                description={activeTab === 'prosecution-reform' ? '3개 형사소송법 개정안 비교 — 조문별 비교·신구조문 대비표·찬반 논쟁점·헌법 제1조·인간의 존엄 부합성 평가' : activeTab === 'prosecution-roadmap' ? '시행령·인사·조직 전환 타임라인, 예상 저항 5개 전선과 대응, 중수청 인적 구성 위험, 인사 설계의 법적 가능성' : activeTab === 'finland-reform' ? '수사·기소 완전 분리, 참심제, 이중 감시 체계 - 핀란드 모델 벤치마킹 법률안' : '한국 사법제도 개혁 분석 - 참심제, 배심제, 국민참여재판 비교 분석'}
                 path={activeTab !== 'prosecution' ? `/reform-analysis?tab=${activeTab}` : '/reform-analysis'}
-                image={activeTab === 'prosecution-reform' ? '/검찰개혁심층분석.png?v=20260716' : activeTab === 'finland-reform' ? '/핀란드식사법개혁안.png' : '/사법개혁안비교.png'}
+                image={activeTab === 'prosecution-reform' || activeTab === 'prosecution-roadmap' ? '/검찰개혁심층분석.png?v=20260716' : activeTab === 'finland-reform' ? '/핀란드식사법개혁안.png' : '/사법개혁안비교.png'}
             />
             <Header />
             <main className="pt-24 pb-16 px-4">
@@ -2036,7 +2045,177 @@ export default function ReformAnalysis() {
                                 <p className="text-gray-600">{activeReform.description}</p>
                             </div>
 
-                            {activeReform.customRender && activeTab === 'prosecution-reform' ? (
+                            {activeReform.customRender && activeTab === 'prosecution-roadmap' ? (
+                                <div className="space-y-8">
+                                    {/* 섹션 0-2: 시행 로드맵과 대응 전략 */}
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 flex-wrap">
+                                            <span>🗺️</span> {CRIMINAL_PROCEDURE_BILLS.roadmap.title}
+                                        </h3>
+                                        <p className="text-base text-gray-700 leading-relaxed mb-4">{CRIMINAL_PROCEDURE_BILLS.roadmap.intro}</p>
+
+                                        {/* 2022 선례 */}
+                                        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-4">
+                                            <p className="text-lg font-bold text-red-900 mb-2 flex items-center gap-2">⚠️ {CRIMINAL_PROCEDURE_BILLS.roadmap.lesson2022.title}</p>
+                                            <p className="text-base text-red-900 leading-relaxed mb-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.lesson2022.body}</p>
+                                            <p className="text-base font-bold text-red-900 leading-relaxed mb-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.lesson2022.lesson}</p>
+                                            <div className="bg-white border-l-4 border-red-500 px-3 py-2 rounded-r">
+                                                <p className="text-base text-red-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.roadmap.lesson2022.danger}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* 타임라인 */}
+                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
+                                            <div className="px-4 py-3 bg-gray-50 border-b">
+                                                <p className="font-bold text-gray-900">📅 시행 타임라인과 할 일</p>
+                                            </div>
+                                            <div className="divide-y">
+                                                {CRIMINAL_PROCEDURE_BILLS.roadmap.timeline.map((t, i) => (
+                                                    <div key={i} className="p-4">
+                                                        <div className="flex items-start gap-2 flex-wrap mb-1.5">
+                                                            <span className="text-base font-bold text-gray-900 whitespace-nowrap">{t.when}</span>
+                                                            <span className={`px-2 py-0.5 rounded-full text-sm font-bold whitespace-nowrap ${t.color === 'red' ? 'bg-red-100 text-red-700' : t.color === 'orange' ? 'bg-orange-100 text-orange-700' : t.color === 'amber' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'}`}>{t.tag}</span>
+                                                            <span className="text-base text-gray-700 flex-1 min-w-0">{t.what}</span>
+                                                        </div>
+                                                        <p className="text-base text-gray-600 leading-relaxed bg-gray-50 rounded px-3 py-2">→ {t.todo}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* 5개 전선 */}
+                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
+                                            <div className="px-4 py-3 bg-gray-50 border-b">
+                                                <p className="font-bold text-gray-900">🛡️ 예상되는 5개 저항 전선과 대응</p>
+                                            </div>
+                                            <div className="divide-y">
+                                                {CRIMINAL_PROCEDURE_BILLS.roadmap.fronts.map((f, i) => (
+                                                    <div key={i} className="p-4">
+                                                        <div className="flex items-center gap-2 flex-wrap mb-2">
+                                                            <span className="w-6 h-6 rounded-full bg-gray-800 text-white text-sm font-bold flex items-center justify-center shrink-0">{f.n}</span>
+                                                            <span className="text-base font-bold text-gray-900">{f.name}</span>
+                                                            <span className={`px-2 py-0.5 rounded-full text-sm font-bold ${f.color === 'red' ? 'bg-red-100 text-red-700' : f.color === 'orange' ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-800'}`}>위험 {f.risk}</span>
+                                                        </div>
+                                                        <div className="bg-red-50 border-l-4 border-red-400 px-3 py-2 rounded-r mb-2">
+                                                            <p className="text-sm font-bold text-red-700 mb-0.5">예상 수단</p>
+                                                            <p className="text-base text-red-900 leading-relaxed">{f.move}</p>
+                                                        </div>
+                                                        <div className="bg-blue-50 border-l-4 border-blue-400 px-3 py-2 rounded-r">
+                                                            <p className="text-sm font-bold text-blue-700 mb-0.5">대응</p>
+                                                            <p className="text-base text-blue-900 leading-relaxed">{f.counter}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* 중수청 */}
+                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
+                                            <div className="px-4 py-3 bg-purple-50 border-b">
+                                                <p className="font-bold text-purple-900">🏢 {CRIMINAL_PROCEDURE_BILLS.roadmap.scia.title}</p>
+                                            </div>
+                                            <div className="p-4 space-y-3">
+                                                <div className="divide-y border rounded-lg overflow-hidden">
+                                                    {CRIMINAL_PROCEDURE_BILLS.roadmap.scia.facts.map((f, i) => (
+                                                        <div key={i} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 px-3 py-2 bg-white">
+                                                            <span className="text-base font-bold text-gray-500 sm:w-24 shrink-0">{f.k}</span>
+                                                            <span className="text-base text-gray-800 leading-relaxed">{f.v}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="space-y-2">
+                                                    {CRIMINAL_PROCEDURE_BILLS.roadmap.scia.risks.map((r, i) => (
+                                                        <div key={i} className={`border-l-4 px-3 py-2 rounded-r ${r.color === 'red' ? 'bg-red-50 border-red-400' : 'bg-orange-50 border-orange-400'}`}>
+                                                            <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                                                                <span className={`px-2 py-0.5 rounded-full text-sm font-bold ${r.color === 'red' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>위험 {r.level}</span>
+                                                                <span className="text-base font-bold text-gray-900">{r.name}</span>
+                                                            </div>
+                                                            <p className="text-base text-gray-800 leading-relaxed">{r.desc}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="bg-blue-50 border-l-4 border-blue-400 px-3 py-2 rounded-r">
+                                                    <p className="text-sm font-bold text-blue-700 mb-1">🔧 대응</p>
+                                                    <ul className="space-y-1.5">
+                                                        {CRIMINAL_PROCEDURE_BILLS.roadmap.scia.counters.map((c, ci) => (
+                                                            <li key={ci} className="text-base text-blue-900 leading-relaxed flex gap-2">
+                                                                <span className="text-blue-400 shrink-0">›</span><span>{c}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* 인사 설계 */}
+                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
+                                            <div className="px-4 py-3 bg-emerald-50 border-b">
+                                                <p className="font-bold text-emerald-900">👥 {CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.title}</p>
+                                            </div>
+                                            <div className="p-4 space-y-3">
+                                                <div className="divide-y border rounded-lg overflow-hidden">
+                                                    {CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.data.map((d, i) => (
+                                                        <div key={i} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 px-3 py-2 bg-white">
+                                                            <span className="text-base font-bold text-gray-500 sm:w-40 shrink-0">{d.k}</span>
+                                                            <span className="text-base text-gray-800 leading-relaxed">{d.v}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="space-y-2">
+                                                    {CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.judgments.map((j, i) => (
+                                                        <div key={i} className={`border-l-4 px-3 py-2 rounded-r ${j.verdict === 'no' ? 'bg-red-50 border-red-400' : j.verdict === 'yes' ? 'bg-green-50 border-green-400' : 'bg-amber-50 border-amber-400'}`}>
+                                                            <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                                                                <span className={`px-2 py-0.5 rounded-full text-sm font-bold ${j.verdict === 'no' ? 'bg-red-100 text-red-700' : j.verdict === 'yes' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-800'}`}>{j.label}</span>
+                                                                <span className="text-base font-bold text-gray-900">{j.item}</span>
+                                                            </div>
+                                                            <p className="text-base text-gray-800 leading-relaxed">{j.why}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                                    <p className="text-base font-bold text-blue-900 mb-2">🔧 집단 사퇴 대비 — 실행 가능한 5가지</p>
+                                                    <div className="space-y-2">
+                                                        {CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.solutions.map((s, si) => (
+                                                            <div key={si} className="bg-white rounded px-3 py-2 border border-blue-100">
+                                                                <p className="text-base font-bold text-blue-900 mb-0.5">{s.n}. {s.name}</p>
+                                                                <p className="text-base text-gray-700 leading-relaxed">{s.desc}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <p className="text-base text-gray-600 leading-relaxed bg-gray-50 rounded px-3 py-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.note}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* 인물이 아니라 절차 */}
+                                        <div className="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-4 mb-4">
+                                            <p className="text-lg font-bold text-indigo-900 mb-2 flex items-center gap-2">🏛️ {CRIMINAL_PROCEDURE_BILLS.roadmap.institutional.title}</p>
+                                            <p className="text-base text-indigo-900 leading-relaxed mb-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.institutional.body}</p>
+                                            <div className="bg-white border border-indigo-200 rounded-lg p-3 mb-2">
+                                                <p className="text-base text-indigo-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.roadmap.institutional.strategy}</p>
+                                            </div>
+                                            <div className="bg-white border-l-4 border-indigo-500 px-3 py-2 rounded-r">
+                                                <span className="inline-block px-2 py-0.5 bg-indigo-600 text-white text-sm rounded font-bold mb-1">주권자사법개혁추진(준)</span>
+                                                <p className="text-base font-bold text-indigo-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.roadmap.institutional.root}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* 정직한 단서 */}
+                                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-2">
+                                            <p className="text-lg font-bold text-amber-900 mb-2 flex items-center gap-2">🧭 {CRIMINAL_PROCEDURE_BILLS.roadmap.caution.title}</p>
+                                            <ul className="space-y-2">
+                                                {CRIMINAL_PROCEDURE_BILLS.roadmap.caution.items.map((c, i) => (
+                                                    <li key={i} className="text-base text-amber-900 leading-relaxed flex gap-2">
+                                                        <span className="text-amber-500 shrink-0 font-bold">▸</span><span>{c}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                        <p className="text-xs text-gray-500">{CRIMINAL_PROCEDURE_BILLS.roadmap.note}</p>
+                                    </div>
+
+                                </div>
+                            ) : activeReform.customRender && activeTab === 'prosecution-reform' ? (
                                 <div className="space-y-8">
                                     {/* 섹션 0: 2026.7.31 본회의 통과안 조항별 분석 (최신) */}
                                     <div>
@@ -2254,173 +2433,6 @@ export default function ReformAnalysis() {
                                             <p className="text-base font-bold text-amber-900 leading-relaxed">📌 {CRIMINAL_PROCEDURE_BILLS.passedLaw.conclusion}</p>
                                         </div>
                                         <p className="text-xs text-gray-500">{CRIMINAL_PROCEDURE_BILLS.passedLaw.note}</p>
-                                    </div>
-
-                                    {/* 섹션 0-2: 시행 로드맵과 대응 전략 */}
-                                    <div>
-                                        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 flex-wrap">
-                                            <span>🗺️</span> {CRIMINAL_PROCEDURE_BILLS.roadmap.title}
-                                        </h3>
-                                        <p className="text-base text-gray-700 leading-relaxed mb-4">{CRIMINAL_PROCEDURE_BILLS.roadmap.intro}</p>
-
-                                        {/* 2022 선례 */}
-                                        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-4">
-                                            <p className="text-lg font-bold text-red-900 mb-2 flex items-center gap-2">⚠️ {CRIMINAL_PROCEDURE_BILLS.roadmap.lesson2022.title}</p>
-                                            <p className="text-base text-red-900 leading-relaxed mb-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.lesson2022.body}</p>
-                                            <p className="text-base font-bold text-red-900 leading-relaxed mb-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.lesson2022.lesson}</p>
-                                            <div className="bg-white border-l-4 border-red-500 px-3 py-2 rounded-r">
-                                                <p className="text-base text-red-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.roadmap.lesson2022.danger}</p>
-                                            </div>
-                                        </div>
-
-                                        {/* 타임라인 */}
-                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
-                                            <div className="px-4 py-3 bg-gray-50 border-b">
-                                                <p className="font-bold text-gray-900">📅 시행 타임라인과 할 일</p>
-                                            </div>
-                                            <div className="divide-y">
-                                                {CRIMINAL_PROCEDURE_BILLS.roadmap.timeline.map((t, i) => (
-                                                    <div key={i} className="p-4">
-                                                        <div className="flex items-start gap-2 flex-wrap mb-1.5">
-                                                            <span className="text-base font-bold text-gray-900 whitespace-nowrap">{t.when}</span>
-                                                            <span className={`px-2 py-0.5 rounded-full text-sm font-bold whitespace-nowrap ${t.color === 'red' ? 'bg-red-100 text-red-700' : t.color === 'orange' ? 'bg-orange-100 text-orange-700' : t.color === 'amber' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'}`}>{t.tag}</span>
-                                                            <span className="text-base text-gray-700 flex-1 min-w-0">{t.what}</span>
-                                                        </div>
-                                                        <p className="text-base text-gray-600 leading-relaxed bg-gray-50 rounded px-3 py-2">→ {t.todo}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        {/* 5개 전선 */}
-                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
-                                            <div className="px-4 py-3 bg-gray-50 border-b">
-                                                <p className="font-bold text-gray-900">🛡️ 예상되는 5개 저항 전선과 대응</p>
-                                            </div>
-                                            <div className="divide-y">
-                                                {CRIMINAL_PROCEDURE_BILLS.roadmap.fronts.map((f, i) => (
-                                                    <div key={i} className="p-4">
-                                                        <div className="flex items-center gap-2 flex-wrap mb-2">
-                                                            <span className="w-6 h-6 rounded-full bg-gray-800 text-white text-sm font-bold flex items-center justify-center shrink-0">{f.n}</span>
-                                                            <span className="text-base font-bold text-gray-900">{f.name}</span>
-                                                            <span className={`px-2 py-0.5 rounded-full text-sm font-bold ${f.color === 'red' ? 'bg-red-100 text-red-700' : f.color === 'orange' ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-800'}`}>위험 {f.risk}</span>
-                                                        </div>
-                                                        <div className="bg-red-50 border-l-4 border-red-400 px-3 py-2 rounded-r mb-2">
-                                                            <p className="text-sm font-bold text-red-700 mb-0.5">예상 수단</p>
-                                                            <p className="text-base text-red-900 leading-relaxed">{f.move}</p>
-                                                        </div>
-                                                        <div className="bg-blue-50 border-l-4 border-blue-400 px-3 py-2 rounded-r">
-                                                            <p className="text-sm font-bold text-blue-700 mb-0.5">대응</p>
-                                                            <p className="text-base text-blue-900 leading-relaxed">{f.counter}</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        {/* 중수청 */}
-                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
-                                            <div className="px-4 py-3 bg-purple-50 border-b">
-                                                <p className="font-bold text-purple-900">🏢 {CRIMINAL_PROCEDURE_BILLS.roadmap.scia.title}</p>
-                                            </div>
-                                            <div className="p-4 space-y-3">
-                                                <div className="divide-y border rounded-lg overflow-hidden">
-                                                    {CRIMINAL_PROCEDURE_BILLS.roadmap.scia.facts.map((f, i) => (
-                                                        <div key={i} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 px-3 py-2 bg-white">
-                                                            <span className="text-base font-bold text-gray-500 sm:w-24 shrink-0">{f.k}</span>
-                                                            <span className="text-base text-gray-800 leading-relaxed">{f.v}</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                <div className="space-y-2">
-                                                    {CRIMINAL_PROCEDURE_BILLS.roadmap.scia.risks.map((r, i) => (
-                                                        <div key={i} className={`border-l-4 px-3 py-2 rounded-r ${r.color === 'red' ? 'bg-red-50 border-red-400' : 'bg-orange-50 border-orange-400'}`}>
-                                                            <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                                                                <span className={`px-2 py-0.5 rounded-full text-sm font-bold ${r.color === 'red' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>위험 {r.level}</span>
-                                                                <span className="text-base font-bold text-gray-900">{r.name}</span>
-                                                            </div>
-                                                            <p className="text-base text-gray-800 leading-relaxed">{r.desc}</p>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                <div className="bg-blue-50 border-l-4 border-blue-400 px-3 py-2 rounded-r">
-                                                    <p className="text-sm font-bold text-blue-700 mb-1">🔧 대응</p>
-                                                    <ul className="space-y-1.5">
-                                                        {CRIMINAL_PROCEDURE_BILLS.roadmap.scia.counters.map((c, ci) => (
-                                                            <li key={ci} className="text-base text-blue-900 leading-relaxed flex gap-2">
-                                                                <span className="text-blue-400 shrink-0">›</span><span>{c}</span>
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* 인사 설계 */}
-                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
-                                            <div className="px-4 py-3 bg-emerald-50 border-b">
-                                                <p className="font-bold text-emerald-900">👥 {CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.title}</p>
-                                            </div>
-                                            <div className="p-4 space-y-3">
-                                                <div className="divide-y border rounded-lg overflow-hidden">
-                                                    {CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.data.map((d, i) => (
-                                                        <div key={i} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 px-3 py-2 bg-white">
-                                                            <span className="text-base font-bold text-gray-500 sm:w-40 shrink-0">{d.k}</span>
-                                                            <span className="text-base text-gray-800 leading-relaxed">{d.v}</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                <div className="space-y-2">
-                                                    {CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.judgments.map((j, i) => (
-                                                        <div key={i} className={`border-l-4 px-3 py-2 rounded-r ${j.verdict === 'no' ? 'bg-red-50 border-red-400' : j.verdict === 'yes' ? 'bg-green-50 border-green-400' : 'bg-amber-50 border-amber-400'}`}>
-                                                            <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                                                                <span className={`px-2 py-0.5 rounded-full text-sm font-bold ${j.verdict === 'no' ? 'bg-red-100 text-red-700' : j.verdict === 'yes' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-800'}`}>{j.label}</span>
-                                                                <span className="text-base font-bold text-gray-900">{j.item}</span>
-                                                            </div>
-                                                            <p className="text-base text-gray-800 leading-relaxed">{j.why}</p>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                                    <p className="text-base font-bold text-blue-900 mb-2">🔧 집단 사퇴 대비 — 실행 가능한 5가지</p>
-                                                    <div className="space-y-2">
-                                                        {CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.solutions.map((s, si) => (
-                                                            <div key={si} className="bg-white rounded px-3 py-2 border border-blue-100">
-                                                                <p className="text-base font-bold text-blue-900 mb-0.5">{s.n}. {s.name}</p>
-                                                                <p className="text-base text-gray-700 leading-relaxed">{s.desc}</p>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                                <p className="text-base text-gray-600 leading-relaxed bg-gray-50 rounded px-3 py-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.note}</p>
-                                            </div>
-                                        </div>
-
-                                        {/* 인물이 아니라 절차 */}
-                                        <div className="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-4 mb-4">
-                                            <p className="text-lg font-bold text-indigo-900 mb-2 flex items-center gap-2">🏛️ {CRIMINAL_PROCEDURE_BILLS.roadmap.institutional.title}</p>
-                                            <p className="text-base text-indigo-900 leading-relaxed mb-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.institutional.body}</p>
-                                            <div className="bg-white border border-indigo-200 rounded-lg p-3 mb-2">
-                                                <p className="text-base text-indigo-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.roadmap.institutional.strategy}</p>
-                                            </div>
-                                            <div className="bg-white border-l-4 border-indigo-500 px-3 py-2 rounded-r">
-                                                <span className="inline-block px-2 py-0.5 bg-indigo-600 text-white text-sm rounded font-bold mb-1">주권자사법개혁추진(준)</span>
-                                                <p className="text-base font-bold text-indigo-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.roadmap.institutional.root}</p>
-                                            </div>
-                                        </div>
-
-                                        {/* 정직한 단서 */}
-                                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-2">
-                                            <p className="text-lg font-bold text-amber-900 mb-2 flex items-center gap-2">🧭 {CRIMINAL_PROCEDURE_BILLS.roadmap.caution.title}</p>
-                                            <ul className="space-y-2">
-                                                {CRIMINAL_PROCEDURE_BILLS.roadmap.caution.items.map((c, i) => (
-                                                    <li key={i} className="text-base text-amber-900 leading-relaxed flex gap-2">
-                                                        <span className="text-amber-500 shrink-0 font-bold">▸</span><span>{c}</span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                        <p className="text-xs text-gray-500">{CRIMINAL_PROCEDURE_BILLS.roadmap.note}</p>
                                     </div>
 
                                     {/* 섹션 A: 검찰개혁 법안 수정안 비교 */}
