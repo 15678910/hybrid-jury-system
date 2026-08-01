@@ -3057,8 +3057,8 @@ exports.reformAnalysisPage = functions.https.onRequest(async (req, res) => {
 
     let title, description, imageUrl, pageUrl;
     if (tab === 'prosecution-reform') {
-        title = '[검찰개혁 심층분석] 김용민·박은정 의원안 vs 더불어민주당 TF안 vs 홍기원 의원안';
-        description = `3개 형사소송법 개정안 비교 — 조문별 비교·신구조문 대비표·찬반 논쟁점·헌법 제1조·인간의 존엄 부합성 평가 (${dateStr} 기준)`;
+        title = '2026.7.31 본회의 통과 「형사소송법 개정법률(법사위 대안)」 조항별 분석';
+        description = '';
         imageUrl = `${BASE}/${encodeURIComponent('검찰개혁심층분석')}.png?v=20260716`;
         pageUrl = `${BASE}/reform-analysis?tab=prosecution-reform`;
     } else if (tab === 'prosecution-roadmap') {

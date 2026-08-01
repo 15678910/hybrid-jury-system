@@ -7,7 +7,9 @@ const DEFAULT_DESC = '시민법정은 헌법 개정 없이 가능한 사법개�
 
 export default function SEOHead({ title, description, path = '/', image, type = 'website' }) {
     const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} - 참심제 도입으로 시민이 판사가 되는 사법개혁`;
-    const desc = description || DEFAULT_DESC;
+    // 명시적으로 빈 문자열('')을 넘기면 설명 없이 렌더링한다(카톡 카드에서 설명 줄 제거용).
+    // undefined/null일 때만 기본 설명으로 대체 — 기존 페이지 동작은 그대로.
+    const desc = description ?? DEFAULT_DESC;
     const url = `${BASE_URL}${path}`;
     const img = image
         ? (image.startsWith('http') ? image : `${BASE_URL}${image}`)
