@@ -718,6 +718,37 @@ const CRIMINAL_PROCEDURE_BILLS = {
             ],
             note: '참고 — 「집단 사퇴로 마비된다」는 공포는 이미 부분적으로 검증됐다. 259명이 빈 상태에서도 조직은 돌아가고 있다. 검사 지원 경쟁도 유지되고 있어(법률신문 2026: 「공소청 전환에도 검사 인기는 여전」), 과장된 공포에 자원을 쓰기보다 결원을 메우는 실무에 집중하는 편이 낫다.',
         },
+        accessCost: {
+            title: '권리를 실질화하는 과제 — 비용의 벽을 어떻게 넘을 것인가',
+            intro: '통과안은 고소인·피해자의 신청·이의 권리를 여덟 갈래 넘게 신설했지만, 법률 전체에 「국선」이라는 단어는 한 번도 나오지 않는다. 권리를 「신청할 수 있다」로만 설계하면 신청서를 쓸 줄 아는 사람만 권리를 갖게 된다. 시행 이후의 과제는 이 비용의 벽을 어떻게 낮추느냐다.',
+            facts: [
+                { k: '나 홀로 재판', v: '1심 형사재판에서 변호인 없이 재판받는 피고인 비율은 사법연감 기준 2017년 47.3% → 2021년 39.7% → 2022년 34%. 감소 추세지만 여전히 세 명 중 한 명꼴이며, 지역 편차도 크다(대구지법 50.9%, 수원 48.4%, 인천 48.2%).' },
+                { k: '국선변호료 구조', v: '법적 근거는 「형사소송비용 등에 관한 법률」 제8조 — 보수의 기준·금액은 대법원규칙이 정한 범위에서 법원이 정한다. 실제로는 매년 대법관회의가 예산 범위 내에서 심급별로 결정하며, 일반 국선의 기본 보수는 사건당 55만 원으로 동결돼 있다(재판장이 사안 난이도 등을 참작해 5배 범위에서 증액 가능). 비용은 국고가 부담한다.' },
+                { k: '★ 삼중 종속', v: '법원이 국선변호인을 ① 선정하고 ② 관리·감독하며 ③ 보수까지 정한다. 게다가 재판장에게 증액 재량이 있다. 일감을 주는 쪽과 재판하는 쪽이 같은 구조에서는, 재판부와 각을 세우는 변론에 구조적 억제가 걸린다. 「감시자가 감시 대상과 같은 장(場) 안에 있으면 감시는 작동하지 않는다」는 원리가 변호에도 그대로 적용된다.' },
+            ],
+            priceDisclosure: {
+                title: '가격 공시 — 새 법이 아니라 이미 있는 데이터의 출구를 여는 일',
+                body: '변호사 보수는 오래전 기준표가 폐지돼 형식적으로는 자유경쟁이다. 그런데도 값이 내려가지 않는 이유는 담합이 아니라 ① 면허에 의한 공급 통제 ② 품질을 사전에 평가할 수 없는 신뢰재(credence good)의 성격 ③ 비교할 시간이 없는 형사사건의 급박성이 겹치기 때문이다. 합의하지 않아도 가격은 내려가지 않는다.',
+                key: '★ 그런데 데이터는 이미 수집되고 있다. 변호사법 제28조의2는 변호사가 매년 1월 말까지 전년도에 처리한 수임사건의 건수와 수임액을 소속 지방변호사회에 보고하도록 의무화하고 있다(2007년 신설, 헌재 위헌 다툼도 이미 거쳤다). 다만 그 취지가 과세 자료의 투명성이어서 통계 공개 규정이 없을 뿐이다. 즉 가격 공시는 새 법을 만드는 일이 아니라, 이미 있는 데이터의 출구를 여는 일이다.',
+                design: [
+                    '공개 단위는 개별 변호사가 아니라 사건 유형별·지역별 분포로 한다 — 개별 공개는 영업비밀·사생활 시비가 크고, 분포만으로도 목적은 달성된다.',
+                    '변호사법 제28조의2에 「지방변호사회는 보고받은 수임액을 유형별로 통계 처리해 공표한다」는 조항 한 항을 추가하면 된다.',
+                    '공표 위치가 중요하다 — 대한변협 홈페이지가 아니라 법제처 「찾기쉬운 생활법령정보(easylaw)」처럼 시민이 법률 정보를 찾는 첫 관문에 두어야 실제 협상력이 생긴다.',
+                    '주의: 중위값 하나만 공개하면 「최소한 이 정도는 받아야 한다」는 하한 기준으로 오작동할 수 있다. 하위 25%를 포함한 분포 전체를 보여야 한다.',
+                ],
+            },
+            steps: {
+                title: '면허 독점의 대안 — 새 직역을 만들지 않고 푸는 법',
+                items: [
+                    { n: '1', name: '법무사 업무 범위의 명확화 (가장 빠름)', desc: '법무사는 이미 법원·검찰청에 제출하는 서류의 작성·제출을 대리할 수 있고, 그 범위에는 소장·답변서·준비서면·항소이유서·상고이유서·고소장이 포함된다. 그렇다면 이번에 신설된 불송치 이의신청서, 수사관계기록 열람·등사 신청서, 상급관서 심사 신청서도 「법원·검찰청 업무 관련 서류」로 볼 여지가 크다. 법률 개정 없이 시행령 정비나 유권해석만으로 확인할 수 있는 사안이다.' },
+                    { n: '2', name: '공공 법률상담원', desc: '변호사가 아닌 상담원이 절차 안내와 서식 작성 보조를 담당하는 창구를 둔다. 업무를 「법률 자문」이 아니라 「절차 안내」로 명확히 한정하면 변호사법 제109조(무자격자의 법률사무 취급 금지) 저촉을 피할 수 있다.' },
+                    { n: '3', name: '서식의 자기완결화 (가장 근본적)', desc: '체크박스와 기재례만으로 작성이 끝나는 서식을 만든다. 통과안 제245조의6이 불송치 시 이의신청 안내·서식 동봉을 의무화한 것은 출발점이지만, 서식이 스스로 완결되지 않으면 결국 조력자가 필요하다. 다른 대안들이 「비용을 대신 내주는」 방식이라면, 이것만이 비용 자체를 없앤다.' },
+                    { n: '4', name: '공설변호인 사무소(public defender office)', desc: '현재 국선은 사건당 55만 원을 민간 변호사에게 지급하는 단가제다. 많이 맡을수록 이득인 구조라 부실변론이 구조적으로 발생한다. 공공 기관 형태의 조직 예산제로 바꾸면 ⓐ 사건 수에 연동된 유인이 사라지고 ⓑ 보수 결정권이 대법관회의에서 분리되며 ⓒ 선정권도 자연히 법원 밖으로 나간다 — 앞의 삼중 종속이 한 번에 풀린다.' },
+                ],
+                overseas: '※ 해외 참고: 영국의 CILEX(legal executive)는 비변호사 법률직역으로 정착한 사례지만, 미국 워싱턴주의 LLLT(제한면허 법률기사)는 2020년 폐지됐다. 새 직역을 신설하는 방식은 실패 사례가 적지 않다. 그래서 한국에서는 이미 존재하는 법무사 제도의 활용과 서식 단순화가 훨씬 현실적인 경로다.',
+            },
+            conclusion: '정리하면 가장 빨리 손댈 수 있는 것은 두 가지다 — 변호사법 제28조의2에 공표 조항 한 항을 추가하는 것(데이터는 이미 있다), 그리고 법무사 업무 범위를 유권해석으로 확인하는 것(법 개정이 필요 없을 수 있다). 그리고 가장 근본적인 것은 공설변호인 사무소와 서식의 자기완결화다. 국선을 늘리는 것은 「법률가를 사주는」 방식이고, 서식을 단순화하고 시민이 직접 판단하는 통로를 만드는 것은 「법률가가 필요 없게 하는」 방식이다. 비용 장벽을 넘게 해주는 것과, 비용 장벽이 필요 없는 통로를 만드는 것은 다른 일이다.',
+        },
         institutional: {
             title: '집행을 책임질 사람이 그 법에 반대했다면 — 인물이 아니라 절차에 걸어야 한다',
             body: '정성호 법무부장관은 전건송치 부활, 검사 수사권 강화, 보완수사 범위 확대를 주장해 더불어민주당의 당론(보완수사권 완전 폐지)과 충돌했고, 이견 끝에 사의를 표명했다("검찰개혁은 큰 틀에서 완료됐다"). 대통령실은 10월 공소청 출범을 책임질 장관이 필요하다는 이유로 유임 방침을 밝혔다. 즉 통과된 법률의 핵심 조항에 반대했던 인물이 그 법률의 시행령·직제·인사를 만드는 자리에 있다. 그리고 부칙 제12조는 「불가피한 사건」의 정의를 대통령령에 위임해 두었다.',
@@ -2211,6 +2242,58 @@ export default function ReformAnalysis() {
                                                     </div>
                                                 </div>
                                                 <p className="text-base text-gray-600 leading-relaxed bg-gray-50 rounded px-3 py-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.personnel.note}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* 권리 실질화 — 비용의 벽 */}
+                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
+                                            <div className="px-4 py-3 bg-rose-50 border-b">
+                                                <p className="font-bold text-rose-900">💰 {CRIMINAL_PROCEDURE_BILLS.roadmap.accessCost.title}</p>
+                                            </div>
+                                            <div className="p-4 space-y-3">
+                                                <p className="text-base text-gray-700 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.roadmap.accessCost.intro}</p>
+                                                <div className="divide-y border rounded-lg overflow-hidden">
+                                                    {CRIMINAL_PROCEDURE_BILLS.roadmap.accessCost.facts.map((f, i) => (
+                                                        <div key={i} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 px-3 py-2 bg-white">
+                                                            <span className="text-base font-bold text-gray-500 sm:w-32 shrink-0">{f.k}</span>
+                                                            <span className="text-base text-gray-800 leading-relaxed">{f.v}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {/* 가격 공시 */}
+                                                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                                    <p className="text-base font-bold text-amber-900 mb-2">📊 {CRIMINAL_PROCEDURE_BILLS.roadmap.accessCost.priceDisclosure.title}</p>
+                                                    <p className="text-base text-amber-900 leading-relaxed mb-2">{CRIMINAL_PROCEDURE_BILLS.roadmap.accessCost.priceDisclosure.body}</p>
+                                                    <div className="bg-white border-l-4 border-amber-500 px-3 py-2 rounded-r mb-2">
+                                                        <p className="text-base font-bold text-amber-900 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.roadmap.accessCost.priceDisclosure.key}</p>
+                                                    </div>
+                                                    <ul className="space-y-1.5">
+                                                        {CRIMINAL_PROCEDURE_BILLS.roadmap.accessCost.priceDisclosure.design.map((d, di) => (
+                                                            <li key={di} className="text-base text-amber-900 leading-relaxed flex gap-2">
+                                                                <span className="text-amber-500 shrink-0">›</span><span>{d}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+
+                                                {/* 면허 독점 대안 4단계 */}
+                                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                                    <p className="text-base font-bold text-blue-900 mb-2">🔓 {CRIMINAL_PROCEDURE_BILLS.roadmap.accessCost.steps.title}</p>
+                                                    <div className="space-y-2 mb-2">
+                                                        {CRIMINAL_PROCEDURE_BILLS.roadmap.accessCost.steps.items.map((s, si) => (
+                                                            <div key={si} className="bg-white rounded px-3 py-2 border border-blue-100">
+                                                                <p className="text-base font-bold text-blue-900 mb-0.5">{s.n}. {s.name}</p>
+                                                                <p className="text-base text-gray-700 leading-relaxed">{s.desc}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <p className="text-sm text-gray-500 leading-relaxed">{CRIMINAL_PROCEDURE_BILLS.roadmap.accessCost.steps.overseas}</p>
+                                                </div>
+
+                                                <div className="bg-gray-50 border-l-4 border-gray-400 px-3 py-2 rounded-r">
+                                                    <p className="text-base font-bold text-gray-800 leading-relaxed">📌 {CRIMINAL_PROCEDURE_BILLS.roadmap.accessCost.conclusion}</p>
+                                                </div>
                                             </div>
                                         </div>
 
