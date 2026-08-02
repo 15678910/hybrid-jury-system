@@ -2071,16 +2071,22 @@ export default function ReformAnalysis() {
                     <div className="flex flex-col lg:flex-row gap-6">
                         {/* 사이드바 */}
                         <div className="lg:w-64 shrink-0">
-                            <div className="bg-white rounded-xl shadow-sm overflow-hidden sticky top-28">
-                                <nav className="flex lg:flex-col overflow-x-auto lg:overflow-x-visible">
+                            {/*
+                              모바일·태블릿: 가로 스크롤 띠 → 2열(태블릿 3열) 그리드로 변경.
+                              카테고리가 10개라 가로 스크롤에서는 3번째인 「시행 로드맵」부터 화면 밖으로 밀려
+                              스크롤 힌트도 없이 찾기 어려웠다. 그리드는 전 항목이 한눈에 보인다.
+                              sticky는 lg 이상에서만 — 모바일에서 그리드가 화면에 고정되면 본문을 가린다.
+                            */}
+                            <div className="bg-white rounded-xl shadow-sm overflow-hidden lg:sticky lg:top-28">
+                                <nav className="grid grid-cols-2 gap-px bg-gray-200 lg:flex lg:flex-col lg:gap-0 lg:bg-transparent">
                                     {reformData.map(reform => (
                                         <button
                                             key={reform.id}
                                             onClick={() => setActiveTab(reform.id)}
-                                            className={`w-full text-left px-4 py-3 text-base font-medium transition-colors border-l-4 whitespace-nowrap lg:whitespace-normal ${
+                                            className={`w-full h-full text-left px-3 py-3 text-base font-medium leading-snug transition-colors border-l-4 whitespace-normal lg:px-4 ${
                                                 activeTab === reform.id
                                                     ? 'bg-blue-50 text-blue-700 border-blue-600'
-                                                    : 'text-gray-600 border-transparent hover:bg-gray-50 hover:text-gray-900'
+                                                    : 'bg-white text-gray-600 border-transparent hover:bg-gray-50 hover:text-gray-900'
                                             }`}
                                         >
                                             <span className="mr-1.5">{reform.icon}</span>
