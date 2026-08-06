@@ -7,6 +7,12 @@ backend/.env
 **/.env
 **/.env.*
 
+# 단, .env.example 은 자리표시자만 담긴 「문서」이므로 예외로 추적한다.
+# (실제 값이 든 .env / .env.local / .env.production / functions/.env 는
+#  위·아래 규칙으로 계속 차단된다 — 이 예외는 .example 접미사에만 적용됨)
+!.env.example
+!**/.env.example
+
 # Firebase Service Account Key (절대 공유하면 안됨!)
 serviceAccountKey.json
 **/serviceAccountKey.json
