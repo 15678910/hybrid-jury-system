@@ -92,7 +92,14 @@ const buildUrl = () => {
     // URLSearchParams 가 인코딩을 처리하므로 Decoding 키를 그대로 넣는다.
     // Encoding 키를 넣으면 이중 인코딩으로 SERVICE_KEY_IS_NOT_REGISTERED_ERROR 가 난다.
     const p = new URLSearchParams({ serviceKey: SERVICE_KEY, type: 'JSON', sht });
-    if (year) p.set('year', year);
+    if (year) {
+        // 년도 파라미터의 정식 이름이 확인되지 않았다. year 로 보냈을 때 응답의
+        // statsYr 이 빈 값으로 오는 것을 확인했으므로, 후보를 함께 보내 본다.
+        // (서버가 모르는 파라미터는 대개 무시하므로 부작용이 없다)
+        // ※ 정식 이름은 공공데이터포털 「활용가이드」 문서로 확정할 것.
+        p.set('year', year);
+        p.set('statsYr', year);
+    }
     return `${BASE}?${p.toString()}`;
 };
 
@@ -224,6 +231,39 @@ const diagnose = (raw) => {
 
     console.log('\n───────── 응답 키 구조 ─────────');
     outline(json).slice(0, 80).forEach((l) => console.log(' ', l));
+
+    // ── 사법연감 교차표 전용 렌더링 ──────────────────────────
+    // 이 API 는 artcl(행 항목) × clsf(열 분류) = statsVl(값) 구조로 응답한다.
+    const item = json?.response?.body?.items?.item;
+    if (item && Array.isArray(item.artcl)) {
+        const { shtNm, statsYr, artcl = [], clsf = [], statsVl = [] } = item;
+        console.log('\n───────── 표 정보 ─────────');
+        console.log(' 표 이름 :', shtNm);
+        console.log(' 통계연도:', statsYr === '' ? '(빈 값 — year 파라미터가 안 먹었을 수 있음)' : statsYr);
+        console.log(` 행(artcl) ${artcl.length} × 열(clsf) ${clsf.length} = 값(statsVl) ${statsVl.length}`);
+
+        console.log('\n 열 분류(clsf) 전체:');
+        clsf.forEach((c, i) => console.log(`  [${i}]`, JSON.stringify(c)));
+
+        console.log('\n 값(statsVl) 앞 5개:');
+        statsVl.slice(0, 5).forEach((v, i) => console.log(`  [${i}]`, JSON.stringify(v)));
+
+        // 행 × 열 곱이 값 개수와 맞으면 교차표로 복원해 본다
+        if (artcl.length && clsf.length && artcl.length * clsf.length === statsVl.length) {
+            console.log('\n───────── 교차표 복원 (앞 8행) ─────────');
+            const head = clsf.map((c) => (Array.isArray(c) ? c.join('/') : String(c)));
+            console.log('  행\\열 |', head.join(' | '));
+            artcl.slice(0, 8).forEach((row, r) => {
+                const label = Array.isArray(row) ? row.filter(Boolean).join(' > ') : String(row);
+                const cells = clsf.map((_, c) => statsVl[r * clsf.length + c]);
+                console.log(`  ${label} |`, cells.join(' | '));
+            });
+            console.log('\n  ✅ 행×열 = 값 개수가 일치합니다 → 파싱 규칙 확정 가능');
+        } else if (statsVl.length) {
+            console.log(`\n  ⚠️ 행(${artcl.length})×열(${clsf.length})=${artcl.length * clsf.length} 이(가)`
+                + ` 값 개수(${statsVl.length})와 다릅니다 → 다른 배치 규칙일 수 있음`);
+        }
+    }
 
     const { rows, path: rowsPath } = findRows(json);
     console.log(`\n───────── 데이터 행 (경로: ${rowsPath || '없음'}) ─────────`);
