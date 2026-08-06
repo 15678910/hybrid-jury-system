@@ -77,19 +77,42 @@ const describeFetchError = (e) => {
     return parts.join(' | ');
 };
 
+/**
+ * law.go.kr 은 첫 연결이 매우 느리다. 실측에서 연결에만 10.7초가 걸려 겨우 성공한
+ * 적이 있고, 같은 요청이 다른 실행에서는 Node 의 기본 연결 제한(10초)을 넘겨
+ * UND_ERR_CONNECT_TIMEOUT 으로 죽었다. 서버가 막은 것이 아니라 느린 것이므로,
+ * 한 번 실패했다고 포기하면 될 일도 안 된다. 간격을 늘려가며 다시 시도한다.
+ */
+const RETRIES = 4;
+
 const fetchJson = async (url, label) => {
-    let res;
-    try {
-        res = await fetch(url, { headers: { Accept: 'application/json' } });
-    } catch (e) {
-        throw new Error(`${label} 네트워크 실패 — ${describeFetchError(e)}`);
+    let lastErr;
+
+    for (let attempt = 1; attempt <= RETRIES; attempt++) {
+        let res;
+        try {
+            res = await fetch(url, { headers: { Accept: 'application/json' } });
+        } catch (e) {
+            lastErr = new Error(`${label} 네트워크 실패 — ${describeFetchError(e)}`);
+            if (attempt < RETRIES) {
+                const wait = 2000 * attempt; // 2s → 4s → 6s
+                console.error(`\n  ↻ ${label} ${attempt}차 실패, ${wait / 1000}초 후 재시도 — ${describeFetchError(e)}`);
+                await sleep(wait);
+                continue;
+            }
+            throw lastErr;
+        }
+
+        const text = await res.text();
+        try {
+            return JSON.parse(text);
+        } catch {
+            // 파싱 실패는 재시도해도 같은 결과일 가능성이 높다. 바로 알린다.
+            throw new Error(`${label} JSON 파싱 실패 (HTTP ${res.status}): ${text.slice(0, 200)}`);
+        }
     }
-    const text = await res.text();
-    try {
-        return JSON.parse(text);
-    } catch {
-        throw new Error(`${label} JSON 파싱 실패 (HTTP ${res.status}): ${text.slice(0, 200)}`);
-    }
+
+    throw lastErr;
 };
 
 /** 목록 한 페이지 */
@@ -121,13 +144,16 @@ const fetchDetail = async (id) => {
     const enbanc = [];
     const panel = [];  // 비교군(소부)
     let total = 0;
+    // 중간에 끊긴 수집을 완주한 수집처럼 보이게 두면 표본 크기를 오해하게 된다.
+    let 중단 = null;
 
     for (let page = 1; page <= maxPages; page++) {
         let r;
         try {
             r = await fetchListPage(page);
         } catch (e) {
-            console.error(`  ⚠️ ${page}쪽 실패: ${e.message} — 중단`);
+            중단 = `${page}쪽에서 실패해 중단: ${e.message}`;
+            console.error(`\n  ⚠️ ${중단}`);
             break;
         }
         if (page === 1) {
@@ -202,6 +228,9 @@ const fetchDetail = async (id) => {
             파기율: 유효 > 0 ? 파기 / 유효 : null,
             전부파기율: 유효 > 0 ? 전부파기 / 유효 : null,
             일부파기율: 유효 > 0 ? 일부파기 / 유효 : null,
+            // 파기된 사건 중 일부 파기가 차지하는 비율. 예측 모형이 파기를
+            // 전부/일부로 쪼갤 때 쓰는 값이다.
+            파기중일부비율: 파기 > 0 ? 일부파기 / 파기 : null,
             기각률: 유효 > 0 ? 기각 / 유효 : null,
             판정불가비율: n ? 미상 / n : null,
             신뢰도낮음: cnt((r) => r.dispositionConfidence === 'low' || r.enBancConfidence === 'low'),
@@ -218,7 +247,9 @@ const fetchDetail = async (id) => {
     console.log(`  일부 파기        : ${s.일부파기}   (${pct(s.일부파기율)})   ← 병합 사건에서 흔한 결론`);
     console.log(`  판정 불가        : ${s.미상}  (${pct(s.판정불가비율)})`);
     console.log(`  ▶ 파기율(전부+일부) : ${pct(s.파기율)}   ← 기저율 후보`);
+    console.log(`  파기 중 일부파기 비율 : ${pct(s.파기중일부비율)}   ← 예측 모형의 partialShare`);
     console.log(`  신뢰도 낮은 건    : ${s.신뢰도낮음}`);
+    if (중단) console.log(`  ⚠️ 완주하지 못했습니다 — ${중단}`);
 
     let sp = null;
     if (withCompare && panelRows.length) {
@@ -226,6 +257,7 @@ const fetchDetail = async (id) => {
         console.log(`\n───────── 비교군 (${종류명} · 소부) ─────────`);
         console.log(`  수집 건수 ${sp.건수} / 전부파기 ${sp.전부파기} / 일부파기 ${sp.일부파기} / 기각 ${sp.기각}`);
         console.log(`  ▶ 파기율 : ${pct(sp.파기율)}`);
+        console.log(`  ▶ 파기 중 일부파기 비율 : ${pct(sp.파기중일부비율)}`);
         if (s.파기율 && sp.파기율) {
             console.log(`\n  ▶▶ 보정계수 (전합 파기율 ÷ 소부 파기율) : ${(s.파기율 / sp.파기율).toFixed(2)}배`);
             console.log('     ※ 이 값이 예측의 보정 인자가 된다.');
@@ -245,6 +277,8 @@ const fetchDetail = async (id) => {
             사건종류코드: caseType, 사건종류명: 종류명,
             질의: '전원합의체', 검색방식: 'search=2 (본문검색)',
             목록최대쪽: maxPages, 수집일: stamp,
+            완주여부: 중단 ? '중단됨' : '완주',
+            중단사유: 중단,
         },
         표본의성격: '법제처 판례 API 가 판결유형만으로 목록을 뽑는 기능을 제공하지 않아, '
             + '「본문에 전원합의체가 언급된 판례」에서 출발해 판결유형으로 걸러냈다. '
