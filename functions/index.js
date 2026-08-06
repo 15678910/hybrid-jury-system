@@ -3473,6 +3473,16 @@ exports.judicialNetworkPage = createStaticPageHandler(
     'https://siminbupjung-blog.web.app/%EA%B4%80%EA%B3%84%EB%8F%84.png'
 );
 
+// 재판 결과 예측 — 확률이 아니라 근거를 공개하는 분석
+// ※ OG 이미지는 아직 제작 전이라 지정하지 않았다. 지정하지 않으면 기본 사이트
+//    이미지가 나가므로, 공유 시 어느 페이지인지 구분되지 않는다.
+//    전용 이미지를 public/ 에 추가한 뒤 네 번째 인자로 넣을 것.
+exports.predictionPage = createStaticPageHandler(
+    '/prediction',
+    '재판 결과 예측 — 근거를 공개하는 분석 | 시민법정',
+    '대법원 사건의 결론을 확률로 제시하기 전에, 그 확률이 어디서 나왔는지를 먼저 공개합니다. 기저율과 조문 근거를 밝히고, 예측 적중률을 검증해 남깁니다.'
+);
+
 // 법률 데이터베이스
 exports.lawDatabasePage = createStaticPageHandler(
     '/law-database',
