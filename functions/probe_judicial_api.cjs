@@ -40,6 +40,21 @@ if (!SERVICE_KEY) {
     process.exit(1);
 }
 
+// 자리표시자를 그대로 넣는 실수를 호출 전에 막는다.
+// (안내 문구를 복사해 붙여넣으면 값이 치환되지 않은 채 저장되기 쉽다)
+const PLACEHOLDER = /여기에|붙여넣|your-|발급받은|<.*>|^\s*$/;
+if (PLACEHOLDER.test(SERVICE_KEY) || SERVICE_KEY.length < 30) {
+    console.error('❌ DATA_GO_KR_KEY 가 실제 인증키가 아닙니다.');
+    console.error(`   현재 값: ${SERVICE_KEY.length}자, 앞 4자 "${SERVICE_KEY.slice(0, 4)}…"`);
+    console.error('   실제 인증키는 보통 80자 안팎입니다.\n');
+    console.error('   data.go.kr → 마이페이지 → 오픈API → 인증키 발급현황');
+    console.error('   → 「일반 인증키(Decoding)」 복사 후 functions/.env 의 해당 줄을 교체하세요.\n');
+    console.error('   PowerShell:');
+    console.error('     (Get-Content .env) | Where-Object { $_ -notmatch "^DATA_GO_KR_KEY=" } | Set-Content .env -Encoding utf8');
+    console.error('     Add-Content -Path .env -Value "DATA_GO_KR_KEY=복사한키" -Encoding utf8');
+    process.exit(1);
+}
+
 // ── 인자 파싱 ──
 const argv = process.argv.slice(2);
 const getArg = (name) => {
