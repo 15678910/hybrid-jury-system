@@ -5,27 +5,36 @@
 
 ---
 
-## 🔴 데스크탑에 앉으면 바로 이것부터 (2026-08-06 갱신)
+## 🔴 재개할 때 이것부터 (2026-08-06 기준)
 
-예측 페이지가 완성됐고 **배포만 남았습니다.** PowerShell 을 열고 아래를 통째로 붙여넣으세요.
+### 지금 상태 한 줄
 
-### ① 배포
+**`/prediction` 페이지는 배포돼 라이브다.** 다만 마지막 커밋(`e3669f2`, 폰트·여백 수정)이
+**아직 배포되지 않았고**, 기저율이 비어 있어 「수집 전」 배너가 떠 있다.
+
+| | 상태 |
+|---|---|
+| `/prediction` 페이지 · `predictionPage` 함수 | ✅ 배포 완료 (2026-08-06) |
+| OG 이미지 `og-prediction.png` | ✅ 배포 완료 |
+| **`e3669f2` 폰트·여백 수정** | ❌ **미배포** |
+| **기저율(파기율)** | ❌ **미수집** — 노란 배너 상태 |
+
+### ① 미배포 커밋 반영 — 여기부터
+
+제목이 고정 헤더에 가려지고 글씨가 작던 문제를 고쳤으나 배포하지 않았다.
+2026-08-06 시도 시 화면이 그대로였는데, **`git pull` 없이 빌드했을 가능성이 높다.**
 
 ```powershell
 cd C:\Users\lacoi\Desktop\hybrid-jury-system
 git pull origin claude/appeal-column-5hwjiy
-npm run build
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "빌드 성공 — 배포 시작" -ForegroundColor Green
-    firebase deploy --only functions:predictionPage
-    firebase deploy --only hosting
-} else {
-    Write-Host "빌드 실패 — 배포하지 않음" -ForegroundColor Red
-}
+git log --oneline -1        # e3669f2 가 나와야 함
+npm run build               # dist/assets/CasePrediction-wKSGjqlA.js 가 나와야 함
+firebase deploy --only hosting
 ```
 
-> `functions` → `hosting` 순서를 지킬 것. 새 `predictionPage` 함수가 먼저 올라가야
-> `/prediction` rewrite 가 깨지지 않는다. 빌드 실패 시 배포는 자동으로 건너뛴다.
+> 함수는 손대지 않았으므로 **hosting 만** 배포하면 된다.
+> 배포 후에도 그대로면 브라우저에서 `Ctrl+Shift+R`, 그래도 안 되면
+> F12 → Network 에서 `CasePrediction-` 파일명이 `wKSGjqlA` 인지 `DNHt41cp`(구버전)인지 확인.
 
 ### ② 배포 확인
 
@@ -33,7 +42,7 @@ if ($LASTEXITCODE -eq 0) {
 curl.exe -A "KakaoTalk-Scrap" "https://xn--lg3b0kt4n41f.kr/prediction" | Select-String "og:image"
 ```
 
-`og-prediction.png` 가 나와야 한다. 기본 `og-image.jpg` 가 나오면 SSR 함수 배포가 안 된 것.
+`og-prediction.png` 가 나와야 한다.
 
 그리고 **시민법정.kr(메인)** 과 **아무 서브페이지** 두 곳 모두에서
 「내란재판분석 → 재판 결과 예측」 메뉴가 보이는지 확인 (2026-03-20 사건 재발 방지).
