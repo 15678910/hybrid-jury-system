@@ -96,5 +96,41 @@ console.log('\n■ 주문 패턴 분류');
     check('주문 없으면 unknown', p.classifyDisposition('【이    유】 …').disposition, p.DISPOSITION.UNKNOWN);
 }
 
+// ─────────────────────────────────────────────────────────────
+// 파기 범위 — 전부인가 일부인가
+// 여러 혐의가 병합된 사건에서는 일부 파기가 오히려 흔하다. 이를 전부 파기와
+// 한 칸에 넣으면 예측이 실제 결과와 어긋난다.
+// ─────────────────────────────────────────────────────────────
+console.log('\n■ 파기 범위(전부/일부) 구분');
+{
+    const t = (주문) => `【주    문】<br/>${주문}<br/>【이    유】`;
+
+    check('전부 파기환송',
+        p.classifyDisposition(t('원심판결을 파기하고, 사건을 서울고등법원에 환송한다.')).scope, p.SCOPE.FULL);
+    check('전부 파기자판',
+        p.classifyDisposition(t('원심판결을 파기한다. 피고인은 무죄.')).scope, p.SCOPE.FULL);
+
+    check('일부 파기 — 「중 … 부분을 파기」',
+        p.classifyDisposition(t('원심판결 중 유죄 부분을 파기하고, 이 부분 사건을 서울고등법원에 환송한다.')).scope,
+        p.SCOPE.PARTIAL);
+    check('일부 파기 — 파기와 기각이 함께',
+        p.classifyDisposition(t('원심판결 중 피고인 甲에 대한 부분을 파기하고 이 부분을 환송한다. 나머지 상고를 기각한다.')).scope,
+        p.SCOPE.PARTIAL);
+    check('일부 파기 — 「일부를 파기」',
+        p.classifyDisposition(t('원심판결의 일부를 파기하고 그 부분을 환송한다.')).scope, p.SCOPE.PARTIAL);
+
+    check('기각은 범위 없음',
+        p.classifyDisposition(t('상고를 기각한다.')).scope, p.SCOPE.NONE);
+
+    // 일부 파기도 파기 계열로 분류되는지 (기각으로 새면 안 된다)
+    check('일부 파기의 disposition 은 파기환송',
+        p.classifyDisposition(t('원심판결 중 유죄 부분을 파기하고 환송한다. 나머지 상고를 기각한다.')).disposition,
+        p.DISPOSITION.REVERSED_REMANDED);
+
+    // 실제 응답(94누9948)은 단순 기각이므로 범위가 없어야 한다
+    check('실제 94누9948 은 범위 없음',
+        p.classifyDisposition(실제_94누9948.판례내용).scope, p.SCOPE.NONE);
+}
+
 console.log(`\n결과: ${pass}건 통과, ${fail}건 실패`);
 process.exit(fail ? 1 : 0);

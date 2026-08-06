@@ -154,17 +154,29 @@ const fetchDetail = async (id) => {
     const panelRows = withCompare ? await tally(panel, '소부') : [];
 
     // ── 3) 집계 ─────────────────────────────────────────
+    // 파기를 전부/일부로 나눠 센다. 여러 혐의가 병합된 사건에서는 일부 파기가
+    // 오히려 흔한데, 이를 전부 파기와 한 칸에 넣으면 예측이 실제와 어긋난다.
     const summarize = (rows) => {
         const D = parser.DISPOSITION;
+        const S = parser.SCOPE;
         const n = rows.length;
         const cnt = (f) => rows.filter(f).length;
-        const 파기 = cnt((r) => [D.REVERSED_REMANDED, D.REVERSED_SELF, D.REVERSED_TRANSFERRED].includes(r.disposition));
+        const isReversed = (r) => [D.REVERSED_REMANDED, D.REVERSED_SELF, D.REVERSED_TRANSFERRED].includes(r.disposition);
+
+        const 파기 = cnt(isReversed);
+        const 전부파기 = cnt((r) => isReversed(r) && r.scope === S.FULL);
+        const 일부파기 = cnt((r) => isReversed(r) && r.scope === S.PARTIAL);
         const 기각 = cnt((r) => r.disposition === D.DISMISSED);
         const 미상 = cnt((r) => [D.UNKNOWN, D.OTHER].includes(r.disposition));
+        const 유효 = n - 미상;
+
         return {
             건수: n,
-            파기, 기각, 미상,
-            파기율: n - 미상 > 0 ? 파기 / (n - 미상) : null,
+            파기, 전부파기, 일부파기, 기각, 미상,
+            파기율: 유효 > 0 ? 파기 / 유효 : null,
+            전부파기율: 유효 > 0 ? 전부파기 / 유효 : null,
+            일부파기율: 유효 > 0 ? 일부파기 / 유효 : null,
+            기각률: 유효 > 0 ? 기각 / 유효 : null,
             판정불가비율: n ? 미상 / n : null,
             신뢰도낮음: cnt((r) => r.dispositionConfidence === 'low' || r.enBancConfidence === 'low'),
         };
@@ -174,18 +186,19 @@ const fetchDetail = async (id) => {
     const pct = (v) => (v === null ? 'N/A' : `${(v * 100).toFixed(1)}%`);
 
     console.log(`\n───────── 집계 결과 (${종류명} · 전원합의체) ─────────`);
-    console.log(`  수집 건수      : ${s.건수}`);
-    console.log(`  파기           : ${s.파기}`);
-    console.log(`  기각(원심 확정) : ${s.기각}`);
-    console.log(`  판정 불가       : ${s.미상}  (${pct(s.판정불가비율)})`);
-    console.log(`  ▶ 파기율        : ${pct(s.파기율)}   ← 기저율 후보`);
-    console.log(`  신뢰도 낮은 건   : ${s.신뢰도낮음}`);
+    console.log(`  수집 건수       : ${s.건수}`);
+    console.log(`  기각(원심 확정)  : ${s.기각}   (${pct(s.기각률)})`);
+    console.log(`  전부 파기        : ${s.전부파기}   (${pct(s.전부파기율)})`);
+    console.log(`  일부 파기        : ${s.일부파기}   (${pct(s.일부파기율)})   ← 병합 사건에서 흔한 결론`);
+    console.log(`  판정 불가        : ${s.미상}  (${pct(s.판정불가비율)})`);
+    console.log(`  ▶ 파기율(전부+일부) : ${pct(s.파기율)}   ← 기저율 후보`);
+    console.log(`  신뢰도 낮은 건    : ${s.신뢰도낮음}`);
 
     let sp = null;
     if (withCompare && panelRows.length) {
         sp = summarize(panelRows);
         console.log(`\n───────── 비교군 (${종류명} · 소부) ─────────`);
-        console.log(`  수집 건수 ${sp.건수} / 파기 ${sp.파기} / 기각 ${sp.기각}`);
+        console.log(`  수집 건수 ${sp.건수} / 전부파기 ${sp.전부파기} / 일부파기 ${sp.일부파기} / 기각 ${sp.기각}`);
         console.log(`  ▶ 파기율 : ${pct(sp.파기율)}`);
         if (s.파기율 && sp.파기율) {
             console.log(`\n  ▶▶ 보정계수 (전합 파기율 ÷ 소부 파기율) : ${(s.파기율 / sp.파기율).toFixed(2)}배`);

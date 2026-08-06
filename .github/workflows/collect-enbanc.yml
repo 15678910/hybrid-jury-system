@@ -1,0 +1,92 @@
+name: 전원합의체 기저율 수집 (수동)
+
+# 수동 실행 전용.
+#
+# 왜 워크플로로 만드는가: 수집기는 law.go.kr(법제처 OPEN API)을 호출하는데,
+# 개발 세션 컨테이너에서는 그 도메인이 이그레스 정책으로 차단돼 실행할 수 없다.
+# GitHub Actions 러너에서는 열려 있으므로 여기서 돌린다.
+#
+# 인증: LAWAPI_OC 는 법제처 OPEN API 의 이메일 ID 로, 시크릿이 아니다.
+#       이미 functions/index.js 에 폴백으로 공개돼 있어 여기서도 그대로 쓴다.
+#       (별도 시크릿 등록이 필요 없다)
+#
+# 결과: 집계 요약을 Job Summary 에 남기고, 원자료를 아티팩트로 올린다.
+#       숫자를 확인한 뒤 src/data/predictions.js 의 BASE_RATES 에 옮겨 적는다.
+#       ⚠️ 자동으로 커밋하지 않는다. 근거 없는 숫자가 저절로 사이트에 반영되는 것을
+#          막기 위해, 사람이 값을 보고 옮기는 단계를 남겨 둔다.
+
+on:
+  workflow_dispatch:
+    inputs:
+      caseType:
+        description: '사건종류코드 (400102=형사, 400101=민사)'
+        required: true
+        default: '400102'
+      maxPages:
+        description: '목록 최대 페이지 수 (1쪽=100건). 처음에는 5~10 으로 시험할 것'
+        required: true
+        default: '10'
+      compare:
+        description: '소부 비교군도 수집해 보정계수를 산출할지'
+        type: boolean
+        required: false
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 파서 검증
+        # 파서가 깨진 채로 수집하면 잘못된 집계가 나온다. 먼저 확인한다.
+        run: node functions/lib/precedent_parser.test.cjs
+
+      - name: 기저율 수집
+        env:
+          LAWAPI_OC: ${{ vars.LAWAPI_OC || 'lacoiffure828' }}
+        working-directory: functions
+        run: |
+          ARGS="--caseType ${{ github.event.inputs.caseType }} --maxPages ${{ github.event.inputs.maxPages }} --delay 300"
+          if [ "${{ github.event.inputs.compare }}" = "true" ]; then ARGS="$ARGS --compare"; fi
+          echo "실행: node collect_enbanc_precedents.cjs $ARGS"
+          node collect_enbanc_precedents.cjs $ARGS 2>&1 | tee ../collect_output.txt
+
+      - name: 집계 요약을 Job Summary 에 기록
+        if: always()
+        run: |
+          {
+            echo "### 전원합의체 기저율 수집 결과"
+            echo ""
+            echo '```'
+            # 진행률 표시(\r)는 걷어내고 집계 부분만 남긴다
+            tr '\r' '\n' < collect_output.txt | sed -n '/집계 결과/,$p' | head -40
+            echo '```'
+            echo ""
+            echo "위 숫자를 \`src/data/predictions.js\` 의 \`BASE_RATES\` 에 옮겨 적으면"
+            echo "예측 페이지의 「수집 전」 표시가 사라지고 구간이 좁혀집니다."
+            echo ""
+            echo "⚠️ 표본의 성격(본문에 「전원합의체」가 언급된 판례에서 출발)을 함께 밝힐 것."
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: 원자료 아티팩트 업로드
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enbanc-stats-${{ github.run_id }}
+          path: |
+            docs/stats/enbanc_*.json
+            collect_output.txt
+          if-no-files-found: warn
+          retention-days: 30

@@ -40,26 +40,54 @@ const DISPOSITION = {
     UNKNOWN: 'unknown',
 };
 
+/** 파기의 범위 — 전부인가 일부인가 */
+const SCOPE = {
+    FULL: 'full',       // 원심판결 전부 파기
+    PARTIAL: 'partial', // 일부만 파기, 나머지는 기각 (여러 혐의가 병합된 사건에서 흔하다)
+    NONE: 'none',       // 파기 없음
+};
+
+/**
+ * 파기 범위를 판정한다.
+ *
+ * 여러 혐의가 병합된 사건에서는 「원심판결 중 유죄 부분을 파기하고 … 나머지 상고를
+ * 기각한다」처럼 일부만 파기되는 경우가 흔하다. 이를 전부 파기와 한 칸에 넣으면
+ * 예측이 실제 결과와 어긋난다. 실무에서 더 자주 나오는 결론을 별도로 센다.
+ */
+const classifyScope = (주문) => {
+    if (!/파기/.test(주문)) return SCOPE.NONE;
+
+    // ① 「… 중 … 부분을 파기」 — 범위를 한정한 표현
+    const 부분한정 = /중[\s\S]{0,60}?부분[\s\S]{0,20}?파기/.test(주문) || /일부[\s\S]{0,20}?파기/.test(주문);
+    // ② 같은 주문 안에 파기와 기각이 함께 있으면 나머지는 유지된 것이다
+    const 파기와기각공존 = /파기/.test(주문) && /기각/.test(주문);
+
+    return (부분한정 || 파기와기각공존) ? SCOPE.PARTIAL : SCOPE.FULL;
+};
+
 /**
  * 주문에서 결론을 판정한다.
- * @returns {{disposition:string, confidence:'high'|'low', 주문:string}}
+ * @returns {{disposition:string, scope:string, confidence:'high'|'low', 주문:string}}
  */
 const classifyDisposition = (판례내용) => {
     const 주문 = extractDisposition(판례내용);
-    if (!주문) return { disposition: DISPOSITION.UNKNOWN, confidence: 'low', 주문: '' };
+    if (!주문) {
+        return { disposition: DISPOSITION.UNKNOWN, scope: SCOPE.NONE, confidence: 'low', 주문: '' };
+    }
 
     const 파기 = /파기/.test(주문);
     const 환송 = /환송/.test(주문);
     const 이송 = /이송/.test(주문);
     const 기각 = /(상고|항소|재항고|항고)[를을]?\s*(모두\s*)?기각/.test(주문);
+    const scope = classifyScope(주문);
 
-    // 파기 판단을 먼저 본다. 「일부 파기, 일부 기각」인 경우 파기가 더 중요한 정보다.
-    if (파기 && 환송) return { disposition: DISPOSITION.REVERSED_REMANDED, confidence: 'high', 주문 };
-    if (파기 && 이송) return { disposition: DISPOSITION.REVERSED_TRANSFERRED, confidence: 'high', 주문 };
-    if (파기) return { disposition: DISPOSITION.REVERSED_SELF, confidence: 'high', 주문 };
-    if (기각) return { disposition: DISPOSITION.DISMISSED, confidence: 'high', 주문 };
+    // 파기가 있으면 파기 계열로 본다. 전부인지 일부인지는 scope 로 구분한다.
+    if (파기 && 환송) return { disposition: DISPOSITION.REVERSED_REMANDED, scope, confidence: 'high', 주문 };
+    if (파기 && 이송) return { disposition: DISPOSITION.REVERSED_TRANSFERRED, scope, confidence: 'high', 주문 };
+    if (파기) return { disposition: DISPOSITION.REVERSED_SELF, scope, confidence: 'high', 주문 };
+    if (기각) return { disposition: DISPOSITION.DISMISSED, scope: SCOPE.NONE, confidence: 'high', 주문 };
 
-    return { disposition: DISPOSITION.OTHER, confidence: 'low', 주문 };
+    return { disposition: DISPOSITION.OTHER, scope: SCOPE.NONE, confidence: 'low', 주문 };
 };
 
 /**
@@ -168,6 +196,7 @@ const normalize = (rec) => {
         enBancSignals: enbanc.signals,
         justiceCount: enbanc.justiceCount,
         disposition: disp.disposition,
+        scope: disp.scope,
         dispositionConfidence: disp.confidence,
         주문: disp.주문.slice(0, 200),
     };
@@ -175,7 +204,9 @@ const normalize = (rec) => {
 
 module.exports = {
     DISPOSITION,
+    SCOPE,
     CASE_TYPE,
+    classifyScope,
     stripTags,
     extractDisposition,
     classifyDisposition,
