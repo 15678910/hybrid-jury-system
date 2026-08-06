@@ -53,6 +53,21 @@ node collect_enbanc_precedents.cjs --compare --maxPages 10 | Tee-Object -FilePat
 ▶▶ 보정계수 (전합 파기율 ÷ 소부 파기율) : X.XX배
 ```
 
+### ⚠️ 기한이 있는 과제 — Node.js 20 런타임 폐기 (2026-10-30)
+
+2026-08-06 배포 시 Firebase CLI 가 경고했다.
+
+> Runtime Node.js 20 was deprecated on 2026-04-30 and will be decommissioned on
+> **2026-10-30**, after which you will not be able to deploy without upgrading.
+
+`functions/package.json` 의 `"engines": { "node": "20" }` 을 22 이상으로 올리고
+전체 함수를 재배포해야 한다. **그날 이후에는 어떤 함수도 배포할 수 없다.**
+급하지 않으나 잊으면 배포가 막히므로 9월 중 처리 권장.
+
+※ 같은 배포에서 나온 `functions.config()` 종료 경고는 무해하다. `index.js:1821` 에
+「v7에서 제거됨 — 사용 금지」라는 주석만 있고 실제 호출은 없다.
+`firebase-functions` 도 이미 `^7.0.5` 로 최신 계열이다.
+
 ### ④ 여유가 되면
 
 - **Chrome 원격 데스크톱 PIN 재설정** — 외출 중 PIN 을 몰라 접속하지 못했다.
