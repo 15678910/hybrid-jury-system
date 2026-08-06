@@ -5,7 +5,64 @@
 
 ---
 
-## 🚀 데스크탑에서 시작하기
+## 🔴 데스크탑에 앉으면 바로 이것부터 (2026-08-06 갱신)
+
+예측 페이지가 완성됐고 **배포만 남았습니다.** PowerShell 을 열고 아래를 통째로 붙여넣으세요.
+
+### ① 배포
+
+```powershell
+cd C:\Users\lacoi\Desktop\hybrid-jury-system
+git pull origin claude/appeal-column-5hwjiy
+npm run build
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "빌드 성공 — 배포 시작" -ForegroundColor Green
+    firebase deploy --only functions:predictionPage
+    firebase deploy --only hosting
+} else {
+    Write-Host "빌드 실패 — 배포하지 않음" -ForegroundColor Red
+}
+```
+
+> `functions` → `hosting` 순서를 지킬 것. 새 `predictionPage` 함수가 먼저 올라가야
+> `/prediction` rewrite 가 깨지지 않는다. 빌드 실패 시 배포는 자동으로 건너뛴다.
+
+### ② 배포 확인
+
+```powershell
+curl.exe -A "KakaoTalk-Scrap" "https://xn--lg3b0kt4n41f.kr/prediction" | Select-String "og:image"
+```
+
+`og-prediction.png` 가 나와야 한다. 기본 `og-image.jpg` 가 나오면 SSR 함수 배포가 안 된 것.
+
+그리고 **시민법정.kr(메인)** 과 **아무 서브페이지** 두 곳 모두에서
+「내란재판분석 → 재판 결과 예측」 메뉴가 보이는지 확인 (2026-03-20 사건 재발 방지).
+
+### ③ 기저율 수집 — 「수집 전」 배너를 없애는 작업
+
+```powershell
+cd functions
+node collect_enbanc_precedents.cjs --compare --maxPages 10 | Tee-Object -FilePath ..\collect_result.txt
+```
+
+끝나면 아래 두 줄을 AI 에게 전달한다. 그러면 `src/data/predictions.js` 의 `BASE_RATES` 를
+채워 확률 표가 켜진다.
+
+```
+▶ 파기율 : XX.X%
+▶▶ 보정계수 (전합 파기율 ÷ 소부 파기율) : X.XX배
+```
+
+### ④ 여유가 되면
+
+- **Chrome 원격 데스크톱 PIN 재설정** — 외출 중 PIN 을 몰라 접속하지 못했다.
+  데스크탑에서 remotedesktop.google.com → 원격 액세스 해제 후 재설정하면 새 PIN 을 정할 수 있다.
+- **사법연감 `sht` 코드 수집** — `docs/stats/SHT_CODES.md` 참조
+- **칼럼 8번(사이트 반영)** — `ReformAnalysis.jsx` 조항 7 보강 (아직 미승인)
+
+---
+
+## 🚀 다른 기기에서 시작하기
 
 ```bash
 git fetch origin claude/appeal-column-5hwjiy
@@ -13,7 +70,7 @@ git checkout claude/appeal-column-5hwjiy
 git pull origin claude/appeal-column-5hwjiy
 ```
 
-그다음 AI에게: **「docs/SESSION_HANDOFF_2026-08-03.md 읽고 Ⅳ의 첨삭 8건 진행해줘」**
+그다음 AI에게: **「docs/SESSION_HANDOFF_2026-08-03.md 읽고 이어서 진행해줘」**
 
 ---
 
@@ -36,6 +93,31 @@ git pull origin claude/appeal-column-5hwjiy
 | `a9ac6e1` | Encoding 인증키 자동 변환 |
 | `7a88653` | 교차표 구조 렌더링 |
 | `c89aa88` | 스텁 테스트 산출물 추적 제외 |
+| `52b6daa` | 판례 파서 — 전합 여부·판결 결과 판정 (실제 응답 17건 검증) |
+| `63c75c3` | 예측 기능 — 수집기 + 시나리오 계산기 |
+| `830c69a` | **재판 결과 예측 페이지 신설 (`/prediction`)** |
+| `702b757` | OG 공유 이미지 생성기 (`og-prediction.png`) |
+
+### 예측 기능 — 완성 상태
+| 파일 | 역할 | 검증 |
+|------|------|------|
+| `functions/lib/precedent_parser.cjs` | 전합 판별 + 주문에서 파기/기각 판정 | 실제 응답 17건 통과 |
+| `functions/lib/prediction.cjs` | 4분할 시나리오 표 계산 (이변량 베르누이) | 15건 통과 |
+| `functions/collect_enbanc_precedents.cjs` | 기저 파기율 수집·집계 | 스텁 전 과정 통과 |
+| `src/pages/CasePrediction.jsx` | 페이지 (탭 3개) | 빌드 통과 |
+| `src/data/predictions.js` | 데이터 — **`BASE_RATES` 가 비어 있음** | — |
+| `scripts/gen-og-prediction.mjs` | OG 이미지 (prebuild 훅 연결) | 생성 확인 |
+
+**남은 것은 배포와 기저율 수집 두 가지뿐이다.**
+
+### 법제처 판례 API — 확인된 사실
+- `search=2` 를 주면 본문검색(`section: bdyText`). 기본값은 사건명 검색이라
+  "전원합의체" 질의에 5건만 나왔고, 본문검색은 7,009건을 반환했다
+- **전합 여부는 `판결유형` 필드로 판별된다** — 소부 "판결", 전합 "전원합의체 판결"
+- 사건종류코드: 400101 민사 / **400102 형사** / 400103 가사 / 400107 일반행정 / 400108 세무
+- 파기·기각은 전용 필드가 없어 `판례내용` 의 【주 문】을 파싱해야 한다
+- `LAWAPI_OC` 는 `functions/index.js:4526`·`6107` 에 폴백으로 하드코딩돼 있다
+  (공개 저장소이므로 이미 노출 상태. CLAUDE.md 의 시크릿 하드코딩 금지와 어긋나므로 정리 필요)
 
 ### 작업 대상 파일
 | 파일 | 상태 |
