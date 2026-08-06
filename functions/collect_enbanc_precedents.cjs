@@ -60,13 +60,35 @@ const withCompare = has('compare');
 const BASE = 'https://www.law.go.kr/DRF';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * Node 의 fetch 는 네트워크 실패를 「fetch failed」 한 줄로만 알려준다.
+ * 실제 원인(DNS·연결 거부·타임아웃·TLS)은 e.cause 에 들어 있어, 이를 함께 드러낸다.
+ * 원인을 모르면 차단인지 일시 장애인지 구분할 수 없다.
+ */
+const describeFetchError = (e) => {
+    const parts = [e.message];
+    let c = e.cause;
+    let depth = 0;
+    while (c && depth < 3) {
+        parts.push(`cause: ${c.code || ''} ${c.message || c}`.trim());
+        c = c.cause;
+        depth += 1;
+    }
+    return parts.join(' | ');
+};
+
 const fetchJson = async (url, label) => {
-    const res = await fetch(url, { headers: { Accept: 'application/json' } });
+    let res;
+    try {
+        res = await fetch(url, { headers: { Accept: 'application/json' } });
+    } catch (e) {
+        throw new Error(`${label} 네트워크 실패 — ${describeFetchError(e)}`);
+    }
     const text = await res.text();
     try {
         return JSON.parse(text);
     } catch {
-        throw new Error(`${label} JSON 파싱 실패 (HTTP ${res.status}): ${text.slice(0, 120)}`);
+        throw new Error(`${label} JSON 파싱 실패 (HTTP ${res.status}): ${text.slice(0, 200)}`);
     }
 };
 
@@ -128,8 +150,12 @@ const fetchDetail = async (id) => {
     console.log('\n');
 
     if (!enbanc.length) {
-        console.log('수집된 전합 판례가 없습니다. --caseType 또는 --maxPages 를 확인하세요.');
-        process.exit(0);
+        // 여기서 0 으로 끝내면 호출한 쪽(CI 등)이 성공으로 오인한다.
+        // 아무것도 못 모은 것은 실패다.
+        console.error('\n❌ 수집된 전합 판례가 0건입니다.');
+        console.error('   원인 후보: ① 네트워크 차단(위 오류 메시지 확인) ② 잘못된 caseType');
+        console.error('   ③ 검색 결과에 해당 사건종류가 없음');
+        process.exit(1);
     }
 
     // ── 2) 상세 수집 + 주문 파싱 ─────────────────────────
