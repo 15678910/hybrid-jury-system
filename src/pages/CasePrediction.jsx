@@ -9,8 +9,9 @@ import {
     SCENARIO_LABELS,
     SCORECARD,
     TIER,
+    COURT_STATEMENT,
 } from '../data/predictions';
-import { sensitivityTable, symmetricScenario, pct, pctRange } from '../lib/predictionMath';
+import { jointProbabilities, pct, pctRange } from '../lib/predictionMath';
 
 // =============================================================================
 // 재판 결과 예측 — 우리 예측을 낸다
@@ -68,31 +69,38 @@ function ScenarioTable({ rows, labelFor }) {
     );
 }
 
-/** 갈래 ① — 한 사건만 전합. 보정계수를 모르므로 후보별로 보여준다 */
-function AsymmetricBranch({ c }) {
+/** 보정계수 구간 — 아직 재지 못한 값을 여러 후보로 바꿔가며 보여준다 */
+function RangeBranch({ c, branch }) {
     const base = BASE_RATES.criminalAppeal.value;
-    const ks = BASE_RATES.enBancMultiplier.candidates;
-    const table = sensitivityTable(base, ks, { rho: c.rho });
+    const [lo, hi] = branch.symmetricRange;
+    const ks = [];
+    for (let k = lo; k <= hi; k++) ks.push(k);
 
-    // 후보 전체를 훑어 각 시나리오의 구간을 만든다
+    // 두 사건 모두 전합이므로 p1 = p2 = base * k
+    const rows = ks.map((k) => {
+        const p = Math.min(1, base * k);
+        const j = jointProbabilities(p, p, c.rho);
+        return { k, p, j };
+    });
+
     const range = (key) => {
-        const vals = table.map((t) => t.rows.find((r) => r.key === key).value);
-        return pctRange(Math.min(...vals), Math.max(...vals));
+        const v = rows.map((r) => r.j[key]);
+        return pctRange(Math.min(...v), Math.max(...v));
     };
-    const summaryRows = Object.keys(SCENARIO_LABELS).map((key) => ({ key, value: range(key) }));
+    const summary = Object.keys(SCENARIO_LABELS).map((key) => ({ key, value: range(key) }));
 
     return (
         <div>
-            <ScenarioTable rows={summaryRows} labelFor={(k) => SCENARIO_LABELS[k]} />
+            <ScenarioTable rows={summary} labelFor={(k) => SCENARIO_LABELS[k]} />
 
-            <details className="mt-5 group">
+            <details className="mt-5">
                 <summary className="cursor-pointer text-lg text-blue-700 hover:underline font-medium">
                     구간이 왜 넓은가 — 보정계수별 상세 보기
                 </summary>
                 <div className="mt-4 bg-gray-50 rounded-lg p-5">
                     <p className="text-base text-gray-700 leading-relaxed mb-4">
-                        전합 회부 사건의 파기율이 소부의 <strong>몇 배</strong>인지가 아직 측정되지 않았습니다.
-                        그 값(보정계수)을 2배부터 8배까지 바꿔가며 계산한 결과입니다.
+                        전합 사건의 파기율이 소부의 <strong>몇 배</strong>인지가 아직 측정되지 않았습니다.
+                        그 값을 {lo}배부터 {hi}배까지 바꿔가며 계산한 결과입니다.
                         <strong className="text-gray-900"> 이 하나의 숫자만 재면 구간이 한 줄로 좁혀집니다.</strong>
                     </p>
                     <div className="overflow-x-auto">
@@ -100,21 +108,19 @@ function AsymmetricBranch({ c }) {
                             <thead>
                                 <tr className="border-b-2 border-gray-300">
                                     <th className="text-left py-2.5 pr-4 font-semibold text-gray-700 whitespace-nowrap">보정계수</th>
-                                    <th className="text-right py-2.5 px-2 font-semibold text-gray-700 whitespace-nowrap">전합 파기율</th>
+                                    <th className="text-right py-2.5 px-2 font-semibold text-gray-700 whitespace-nowrap">각 사건 파기율</th>
                                     {Object.values(SCENARIO_LABELS).map((l) => (
                                         <th key={l} className="text-right py-2.5 px-2 font-semibold text-gray-700 text-sm">{l}</th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
-                                {table.map((t) => (
-                                    <tr key={t.multiplier} className="border-b border-gray-200">
-                                        <td className="py-2.5 pr-4 font-medium text-gray-900">{t.multiplier}배</td>
-                                        <td className="py-2.5 px-2 text-right text-gray-800">{pct(t.p1)}</td>
+                                {rows.map((r) => (
+                                    <tr key={r.k} className="border-b border-gray-200">
+                                        <td className="py-2.5 pr-4 font-medium text-gray-900">{r.k}배</td>
+                                        <td className="py-2.5 px-2 text-right text-gray-800">{pct(r.p)}</td>
                                         {Object.keys(SCENARIO_LABELS).map((key) => (
-                                            <td key={key} className="py-2.5 px-2 text-right text-gray-800">
-                                                {pct(t.rows.find((r) => r.key === key).value)}
-                                            </td>
+                                            <td key={key} className="py-2.5 px-2 text-right text-gray-800">{pct(r.j[key])}</td>
                                         ))}
                                     </tr>
                                 ))}
@@ -127,16 +133,44 @@ function AsymmetricBranch({ c }) {
     );
 }
 
-/** 갈래 ② — 두 사건 모두 소부 */
-function SymmetricBranch({ c }) {
-    const base = BASE_RATES.criminalAppeal.value;
-    const rows = symmetricScenario(base, c.rho);
-    const labelFor = (k) => (
-        k === 'onlyFirst' ? '한덕수 사건만 파기'
-            : k === 'onlySecond' ? '이상민 사건만 파기'
-                : SCENARIO_LABELS[k]
+/** 보정계수를 하나로 고정한 경우 */
+function FixedBranch({ c, branch }) {
+    const p = Math.min(1, BASE_RATES.criminalAppeal.value * branch.symmetric);
+    const j = jointProbabilities(p, p, c.rho);
+    const rows = Object.keys(SCENARIO_LABELS).map((key) => ({ key, value: j[key] }));
+    return (
+        <div>
+            <ScenarioTable rows={rows} labelFor={(k) => SCENARIO_LABELS[k]} />
+            <p className="text-base text-gray-600 mt-4">
+                각 사건의 파기 확률 {pct(p)} (기저율 {BASE_RATES.criminalAppeal.display} × {branch.symmetric}배) 적용.
+            </p>
+        </div>
     );
-    return <ScenarioTable rows={rows} labelFor={labelFor} />;
+}
+
+/** 대법원이 밝힌 사실 — 예측의 골격 */
+function CourtStatementCard() {
+    return (
+        <section className="bg-white rounded-xl border shadow-sm p-7 mb-8">
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+                <h3 className="text-2xl font-bold text-gray-900">대법원이 밝힌 사실</h3>
+                <TierBadge tier={COURT_STATEMENT.tier} />
+            </div>
+            <blockquote className="border-l-4 border-blue-400 bg-blue-50/60 pl-5 py-4 rounded-r mb-5">
+                <p className="text-base md:text-lg text-gray-800 leading-relaxed">{COURT_STATEMENT.text}</p>
+                <p className="text-base text-gray-500 mt-3">출처: {COURT_STATEMENT.source}</p>
+            </blockquote>
+            <p className="text-lg font-semibold text-gray-800 mb-3">예측에 어떻게 반영되는가</p>
+            <div className="space-y-4">
+                {COURT_STATEMENT.facts.map((f, i) => (
+                    <div key={i} className="border-l-4 border-gray-300 pl-4 py-1">
+                        <p className="text-lg font-bold text-gray-900 mb-1">{f.fact}</p>
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed">→ {f.effect}</p>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
 }
 
 /** 사건 카드 */
@@ -156,7 +190,7 @@ function CaseCard({ c }) {
 
             {/* 갈래 선택 */}
             <div className="mb-6">
-                <p className="text-base font-semibold text-gray-700 mb-3">절차적 지위 갈래</p>
+                <p className="text-base font-semibold text-gray-700 mb-3">전합 보정계수 처리 방식</p>
                 <div className="flex flex-wrap gap-2">
                     {c.branches.map((b) => (
                         <button
@@ -175,7 +209,7 @@ function CaseCard({ c }) {
                 <p className="text-base text-gray-600 mt-3 leading-relaxed">{branch.detail}</p>
             </div>
 
-            {branch.asymmetric ? <AsymmetricBranch c={c} /> : <SymmetricBranch c={c} />}
+            {branch.symmetricRange ? <RangeBranch c={c} branch={branch} /> : <FixedBranch c={c} branch={branch} />}
 
             <p className="text-base text-gray-500 mt-5 leading-relaxed">
                 두 사건의 상관계수 ρ = {c.rho} 적용. {c.rhoNote}
@@ -393,7 +427,7 @@ export default function CasePrediction() {
                     ))}
                 </div>
 
-                {tab === 'cases' && PREDICTION_CASES.map((c) => <CaseCard key={c.id} c={c} />)}
+                {tab === 'cases' && <><CourtStatementCard />{PREDICTION_CASES.map((c) => <CaseCard key={c.id} c={c} />)}</>}
                 {tab === 'method' && <MethodTab />}
                 {tab === 'scorecard' && <ScorecardTab />}
 
