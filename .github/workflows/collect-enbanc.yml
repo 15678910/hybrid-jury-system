@@ -65,7 +65,9 @@ jobs:
           getent hosts www.law.go.kr || echo "  ❌ DNS 해석 실패"
           echo ""
           echo "law.go.kr HTTPS 응답:"
-          curl -sS -o /dev/null --max-time 20 \
+          # 이 서버는 첫 연결에만 10초 안팎이 걸린다. 짧게 끊으면 살아 있는 서버를
+          # 죽은 것으로 오진한다. 실제로 20초 제한에서 한 번은 200, 한 번은 timeout 이었다.
+          curl -sS -o /dev/null --max-time 60 \
             -w "  HTTP %{http_code} | 연결 %{time_connect}s | 총 %{time_total}s\n" \
             "https://www.law.go.kr/DRF/lawSearch.do?OC=${LAWAPI_OC}&target=prec&type=JSON&query=%EC%A0%84%EC%9B%90%ED%95%A9%EC%9D%98%EC%B2%B4&display=1" \
             || echo "  ❌ 연결 실패 (차단 가능성)"
@@ -82,7 +84,7 @@ jobs:
           # 「0건 수집」이 success 로 보고된 적이 있다. 실패가 성공으로 보이면
           # 로그를 읽기 전까지 아무도 알 수 없다.
           set -o pipefail
-          ARGS="--caseType ${{ github.event.inputs.caseType }} --maxPages ${{ github.event.inputs.maxPages }} --delay 300"
+          ARGS="--caseType ${{ github.event.inputs.caseType }} --maxPages ${{ github.event.inputs.maxPages }} --delay 300 --timeout 60000"
           if [ "${{ github.event.inputs.compare }}" = "true" ]; then ARGS="$ARGS --compare"; fi
           echo "실행: node collect_enbanc_precedents.cjs $ARGS"
           node collect_enbanc_precedents.cjs $ARGS 2>&1 | tee ../collect_output.txt

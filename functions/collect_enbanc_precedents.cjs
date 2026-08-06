@@ -26,6 +26,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 const parser = require('./lib/precedent_parser.cjs');
 
 // ── 환경 ────────────────────────────────────────────────
@@ -78,12 +79,37 @@ const describeFetchError = (e) => {
 };
 
 /**
- * law.go.kr 은 첫 연결이 매우 느리다. 실측에서 연결에만 10.7초가 걸려 겨우 성공한
- * 적이 있고, 같은 요청이 다른 실행에서는 Node 의 기본 연결 제한(10초)을 넘겨
- * UND_ERR_CONNECT_TIMEOUT 으로 죽었다. 서버가 막은 것이 아니라 느린 것이므로,
- * 한 번 실패했다고 포기하면 될 일도 안 된다. 간격을 늘려가며 다시 시도한다.
+ * 왜 fetch 를 쓰지 않는가 — law.go.kr 이 느리기 때문이다.
+ *
+ * Node 내장 fetch(undici)의 연결 제한은 10초로 고정돼 있고 요청 단위로 바꿀 수
+ * 없다. 그런데 이 서버는 첫 연결에만 10초 안팎이 걸린다. 실측하면 어떤 실행에서는
+ * 10.7초 만에 HTTP 200 을 돌려주고, 다른 실행에서는 정확히 10초에서 잘려
+ * UND_ERR_CONNECT_TIMEOUT 이 났다. 네 번을 재시도해도 네 번 모두 같은 자리에서
+ * 잘렸다. 막힌 것이 아니라 경계선에 있는 것이므로, 재시도가 아니라 제한을
+ * 늘려야 해결된다.
+ *
+ * 그래서 제한을 지정할 수 있는 node:https 로 직접 요청한다.
+ * keepAlive 를 켜 두면 느린 것은 첫 연결뿐이고 이후 수백 건의 상세 요청은
+ * 그 연결을 재사용한다.
  */
+const REQUEST_TIMEOUT_MS = parseInt(arg('timeout', '60000'), 10);
 const RETRIES = 4;
+
+const agent = new https.Agent({ keepAlive: true, maxSockets: 4 });
+
+const httpGet = (url) => new Promise((resolve, reject) => {
+    const req = https.get(url, { agent, headers: { Accept: 'application/json' } }, (res) => {
+        let data = '';
+        res.setEncoding('utf8');
+        res.on('data', (chunk) => { data += chunk; });
+        res.on('end', () => resolve({ status: res.statusCode, text: data }));
+        res.on('error', reject);
+    });
+    req.setTimeout(REQUEST_TIMEOUT_MS, () => {
+        req.destroy(new Error(`${REQUEST_TIMEOUT_MS / 1000}초 안에 응답이 없습니다`));
+    });
+    req.on('error', reject);
+});
 
 const fetchJson = async (url, label) => {
     let lastErr;
@@ -91,7 +117,7 @@ const fetchJson = async (url, label) => {
     for (let attempt = 1; attempt <= RETRIES; attempt++) {
         let res;
         try {
-            res = await fetch(url, { headers: { Accept: 'application/json' } });
+            res = await httpGet(url);
         } catch (e) {
             lastErr = new Error(`${label} 네트워크 실패 — ${describeFetchError(e)}`);
             if (attempt < RETRIES) {
@@ -103,12 +129,11 @@ const fetchJson = async (url, label) => {
             throw lastErr;
         }
 
-        const text = await res.text();
         try {
-            return JSON.parse(text);
+            return JSON.parse(res.text);
         } catch {
-            // 파싱 실패는 재시도해도 같은 결과일 가능성이 높다. 바로 알린다.
-            throw new Error(`${label} JSON 파싱 실패 (HTTP ${res.status}): ${text.slice(0, 200)}`);
+            // 파싱 실패는 다시 해도 같은 결과일 가능성이 높다. 바로 알린다.
+            throw new Error(`${label} JSON 파싱 실패 (HTTP ${res.status}): ${res.text.slice(0, 200)}`);
         }
     }
 
