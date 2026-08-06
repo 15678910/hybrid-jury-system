@@ -33,7 +33,7 @@ const loadEnv = () => {
 };
 loadEnv();
 
-const SERVICE_KEY = process.env.DATA_GO_KR_KEY;
+let SERVICE_KEY = process.env.DATA_GO_KR_KEY;
 if (!SERVICE_KEY) {
     console.error('❌ DATA_GO_KR_KEY 가 없습니다. functions/.env 에 추가하세요.');
     console.error('   DATA_GO_KR_KEY=발급받은_디코딩_키');
@@ -53,6 +53,22 @@ if (PLACEHOLDER.test(SERVICE_KEY) || SERVICE_KEY.length < 30) {
     console.error('     (Get-Content .env) | Where-Object { $_ -notmatch "^DATA_GO_KR_KEY=" } | Set-Content .env -Encoding utf8');
     console.error('     Add-Content -Path .env -Value "DATA_GO_KR_KEY=복사한키" -Encoding utf8');
     process.exit(1);
+}
+
+// data.go.kr 은 같은 키를 Encoding/Decoding 두 형태로 제공한다.
+// Encoding 키는 Decoding 키를 URL 인코딩한 것일 뿐이므로, %XX 가 보이면 되돌린다.
+// (URLSearchParams 가 다시 인코딩하므로, 그대로 두면 이중 인코딩돼 인증에 실패한다)
+if (/%[0-9A-Fa-f]{2}/.test(SERVICE_KEY)) {
+    try {
+        const decoded = decodeURIComponent(SERVICE_KEY);
+        console.log('ℹ️  Encoding 키가 감지되어 Decoding 형태로 변환했습니다.');
+        console.log(`   ${SERVICE_KEY.length}자 → ${decoded.length}자\n`);
+        SERVICE_KEY = decoded;
+    } catch {
+        console.error('❌ 키에 %XX 가 있으나 디코딩에 실패했습니다.');
+        console.error('   마이페이지에서 「일반 인증키(Decoding)」를 직접 복사해 넣으세요.');
+        process.exit(1);
+    }
 }
 
 // ── 인자 파싱 ──
