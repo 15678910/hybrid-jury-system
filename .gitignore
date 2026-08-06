@@ -13,6 +13,11 @@ backend/.env
 !.env.example
 !**/.env.example
 
+# 탐침 스크립트의 스텁 테스트 산출물 (가짜 데이터)
+# ※ 실제 API 응답 샘플(functions/probe_T*.json)은 근거 자료이므로 커밋한다.
+#    조작된 값이 실제 통계로 오인되는 것만 막는다.
+functions/probe_TEST_*.json
+
 # Firebase Service Account Key (절대 공유하면 안됨!)
 serviceAccountKey.json
 **/serviceAccountKey.json
