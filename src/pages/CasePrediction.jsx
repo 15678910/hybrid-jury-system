@@ -12,8 +12,24 @@ import {
     COURT_STATEMENT,
     CASE_FACTS,
     LIMITATIONS,
+    OUTCOME_LABELS,
+    OUTCOME_SCENARIO_LABELS,
+    SCOPE_MEANING,
+    APPEAL_STRUCTURE,
 } from '../data/predictions';
-import { jointProbabilities, pct, pctRange } from '../lib/predictionMath';
+import {
+    jointProbabilities, pct, pctRange,
+    jointOutcomes, outcomeMarginal, OUTCOME_ORDER,
+} from '../lib/predictionMath';
+
+/**
+ * 파기를 「전부」와 「일부」로 나눌 수 있는가.
+ *
+ * 판례 집계로 partialShare 를 재기 전에는 나눌 수 없다. 그때는 기존 2분류
+ * (파기/확정) 표를 그대로 쓰고, 화면에 「아직 나누지 못했다」고 밝힌다.
+ * 재지 못한 값을 그럴듯한 숫자로 채워 넣으면 표가 정교해 보일 뿐 근거는 없다.
+ */
+const partialShare = () => BASE_RATES.partialShareAmongReversals?.value ?? null;
 
 // =============================================================================
 // 재판 결과 예측 — 우리 예측을 낸다
@@ -71,6 +87,164 @@ function ScenarioTable({ rows, labelFor }) {
     );
 }
 
+/**
+ * 파기의 범위 — 전부인가 일부인가.
+ *
+ * 왜 넣었는가: 결론을 「파기/확정」 둘로만 나눈 표에서는 「원심 중 일부를 파기하고
+ * 나머지 상고는 기각」이라는 결론이 아예 보이지 않는다. 여러 공소사실이 병합된
+ * 사건에서는 그것이 오히려 흔하고, 이 두 사건은 항소심에서 이미 유죄·무죄로 갈렸다.
+ */
+function ScopeSection() {
+    const share = partialShare();
+    const meta = BASE_RATES.partialShareAmongReversals;
+
+    return (
+        <section className="bg-white rounded-xl border shadow-sm p-7 mb-8">
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">「파기」는 한 가지가 아닙니다</h3>
+            <p className="text-base text-gray-500 mb-5">
+                전부 파기와 일부 파기는 결론의 무게가 다릅니다. 한 칸에 넣으면 구분이 사라집니다.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+                {SCOPE_MEANING.map((s) => (
+                    <div key={s.key} className="bg-gray-50 rounded-lg p-5">
+                        <p className="text-xl font-bold text-gray-900 mb-2">{s.title}</p>
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-3">{s.text}</p>
+                        <p className="text-base text-gray-500 leading-relaxed">{s.note}</p>
+                    </div>
+                ))}
+            </div>
+
+            {share === null ? (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-5">
+                    <p className="text-lg font-bold text-amber-900 mb-2">아직 나누지 못했습니다</p>
+                    <p className="text-base md:text-lg text-amber-900/85 leading-relaxed">
+                        파기된 사건 중 일부 파기가 몇 %인지를 재야 표를 나눌 수 있습니다.
+                        그 값을 재기 전에는 <strong>파기/확정 2분류 표</strong>를 그대로 씁니다.
+                        재지 못한 값을 그럴듯한 숫자로 채우면 표만 정교해 보이고 근거는 없기 때문입니다.
+                    </p>
+                    <p className="text-base text-amber-800 mt-3">재는 방법: {meta.source}</p>
+                </div>
+            ) : (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
+                    <div className="flex flex-wrap items-baseline gap-3 mb-2">
+                        <span className="text-3xl font-bold text-blue-900">{meta.display}</span>
+                        <TierBadge tier={meta.tier} />
+                    </div>
+                    <p className="text-base md:text-lg text-gray-800 leading-relaxed">{meta.detail}</p>
+                    <p className="text-base text-gray-500 mt-2">출처: {meta.source}</p>
+                    {meta.caveat && (
+                        <p className="text-base text-amber-800 bg-amber-50 rounded p-3 mt-3 leading-relaxed">
+                            ⚠️ {meta.caveat}
+                        </p>
+                    )}
+                </div>
+            )}
+        </section>
+    );
+}
+
+/** 상고 구조 — 누가 무엇에 불복했는가. 「파기」의 방향이 여기서 갈린다. */
+function AppealStructureCard() {
+    return (
+        <section className="bg-white rounded-xl border shadow-sm p-7 mb-8">
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h3 className="text-2xl font-bold text-gray-900">누가 무엇에 불복했는가</h3>
+                <TierBadge tier={APPEAL_STRUCTURE.tier} />
+            </div>
+            <p className="text-base text-gray-500 mb-5">
+                「파기」에는 방향이 있습니다. 어느 쪽 상고가 받아들여지느냐에 따라 뜻이 정반대가 됩니다.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+                {APPEAL_STRUCTURE.items.map((it) => (
+                    <div key={it.case} className="bg-gray-50 rounded-lg p-5">
+                        <p className="text-xl font-bold text-gray-900 mb-3">{it.case}</p>
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-2">
+                            <span className="font-semibold text-gray-900">피고인 측 · </span>{it.defense}
+                        </p>
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                            <span className="font-semibold text-gray-900">특검 측 · </span>{it.prosecution}
+                        </p>
+                        <div className="flex flex-wrap gap-3 mt-3">
+                            {it.sources.map((s) => (
+                                <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer"
+                                   className="text-base text-blue-600 hover:underline">{s.name} →</a>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="space-y-4">
+                {APPEAL_STRUCTURE.implications.map((im, i) => (
+                    <div key={i} className="border-l-4 border-gray-300 pl-4 py-1">
+                        <p className="text-lg font-bold text-gray-900 mb-1">{im.point}</p>
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed">{im.detail}</p>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+}
+
+/** 3분류(확정/일부파기/전부파기) 결합 표. partialShare 가 측정된 뒤에만 그린다. */
+function OutcomeTable({ multiplier, rho, share }) {
+    const m = outcomeMarginal(BASE_RATES.criminalAppeal.value, multiplier, share);
+    const j = jointOutcomes(m, rho);
+
+    return (
+        <div className="mt-6">
+            <p className="text-lg font-semibold text-gray-800 mb-3">파기의 범위까지 나눈 결과</p>
+            <ScenarioTable
+                rows={Object.keys(OUTCOME_SCENARIO_LABELS).map((k) => ({ key: k, value: j.groups[k] }))}
+                labelFor={(k) => OUTCOME_SCENARIO_LABELS[k]}
+            />
+
+            <details className="mt-5">
+                <summary className="cursor-pointer text-lg text-blue-700 hover:underline font-medium">
+                    두 사건을 교차한 9칸 전체 보기
+                </summary>
+                <div className="mt-4 bg-gray-50 rounded-lg p-5 overflow-x-auto">
+                    <table className="w-full text-base">
+                        <thead>
+                            <tr className="border-b-2 border-gray-300">
+                                <th className="text-left py-2.5 pr-4 font-semibold text-gray-700 whitespace-nowrap">
+                                    한덕수 \ 이상민
+                                </th>
+                                {OUTCOME_ORDER.map((o) => (
+                                    <th key={o} className="text-right py-2.5 px-2 font-semibold text-gray-700 whitespace-nowrap">
+                                        {OUTCOME_LABELS[o]}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {OUTCOME_ORDER.map((i) => (
+                                <tr key={i} className="border-b border-gray-200">
+                                    <td className="py-2.5 pr-4 font-medium text-gray-900 whitespace-nowrap">
+                                        {OUTCOME_LABELS[i]}
+                                    </td>
+                                    {OUTCOME_ORDER.map((k) => (
+                                        <td key={k} className={`py-2.5 px-2 text-right ${i === k ? 'font-bold text-gray-900' : 'text-gray-600'}`}>
+                                            {pct(j.cells[`${i}|${k}`])}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <p className="text-base text-gray-600 mt-4 leading-relaxed">
+                        굵게 표시된 대각선이 두 사건이 같은 결론을 받는 경우입니다.
+                        대법원이 두 사건을 <strong>공범 관계로 함께 심리</strong>한다고 밝혔으므로
+                        확률이 대각선에 몰립니다.
+                    </p>
+                </div>
+            </details>
+        </div>
+    );
+}
+
 /** 보정계수 구간 — 아직 재지 못한 값을 여러 후보로 바꿔가며 보여준다 */
 function RangeBranch({ c, branch }) {
     const base = BASE_RATES.criminalAppeal.value;
@@ -91,9 +265,25 @@ function RangeBranch({ c, branch }) {
     };
     const summary = Object.keys(SCENARIO_LABELS).map((key) => ({ key, value: range(key) }));
 
+    // 파기의 범위(전부/일부)까지 나눈 표 — partialShare 가 측정된 뒤에만 그린다
+    const share = partialShare();
+    const scopeRows = share === null ? null : ks.map((k) =>
+        jointOutcomes(outcomeMarginal(base, k, share), c.rho).groups);
+    const scopeSummary = scopeRows && Object.keys(OUTCOME_SCENARIO_LABELS).map((key) => {
+        const v = scopeRows.map((g) => g[key]);
+        return { key, value: pctRange(Math.min(...v), Math.max(...v)) };
+    });
+
     return (
         <div>
             <ScenarioTable rows={summary} labelFor={(k) => SCENARIO_LABELS[k]} />
+
+            {scopeSummary && (
+                <div className="mt-8">
+                    <p className="text-lg font-semibold text-gray-800 mb-3">파기의 범위까지 나눈 결과</p>
+                    <ScenarioTable rows={scopeSummary} labelFor={(k) => OUTCOME_SCENARIO_LABELS[k]} />
+                </div>
+            )}
 
             <details className="mt-5">
                 <summary className="cursor-pointer text-lg text-blue-700 hover:underline font-medium">
@@ -140,12 +330,15 @@ function FixedBranch({ c, branch }) {
     const p = Math.min(1, BASE_RATES.criminalAppeal.value * branch.symmetric);
     const j = jointProbabilities(p, p, c.rho);
     const rows = Object.keys(SCENARIO_LABELS).map((key) => ({ key, value: j[key] }));
+    const share = partialShare();
+
     return (
         <div>
             <ScenarioTable rows={rows} labelFor={(k) => SCENARIO_LABELS[k]} />
             <p className="text-base text-gray-600 mt-4">
                 각 사건의 파기 확률 {pct(p)} (기저율 {BASE_RATES.criminalAppeal.display} × {branch.symmetric}배) 적용.
             </p>
+            {share !== null && <OutcomeTable multiplier={branch.symmetric} rho={c.rho} share={share} />}
         </div>
     );
 }
@@ -175,6 +368,20 @@ function CourtStatementCard() {
                         <p className="text-lg font-bold text-gray-900 mb-1">{d.name}</p>
                         <p className="text-lg text-blue-700 font-semibold mb-2">{d.sentence}</p>
                         <p className="text-base text-gray-600 leading-relaxed">{d.charge}</p>
+                        {d.split && (
+                            <>
+                                <p className="text-base text-gray-700 leading-relaxed mt-3 pt-3 border-t border-gray-200">
+                                    <span className="font-semibold text-gray-900">항소심에서 갈린 부분 · </span>
+                                    {d.split}
+                                </p>
+                                <div className="flex flex-wrap gap-3 mt-2">
+                                    {d.splitSources?.map((s) => (
+                                        <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer"
+                                           className="text-base text-blue-600 hover:underline">{s.name} →</a>
+                                    ))}
+                                </div>
+                            </>
+                        )}
                     </div>
                 ))}
             </div>
@@ -462,7 +669,15 @@ export default function CasePrediction() {
                     ))}
                 </div>
 
-                {tab === 'cases' && <><CourtStatementCard />{PREDICTION_CASES.map((c) => <CaseCard key={c.id} c={c} />)}<LimitationsCard /></>}
+                {tab === 'cases' && (
+                    <>
+                        <CourtStatementCard />
+                        <AppealStructureCard />
+                        <ScopeSection />
+                        {PREDICTION_CASES.map((c) => <CaseCard key={c.id} c={c} />)}
+                        <LimitationsCard />
+                    </>
+                )}
                 {tab === 'method' && <MethodTab />}
                 {tab === 'scorecard' && <ScorecardTab />}
 

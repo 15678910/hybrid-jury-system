@@ -32,6 +32,15 @@ jobs:
       - name: Run tests
         run: npx vitest run
 
+      # 판례 파서와 예측 계산은 vitest 밖의 독립 스크립트다.
+      # 파서가 깨지면 잘못된 기저율이 집계되고, 예측 계산이 깨지면 같은 사건에
+      # 서로 다른 확률이 화면에 나란히 표시된다. 둘 다 조용히 틀리는 종류라 CI 에서 막는다.
+      - name: 판례 파서 검증
+        run: node functions/lib/precedent_parser.test.cjs
+
+      - name: 예측 계산 검증
+        run: node src/lib/predictionMath.test.mjs
+
       - name: Build project
         run: npm run build
 

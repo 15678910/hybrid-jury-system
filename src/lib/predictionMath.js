@@ -83,3 +83,81 @@ export function symmetricScenario(p, rho = 0) {
         { key: 'onlySecond', value: j.onlySecond },
     ];
 }
+
+// =============================================================================
+// 파기를 「전부」와 「일부」로 나눈 3분류 모형
+//
+// 왜 나누는가: 위 4칸 표는 결론을 파기/확정 둘로만 본다. 그런데 여러 공소사실이
+// 병합된 사건에서는 「원심 중 일부를 파기하고 나머지 상고는 기각」이 오히려 흔하다.
+// 실제로 판례를 집계해 보니 형사 소부 사건에서 파기된 건의 상당수가 일부 파기였다.
+// 이를 전부 파기와 한 칸에 넣으면 가장 나올 법한 결론이 표에서 사라진다.
+// =============================================================================
+
+/** 결과 3분류 */
+export const OUTCOME = { AFFIRMED: 'affirmed', PARTIAL: 'partial', FULL: 'full' };
+export const OUTCOME_ORDER = [OUTCOME.AFFIRMED, OUTCOME.PARTIAL, OUTCOME.FULL];
+
+/**
+ * 한 사건의 결과 분포를 만든다.
+ *
+ * @param {number} baseRate     기저 파기율(소부 기준)
+ * @param {number} multiplier   전합 보정계수
+ * @param {number} partialShare 파기된 사건 중 「일부 파기」가 차지하는 비율 (측정값)
+ */
+export function outcomeMarginal(baseRate, multiplier, partialShare) {
+    const reversed = Math.min(1, baseRate * multiplier);
+    return {
+        [OUTCOME.AFFIRMED]: 1 - reversed,
+        [OUTCOME.PARTIAL]: reversed * partialShare,
+        [OUTCOME.FULL]: reversed * (1 - partialShare),
+        reversed,
+    };
+}
+
+/**
+ * 두 사건의 결과를 3×3 으로 결합한다 — 공통충격 혼합모형.
+ *
+ *   P(i, j) = λ·[i=j]·m_i + (1−λ)·m_i·m_j
+ *
+ * 확률 λ 로 두 사건이 **같은 결론**을 받고, 1−λ 로 서로 무관하게 갈린다고 본다.
+ * 대법원이 「공범 관계에서 함께 심리」한다고 밝혔으므로, 하나의 재판부가 같은
+ * 법리로 동시에 판단하는 구조를 이 형태로 옮긴 것이다.
+ *
+ * λ 는 새로 지어낸 값이 아니다. 결과를 파기/확정 둘로 다시 합치면 두 사건의
+ * 상관계수가 정확히 λ 가 된다(Cov = λ·p(1−p), Corr = λ). 그래서 기존 4칸 표에
+ * 쓰던 ρ 를 그대로 넣으면 되고, 3분류를 파기/확정으로 되돌렸을 때 기존 표와
+ * 숫자가 어긋나지 않는다.
+ *
+ * 두 사건의 주변분포가 같다고 전제한다. 대법원이 두 사건을 같은 재판부에서
+ * 함께 심리한다고 밝혔으므로 이 전제가 성립한다.
+ *
+ * @returns {{cells: Object, groups: Object}} cells 는 'affirmed|partial' 형태의 키
+ */
+export function jointOutcomes(marginal, lambda) {
+    const l = Math.max(0, Math.min(1, lambda));
+    const cells = {};
+
+    OUTCOME_ORDER.forEach((i) => {
+        OUTCOME_ORDER.forEach((j) => {
+            const same = i === j ? l * marginal[i] : 0;
+            cells[`${i}|${j}`] = same + (1 - l) * marginal[i] * marginal[j];
+        });
+    });
+
+    const c = (i, j) => cells[`${i}|${j}`];
+    const { AFFIRMED: A, PARTIAL: P, FULL: F } = OUTCOME;
+
+    return {
+        cells,
+        lambdaUsed: l,
+        groups: {
+            bothAffirmed: c(A, A),
+            bothPartial: c(P, P),
+            bothFull: c(F, F),
+            // 한쪽은 그대로 확정되고 다른 쪽만 파기되는 경우
+            oneOnly: c(A, P) + c(A, F) + c(P, A) + c(F, A),
+            // 둘 다 파기되지만 파기 범위가 서로 다른 경우
+            mixedReversal: c(P, F) + c(F, P),
+        },
+    };
+}
