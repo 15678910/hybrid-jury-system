@@ -12,6 +12,7 @@ import {
     COURT_STATEMENT,
     CASE_FACTS,
     LIMITATIONS,
+    SAMPLE_BIAS,
     OUTCOME_LABELS,
     OUTCOME_SCENARIO_LABELS,
     SCOPE_MEANING,
@@ -133,6 +134,19 @@ function ScopeSection() {
                     </div>
                     <p className="text-base md:text-lg text-gray-800 leading-relaxed">{meta.detail}</p>
                     <p className="text-base text-gray-500 mt-2">출처: {meta.source}</p>
+                    {meta.enBancObservation && (
+                        <div className="bg-white/70 border border-blue-200 rounded p-4 mt-4">
+                            <p className="text-lg font-bold text-gray-900 mb-2">
+                                전원합의체 표본에서는 일부 파기가 0건이었다
+                                <span className="ml-2 text-base font-normal text-gray-500">
+                                    (파기 {meta.enBancObservation.reversals}건 중 {meta.enBancObservation.partial}건)
+                                </span>
+                            </p>
+                            <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                                {meta.enBancObservation.note}
+                            </p>
+                        </div>
+                    )}
                     {meta.caveat && (
                         <p className="text-base text-amber-800 bg-amber-50 rounded p-3 mt-3 leading-relaxed">
                             ⚠️ {meta.caveat}
@@ -479,23 +493,41 @@ function CaseCard({ c }) {
     );
 }
 
-/** 예측을 좁히지 못하는 원인 — 딱 하나 */
-function BlockerCard() {
-    const m = BASE_RATES.enBancMultiplier;
+/**
+ * 수집으로 드러난 것 — 표본 편향.
+ *
+ * 예전에는 이 자리에 「보정계수를 재지 못했다」는 안내가 있었다. 이제 재었으므로
+ * 그 자리를 대신할 것은 「잰 숫자를 어떻게 읽어야 하는가」다. 58.8% 라는 숫자가
+ * 눈앞에 있으면 그걸 기저율로 쓰고 싶어지고, 그러면 예측이 열 배 어긋난다.
+ */
+function SampleBiasCard() {
+    const b = SAMPLE_BIAS;
     return (
         <div className="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-r-lg mb-10">
             <div className="flex items-start gap-3">
-                <span className="text-3xl leading-none">🎯</span>
+                <span className="text-3xl leading-none">⚖️</span>
                 <div>
-                    <h3 className="font-bold text-amber-900 mb-2 text-xl">
-                        예측 구간을 좁히려면 숫자 하나가 필요합니다
-                    </h3>
-                    <p className="text-amber-900 text-lg leading-relaxed mb-3">
-                        <strong>전원합의체 보정계수</strong> — 전합에 회부된 사건의 파기율이 소부의 몇 배인가.
-                        {' '}{m.why}
-                    </p>
-                    <p className="text-amber-800 text-base leading-relaxed">
-                        <strong>재는 방법:</strong> {m.howToMeasure}
+                    <h3 className="font-bold text-amber-900 mb-3 text-xl">{b.title}</h3>
+
+                    <div className="flex flex-wrap gap-6 mb-4">
+                        <div>
+                            <p className="text-base text-amber-800">우리 집계 (소부)</p>
+                            <p className="text-3xl font-bold text-amber-900">{b.collected}</p>
+                        </div>
+                        <div className="self-center text-2xl text-amber-700">vs</div>
+                        <div>
+                            <p className="text-base text-amber-800">사법연감</p>
+                            <p className="text-3xl font-bold text-amber-900">{b.official}</p>
+                        </div>
+                        <div className="self-center">
+                            <p className="text-base text-amber-800">차이</p>
+                            <p className="text-xl font-bold text-amber-900">{b.gap}</p>
+                        </div>
+                    </div>
+
+                    <p className="text-amber-900 text-lg leading-relaxed mb-3">{b.detail}</p>
+                    <p className="text-amber-800 text-base md:text-lg leading-relaxed">
+                        <strong>그래서 이렇게 씁니다 — </strong>{b.conclusion}
                     </p>
                 </div>
             </div>
@@ -651,7 +683,7 @@ export default function CasePrediction() {
                     </p>
                 </div>
 
-                {tab === 'cases' && <BlockerCard />}
+                {tab === 'cases' && <SampleBiasCard />}
 
                 <div className="flex gap-2 mb-8 border-b overflow-x-auto">
                     {TABS.map((t) => (
