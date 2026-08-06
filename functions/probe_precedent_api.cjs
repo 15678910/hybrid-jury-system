@@ -141,8 +141,10 @@ const findList = (obj, best = { rows: [], path: '' }, prefix = '') => {
     console.log('\n(「전원합의체」와 「파기」가 어느 필드에 나타나는지가 핵심입니다.');
     console.log(' 그 두 필드를 알면 전합 사건을 추려 파기율을 직접 집계할 수 있습니다.)');
 
-    const out = path.join(__dirname, `probe_prec_${query.replace(/\s+/g, '_')}.json`);
+    // 스텁 테스트가 조작된 값을 functions/ 에 남기면 실제 응답으로 오인될 수 있다.
+    // 테스트는 PROBE_OUT_DIR 로 저장 위치를 옮긴다.
+    const out = path.join(process.env.PROBE_OUT_DIR || __dirname, `probe_prec_${query.replace(/\s+/g, '_')}.json`);
     fs.writeFileSync(out, JSON.stringify(json, null, 2));
-    console.log(`\n💾 전체 응답 저장: functions/${path.basename(out)}`);
+    console.log(`\n💾 전체 응답 저장: ${out}`);
     console.log('   (OC 는 응답 본문에 포함되지 않습니다. 커밋해도 안전합니다.)');
 })();

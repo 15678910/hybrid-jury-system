@@ -294,8 +294,10 @@ const diagnose = (raw) => {
     }
 
     // 결과를 파일로도 남긴다 (키는 포함되지 않음)
-    const out = path.join(__dirname, `probe_${sht}_${year || 'noyear'}.json`);
+    // 스텁 테스트가 조작된 값을 functions/ 에 남기면 실제 응답으로 오인될 수 있다.
+    // 테스트는 PROBE_OUT_DIR 로 저장 위치를 옮긴다.
+    const out = path.join(process.env.PROBE_OUT_DIR || __dirname, `probe_${sht}_${year || 'noyear'}.json`);
     fs.writeFileSync(out, JSON.stringify(json, null, 2));
-    console.log(`\n💾 전체 응답 저장: functions/${path.basename(out)}`);
+    console.log(`\n💾 전체 응답 저장: ${out}`);
     console.log('   (이 파일에는 인증키가 들어 있지 않습니다. 저장소에 커밋해도 안전합니다.)');
 })();
