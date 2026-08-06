@@ -105,6 +105,50 @@ const findRows = (obj, best = { rows: [], path: '' }, prefix = '') => {
 
 const KEYWORDS = ['파기', '기각', '상고', '항소', '심급', '국선', '접수', '처리', '인용', '환송', '자판'];
 
+/** data.go.kr 표준 오류코드 → 원인·조치 */
+const REASON = {
+    '01': ['APPLICATION_ERROR', '제공기관 서버 오류. 잠시 후 재시도'],
+    '04': ['HTTP_ERROR', '요청 형식 오류'],
+    '12': ['NO_OPENAPI_SERVICE_ERROR', '해당 오픈API가 없거나 폐기됨 — 엔드포인트 확인'],
+    '20': ['SERVICE_ACCESS_DENIED_ERROR', '활용신청이 승인되지 않음 — 마이페이지에서 승인 상태 확인'],
+    '22': ['LIMITED_NUMBER_OF_SERVICE_REQUESTS_EXCEEDS_ERROR', '일일 호출 한도 초과 — 내일 재시도'],
+    '30': ['SERVICE_KEY_IS_NOT_REGISTERED_ERROR', '키가 이 API에 등록되지 않음 — 아래 3가지 확인'],
+    '31': ['DEADLINE_HAS_EXPIRED_ERROR', '활용기간 만료 — 연장 신청'],
+    '32': ['UNREGISTERED_IP_ERROR', '등록되지 않은 IP'],
+    '33': ['UNSIGNED_CALL_ERROR', '서명 미등록 호출'],
+};
+
+/** 오류 응답을 진단해 조치를 안내한다 (JSON·XML 공통) */
+const diagnose = (raw) => {
+    const code = (raw.match(/returnReasonCode["'>\s:]+["']?(\d+)/) || [])[1];
+    const msg = (raw.match(/(?:errMsg|returnAuthMsg)["'>\s:]+["']?([^"'<,}]+)/) || [])[1];
+
+    console.log('\n───────── 오류 진단 ─────────');
+    if (msg) console.log(' 메시지 :', msg.trim());
+    if (code) {
+        const hit = REASON[code.padStart(2, '0')];
+        console.log(' 코드   :', code, hit ? `— ${hit[0]}` : '');
+        if (hit) console.log(' 조치   :', hit[1]);
+    }
+
+    if (code === '30' || /NOT_REGISTERED/.test(raw)) {
+        // 가장 흔한 원인부터
+        const looksEncoded = /%[0-9A-Fa-f]{2}/.test(SERVICE_KEY);
+        console.log('\n 확인 순서:');
+        console.log(`  1) 키 형식 — 현재 키에 %XX 이스케이프가 ${looksEncoded ? '있습니다 ⚠️' : '없습니다 ✅'}`);
+        if (looksEncoded) {
+            console.log('     → Encoding 키를 넣으셨습니다. 마이페이지의 「일반 인증키(Decoding)」로 교체하세요.');
+        } else {
+            console.log('     → Decoding 키가 맞습니다. 아래 2)·3)을 확인하세요.');
+        }
+        console.log('  2) 활용신청 — 이 API(사법연감정보조회서비스)에 활용신청이 승인됐는지');
+        console.log('     data.go.kr → 마이페이지 → 오픈API → 개발계정 → 해당 API');
+        console.log('  3) 반영 대기 — 승인 직후에는 키가 바로 동작하지 않습니다.');
+        console.log('     보통 수분~1시간 걸립니다. 시간을 두고 재시도하세요.');
+        console.log(`\n (참고: 읽어들인 키 길이 ${SERVICE_KEY.length}자, 앞 4자 ${SERVICE_KEY.slice(0, 4)}…)`);
+    }
+};
+
 (async () => {
     const url = buildUrl();
     console.log('요청:', mask(url));
@@ -122,16 +166,19 @@ const KEYWORDS = ['파기', '기각', '상고', '항소', '심급', '국선', '�
 
     console.log('HTTP', res.status, '| 본문 길이', text.length);
 
-    // data.go.kr 은 오류를 XML로 돌려주는 경우가 많다
+    // 오류는 XML로도 JSON으로도 온다 → 형식과 무관하게 먼저 진단한다
+    const isError = /returnReasonCode|errMsg|_ERROR/.test(text);
+    if (isError) {
+        console.log('\n⚠️ 오류 응답입니다.');
+        diagnose(text);
+        console.log('\n원문:');
+        console.log(mask(text.slice(0, 800)));
+        process.exit(1);
+    }
+
     if (text.trim().startsWith('<')) {
-        console.log('\n⚠️ XML 응답 (대개 오류입니다). 앞부분:');
+        console.log('\n⚠️ XML 응답입니다 (type=JSON 을 보냈는데 XML이면 파라미터 확인). 앞부분:');
         console.log(mask(text.slice(0, 1200)));
-        if (text.includes('SERVICE_KEY_IS_NOT_REGISTERED')) {
-            console.log('\n👉 Encoding 키를 넣었을 가능성이 큽니다. Decoding 키로 바꾸세요.');
-        }
-        if (text.includes('LIMITED_NUMBER_OF_SERVICE_REQUESTS')) {
-            console.log('\n👉 일일 호출 한도 초과입니다.');
-        }
         process.exit(1);
     }
 
