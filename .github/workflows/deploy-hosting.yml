@@ -1,0 +1,97 @@
+name: 호스팅 배포 (수동)
+
+# 수동 실행 전용이다. push 로 자동 배포하지 않는다.
+#
+# 이유: CLAUDE.md 의 「사용자 승인 없이 firebase deploy 절대 금지」를 지키기 위함이다.
+#       자동 배포로 만들면 커밋이 곧 배포가 되어 그 원칙이 무너진다.
+#       버튼을 누르는 행위가 곧 승인이다.
+#
+# 효과: 터미널이 없는 기기(태블릿·휴대폰)에서도 GitHub 웹의 Run workflow 버튼으로
+#       배포할 수 있다. PowerShell 도 원격 데스크톱도 필요 없다.
+#
+# ⚠️ 이 워크플로는 hosting 만 배포한다.
+#    functions 는 functions/.env 를 필요로 하는데 그 파일은 .gitignore 로 저장소에
+#    없다. CI 에서 함수를 배포하면 환경변수가 빈 채로 올라가 기존 함수가 망가질 수
+#    있으므로, 함수 배포는 .env 가 있는 데스크탑에서만 한다.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: '배포를 확인하려면 "배포"라고 입력하세요'
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 확인 문구 검사
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "배포" ]; then
+            echo "::error::확인 문구가 «배포» 가 아닙니다. 실수로 눌린 실행을 막습니다."
+            exit 1
+          fi
+          echo "확인됨 — 배포를 진행합니다."
+
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: 빌드
+        # prebuild 훅이 OG 이미지를 생성한다. 실패하면 여기서 멈춘다.
+        run: npm run build
+
+      - name: 빌드 산출물 확인
+        run: |
+          test -f dist/index.html || { echo "::error::dist/index.html 이 없습니다"; exit 1; }
+          echo "생성된 청크:"
+          ls -1 dist/assets/ | head -20
+          echo "OG 이미지:"
+          ls -la dist/og-prediction.png dist/og-trial-schedule.png 2>/dev/null || true
+
+      - name: 서비스 계정 키 파일 생성
+        env:
+          SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+        run: printenv SA_KEY > "$RUNNER_TEMP/sa.json"
+
+      - name: 서비스 계정 키 유효성 검사
+        run: |
+          node -e "
+            const k = JSON.parse(require('fs').readFileSync(process.env.RUNNER_TEMP + '/sa.json', 'utf8'));
+            if (!k.private_key || !k.client_email || !k.project_id) {
+              console.error('서비스 계정 키에 필수 필드가 없습니다');
+              process.exit(1);
+            }
+            console.log('키 확인 — 프로젝트:', k.project_id);
+          "
+
+      - name: Firebase Hosting 배포
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+        run: npx firebase-tools@latest deploy --only hosting --project siminbupjung-blog --non-interactive
+
+      - name: 키 파일 삭제
+        if: always()
+        run: rm -f "$RUNNER_TEMP/sa.json"
+
+      - name: 배포 확인 안내
+        run: |
+          echo "### 배포 완료" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "확인할 것:" >> $GITHUB_STEP_SUMMARY
+          echo "- https://시민법정.kr (메인) 과 아무 서브페이지에서 메뉴가 같은지" >> $GITHUB_STEP_SUMMARY
+          echo "- 메인·서명·블로그 세 곳에서 데이터가 0 이 아닌지 (2026-03-06 사건)" >> $GITHUB_STEP_SUMMARY
+          echo "- 문제가 있으면 데스크탑에서 \`firebase hosting:rollback\`" >> $GITHUB_STEP_SUMMARY
