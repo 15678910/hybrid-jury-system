@@ -10,6 +10,8 @@ import {
     SCORECARD,
     TIER,
     COURT_STATEMENT,
+    CASE_FACTS,
+    LIMITATIONS,
 } from '../data/predictions';
 import { jointProbabilities, pct, pctRange } from '../lib/predictionMath';
 
@@ -159,13 +161,46 @@ function CourtStatementCard() {
             <blockquote className="border-l-4 border-blue-400 bg-blue-50/60 pl-5 py-4 rounded-r mb-5">
                 <p className="text-base md:text-lg text-gray-800 leading-relaxed">{COURT_STATEMENT.text}</p>
                 <p className="text-base text-gray-500 mt-3">출처: {COURT_STATEMENT.source}</p>
+                <div className="flex flex-wrap gap-3 mt-2">
+                    {COURT_STATEMENT.sources.map((s) => (
+                        <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer"
+                           className="text-base text-blue-600 hover:underline">{s.name} →</a>
+                    ))}
+                </div>
             </blockquote>
+
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+                {CASE_FACTS.defendants.map((d) => (
+                    <div key={d.name} className="bg-gray-50 rounded-lg p-5">
+                        <p className="text-lg font-bold text-gray-900 mb-1">{d.name}</p>
+                        <p className="text-lg text-blue-700 font-semibold mb-2">{d.sentence}</p>
+                        <p className="text-base text-gray-600 leading-relaxed">{d.charge}</p>
+                    </div>
+                ))}
+            </div>
             <p className="text-lg font-semibold text-gray-800 mb-3">예측에 어떻게 반영되는가</p>
             <div className="space-y-4">
                 {COURT_STATEMENT.facts.map((f, i) => (
                     <div key={i} className="border-l-4 border-gray-300 pl-4 py-1">
                         <p className="text-lg font-bold text-gray-900 mb-1">{f.fact}</p>
                         <p className="text-base md:text-lg text-gray-700 leading-relaxed">→ {f.effect}</p>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+}
+
+/** 이 예측의 한계 — 감추면 숫자가 실제보다 단단해 보인다 */
+function LimitationsCard() {
+    return (
+        <section className="bg-amber-50 border border-amber-200 rounded-xl p-7 mb-8">
+            <h3 className="text-2xl font-bold text-amber-900 mb-5">이 예측의 한계</h3>
+            <div className="space-y-5">
+                {LIMITATIONS.map((l, i) => (
+                    <div key={i}>
+                        <p className="text-lg md:text-xl font-bold text-amber-900 mb-1">{l.title}</p>
+                        <p className="text-base md:text-lg text-amber-900/80 leading-relaxed">{l.detail}</p>
                     </div>
                 ))}
             </div>
@@ -427,7 +462,7 @@ export default function CasePrediction() {
                     ))}
                 </div>
 
-                {tab === 'cases' && <><CourtStatementCard />{PREDICTION_CASES.map((c) => <CaseCard key={c.id} c={c} />)}</>}
+                {tab === 'cases' && <><CourtStatementCard />{PREDICTION_CASES.map((c) => <CaseCard key={c.id} c={c} />)}<LimitationsCard /></>}
                 {tab === 'method' && <MethodTab />}
                 {tab === 'scorecard' && <ScorecardTab />}
 
