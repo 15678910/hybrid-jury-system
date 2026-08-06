@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/gen-og-trial-schedule.mjs",
+    "prebuild": "node scripts/gen-og-trial-schedule.mjs && node scripts/gen-og-prediction.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "build:embeddings": "node scripts/buildEmbeddings.cjs",
