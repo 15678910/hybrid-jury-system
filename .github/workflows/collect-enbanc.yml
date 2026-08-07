@@ -89,6 +89,17 @@ jobs:
           echo "실행: node collect_enbanc_precedents.cjs $ARGS"
           node collect_enbanc_precedents.cjs $ARGS 2>&1 | tee ../collect_output.txt
 
+      - name: 파기 방향 문언 조사
+        # 파기가 피고인 상고를 받아들인 것인지 검사 상고를 받아들인 것인지 가리려면
+        # 판결문의 실제 표현을 알아야 한다. 보지 않은 문장에 정규식을 짜면 규칙이
+        # 아니라 추측이다. 그래서 문언을 먼저 떠서 로그에 남긴다.
+        # 실패해도 기저율 수집 결과는 살려야 하므로 continue-on-error 로 둔다.
+        continue-on-error: true
+        env:
+          LAWAPI_OC: ${{ vars.LAWAPI_OC || 'lacoiffure828' }}
+        working-directory: functions
+        run: node probe_reversal_direction.cjs --caseType ${{ github.event.inputs.caseType }} --samples 6 --maxPages 3
+
       - name: 집계 요약을 Job Summary 에 기록
         if: always()
         run: |
