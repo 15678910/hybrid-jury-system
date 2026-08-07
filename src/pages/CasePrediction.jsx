@@ -21,6 +21,7 @@ import {
     APPEAL_SCOPE_LIMIT,
     COURT_COMPOSITION,
     VACANCY_EFFECT,
+    DELAY_ANALYSIS,
 } from '../data/predictions';
 import {
     jointProbabilities, pct, pctRange,
@@ -461,6 +462,105 @@ function CourtCompositionCard() {
                     {c.notModeled.items.map((it, i) => <li key={i}>{it}</li>)}
                 </ul>
                 <p className="text-base md:text-lg text-gray-700 leading-relaxed">{c.notModeled.why}</p>
+            </div>
+        </section>
+    );
+}
+
+/**
+ * 선고가 미뤄진 일 — 목적과 효과를 갈라 놓는다.
+ *
+ * 둘을 섞으면 효과가 곧 의도의 증거처럼 읽힌다. 그래서 확인되는 사실(조문·날짜·
+ * 비교 사건)과 달라지는 것(재판부 구성·정족수)을 먼저 놓고, 목적은 왜 판정하지
+ * 않는지를 마지막에 밝힌다.
+ */
+function DelayAnalysisCard() {
+    const d = DELAY_ANALYSIS;
+    return (
+        <section className="bg-white rounded-xl border shadow-sm p-7 mb-8">
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h3 className="text-2xl font-bold text-gray-900">{d.title}</h3>
+                <TierBadge tier={d.tier} />
+            </div>
+            <p className="text-base text-gray-500 mb-5">
+                왜 미뤘는지는 알 수 없지만, 무엇이 미뤄졌고 그래서 무엇이 달라지는지는 말할 수 있습니다.
+            </p>
+
+            {/* 조문 */}
+            <blockquote className="border-l-4 border-blue-400 bg-blue-50/60 pl-5 py-4 rounded-r mb-5">
+                <p className="text-lg font-semibold text-gray-900 mb-2">{d.rule.article}</p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed">{d.rule.text}</p>
+                <a href={d.rule.source.url} target="_blank" rel="noopener noreferrer"
+                   className="text-base text-blue-600 hover:underline">{d.rule.source.name} →</a>
+            </blockquote>
+
+            {/* 시한 계산 */}
+            <div className="overflow-x-auto mb-4">
+                <table className="w-full text-base">
+                    <thead>
+                        <tr className="border-b-2 border-gray-300">
+                            <th className="text-left py-2.5 pr-3 font-semibold text-gray-700">사건</th>
+                            <th className="text-left py-2.5 px-3 font-semibold text-gray-700">항소심 선고</th>
+                            <th className="text-left py-2.5 pl-3 font-semibold text-gray-700">상고심 선고 시한</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {d.deadlines.map((r) => (
+                            <tr key={r.name} className="border-b border-gray-200">
+                                <td className="py-3 pr-3 font-medium text-gray-900">{r.name}</td>
+                                <td className="py-3 px-3 text-gray-800">{r.second}</td>
+                                <td className="py-3 pl-3 font-bold text-red-700">{r.due}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            <p className="text-base md:text-lg text-gray-800 leading-relaxed mb-1">{d.event}</p>
+            <a href={d.eventSource.url} target="_blank" rel="noopener noreferrer"
+               className="text-base text-blue-600 hover:underline">{d.eventSource.name} →</a>
+
+            {/* 효력 */}
+            <div className="bg-gray-50 rounded-lg p-5 my-6">
+                <p className="text-lg font-bold text-gray-900 mb-2">시한을 넘기면 어떻게 되는가</p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-3">{d.effect.legal}</p>
+                <p className="text-base md:text-lg text-gray-900 leading-relaxed">{d.effect.tension}</p>
+                <a href={d.effect.source.url} target="_blank" rel="noopener noreferrer"
+                   className="text-base text-blue-600 hover:underline">{d.effect.source.name} →</a>
+            </div>
+
+            {/* 비교 사실 */}
+            <div className="border border-gray-200 rounded-lg p-5 mb-6">
+                <p className="text-lg font-bold text-gray-900 mb-3">{d.context.title}</p>
+                <ul className="space-y-3 mb-3">
+                    {d.context.items.map((it, i) => (
+                        <li key={i} className="text-base md:text-lg text-gray-700 leading-relaxed">
+                            · {it.fact}{' '}
+                            <a href={it.source.url} target="_blank" rel="noopener noreferrer"
+                               className="text-blue-600 hover:underline whitespace-nowrap">{it.source.name} →</a>
+                        </li>
+                    ))}
+                </ul>
+                <p className="text-base md:text-lg text-gray-900 leading-relaxed">{d.context.reading}</p>
+            </div>
+
+            {/* 달라지는 것 */}
+            <p className="text-lg font-semibold text-gray-800 mb-4">미뤄짐으로써 실제로 달라지는 것</p>
+            <div className="space-y-5 mb-6">
+                {d.consequences.map((c, i) => (
+                    <div key={i} className="border-l-4 border-gray-300 pl-4 py-1">
+                        <p className="text-lg md:text-xl font-bold text-gray-900 mb-1">{c.title}</p>
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-2">{c.detail}</p>
+                        <p className="text-base md:text-lg text-blue-800 leading-relaxed">→ {c.effect}</p>
+                    </div>
+                ))}
+            </div>
+
+            {/* 판정하지 않는 것 */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-5">
+                <p className="text-lg font-bold text-amber-900 mb-3">{d.notJudged.title}</p>
+                <p className="text-base md:text-lg text-amber-900/90 leading-relaxed mb-3">{d.notJudged.why}</p>
+                <p className="text-base md:text-lg text-amber-900/90 leading-relaxed mb-3">{d.notJudged.risk}</p>
+                <p className="text-base md:text-lg text-amber-900 font-medium leading-relaxed">{d.notJudged.instead}</p>
             </div>
         </section>
     );
@@ -1088,6 +1188,7 @@ export default function CasePrediction() {
                         <ScopeSection />
                         <CourtCompositionCard />
                         <VacancyEffectCard />
+                        <DelayAnalysisCard />
                         {PREDICTION_CASES.map((c) => <CaseCard key={c.id} c={c} />)}
                         <LimitationsCard />
                     </>
