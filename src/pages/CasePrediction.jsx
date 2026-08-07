@@ -404,8 +404,55 @@ function CourtCompositionCard() {
                 <p className="text-base md:text-lg text-gray-900 font-medium leading-relaxed mb-2">
                     {c.measurable.question}
                 </p>
-                <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-2">{c.measurable.why}</p>
-                <p className="text-base text-gray-600 leading-relaxed">막고 있는 것: {c.measurable.blocker}</p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed">{c.measurable.why}</p>
+
+                {/* 재 봤다 — 그리고 결론은 「모른다」다.
+                    숫자가 나왔다고 답이 나온 것은 아니라는 점을 숫자와 함께 보여준다. */}
+                {c.measurable.measured && (
+                    <div className="bg-white/80 border border-blue-200 rounded-lg p-5 mt-4">
+                        <div className="flex flex-wrap items-center gap-3 mb-1">
+                            <p className="text-lg font-bold text-gray-900">재 본 결과</p>
+                            <TierBadge tier={c.measurable.measured.tier} />
+                            <span className="text-sm px-2.5 py-1 rounded-full font-medium bg-amber-100 text-amber-800">
+                                {c.measurable.measured.verdict}
+                            </span>
+                        </div>
+                        <p className="text-base text-gray-500 mb-4">
+                            {c.measurable.measured.scope} · {c.measurable.measured.asOf} 집계
+                        </p>
+
+                        <div className="flex flex-wrap gap-6 mb-4">
+                            <div>
+                                <p className="text-base text-gray-600">피고인 상고 인용</p>
+                                <p className="text-3xl font-bold text-gray-900">{c.measurable.measured.defense}건</p>
+                            </div>
+                            <div className="self-center text-xl text-gray-400">대</div>
+                            <div>
+                                <p className="text-base text-gray-600">검사 상고 인용</p>
+                                <p className="text-3xl font-bold text-gray-900">{c.measurable.measured.prosecution}건</p>
+                            </div>
+                            <div className="self-center">
+                                <p className="text-base text-gray-600">방향 판정 불가</p>
+                                <p className="text-xl font-bold text-gray-700">
+                                    {c.measurable.measured.undetermined}건
+                                    <span className="text-base font-normal text-gray-500 ml-2">
+                                        (판정률 {c.measurable.measured.determinedRate})
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-3">
+                            {c.measurable.measured.detail}
+                        </p>
+                        <p className="text-base md:text-lg text-amber-900 bg-amber-50 rounded p-4 leading-relaxed mb-3">
+                            <strong>그래서 답이 나온 것은 아닙니다 — </strong>{c.measurable.measured.why}
+                        </p>
+                        <p className="text-base text-gray-600 leading-relaxed">
+                            다음: {c.measurable.measured.next}
+                        </p>
+                    </div>
+                )}
             </div>
 
             <div className="bg-gray-50 rounded-lg p-5">
