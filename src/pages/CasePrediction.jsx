@@ -607,13 +607,58 @@ function VacancyEffectCard() {
                 </div>
             </div>
 
-            {/* 정족수 */}
+            {/* 정족수 — 성립 여부와 홀짝을 갈라 본다 */}
             <div className="bg-gray-50 rounded-lg p-5 mb-5">
-                <p className="text-lg font-bold text-gray-900 mb-2">몇 명이 참여하는가</p>
+                <p className="text-lg font-bold text-gray-900 mb-2">몇 명이 참여하고, 그 인원으로 열리는가</p>
                 <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-2">{v.quorum.normal}</p>
-                <p className="text-base md:text-lg text-gray-900 font-medium leading-relaxed mb-2">
-                    {v.quorum.current}
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-4">{v.quorum.threshold}</p>
+
+                <div className="overflow-x-auto mb-4">
+                    <table className="w-full text-base bg-white rounded">
+                        <thead>
+                            <tr className="border-b-2 border-gray-300">
+                                <th className="text-left py-2.5 px-3 font-semibold text-gray-700">시점</th>
+                                <th className="text-right py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap">참여 인원</th>
+                                <th className="text-left py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap">홀짝</th>
+                                <th className="text-left py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap">전합 성립</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {v.quorum.timeline.map((t) => (
+                                <tr key={t.when} className="border-b border-gray-200">
+                                    <td className="py-3 px-3">
+                                        <span className="font-medium text-gray-900">{t.when}</span>
+                                        <span className="block text-sm text-gray-500">{t.seats}</span>
+                                    </td>
+                                    <td className="py-3 px-3 text-right font-bold text-gray-900 text-lg whitespace-nowrap">
+                                        {t.participants}명
+                                    </td>
+                                    <td className={`py-3 px-3 font-semibold whitespace-nowrap ${
+                                        t.parity === '짝수' ? 'text-red-700' : 'text-blue-700'
+                                    }`}>
+                                        {t.parity}
+                                    </td>
+                                    <td className="py-3 px-3 font-semibold text-blue-700 whitespace-nowrap">
+                                        {t.valid ? '성립' : '불가'}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="space-y-2 mb-4">
+                    {v.quorum.timeline.map((t) => (
+                        <p key={t.when} className="text-base md:text-lg text-gray-700 leading-relaxed">
+                            <span className="font-semibold text-gray-900">{t.when} · </span>{t.note}
+                        </p>
+                    ))}
+                </div>
+
+                <p className="text-base md:text-lg text-gray-900 font-medium leading-relaxed bg-blue-50 border border-blue-200 rounded p-4 mb-3">
+                    {v.quorum.answer}
                 </p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-3">{v.quorum.cliff}</p>
                 <p className="text-base text-amber-800 bg-amber-50 rounded p-3 leading-relaxed">
                     ⚠️ {v.quorum.caveat}
                 </p>
