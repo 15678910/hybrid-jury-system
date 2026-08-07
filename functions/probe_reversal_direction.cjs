@@ -32,11 +32,12 @@ const loadEnv = () => {
 };
 loadEnv();
 
-const OC = process.env.LAWAPI_OC;
-if (!OC) {
-    console.error('❌ LAWAPI_OC 가 없습니다. functions/.env 를 확인하세요.');
-    process.exit(1);
-}
+/**
+ * LAWAPI_OC 는 법제처 OPEN API 의 이메일 ID 로 시크릿이 아니다.
+ * functions/index.js 에 이미 같은 폴백이 있어 공개돼 있으므로 여기서도 그대로 쓴다.
+ * .env 를 만들지 않아도 바로 돌릴 수 있게 하려는 것이다.
+ */
+const OC = process.env.LAWAPI_OC || 'lacoiffure828';
 
 const argv = process.argv.slice(2);
 const arg = (n, d) => {
