@@ -78,3 +78,6 @@ lighthouse-*.json
 # 빌드 산출물/배포 캐시 (추적 안 함 — 빌드 시 재생성)
 .firebase/
 public/og-trial-schedule.png
+
+# 비공개 메모 — 저장소가 공개이므로 커밋하지 않는다
+docs/private/

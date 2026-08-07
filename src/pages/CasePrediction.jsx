@@ -11,7 +11,6 @@ import {
     TIER,
     COURT_STATEMENT,
     CASE_FACTS,
-    LIMITATIONS,
     SAMPLE_BIAS,
     OUTCOME_LABELS,
     OUTCOME_SCENARIO_LABELS,
@@ -397,74 +396,6 @@ function CourtCompositionCard() {
                 </div>
             )}
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-5">
-                <div className="flex flex-wrap items-center gap-3 mb-2">
-                    <p className="text-lg font-bold text-blue-900">{c.measurable.title}</p>
-                    <span className="text-sm px-2.5 py-1 rounded-full font-medium bg-amber-100 text-amber-800">
-                        {c.measurable.status}
-                    </span>
-                </div>
-                <p className="text-base md:text-lg text-gray-900 font-medium leading-relaxed mb-2">
-                    {c.measurable.question}
-                </p>
-                <p className="text-base md:text-lg text-gray-700 leading-relaxed">{c.measurable.why}</p>
-
-                {/* 재 봤다 — 그리고 결론은 「모른다」다.
-                    숫자가 나왔다고 답이 나온 것은 아니라는 점을 숫자와 함께 보여준다. */}
-                {c.measurable.measured && (
-                    <div className="bg-white/80 border border-blue-200 rounded-lg p-5 mt-4">
-                        <div className="flex flex-wrap items-center gap-3 mb-1">
-                            <p className="text-lg font-bold text-gray-900">재 본 결과</p>
-                            <TierBadge tier={c.measurable.measured.tier} />
-                            <span className="text-sm px-2.5 py-1 rounded-full font-medium bg-amber-100 text-amber-800">
-                                {c.measurable.measured.verdict}
-                            </span>
-                        </div>
-                        <p className="text-base text-gray-500 mb-4">
-                            {c.measurable.measured.scope} · {c.measurable.measured.asOf} 집계
-                        </p>
-
-                        <div className="flex flex-wrap gap-6 mb-4">
-                            <div>
-                                <p className="text-base text-gray-600">피고인 상고 인용</p>
-                                <p className="text-3xl font-bold text-gray-900">{c.measurable.measured.defense}건</p>
-                            </div>
-                            <div className="self-center text-xl text-gray-400">대</div>
-                            <div>
-                                <p className="text-base text-gray-600">검사 상고 인용</p>
-                                <p className="text-3xl font-bold text-gray-900">{c.measurable.measured.prosecution}건</p>
-                            </div>
-                            <div className="self-center">
-                                <p className="text-base text-gray-600">방향 판정 불가</p>
-                                <p className="text-xl font-bold text-gray-700">
-                                    {c.measurable.measured.undetermined}건
-                                    <span className="text-base font-normal text-gray-500 ml-2">
-                                        (판정률 {c.measurable.measured.determinedRate})
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-
-                        <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-3">
-                            {c.measurable.measured.detail}
-                        </p>
-                        <p className="text-base md:text-lg text-amber-900 bg-amber-50 rounded p-4 leading-relaxed mb-3">
-                            <strong>그래서 답이 나온 것은 아닙니다 — </strong>{c.measurable.measured.why}
-                        </p>
-                        <p className="text-base text-gray-600 leading-relaxed">
-                            다음: {c.measurable.measured.next}
-                        </p>
-                    </div>
-                )}
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-5">
-                <p className="text-lg font-bold text-gray-900 mb-3">{c.notModeled.title}</p>
-                <ul className="list-disc list-inside space-y-1.5 text-base md:text-lg text-gray-700 mb-3">
-                    {c.notModeled.items.map((it, i) => <li key={i}>{it}</li>)}
-                </ul>
-                <p className="text-base md:text-lg text-gray-700 leading-relaxed">{c.notModeled.why}</p>
-            </div>
         </section>
     );
 }
@@ -1200,22 +1131,6 @@ function CourtStatementCard() {
     );
 }
 
-/** 이 예측의 한계 — 감추면 숫자가 실제보다 단단해 보인다 */
-function LimitationsCard() {
-    return (
-        <section className="bg-amber-50 border border-amber-200 rounded-xl p-7 mb-8">
-            <h3 className="text-2xl font-bold text-amber-900 mb-5">이 예측의 한계</h3>
-            <div className="space-y-5">
-                {LIMITATIONS.map((l, i) => (
-                    <div key={i}>
-                        <p className="text-lg md:text-xl font-bold text-amber-900 mb-1">{l.title}</p>
-                        <p className="text-base md:text-lg text-amber-900/80 leading-relaxed">{l.detail}</p>
-                    </div>
-                ))}
-            </div>
-        </section>
-    );
-}
 
 /** 사건 카드 */
 function CaseCard({ c }) {
@@ -1259,24 +1174,6 @@ function CaseCard({ c }) {
                 두 사건의 상관계수 ρ = {c.rho} 적용. {c.rhoNote}
             </p>
 
-            {/* 확인되면 좁혀지는 것 */}
-            {c.openQuestions?.length > 0 && (
-                <div className="mt-8">
-                    <h4 className="font-bold text-gray-900 mb-2 text-xl">확인되면 예측이 좁혀집니다</h4>
-                    <p className="text-base text-gray-600 mb-4">
-                        아래는 예측을 막는 조건이 아니라, 채워지면 구간이 줄어드는 항목입니다.
-                    </p>
-                    <div className="space-y-4">
-                        {c.openQuestions.map((u, i) => (
-                            <div key={i} className="border-l-4 border-blue-400 bg-blue-50/60 pl-5 pr-4 py-4 rounded-r">
-                                <p className="font-bold text-gray-900 text-lg md:text-xl mb-2 leading-snug">{u.q}</p>
-                                <p className="text-gray-700 text-base md:text-lg leading-relaxed mb-2">→ {u.effect}</p>
-                                <p className="text-gray-500 text-base">확인 방법: {u.how}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
@@ -1502,7 +1399,6 @@ export default function CasePrediction() {
                         <NominationStandoffCard />
                         <DelayAnalysisCard />
                         {PREDICTION_CASES.map((c) => <CaseCard key={c.id} c={c} />)}
-                        <LimitationsCard />
                     </>
                 )}
                 {tab === 'method' && <MethodTab />}
