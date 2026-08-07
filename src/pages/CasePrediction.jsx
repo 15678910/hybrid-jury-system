@@ -22,6 +22,7 @@ import {
     COURT_COMPOSITION,
     VACANCY_EFFECT,
     DELAY_ANALYSIS,
+    TIMING,
 } from '../data/predictions';
 import {
     jointProbabilities, pct, pctRange,
@@ -463,6 +464,104 @@ function CourtCompositionCard() {
                 </ul>
                 <p className="text-base md:text-lg text-gray-700 leading-relaxed">{c.notModeled.why}</p>
             </div>
+        </section>
+    );
+}
+
+/**
+ * 언제 선고되는가 — 예측의 조건이 전부 여기에 걸린다.
+ *
+ * 재판부 구성도 정족수의 홀짝도 모두 시점에 따라 달라지므로, 시점을 모르면
+ * 나머지 계산이 어느 경우의 것인지도 모르게 된다. 기일은 미확정이지만
+ * 위아래 한계와 갈림길, 그리고 무엇을 보면 좁혀지는지는 적을 수 있다.
+ */
+function TimingCard() {
+    const t = TIMING;
+    return (
+        <section className="bg-white rounded-xl border shadow-sm p-7 mb-8">
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h3 className="text-2xl font-bold text-gray-900">{t.title}</h3>
+                <TierBadge tier={t.tier} />
+                <span className="text-sm px-2.5 py-1 rounded-full font-medium bg-amber-100 text-amber-800">
+                    {t.status}
+                </span>
+            </div>
+            <p className="text-base text-gray-500 mb-6">{t.statusNote}</p>
+
+            {/* 위아래 한계 */}
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+                {t.bounds.map((b) => (
+                    <div key={b.side} className="bg-gray-50 rounded-lg p-5">
+                        <p className="text-base text-gray-500 mb-1">{b.side} 한계</p>
+                        <p className="text-xl font-bold text-gray-900 mb-2">{b.label}</p>
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-2">{b.detail}</p>
+                        {b.effect && (
+                            <p className="text-base md:text-lg text-blue-800 leading-relaxed mb-2">→ {b.effect}</p>
+                        )}
+                        {b.caveat && (
+                            <p className="text-base text-amber-800 bg-amber-50 rounded p-3 leading-relaxed">
+                                ⚠️ {b.caveat}
+                            </p>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            {/* 갈림길 */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-6">
+                <div className="flex flex-wrap items-baseline gap-3 mb-3">
+                    <span className="text-3xl font-bold text-blue-900">{t.fork.date}</span>
+                    <span className="text-lg font-semibold text-gray-800">{t.fork.what}</span>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4 mb-3">
+                    <div className="bg-white/70 rounded p-4">
+                        <p className="text-base font-bold text-red-700 mb-1">이전에 선고되면</p>
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed">{t.fork.before}</p>
+                    </div>
+                    <div className="bg-white/70 rounded p-4">
+                        <p className="text-base font-bold text-blue-700 mb-1">이후에 선고되면</p>
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed">{t.fork.after}</p>
+                    </div>
+                </div>
+                <p className="text-base md:text-lg text-gray-900 font-medium leading-relaxed">{t.fork.why}</p>
+            </div>
+
+            {/* 비교 사례 */}
+            <div className="border border-gray-200 rounded-lg p-5 mb-6">
+                <p className="text-xl font-bold text-gray-900 mb-1">{t.precedent.title}</p>
+                <p className="text-base text-gray-500 mb-4">{t.precedent.case}</p>
+
+                <div className="space-y-2 mb-3">
+                    {t.precedent.timeline.map((row) => (
+                        <div key={row.date} className="flex gap-4">
+                            <span className="text-base font-bold text-gray-500 whitespace-nowrap w-24 shrink-0">
+                                {row.date}
+                            </span>
+                            <span className="text-base md:text-lg text-gray-800 leading-relaxed">{row.what}</span>
+                        </div>
+                    ))}
+                </div>
+                <p className="text-2xl font-bold text-gray-900 mb-3">{t.precedent.elapsed}</p>
+                <p className="text-base md:text-lg text-gray-900 leading-relaxed mb-3">{t.precedent.reading}</p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-2">{t.precedent.counterweight}</p>
+                <a href={t.precedent.source.url} target="_blank" rel="noopener noreferrer"
+                   className="text-base text-blue-600 hover:underline">{t.precedent.source.name} →</a>
+            </div>
+
+            {/* 관측 계획 */}
+            <p className="text-lg font-semibold text-gray-800 mb-3">{t.watch.title}</p>
+            <div className="space-y-4 mb-5">
+                {t.watch.items.map((w, i) => (
+                    <div key={i} className="border-l-4 border-blue-400 bg-blue-50/50 pl-4 pr-3 py-3 rounded-r">
+                        <p className="text-lg font-bold text-gray-900 mb-1">{w.signal}</p>
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed">{w.meaning}</p>
+                    </div>
+                ))}
+            </div>
+
+            <p className="text-base md:text-lg text-gray-600 bg-gray-50 rounded p-4 leading-relaxed">
+                {t.notPredicted}
+            </p>
         </section>
     );
 }
@@ -1232,6 +1331,7 @@ export default function CasePrediction() {
                         <AppealScopeLimitCard />
                         <ScopeSection />
                         <CourtCompositionCard />
+                        <TimingCard />
                         <VacancyEffectCard />
                         <DelayAnalysisCard />
                         {PREDICTION_CASES.map((c) => <CaseCard key={c.id} c={c} />)}
