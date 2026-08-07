@@ -175,7 +175,7 @@ function InstanceComparisonSection() {
     return (
         <section className="bg-white rounded-xl border shadow-sm p-7 mb-8">
             <div className="flex flex-wrap items-center gap-3 mb-2">
-                <h3 className="text-2xl font-bold text-gray-900">1심과 2심은 어디서 갈렸는가</h3>
+                <h3 className="text-2xl font-bold text-gray-900">1심과 2심의 판결 차이</h3>
                 <TierBadge tier={d.tier} />
             </div>
             <p className="text-base text-gray-500 mb-6">
@@ -203,23 +203,18 @@ function InstanceComparisonSection() {
                         <table className="w-full text-base">
                             <thead>
                                 <tr className="border-b-2 border-gray-300">
-                                    <th className="text-left py-2.5 pr-3 font-semibold text-gray-700">쟁점</th>
+                                    <th className="text-left py-2.5 pr-3 font-semibold text-gray-700">죄목</th>
                                     <th className="text-left py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap">1심</th>
                                     <th className="text-left py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap">2심</th>
                                     <th className="text-left py-2.5 pl-3 font-semibold text-gray-700 whitespace-nowrap">일치</th>
                                 </tr>
                             </thead>
+                            {/* 표에는 죄목과 판단만 둔다. 설명은 표 아래로 뺐다 —
+                                칸 안에 긴 문장이 들어가면 죄목별 비교가 한눈에 들어오지 않는다. */}
                             <tbody>
                                 {c.issues.map((it) => (
-                                    <tr key={it.issue} className="border-b border-gray-200 align-top">
-                                        <td className="py-3 pr-3 font-medium text-gray-900">
-                                            {it.issue}
-                                            {it.note && (
-                                                <p className="text-sm font-normal text-gray-500 mt-1 leading-relaxed">
-                                                    {it.note}
-                                                </p>
-                                            )}
-                                        </td>
+                                    <tr key={it.issue} className="border-b border-gray-200">
+                                        <td className="py-3 pr-3 font-medium text-gray-900">{it.issue}</td>
                                         <td className="py-3 px-3 text-gray-800 whitespace-nowrap">{it.first}</td>
                                         <td className="py-3 px-3 text-gray-800 whitespace-nowrap">{it.second}</td>
                                         <td className="py-3 pl-3 whitespace-nowrap">
@@ -227,7 +222,7 @@ function InstanceComparisonSection() {
                                                 ? <span className="text-blue-700 font-semibold">일치</span>
                                                 : <span className="text-red-700 font-semibold">갈림</span>}
                                             {it.agreeButAppealed && (
-                                                <p className="text-sm text-gray-500 mt-1">특검 상고</p>
+                                                <span className="ml-2 text-sm text-gray-500">특검 상고</span>
                                             )}
                                         </td>
                                     </tr>
@@ -235,6 +230,21 @@ function InstanceComparisonSection() {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* 죄목별 설명 — 표 아래 따로 */}
+                    {c.issues.some((it) => it.note) && (
+                        <div className="mt-5 bg-gray-50 rounded-lg p-5">
+                            <p className="text-base font-semibold text-gray-700 mb-3">죄목별 설명</p>
+                            <div className="space-y-3">
+                                {c.issues.filter((it) => it.note).map((it) => (
+                                    <div key={it.issue}>
+                                        <p className="text-base md:text-lg font-bold text-gray-900">{it.issue}</p>
+                                        <p className="text-base md:text-lg text-gray-700 leading-relaxed">{it.note}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="flex flex-wrap gap-3 mt-3">
                         {c.sources.map((s) => (
@@ -832,7 +842,7 @@ function SampleBiasCard() {
 
                     <div className="flex flex-wrap gap-6 mb-4">
                         <div>
-                            <p className="text-base text-amber-800">우리 집계 (소부)</p>
+                            <p className="text-base text-amber-800">일반 집계(소부)</p>
                             <p className="text-3xl font-bold text-amber-900">{b.collected}</p>
                         </div>
                         <div className="self-center text-2xl text-amber-700">vs</div>
