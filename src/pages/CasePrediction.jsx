@@ -20,6 +20,7 @@ import {
     INSTANCE_COMPARISON,
     APPEAL_SCOPE_LIMIT,
     COURT_COMPOSITION,
+    VACANCY_EFFECT,
 } from '../data/predictions';
 import {
     jointProbabilities, pct, pctRange,
@@ -352,6 +353,76 @@ function CourtCompositionCard() {
                 </ul>
                 <p className="text-base md:text-lg text-gray-700 leading-relaxed">{c.notModeled.why}</p>
             </div>
+        </section>
+    );
+}
+
+/**
+ * 대법관 공석의 효과 — 동기가 아니라 표 계산.
+ *
+ * 「왜 공석을 안 채우나」는 동기의 물음이라 답할 수 없지만, 「공석이 결론에 어떤
+ * 영향을 주나」는 조문으로 답할 수 있다. 그리고 답이 흔한 짐작과 반대여서
+ * 화면에 놓을 가치가 있다.
+ */
+function VacancyEffectCard() {
+    const v = VACANCY_EFFECT;
+    return (
+        <section className="bg-white rounded-xl border shadow-sm p-7 mb-8">
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h3 className="text-2xl font-bold text-gray-900">{v.title}</h3>
+                <TierBadge tier={v.tier} />
+            </div>
+            <p className="text-base text-gray-500 mb-6">
+                공석을 두는 쪽이 피고인에게 유리하리라 짐작하기 쉽지만, 정족수 구조는 반대로 작동합니다.
+            </p>
+
+            {/* 사실관계 */}
+            <div className="mb-6">
+                <div className="flex flex-wrap items-center gap-3 mb-3">
+                    <p className="text-lg font-semibold text-gray-800">지금까지의 경과</p>
+                    <TierBadge tier={v.factsTier} />
+                </div>
+                <div className="space-y-3">
+                    {v.facts.map((f, i) => (
+                        <div key={i} className="flex gap-4">
+                            <span className="text-base font-bold text-gray-500 whitespace-nowrap pt-0.5 w-24 shrink-0">
+                                {f.when}
+                            </span>
+                            <div>
+                                <p className="text-base md:text-lg text-gray-800 leading-relaxed">{f.what}</p>
+                                <a href={f.source.url} target="_blank" rel="noopener noreferrer"
+                                   className="text-base text-blue-600 hover:underline">{f.source.name} →</a>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* 정족수 */}
+            <div className="bg-gray-50 rounded-lg p-5 mb-5">
+                <p className="text-lg font-bold text-gray-900 mb-2">몇 명이 참여하는가</p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-2">{v.quorum.normal}</p>
+                <p className="text-base md:text-lg text-gray-900 font-medium leading-relaxed mb-2">
+                    {v.quorum.current}
+                </p>
+                <p className="text-base text-amber-800 bg-amber-50 rounded p-3 leading-relaxed">
+                    ⚠️ {v.quorum.caveat}
+                </p>
+            </div>
+
+            {/* 조문 */}
+            <blockquote className="border-l-4 border-blue-400 bg-blue-50/60 pl-5 py-4 rounded-r mb-5">
+                <p className="text-lg font-semibold text-gray-900 mb-2">{v.rule.article}</p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed">{v.rule.text}</p>
+            </blockquote>
+
+            <p className="text-lg md:text-xl font-bold text-gray-900 leading-relaxed mb-3">
+                {v.conclusion}
+            </p>
+            <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-3">{v.counterIntuitive}</p>
+            <p className="text-base text-gray-600 bg-gray-50 rounded p-4 leading-relaxed">
+                {v.notModeled}
+            </p>
         </section>
     );
 }
@@ -907,6 +978,7 @@ export default function CasePrediction() {
                         <AppealScopeLimitCard />
                         <ScopeSection />
                         <CourtCompositionCard />
+                        <VacancyEffectCard />
                         {PREDICTION_CASES.map((c) => <CaseCard key={c.id} c={c} />)}
                         <LimitationsCard />
                     </>
