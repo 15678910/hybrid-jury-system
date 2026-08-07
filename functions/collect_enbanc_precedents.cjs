@@ -240,12 +240,23 @@ const fetchDetail = async (id) => {
         const cnt = (f) => rows.filter(f).length;
         const isReversed = (r) => [D.REVERSED_REMANDED, D.REVERSED_SELF, D.REVERSED_TRANSFERRED].includes(r.disposition);
 
+        const DIR = parser.DIRECTION;
+
         const 파기 = cnt(isReversed);
         const 전부파기 = cnt((r) => isReversed(r) && r.scope === S.FULL);
         const 일부파기 = cnt((r) => isReversed(r) && r.scope === S.PARTIAL);
         const 기각 = cnt((r) => r.disposition === D.DISMISSED);
         const 미상 = cnt((r) => [D.UNKNOWN, D.OTHER].includes(r.disposition));
         const 유효 = n - 미상;
+
+        // 파기의 방향 — 쌍방 상고 사건에서 「파기」가 누구 손을 들어 준 것인가.
+        // 판정 불가를 반드시 따로 센다. 애매한 것을 한쪽에 몰아넣으면
+        // 그 비율이 그대로 결론의 편향이 된다.
+        const 피고인쪽 = cnt((r) => r.direction === DIR.DEFENSE);
+        const 검사쪽 = cnt((r) => r.direction === DIR.PROSECUTION);
+        const 쌍방일부 = cnt((r) => r.direction === DIR.BOTH);
+        const 방향불명 = cnt((r) => isReversed(r) && r.direction === DIR.UNKNOWN);
+        const 방향판정됨 = 피고인쪽 + 검사쪽 + 쌍방일부;
 
         return {
             건수: n,
@@ -257,6 +268,17 @@ const fetchDetail = async (id) => {
             // 전부/일부로 쪼갤 때 쓰는 값이다.
             파기중일부비율: 파기 > 0 ? 일부파기 / 파기 : null,
             기각률: 유효 > 0 ? 기각 / 유효 : null,
+
+            // 방향 — 분모는 「방향이 판정된 파기 건수」다. 전체 파기가 아니다.
+            // 방향불명을 분모에 넣으면 비율이 실제보다 낮아 보이고,
+            // 빼고 말하지 않으면 판정률이 감춰진다. 둘 다 함께 낸다.
+            피고인쪽파기: 피고인쪽,
+            검사쪽파기: 검사쪽,
+            쌍방일부파기: 쌍방일부,
+            방향불명: 방향불명,
+            방향판정률: 파기 > 0 ? 방향판정됨 / 파기 : null,
+            피고인쪽비율: 방향판정됨 > 0 ? 피고인쪽 / 방향판정됨 : null,
+            검사쪽비율: 방향판정됨 > 0 ? 검사쪽 / 방향판정됨 : null,
             판정불가비율: n ? 미상 / n : null,
             신뢰도낮음: cnt((r) => r.dispositionConfidence === 'low' || r.enBancConfidence === 'low'),
         };
@@ -273,6 +295,12 @@ const fetchDetail = async (id) => {
     console.log(`  판정 불가        : ${s.미상}  (${pct(s.판정불가비율)})`);
     console.log(`  ▶ 파기율(전부+일부) : ${pct(s.파기율)}   ← 기저율 후보`);
     console.log(`  파기 중 일부파기 비율 : ${pct(s.파기중일부비율)}   ← 예측 모형의 partialShare`);
+    console.log(`  ── 파기의 방향 ──`);
+    console.log(`  피고인 상고 인용  : ${s.피고인쪽파기}   (${pct(s.피고인쪽비율)})   ← 유죄 부분이 깨진 경우`);
+    console.log(`  검사 상고 인용    : ${s.검사쪽파기}   (${pct(s.검사쪽비율)})   ← 무죄 부분이 깨진 경우`);
+    console.log(`  쌍방 일부 인용    : ${s.쌍방일부파기}`);
+    console.log(`  방향 판정 불가    : ${s.방향불명}   (판정률 ${pct(s.방향판정률)})`);
+    console.log(`     ※ 위 두 비율의 분모는 「방향이 판정된 파기」다. 판정률이 낮으면 비율도 못 믿는다.`);
     console.log(`  신뢰도 낮은 건    : ${s.신뢰도낮음}`);
     if (중단) console.log(`  ⚠️ 완주하지 못했습니다 — ${중단}`);
 

@@ -66,13 +66,110 @@ const classifyScope = (주문) => {
 };
 
 /**
+ * 파기의 방향 — 누구의 상고가 받아들여졌는가.
+ *
+ * 왜 필요한가: 쌍방이 상고한 사건에서 「파기」는 정반대 두 가지를 뜻한다.
+ * 피고인 상고가 받아들여지면 유죄 부분이 깨지고, 검사 상고가 받아들여지면
+ * 무죄 부분이 깨진다. 방향을 모르면 파기 확률을 알아도 그것이 누구에게
+ * 유리한지 알 수 없다.
+ */
+const DIRECTION = {
+    DEFENSE: 'defense',         // 피고인 상고를 받아들인 파기
+    PROSECUTION: 'prosecution', // 검사 상고를 받아들인 파기
+    BOTH: 'both',               // 쌍방 상고이유가 모두 일부 받아들여짐
+    NONE: 'none',               // 파기 아님
+    UNKNOWN: 'unknown',         // 문언으로 가릴 수 없음
+};
+
+/**
+ * 이유에서 누가 상고했는지를 읽는다.
+ *
+ * 실제 판결문에서 확인한 표현(2026-08-07 조사):
+ *   · 「검사가 원심판결에 대하여 상고하였으므로, 대법원은 검사의 상고이유를 판단한다」
+ *   · 「1. 피고인 1의 상고이유에 관하여」
+ * 앞의 것은 상고 주체를 명시하고, 뒤의 것은 절 제목으로 주체를 드러낸다.
+ * 피고인이 여럿이면 「피고인 1의」처럼 번호가 붙으므로 이를 함께 받는다.
+ */
+const detectAppellants = (본문) => {
+    const 검사 = /검사의\s*상고이유/.test(본문) || /검사가[\s\S]{0,40}?상고하였/.test(본문);
+    const 피고인 = /피고인(들|\s*\d+)?\s*의\s*상고이유/.test(본문)
+        || /피고인(들|\s*\d+)?[이가][\s\S]{0,40}?상고하였/.test(본문);
+    return { 검사, 피고인 };
+};
+
+/**
+ * 파기의 방향을 판정한다.
+ *
+ * 판정 순서는 조사 전에 정해 두었다(docs/analysis/파기방향_판정설계.md).
+ *   ① 주문의 파기 대상 문언 — 「무죄 부분을 파기」/「유죄 부분을 파기」
+ *   ② 상고 주체가 한쪽뿐이면 파기는 그쪽을 받아들인 것이다
+ *   ③ 쌍방이면 어느 쪽 상고이유가 「이유 있다」고 했는지 본다
+ * 셋이 어긋나면 억지로 고르지 않고 UNKNOWN 으로 둔다. 애매한 것을 한쪽에
+ * 몰아넣으면 그 비율이 그대로 결론의 편향이 된다.
+ */
+const classifyDirection = (판례내용, 주문, disposition) => {
+    const 파기계열 = [DISPOSITION.REVERSED_REMANDED, DISPOSITION.REVERSED_SELF, DISPOSITION.REVERSED_TRANSFERRED];
+    if (!파기계열.includes(disposition)) {
+        return { direction: DIRECTION.NONE, confidence: 'high', signals: [] };
+    }
+
+    const 본문 = stripTags(판례내용);
+    const signals = [];
+
+    // ① 주문이 파기 대상을 밝힌 경우 — 가장 강한 신호
+    if (/무죄[\s\S]{0,20}?부분[\s\S]{0,20}?파기/.test(주문)) {
+        signals.push('주문:무죄부분파기');
+        return { direction: DIRECTION.PROSECUTION, confidence: 'high', signals };
+    }
+    if (/유죄[\s\S]{0,20}?부분[\s\S]{0,20}?파기/.test(주문)) {
+        signals.push('주문:유죄부분파기');
+        return { direction: DIRECTION.DEFENSE, confidence: 'high', signals };
+    }
+
+    // ② 상고 주체가 한쪽뿐이면 파기는 그쪽을 받아들인 것이다
+    const { 검사, 피고인 } = detectAppellants(본문);
+    if (검사 && !피고인) {
+        signals.push('상고주체:검사만');
+        return { direction: DIRECTION.PROSECUTION, confidence: 'high', signals };
+    }
+    if (피고인 && !검사) {
+        signals.push('상고주체:피고인만');
+        return { direction: DIRECTION.DEFENSE, confidence: 'high', signals };
+    }
+
+    // ③ 쌍방이면 어느 쪽 상고이유가 받아들여졌는지 본다.
+    //    「…의 상고이유에 관하여」 뒤부터 다음 주체가 나오기 전까지를 그 쪽의 구간으로 보고,
+    //    그 안에 「이유 있다」가 있는지 센다. 「이유 없다」와 구별해야 하므로 부정형을 제외한다.
+    if (검사 && 피고인) {
+        signals.push('상고주체:쌍방');
+        const 인용 = (주체정규식) => {
+            const m = 본문.match(new RegExp(`${주체정규식}\\s*의\\s*상고이유[\\s\\S]{0,4000}?(?=(검사|피고인)(들|\\s*\\d+)?\\s*의\\s*상고이유|$)`));
+            if (!m) return false;
+            // 「이유 없다/없음」이 아닌 「이유 있다」만 인용으로 본다
+            return /상고이유[\s\S]{0,80}?주장은[\s\S]{0,20}?이유\s*있다/.test(m[0])
+                || /이\s*점을\s*지적하는[\s\S]{0,40}?이유\s*있다/.test(m[0]);
+        };
+        const p = 인용('검사');
+        const d = 인용('피고인(들|\\s*\\d+)?');
+        if (p && d) return { direction: DIRECTION.BOTH, confidence: 'low', signals: [...signals, '양쪽:이유있다'] };
+        if (p) return { direction: DIRECTION.PROSECUTION, confidence: 'low', signals: [...signals, '검사:이유있다'] };
+        if (d) return { direction: DIRECTION.DEFENSE, confidence: 'low', signals: [...signals, '피고인:이유있다'] };
+    }
+
+    return { direction: DIRECTION.UNKNOWN, confidence: 'low', signals };
+};
+
+/**
  * 주문에서 결론을 판정한다.
  * @returns {{disposition:string, scope:string, confidence:'high'|'low', 주문:string}}
  */
 const classifyDisposition = (판례내용) => {
     const 주문 = extractDisposition(판례내용);
     if (!주문) {
-        return { disposition: DISPOSITION.UNKNOWN, scope: SCOPE.NONE, confidence: 'low', 주문: '' };
+        return {
+            disposition: DISPOSITION.UNKNOWN, scope: SCOPE.NONE, confidence: 'low', 주문: '',
+            direction: DIRECTION.UNKNOWN, directionConfidence: 'low', directionSignals: [],
+        };
     }
 
     const 파기 = /파기/.test(주문);
@@ -82,12 +179,28 @@ const classifyDisposition = (판례내용) => {
     const scope = classifyScope(주문);
 
     // 파기가 있으면 파기 계열로 본다. 전부인지 일부인지는 scope 로 구분한다.
-    if (파기 && 환송) return { disposition: DISPOSITION.REVERSED_REMANDED, scope, confidence: 'high', 주문 };
-    if (파기 && 이송) return { disposition: DISPOSITION.REVERSED_TRANSFERRED, scope, confidence: 'high', 주문 };
-    if (파기) return { disposition: DISPOSITION.REVERSED_SELF, scope, confidence: 'high', 주문 };
-    if (기각) return { disposition: DISPOSITION.DISMISSED, scope: SCOPE.NONE, confidence: 'high', 주문 };
+    let disposition;
+    if (파기 && 환송) disposition = DISPOSITION.REVERSED_REMANDED;
+    else if (파기 && 이송) disposition = DISPOSITION.REVERSED_TRANSFERRED;
+    else if (파기) disposition = DISPOSITION.REVERSED_SELF;
+    else if (기각) disposition = DISPOSITION.DISMISSED;
+    else {
+        return {
+            disposition: DISPOSITION.OTHER, scope: SCOPE.NONE, confidence: 'low', 주문,
+            direction: DIRECTION.UNKNOWN, directionConfidence: 'low', directionSignals: [],
+        };
+    }
 
-    return { disposition: DISPOSITION.OTHER, scope: SCOPE.NONE, confidence: 'low', 주문 };
+    const dir = classifyDirection(판례내용, 주문, disposition);
+    return {
+        disposition,
+        scope: disposition === DISPOSITION.DISMISSED ? SCOPE.NONE : scope,
+        confidence: 'high',
+        주문,
+        direction: dir.direction,
+        directionConfidence: dir.confidence,
+        directionSignals: dir.signals,
+    };
 };
 
 /**
@@ -198,6 +311,9 @@ const normalize = (rec) => {
         disposition: disp.disposition,
         scope: disp.scope,
         dispositionConfidence: disp.confidence,
+        direction: disp.direction,
+        directionConfidence: disp.directionConfidence,
+        directionSignals: disp.directionSignals,
         주문: disp.주문.slice(0, 200),
     };
 };
@@ -205,6 +321,9 @@ const normalize = (rec) => {
 module.exports = {
     DISPOSITION,
     SCOPE,
+    DIRECTION,
+    detectAppellants,
+    classifyDirection,
     CASE_TYPE,
     classifyScope,
     stripTags,

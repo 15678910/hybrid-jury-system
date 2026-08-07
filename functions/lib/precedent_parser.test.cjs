@@ -132,5 +132,84 @@ console.log('\n■ 파기 범위(전부/일부) 구분');
         p.classifyDisposition(실제_94누9948.판례내용).scope, p.SCOPE.NONE);
 }
 
+// ─────────────────────────────────────────────────────────────
+// 파기의 방향 — 2026-08-07 조사에서 실제로 본 판결문 문언
+//
+// 아래 두 건은 probe_reversal_direction.cjs 를 한국 IP 에서 돌려 화면으로
+// 확인한 실제 문장이다. 지어낸 것이 아니다.
+// ─────────────────────────────────────────────────────────────
+console.log('\n■ 파기의 방향 — 실제 판결문 문언');
+{
+    // 실제 ③ — 공직선거법위반 전합. 무죄 판결에 검사만 상고했고 파기환송됐다.
+    const 검사만_상고_파기 =
+        '【주    문】<br/>  원심판결을 파기하고, 사건을 서울고등법원에 환송한다. <br/>' +
+        '【이    유】  상고이유를 판단한다. <br/>' +
+        '  1. 사건 개요 및 판단 요지 <br/>' +
+        '  가. 이 사건은 제20대 대통령선거 후보자로 출마하였던 피고인에 대한 ' +
+        '허위사실 공표에 의한 공직선거법 위반 사건이다. <br/>' +
+        '  나. 검사는 피고인의 공소외 1 관련 발언과 백현동 관련 발언에 대하여 공소를 제기하였다. ' +
+        '원심법원은 전부 무죄를 선고하였고, 검사가 원심판결에 대하여 상고하였으므로, ' +
+        '대법원은 검사의 상고이유를 판단한다. <br/>' +
+        '  다. 공직선거법 제250조 제1항은 「선거에 당선될 목적으로 연설, 방송 기타의 방법으로 ' +
+        '후보자에게 유리하도록 후보자의 행위 등에 관하여 허위의 사실을 공표한 경우」에 ' +
+        '처벌하도록 규정하고 있다. <br/>' +
+        '  원심판결에는 허위사실공표죄에 관한 법리를 오해하여 판결에 영향을 미친 잘못이 있다. ' +
+        '이 점을 지적하는 상고이유 주장은 이유 있다. <br/>';
+
+    const d1 = p.classifyDisposition(검사만_상고_파기);
+    check('검사만 상고한 파기 → 파기환송', d1.disposition, p.DISPOSITION.REVERSED_REMANDED);
+    check('검사만 상고한 파기 → 전부 파기', d1.scope, p.SCOPE.FULL);
+    check('검사만 상고 → 방향은 검사 쪽', d1.direction, p.DIRECTION.PROSECUTION);
+    check('근거는 상고주체', d1.directionSignals.includes('상고주체:검사만'), true);
+    check('신뢰도 high', d1.directionConfidence, 'high');
+
+    // 실제 ⑤ — 2023도10405, 성폭력처벌법위반 전합. 피고인만 상고했고 모두 기각됐다.
+    const 피고인만_상고_기각 =
+        '【주    문】<br/>  상고를 모두 기각한다. <br/>' +
+        '【이    유】  상고이유를 판단한다. <br/>' +
+        '  1. 피고인 1의 상고이유에 관하여 <br/>' +
+        '  가. 사건의 개요 및 쟁점 <br/>' +
+        '  피고인들은 2020. 3. 28. 피해자 등과 술을 마시던 중 동석한 공소외인이 먼저 귀가하자 ' +
+        '피해자를 강간하기로 공모하고, 합동하여 인근 편의점에서 구입한 숙취해소 음료에 ' +
+        '미리 소지하고 있던 향정신성의약품인 졸피뎀을 넣었다. <br/>' +
+        '  원심은 제15조에 따른 미수범으로 처벌되어야 한다는 피고인 1의 주장을 배척하였다. <br/>';
+
+    const d2 = p.classifyDisposition(피고인만_상고_기각);
+    check('피고인만 상고한 기각 → 상고기각', d2.disposition, p.DISPOSITION.DISMISSED);
+    check('기각이면 방향 없음', d2.direction, p.DIRECTION.NONE);
+    check('기각의 방향 판정은 확실', d2.directionConfidence, 'high');
+
+    // 상고 주체 인식 — 「피고인 1의」처럼 번호가 붙는 실제 표기를 받아야 한다
+    check('「피고인 1의 상고이유」 인식', p.detectAppellants('1. 피고인 1의 상고이유에 관하여').피고인, true);
+    check('「피고인들의 상고이유」 인식', p.detectAppellants('피고인들의 상고이유를 본다').피고인, true);
+    check('「검사의 상고이유」 인식', p.detectAppellants('검사의 상고이유를 판단한다').검사, true);
+    check('「검사가 … 상고하였으므로」 인식',
+        p.detectAppellants('검사가 원심판결에 대하여 상고하였으므로').검사, true);
+    check('피고인 언급 없으면 피고인 상고 아님',
+        p.detectAppellants('검사의 상고이유를 판단한다').피고인, false);
+}
+
+console.log('\n■ 파기의 방향 — 주문이 대상을 밝힌 경우');
+{
+    const t = (주문, 이유 = '') => `【주    문】<br/>${주문}<br/>【이    유】${이유}`;
+
+    check('무죄 부분 파기 → 검사 쪽',
+        p.classifyDisposition(t('원심판결 중 무죄 부분을 파기하고 이 부분 사건을 서울고등법원에 환송한다. 나머지 상고를 기각한다.')).direction,
+        p.DIRECTION.PROSECUTION);
+    check('유죄 부분 파기 → 피고인 쪽',
+        p.classifyDisposition(t('원심판결 중 유죄 부분을 파기하고 이 부분 사건을 서울고등법원에 환송한다.')).direction,
+        p.DIRECTION.DEFENSE);
+    check('주문이 밝히면 신뢰도 high',
+        p.classifyDisposition(t('원심판결 중 무죄 부분을 파기하고 환송한다.')).directionConfidence, 'high');
+
+    // 주문에도 이유에도 단서가 없으면 억지로 고르지 않는다
+    check('단서 없으면 판정 불가',
+        p.classifyDisposition(t('원심판결을 파기하고 사건을 서울고등법원에 환송한다.')).direction,
+        p.DIRECTION.UNKNOWN);
+    check('판정 불가는 신뢰도 low',
+        p.classifyDisposition(t('원심판결을 파기하고 사건을 서울고등법원에 환송한다.')).directionConfidence,
+        'low');
+}
+
 console.log(`\n결과: ${pass}건 통과, ${fail}건 실패`);
 process.exit(fail ? 1 : 0);
