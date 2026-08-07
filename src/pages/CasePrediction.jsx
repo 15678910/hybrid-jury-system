@@ -332,6 +332,58 @@ function CourtCompositionCard() {
                 ))}
             </div>
 
+            {/* 명단을 실제로 대조한 결과 */}
+            {c.roster && (
+                <div className="border border-gray-200 rounded-lg p-5 mb-5">
+                    <div className="flex flex-wrap items-center gap-3 mb-1">
+                        <p className="text-lg font-bold text-gray-900">
+                            현직 대법관을 제청한 대법원장은 누구인가
+                        </p>
+                        <TierBadge tier={c.roster.tier} />
+                    </div>
+                    <p className="text-base text-gray-500 mb-4">
+                        {c.roster.asOf} 기준 · {c.roster.chiefJusticeSince}
+                    </p>
+
+                    <div className="grid md:grid-cols-2 gap-4 mb-4">
+                        {c.roster.byNominator.map((g) => (
+                            <div key={g.nominator} className="bg-gray-50 rounded-lg p-5">
+                                <div className="flex items-baseline gap-3 mb-3">
+                                    <span className="text-3xl font-bold text-gray-900">{g.count}명</span>
+                                    <span className="text-base font-semibold text-gray-700">{g.nominator}</span>
+                                </div>
+                                <ul className="space-y-1.5">
+                                    {g.members.map((m) => (
+                                        <li key={m.name} className="text-base text-gray-700">
+                                            <span className="font-medium text-gray-900">{m.name}</span>
+                                            <span className="text-gray-500"> · {m.took}</span>
+                                            {m.note && (
+                                                <span className="block text-sm text-amber-800">{m.note}</span>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+
+                    <p className="text-base text-gray-600 mb-4">{c.roster.vacancy}</p>
+
+                    <p className="text-base md:text-lg text-gray-900 font-medium leading-relaxed mb-3">
+                        {c.roster.finding}
+                    </p>
+                    <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-3">{c.roster.trend}</p>
+                    <p className="text-base text-gray-600 leading-relaxed mb-3">{c.roster.nuance}</p>
+
+                    <div className="flex flex-wrap gap-3">
+                        {c.roster.sources.map((s) => (
+                            <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer"
+                               className="text-base text-blue-600 hover:underline">{s.name} →</a>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-5">
                 <div className="flex flex-wrap items-center gap-3 mb-2">
                     <p className="text-lg font-bold text-blue-900">{c.measurable.title}</p>
