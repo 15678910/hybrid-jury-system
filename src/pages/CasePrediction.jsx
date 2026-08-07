@@ -23,6 +23,7 @@ import {
     VACANCY_EFFECT,
     DELAY_ANALYSIS,
     TIMING,
+    NOMINATION_STANDOFF,
 } from '../data/predictions';
 import {
     jointProbabilities, pct, pctRange,
@@ -464,6 +465,120 @@ function CourtCompositionCard() {
                 </ul>
                 <p className="text-base md:text-lg text-gray-700 leading-relaxed">{c.notModeled.why}</p>
             </div>
+        </section>
+    );
+}
+
+/**
+ * 제청이 없는 상태 — 왜 예측에 걸리는가.
+ *
+ * 「누가 왜 안 하는가」는 답할 수 없지만, 「비어 있으면 무엇이 달라지는가」와
+ * 「왜 이 상태가 지속될 수 있는가」는 조문과 기록으로 답할 수 있다.
+ */
+function NominationStandoffCard() {
+    const n = NOMINATION_STANDOFF;
+    return (
+        <section className="bg-white rounded-xl border shadow-sm p-7 mb-8">
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h3 className="text-2xl font-bold text-gray-900">{n.title}</h3>
+                <TierBadge tier={n.tier} />
+            </div>
+            <p className="text-base text-gray-500 mb-5">{n.asOf}</p>
+
+            {/* 기간 */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-5 mb-6">
+                <div className="flex flex-wrap gap-6 mb-3">
+                    <div>
+                        <p className="text-base text-amber-800">현재 공백</p>
+                        <p className="text-4xl font-bold text-amber-900">{n.duration.days}일</p>
+                        <p className="text-base text-amber-800 mt-1">{n.duration.since}</p>
+                    </div>
+                    <div className="self-center text-2xl text-amber-700">vs</div>
+                    <div>
+                        <p className="text-base text-amber-800">역대 최장</p>
+                        <p className="text-4xl font-bold text-amber-900">{n.duration.record}일</p>
+                        <p className="text-base text-amber-800 mt-1">{n.duration.recordCase}</p>
+                    </div>
+                    <div className="self-center">
+                        <p className="text-base text-amber-800">초과</p>
+                        <p className="text-2xl font-bold text-amber-900">+{n.duration.exceeded}일</p>
+                    </div>
+                </div>
+                <p className="text-base md:text-lg text-amber-900 leading-relaxed">{n.duration.reading}</p>
+                <a href={n.duration.source.url} target="_blank" rel="noopener noreferrer"
+                   className="text-base text-blue-700 hover:underline">{n.duration.source.name} →</a>
+            </div>
+
+            {/* 경과 */}
+            <p className="text-lg font-semibold text-gray-800 mb-3">경과</p>
+            <div className="space-y-3 mb-3">
+                {n.timeline.map((t) => (
+                    <div key={t.when} className="flex gap-4">
+                        <span className="text-base font-bold text-gray-500 whitespace-nowrap w-24 shrink-0">
+                            {t.when}
+                        </span>
+                        <span className="text-base md:text-lg text-gray-800 leading-relaxed">{t.what}</span>
+                    </div>
+                ))}
+            </div>
+            <div className="flex flex-wrap gap-3 mb-6">
+                {n.timelineSources.map((s) => (
+                    <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer"
+                       className="text-base text-blue-600 hover:underline">{s.name} →</a>
+                ))}
+            </div>
+
+            {/* 구조 */}
+            <div className="bg-gray-50 rounded-lg p-5 mb-6">
+                <p className="text-lg font-bold text-gray-900 mb-3">{n.structure.title}</p>
+                <div className="space-y-4">
+                    {n.structure.points.map((p, i) => (
+                        <div key={i} className="border-l-4 border-gray-300 pl-4 py-1">
+                            <p className="text-lg font-bold text-gray-900 mb-1">{p.point}</p>
+                            <p className="text-base md:text-lg text-gray-700 leading-relaxed">{p.detail}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* 사실의 병치 */}
+            <div className="border border-gray-200 rounded-lg p-5 mb-6">
+                <p className="text-lg font-bold text-gray-900 mb-3">{n.tension.title}</p>
+                <div className="grid md:grid-cols-2 gap-4 mb-3">
+                    <div className="bg-gray-50 rounded p-4">
+                        <p className="text-base md:text-lg text-gray-800 leading-relaxed">{n.tension.a}</p>
+                    </div>
+                    <div className="bg-gray-50 rounded p-4">
+                        <p className="text-base md:text-lg text-gray-800 leading-relaxed">{n.tension.b}</p>
+                    </div>
+                </div>
+                <p className="text-base md:text-lg text-amber-900 bg-amber-50 rounded p-4 leading-relaxed">
+                    ⚠️ {n.tension.caution}
+                </p>
+            </div>
+
+            {/* 「거부」인가 */}
+            <div className="border border-gray-200 rounded-lg p-5 mb-6">
+                <p className="text-lg font-bold text-gray-900 mb-2">{n.characterization.title}</p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-2">
+                    {n.characterization.detail}
+                </p>
+                <p className="text-base md:text-lg text-gray-600 leading-relaxed">{n.characterization.why}</p>
+            </div>
+
+            {/* 이 사건에 걸리는 효과 */}
+            <p className="text-lg font-semibold text-gray-800 mb-3">{n.effect.title}</p>
+            <ul className="space-y-3 mb-6">
+                {n.effect.items.map((it, i) => (
+                    <li key={i} className="text-base md:text-lg text-gray-700 leading-relaxed border-l-4 border-blue-400 pl-4 py-1">
+                        {it}
+                    </li>
+                ))}
+            </ul>
+
+            <p className="text-base md:text-lg text-gray-600 bg-gray-50 rounded p-4 leading-relaxed">
+                <strong className="text-gray-900">판정하지 않는 것 — </strong>{n.notJudged}
+            </p>
         </section>
     );
 }
@@ -1333,6 +1448,7 @@ export default function CasePrediction() {
                         <CourtCompositionCard />
                         <TimingCard />
                         <VacancyEffectCard />
+                        <NominationStandoffCard />
                         <DelayAnalysisCard />
                         {PREDICTION_CASES.map((c) => <CaseCard key={c.id} c={c} />)}
                         <LimitationsCard />
