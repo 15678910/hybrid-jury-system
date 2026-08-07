@@ -733,13 +733,64 @@ function DelayAnalysisCard() {
             <a href={d.eventSource.url} target="_blank" rel="noopener noreferrer"
                className="text-base text-blue-600 hover:underline">{d.eventSource.name} →</a>
 
-            {/* 효력 */}
+            {/* 효력 — 저촉되는가 */}
             <div className="bg-gray-50 rounded-lg p-5 my-6">
-                <p className="text-lg font-bold text-gray-900 mb-2">시한을 넘기면 어떻게 되는가</p>
-                <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-3">{d.effect.legal}</p>
+                <p className="text-lg font-bold text-gray-900 mb-1">{d.effect.question}</p>
+                <p className="text-base md:text-lg text-gray-900 font-medium leading-relaxed bg-white rounded p-4 mb-3">
+                    {d.effect.answer}
+                </p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-5">{d.effect.legal}</p>
+
+                {/* 조문 대비 */}
+                <p className="text-lg font-bold text-gray-900 mb-3">{d.effect.comparison.title}</p>
+                <div className="overflow-x-auto mb-3">
+                    <table className="w-full text-base bg-white rounded">
+                        <thead>
+                            <tr className="border-b-2 border-gray-300">
+                                <th className="text-left py-2.5 px-3 font-semibold text-gray-700">법</th>
+                                <th className="text-left py-2.5 px-3 font-semibold text-gray-700">조문 제목</th>
+                                <th className="text-left py-2.5 px-3 font-semibold text-gray-700">본문 문언</th>
+                                <th className="text-left py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap">성격</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {d.effect.comparison.rows.map((r) => (
+                                <tr key={r.law} className="border-b border-gray-200 align-top">
+                                    <td className="py-3 px-3 font-medium text-gray-900">{r.law}</td>
+                                    <td className="py-3 px-3 text-gray-700">{r.heading}</td>
+                                    <td className="py-3 px-3 text-gray-700">{r.wording}</td>
+                                    <td className={`py-3 px-3 font-semibold whitespace-nowrap ${
+                                        r.nature === '강행규정' ? 'text-red-700' : 'text-gray-600'
+                                    }`}>
+                                        {r.nature}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <p className="text-base md:text-lg text-gray-900 leading-relaxed mb-4">
+                    {d.effect.comparison.reading}
+                </p>
+
                 <p className="text-base md:text-lg text-gray-900 leading-relaxed">{d.effect.tension}</p>
-                <a href={d.effect.source.url} target="_blank" rel="noopener noreferrer"
-                   className="text-base text-blue-600 hover:underline">{d.effect.source.name} →</a>
+                <div className="flex flex-wrap gap-3 mt-2">
+                    {d.effect.sources.map((s) => (
+                        <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer"
+                           className="text-base text-blue-600 hover:underline">{s.name} →</a>
+                    ))}
+                </div>
+            </div>
+
+            {/* 회부 시점 */}
+            <div className="border border-gray-200 rounded-lg p-5 mb-6">
+                <p className="text-lg font-bold text-gray-900 mb-3">{d.referralTiming.title}</p>
+                <p className="text-base md:text-lg text-gray-800 leading-relaxed mb-3">{d.referralTiming.fact}</p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-3">{d.referralTiming.path}</p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-3">{d.referralTiming.contrast}</p>
+                <p className="text-base md:text-lg text-amber-900 bg-amber-50 rounded p-4 leading-relaxed">
+                    ⚠️ {d.referralTiming.cannotSettle}
+                </p>
             </div>
 
             {/* 비교 사실 */}
