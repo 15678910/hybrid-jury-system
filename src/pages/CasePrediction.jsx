@@ -17,6 +17,9 @@ import {
     OUTCOME_SCENARIO_LABELS,
     SCOPE_MEANING,
     APPEAL_STRUCTURE,
+    INSTANCE_COMPARISON,
+    APPEAL_SCOPE_LIMIT,
+    COURT_COMPOSITION,
 } from '../data/predictions';
 import {
     jointProbabilities, pct, pctRange,
@@ -154,6 +157,201 @@ function ScopeSection() {
                     )}
                 </div>
             )}
+        </section>
+    );
+}
+
+/**
+ * 심급 비교 — 1심과 2심이 쟁점별로 어떻게 갈렸는가.
+ *
+ * 파기율이라는 하나의 숫자로는 「무엇이 파기될 수 있는가」가 보이지 않는다.
+ * 쟁점별로 갈라 놓으면 두 심급이 일치한 쟁점과 갈린 쟁점이 드러나고,
+ * 그것이 전부 파기와 일부 파기를 가르는 실마리가 된다.
+ */
+function InstanceComparisonSection() {
+    const d = INSTANCE_COMPARISON;
+
+    return (
+        <section className="bg-white rounded-xl border shadow-sm p-7 mb-8">
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h3 className="text-2xl font-bold text-gray-900">1심과 2심은 어디서 갈렸는가</h3>
+                <TierBadge tier={d.tier} />
+            </div>
+            <p className="text-base text-gray-500 mb-6">
+                상고심은 사실심이 아니라 법률심입니다. 두 하급심이 다르게 판단한 쟁점이
+                대법원이 실질적으로 다시 볼 자리입니다.
+            </p>
+
+            {d.cases.map((c) => (
+                <div key={c.name} className="mb-8 last:mb-0">
+                    <div className="flex flex-wrap items-baseline gap-3 mb-3">
+                        <h4 className="text-xl font-bold text-gray-900">{c.name}</h4>
+                        <span className={`text-base font-semibold px-3 py-1 rounded-full ${
+                            c.sentenceDirection === 'down'
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-red-100 text-red-800'
+                        }`}>
+                            {c.first.sentence} → {c.second.sentence} ({c.sentenceChange})
+                        </span>
+                    </div>
+                    <p className="text-base text-gray-500 mb-4">
+                        1심 {c.first.court} {c.first.date} · 2심 {c.second.court} {c.second.date}
+                    </p>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-base">
+                            <thead>
+                                <tr className="border-b-2 border-gray-300">
+                                    <th className="text-left py-2.5 pr-3 font-semibold text-gray-700">쟁점</th>
+                                    <th className="text-left py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap">1심</th>
+                                    <th className="text-left py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap">2심</th>
+                                    <th className="text-left py-2.5 pl-3 font-semibold text-gray-700 whitespace-nowrap">일치</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {c.issues.map((it) => (
+                                    <tr key={it.issue} className="border-b border-gray-200 align-top">
+                                        <td className="py-3 pr-3 font-medium text-gray-900">
+                                            {it.issue}
+                                            {it.note && (
+                                                <p className="text-sm font-normal text-gray-500 mt-1 leading-relaxed">
+                                                    {it.note}
+                                                </p>
+                                            )}
+                                        </td>
+                                        <td className="py-3 px-3 text-gray-800 whitespace-nowrap">{it.first}</td>
+                                        <td className="py-3 px-3 text-gray-800 whitespace-nowrap">{it.second}</td>
+                                        <td className="py-3 pl-3 whitespace-nowrap">
+                                            {it.agree
+                                                ? <span className="text-blue-700 font-semibold">일치</span>
+                                                : <span className="text-red-700 font-semibold">갈림</span>}
+                                            {it.agreeButAppealed && (
+                                                <p className="text-sm text-gray-500 mt-1">특검 상고</p>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3 mt-3">
+                        {c.sources.map((s) => (
+                            <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer"
+                               className="text-base text-blue-600 hover:underline">{s.name} →</a>
+                        ))}
+                    </div>
+                </div>
+            ))}
+
+            <div className="border-t pt-6 mt-2">
+                <p className="text-lg font-semibold text-gray-800 mb-4">이 표에서 읽히는 것</p>
+                <div className="space-y-5">
+                    {d.readings.map((r, i) => (
+                        <div key={i} className="border-l-4 border-gray-300 pl-4 py-1">
+                            <p className="text-lg md:text-xl font-bold text-gray-900 mb-1">{r.title}</p>
+                            <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-2">{r.detail}</p>
+                            <p className="text-base md:text-lg text-blue-800 leading-relaxed">→ {r.effect}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <p className="text-base text-amber-800 bg-amber-50 rounded p-3 mt-5 leading-relaxed">
+                ⚠️ {d.caveat}
+            </p>
+        </section>
+    );
+}
+
+/** 형사소송법 제383조 제4호 — 두 사건에 다르게 걸리는 확정적 제약 */
+function AppealScopeLimitCard() {
+    const a = APPEAL_SCOPE_LIMIT;
+    return (
+        <section className="bg-white rounded-xl border shadow-sm p-7 mb-8">
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h3 className="text-2xl font-bold text-gray-900">두 사건은 다툴 수 있는 범위가 다릅니다</h3>
+                <TierBadge tier={a.tier} />
+            </div>
+            <p className="text-base text-gray-500 mb-5">
+                추정이 아니라 조문입니다. 선고형 10년이 경계이고, 두 사건이 그 양쪽에 있습니다.
+            </p>
+
+            <blockquote className="border-l-4 border-blue-400 bg-blue-50/60 pl-5 py-4 rounded-r mb-5">
+                <p className="text-lg font-semibold text-gray-900 mb-2">{a.article}</p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed">{a.text}</p>
+            </blockquote>
+
+            <div className="grid md:grid-cols-2 gap-4 mb-5">
+                {a.rows.map((r) => (
+                    <div key={r.name} className={`rounded-lg p-5 ${r.over10 ? 'bg-gray-50' : 'bg-amber-50'}`}>
+                        <div className="flex items-baseline gap-3 mb-2">
+                            <p className="text-xl font-bold text-gray-900">{r.name}</p>
+                            <p className="text-lg font-semibold text-gray-700">{r.sentence}</p>
+                        </div>
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed">{r.effect}</p>
+                    </div>
+                ))}
+            </div>
+
+            <p className="text-base md:text-lg text-gray-800 leading-relaxed">{a.implication}</p>
+        </section>
+    );
+}
+
+/**
+ * 재판부 성향을 어떻게 다루는가 — 평판이 아니라 판결 기록으로.
+ *
+ * 「어느 대법원장 아래 재판부는 어느 쪽에 기운다」는 관측에는 쓸 만한 알맹이가
+ * 있지만, 그 알맹이는 평판이 아니라 세어 볼 수 있는 인용률이다. 왜 그렇게 다루는지를
+ * 화면에 밝혀 둔다. 감추면 「왜 이건 안 넣었나」라는 물음에 답할 수 없다.
+ */
+function CourtCompositionCard() {
+    const c = COURT_COMPOSITION;
+    return (
+        <section className="bg-white rounded-xl border shadow-sm p-7 mb-8">
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">재판부 성향은 이렇게 다룹니다</h3>
+            <p className="text-base text-gray-500 mb-5">
+                평판을 계수로 바꾸지 않고, 판결 기록을 세어 확인합니다.
+            </p>
+
+            <div className="bg-gray-50 rounded-lg p-5 mb-5">
+                <p className="text-lg font-bold text-gray-900 mb-1">{c.chiefJustice.name}</p>
+                <p className="text-base text-gray-700">{c.chiefJustice.inaugurated}</p>
+                <a href={c.chiefJustice.url} target="_blank" rel="noopener noreferrer"
+                   className="text-base text-blue-600 hover:underline">대법원 공식 자료 →</a>
+            </div>
+
+            <div className="space-y-4 mb-6">
+                {c.structuralFacts.map((f, i) => (
+                    <div key={i} className="border-l-4 border-gray-300 pl-4 py-1">
+                        <p className="text-lg font-bold text-gray-900 mb-1">{f.fact}</p>
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed">{f.detail}</p>
+                    </div>
+                ))}
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-5">
+                <div className="flex flex-wrap items-center gap-3 mb-2">
+                    <p className="text-lg font-bold text-blue-900">{c.measurable.title}</p>
+                    <span className="text-sm px-2.5 py-1 rounded-full font-medium bg-amber-100 text-amber-800">
+                        {c.measurable.status}
+                    </span>
+                </div>
+                <p className="text-base md:text-lg text-gray-900 font-medium leading-relaxed mb-2">
+                    {c.measurable.question}
+                </p>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-2">{c.measurable.why}</p>
+                <p className="text-base text-gray-600 leading-relaxed">막고 있는 것: {c.measurable.blocker}</p>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-5">
+                <p className="text-lg font-bold text-gray-900 mb-3">{c.notModeled.title}</p>
+                <ul className="list-disc list-inside space-y-1.5 text-base md:text-lg text-gray-700 mb-3">
+                    {c.notModeled.items.map((it, i) => <li key={i}>{it}</li>)}
+                </ul>
+                <p className="text-base md:text-lg text-gray-700 leading-relaxed">{c.notModeled.why}</p>
+            </div>
         </section>
     );
 }
@@ -704,8 +902,11 @@ export default function CasePrediction() {
                 {tab === 'cases' && (
                     <>
                         <CourtStatementCard />
+                        <InstanceComparisonSection />
                         <AppealStructureCard />
+                        <AppealScopeLimitCard />
                         <ScopeSection />
+                        <CourtCompositionCard />
                         {PREDICTION_CASES.map((c) => <CaseCard key={c.id} c={c} />)}
                         <LimitationsCard />
                     </>
