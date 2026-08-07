@@ -54,6 +54,7 @@ jobs:
         run: node functions/lib/precedent_parser.test.cjs
 
       - name: law.go.kr 도달 여부 진단
+        id: reach
         # 수집이 실패했을 때 원인이 네트워크인지 아닌지 먼저 가린다.
         # 한국 정부 사이트는 해외 IP 를 차단하는 경우가 있고, GitHub 러너는 해외에 있다.
         continue-on-error: true
@@ -67,10 +68,16 @@ jobs:
           echo "law.go.kr HTTPS 응답:"
           # 이 서버는 첫 연결에만 10초 안팎이 걸린다. 짧게 끊으면 살아 있는 서버를
           # 죽은 것으로 오진한다. 실제로 20초 제한에서 한 번은 200, 한 번은 timeout 이었다.
-          curl -sS -o /dev/null --max-time 60 \
-            -w "  HTTP %{http_code} | 연결 %{time_connect}s | 총 %{time_total}s\n" \
+          CODE=$(curl -sS -o /dev/null --max-time 60 -w "%{http_code}" \
             "https://www.law.go.kr/DRF/lawSearch.do?OC=${LAWAPI_OC}&target=prec&type=JSON&query=%EC%A0%84%EC%9B%90%ED%95%A9%EC%9D%98%EC%B2%B4&display=1" \
-            || echo "  ❌ 연결 실패 (차단 가능성)"
+            || echo "000")
+          echo "  HTTP $CODE"
+          if [ "$CODE" = "200" ]; then
+            echo "reachable=도달 (HTTP 200)" >> $GITHUB_OUTPUT
+          else
+            echo "reachable=도달 불가 (HTTP $CODE)" >> $GITHUB_OUTPUT
+            echo "  ❌ 연결 실패 — 이 상태면 아래 단계들도 모두 실패한다"
+          fi
         env:
           LAWAPI_OC: ${{ vars.LAWAPI_OC || 'lacoiffure828' }}
 
@@ -83,15 +90,28 @@ jobs:
       # 성공할 가능성이 더 크다. 무거운 수집이 연결을 다 쓰고 실패한 뒤에
       # 시도하게 두면 될 일도 안 된다.
       - name: 파기 방향 문언 조사
+        id: probe
         # 파기가 피고인 상고를 받아들인 것인지 검사 상고를 받아들인 것인지 가리려면
         # 판결문의 실제 표현을 알아야 한다. 보지 않은 문장에 정규식을 짜면 규칙이
         # 아니라 추측이다. 그래서 문언을 먼저 떠서 로그에 남긴다.
-        continue-on-error: true
+        #
+        # ⚠️ continue-on-error 를 쓰지 않는다. 그것을 붙이면 스크립트가 죽어도
+        #    단계 결론이 success 로 표시되어, 로그를 열기 전에는 실패를 알 수 없다.
+        #    실제로 그 표시를 믿고 「조사 성공」이라고 잘못 보고한 적이 있다.
+        #    대신 실패를 직접 붙잡아 결과를 출력으로 남기고, 뒤 단계는 if: always() 로 이어간다.
         env:
           LAWAPI_OC: ${{ vars.LAWAPI_OC || 'lacoiffure828' }}
         working-directory: functions
         # 빨리 실패하게 둔다. 오래 매달려 봐야 뒤의 수집 시간만 잡아먹는다.
-        run: node probe_reversal_direction.cjs --caseType ${{ github.event.inputs.caseType }} --samples 6 --maxPages 3 --timeout 30000
+        run: |
+          if node probe_reversal_direction.cjs \
+                --caseType ${{ github.event.inputs.caseType }} \
+                --samples 6 --maxPages 3 --timeout 30000; then
+            echo "result=성공" >> $GITHUB_OUTPUT
+          else
+            echo "result=실패" >> $GITHUB_OUTPUT
+            echo "::warning::파기 방향 문언 조사 실패 — 위 로그의 오류 메시지를 확인할 것"
+          fi
 
       - name: 기저율 수집
         # 조사가 실패해도 수집은 시도한다. 둘은 독립된 일이다.
@@ -114,6 +134,13 @@ jobs:
         if: always()
         run: |
           {
+            echo "### 실행 결과 한눈에"
+            echo ""
+            echo "| 단계 | 결과 |"
+            echo "|---|---|"
+            echo "| law.go.kr 도달 | ${{ steps.reach.outputs.reachable || '확인 안 됨' }} |"
+            echo "| 파기 방향 문언 조사 | ${{ steps.probe.outputs.result || '실행 안 됨' }} |"
+            echo ""
             echo "### 전원합의체 기저율 수집 결과"
             echo ""
             echo '```'
