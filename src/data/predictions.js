@@ -212,6 +212,19 @@ export const INSTANCE_COMPARISON = {
     caveat: '판결문 원문이 아니라 보도로 확인한 내용이다. 각 쟁점의 법적 표현은 실제 '
         + '주문·이유와 다를 수 있다. 판결문 전문을 구하면 이 표를 1차 자료로 올릴 수 있다.',
 
+    /**
+     * 「특검 상고」 열의 「—」를 「상고가 없다」로 읽으면 안 된다.
+     *
+     * 두 사건 모두 피고인 측과 특검이 함께 상고했다. 열에 표시한 것은 보도로
+     * 죄목까지 특정된 특검 상고이고, 표시가 없는 행은 그 죄목이 특검 상고
+     * 대상으로 보도되지 않았다는 뜻일 뿐이다.
+     */
+    appealNote: '두 사건 모두 피고인 측과 특검이 **함께** 상고했다. 「특검 상고」 열의 ○ 는 '
+        + '어느 죄목이 특검 상고 대상인지 보도로 특정된 것을 표시한 것이고, '
+        + '「—」는 그 죄목이 특검 상고 대상으로 보도되지 않았다는 뜻이지 '
+        + '상고가 없다는 뜻이 아니다. 피고인 측 상고는 죄목별로 특정된 보도를 찾지 못해 '
+        + '열로 표시하지 않았다.',
+
     cases: [
         {
             name: '한덕수 전 국무총리',
@@ -239,7 +252,8 @@ export const INSTANCE_COMPARISON = {
                     first: '유죄',
                     second: '무죄',
                     agree: false,
-                    note: '특검이 이 부분에 불복해 상고했다.',
+                    prosecutionAppealed: true,
+                    note: '항소심이 무죄로 판단한 부분이다.',
                 },
                 {
                     issue: '위증',
@@ -254,7 +268,8 @@ export const INSTANCE_COMPARISON = {
                     first: '책임 인정',
                     second: '불인정',
                     agree: false,
-                    note: '특검이 법리오해를 이유로 상고했다.',
+                    prosecutionAppealed: true,
+                    note: '특검은 법리오해를 이유로 들었다.',
                 },
             ],
             sources: [
@@ -284,11 +299,11 @@ export const INSTANCE_COMPARISON = {
                     first: '무죄',
                     second: '무죄',
                     // 「일치」 열은 1심과 2심의 판단이 같은가만 나타낸다.
-                    // 상고 여부는 별개이므로 agreeButAppealed 로 따로 표시한다.
+                    // 상고 주체는 별개이므로 prosecutionAppealed 로 따로 표시한다.
                     // 앞서 이 둘을 섞어 agree:false 로 두는 바람에, 두 심급이 모두
                     // 무죄인데도 「갈림」으로 표시됐다.
                     agree: true,
-                    agreeButAppealed: true,
+                    prosecutionAppealed: true,
                     note: '두 심급이 모두 무죄로 보았으나 특검이 이에 불복해 상고했다. '
                         + '1심은 소방청장에게 「의무 없는 일」을 하게 했다고 보기에 증거가 부족하다고 판단했다.',
                 },
@@ -297,7 +312,8 @@ export const INSTANCE_COMPARISON = {
                     first: '유죄',
                     second: '유죄 (일부 무죄)',
                     agree: true,
-                    note: '무죄 부분에 특검이 상고했다.',
+                    prosecutionAppealed: true,
+                    note: '유죄로 유지됐으나 일부 무죄가 난 부분이 있고, 그 부분에 특검이 상고했다.',
                 },
             ],
             sources: [

@@ -208,7 +208,8 @@ function InstanceComparisonSection() {
                                     <th className="text-left py-2.5 pr-3 font-semibold text-gray-700">죄목</th>
                                     <th className="text-left py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap">1심</th>
                                     <th className="text-left py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap">2심</th>
-                                    <th className="text-left py-2.5 pl-3 font-semibold text-gray-700 whitespace-nowrap">일치</th>
+                                    <th className="text-left py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap">일치</th>
+                                    <th className="text-left py-2.5 pl-3 font-semibold text-gray-700 whitespace-nowrap">특검 상고</th>
                                 </tr>
                             </thead>
                             {/* 표에는 죄목과 판단만 둔다. 설명은 표 아래로 뺐다 —
@@ -219,13 +220,17 @@ function InstanceComparisonSection() {
                                         <td className="py-3 pr-3 font-medium text-gray-900">{it.issue}</td>
                                         <td className="py-3 px-3 text-gray-800 whitespace-nowrap">{it.first}</td>
                                         <td className="py-3 px-3 text-gray-800 whitespace-nowrap">{it.second}</td>
-                                        <td className="py-3 pl-3 whitespace-nowrap">
+                                        <td className="py-3 px-3 whitespace-nowrap">
                                             {it.agree
                                                 ? <span className="text-blue-700 font-semibold">일치</span>
                                                 : <span className="text-red-700 font-semibold">갈림</span>}
-                                            {it.agreeButAppealed && (
-                                                <span className="ml-2 text-sm text-gray-500">특검 상고</span>
-                                            )}
+                                        </td>
+                                        {/* 상고 주체는 심급 일치 여부와 별개다. 한 칸에 섞으면
+                                            표시가 없는 행이 「상고가 없다」로 읽힌다. */}
+                                        <td className="py-3 pl-3 whitespace-nowrap">
+                                            {it.prosecutionAppealed
+                                                ? <span className="text-gray-900 font-semibold">○</span>
+                                                : <span className="text-gray-300">—</span>}
                                         </td>
                                     </tr>
                                 ))}
@@ -270,7 +275,11 @@ function InstanceComparisonSection() {
                 </div>
             </div>
 
-            <p className="text-base text-amber-800 bg-amber-50 rounded p-3 mt-5 leading-relaxed">
+            <p className="text-base md:text-lg text-gray-700 bg-blue-50 border border-blue-200 rounded p-4 mt-5 leading-relaxed">
+                {d.appealNote.split('**').map((t, i) =>
+                    i % 2 ? <strong key={i} className="text-gray-900">{t}</strong> : t)}
+            </p>
+            <p className="text-base text-amber-800 bg-amber-50 rounded p-3 mt-3 leading-relaxed">
                 ⚠️ {d.caveat}
             </p>
         </section>
