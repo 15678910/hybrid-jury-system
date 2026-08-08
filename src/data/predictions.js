@@ -283,7 +283,11 @@ export const INSTANCE_COMPARISON = {
                     issue: '직권남용 권리행사방해',
                     first: '무죄',
                     second: '무죄',
-                    agree: false,
+                    // 「일치」 열은 1심과 2심의 판단이 같은가만 나타낸다.
+                    // 상고 여부는 별개이므로 agreeButAppealed 로 따로 표시한다.
+                    // 앞서 이 둘을 섞어 agree:false 로 두는 바람에, 두 심급이 모두
+                    // 무죄인데도 「갈림」으로 표시됐다.
+                    agree: true,
                     agreeButAppealed: true,
                     note: '두 심급이 모두 무죄로 보았으나 특검이 이에 불복해 상고했다. '
                         + '1심은 소방청장에게 「의무 없는 일」을 하게 했다고 보기에 증거가 부족하다고 판단했다.',
