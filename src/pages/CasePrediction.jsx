@@ -898,16 +898,45 @@ function AppealStructureCard() {
                 「파기」에는 방향이 있습니다. 어느 쪽 상고가 받아들여지느냐에 따라 뜻이 정반대가 됩니다.
             </p>
 
-            <div className="grid md:grid-cols-2 gap-4 mb-6">
+            {/* 사건별로 양측 상고를 나란히 — 한쪽만 보이면 다른 쪽은 상고가 없는 것처럼 읽힌다 */}
+            <div className="space-y-5 mb-6">
                 {APPEAL_STRUCTURE.items.map((it) => (
-                    <div key={it.case} className="bg-gray-50 rounded-lg p-5">
-                        <p className="text-xl font-bold text-gray-900 mb-3">{it.case}</p>
-                        <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-2">
-                            <span className="font-semibold text-gray-900">피고인 측 · </span>{it.defense}
-                        </p>
-                        <p className="text-base md:text-lg text-gray-700 leading-relaxed">
-                            <span className="font-semibold text-gray-900">특검 측 · </span>{it.prosecution}
-                        </p>
+                    <div key={it.case} className="border border-gray-200 rounded-lg p-5">
+                        <div className="flex flex-wrap items-baseline gap-3 mb-4">
+                            <p className="text-xl font-bold text-gray-900">{it.case}</p>
+                            <p className="text-base text-gray-500">{it.sentence}</p>
+                            <span className="text-sm px-2.5 py-1 rounded-full font-medium bg-blue-100 text-blue-800">
+                                쌍방 상고
+                            </span>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4">
+                            {[
+                                { who: '피고인 측', side: it.defense, tone: 'blue' },
+                                { who: '특검 측', side: it.prosecution, tone: 'red' },
+                            ].map(({ who, side, tone }) => (
+                                <div key={who} className="bg-gray-50 rounded-lg p-4">
+                                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                                        <p className={`text-lg font-bold ${tone === 'blue' ? 'text-blue-800' : 'text-red-800'}`}>
+                                            {who}
+                                        </p>
+                                        {!side.known && (
+                                            <span className="text-sm px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                                                이유 미확인
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-base text-gray-500 mb-2">{side.filed}</p>
+                                    <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-2">
+                                        {side.reason}
+                                    </p>
+                                    <p className="text-base text-gray-600">
+                                        <span className="font-semibold text-gray-800">다투는 대상 · </span>{side.target}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+
                         <div className="flex flex-wrap gap-3 mt-3">
                             {it.sources.map((s) => (
                                 <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer"

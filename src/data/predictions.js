@@ -1089,23 +1089,55 @@ export const APPEAL_STRUCTURE = {
     items: [
         {
             case: '한덕수',
-            defense: '피고인 측 상고 (2026년 5월 11일)',
-            prosecution: '내란특검 상고 (2026년 5월 14일) — 항소심이 무죄로 본 허위공문서작성·행사 부분과 '
-                + '부작위 책임에 대한 법리오해·채증법칙 위반을 다툰다.',
+            sentence: '항소심 징역 15년 (2026.5.7)',
+            defense: {
+                filed: '2026년 5월 11일 · 서울고법 형사12-1부에 상고장 제출',
+                known: true,
+                reason: '변호인은 「처음부터 끝까지 윤석열 전 대통령의 비상계엄 선포를 막기 위해 '
+                    + '노력했다」며, 「비상계엄을 정당화하기 위해 권한을 행사했다는 판단은 받아들이기 '
+                    + '어렵다」고 밝혔다. 「사실관계나 법리 면에서 납득할 수 없다」며 사실인정과 법리 '
+                    + '양쪽을 다투겠다는 취지다.',
+                target: '유죄로 인정된 내란 중요임무 종사 부분',
+            },
+            prosecution: {
+                filed: '2026년 5월 14일',
+                known: true,
+                reason: '항소심이 무죄로 판단한 허위공문서작성·행사 부분에 대해 법리오해와 채증법칙 '
+                    + '위반을, 계엄 당일 조치를 취하지 않은 책임(부작위)을 인정하지 않은 데 대해 '
+                    + '법리오해를 주장한다.',
+                target: '무죄로 판단된 허위공문서작성·행사, 부작위 책임',
+            },
             sources: [
-                { name: '노컷뉴스', url: 'https://www.nocutnews.co.kr/news/6517065' },
+                { name: '파이낸셜뉴스(피고인 상고)', url: 'https://www.fnnews.com/news/202605111543571982' },
+                { name: '노컷뉴스(특검 상고)', url: 'https://www.nocutnews.co.kr/news/6517065' },
                 { name: '시사저널', url: 'https://www.sisajournal.com/news/articleView.html?idxno=372869' },
             ],
         },
         {
             case: '이상민',
-            defense: '피고인 측 상고',
-            prosecution: '내란특검 상고 — 항소심이 무죄로 본 직권남용권리행사방해와 위증 일부에 불복.',
+            sentence: '항소심 징역 9년 (2026.5.12)',
+            defense: {
+                filed: '2026년 5월 18일 · 서울고법에 상고장 제출',
+                known: false,
+                reason: '구체적인 상고이유는 보도로 확인되지 않았다. 항소심이 1심과 유·무죄 판단을 '
+                    + '그대로 두면서 형만 7년에서 9년으로 올린 점을 고려하면 유죄 부분과 양형을 '
+                    + '다툴 것으로 짐작되나, 확인된 것이 아니므로 비워 둔다.',
+                target: '확인되지 않음',
+            },
+            prosecution: {
+                filed: '2026년 5월 18일',
+                known: true,
+                reason: '항소심이 무죄로 판단한 직권남용권리행사방해와 위증 일부에 오류가 있다고 '
+                    + '다툰다.',
+                target: '무죄로 판단된 직권남용권리행사방해, 위증 일부',
+            },
             sources: [
-                { name: '데일리안', url: 'https://www.dailian.co.kr/news/view/1645496/' },
+                { name: 'YTN(양측 상고)', url: 'https://www.ytn.co.kr/_ln/0103_202605181916268279' },
+                { name: '데일리안(특검 상고)', url: 'https://www.dailian.co.kr/news/view/1645496/' },
             ],
         },
     ],
+
     implications: [
         {
             point: '불이익변경금지가 적용되지 않는다',
