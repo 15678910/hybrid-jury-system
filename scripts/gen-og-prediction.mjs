@@ -1,4 +1,4 @@
-// 재판 결과 예측 OG 공유 이미지 생성기 (빌드 시점 실행 · 런타임 비용 0)
+// 대법원 재판 결과 예측 OG 공유 이미지 생성기 (빌드 시점 실행 · 런타임 비용 0)
 //
 // public/og-prediction.png (1200x630) 를 생성한다.
 //
@@ -87,7 +87,7 @@ function buildSvg() {
 
   <!-- 제목 -->
   <text x="96" y="176" font-family="Pretendard" font-weight="700" font-size="72"
-        fill="${C.text}">재판 결과 예측</text>
+        fill="${C.text}">대법원 재판 결과 예측</text>
 
   <!-- 부제 -->
   <text x="96" y="232" font-family="Pretendard" font-weight="400" font-size="31"

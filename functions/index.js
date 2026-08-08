@@ -3473,11 +3473,11 @@ exports.judicialNetworkPage = createStaticPageHandler(
     'https://siminbupjung-blog.web.app/%EA%B4%80%EA%B3%84%EB%8F%84.png'
 );
 
-// 재판 결과 예측 — 확률이 아니라 근거를 공개하는 분석
+// 대법원 재판 결과 예측 — 확률이 아니라 근거를 공개하는 분석
 // OG 이미지는 scripts/gen-og-prediction.mjs 가 빌드 시점에 생성한다(prebuild 훅).
 exports.predictionPage = createStaticPageHandler(
     '/prediction',
-    '재판 결과 예측 — 근거를 공개하는 분석 | 시민법정',
+    '대법원 재판 결과 예측 — 근거를 공개하는 분석 | 시민법정',
     '대법원 사건의 결론을 확률로 제시하기 전에, 그 확률이 어디서 나왔는지를 먼저 공개합니다. 기저율과 조문 근거를 밝히고, 예측 적중률을 검증해 남깁니다.',
     'https://siminbupjung-blog.web.app/og-prediction.png',
     1200,

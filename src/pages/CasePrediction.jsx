@@ -39,7 +39,7 @@ import {
 const partialShare = () => BASE_RATES.partialShareAmongReversals?.value ?? null;
 
 // =============================================================================
-// 재판 결과 예측 — 우리 예측을 낸다
+// 대법원 재판 결과 예측 — 우리 예측을 낸다
 //
 // 설계 원칙
 //  1. 모르는 값이 있어도 멈추지 않는다. 구간으로 내고 무엇을 재야 하는지 지목한다.
@@ -1352,7 +1352,7 @@ export default function CasePrediction() {
     return (
         <div className="min-h-screen bg-gray-50">
             <SEOHead
-                title="재판 결과 예측 — 근거를 공개하는 분석 | 시민법정"
+                title="대법원 재판 결과 예측 — 근거를 공개하는 분석 | 시민법정"
                 description="대법원 사건의 결론을 확률로 제시하되, 그 확률이 어디서 나왔는지를 함께 공개합니다. 기저율과 조문 근거를 밝히고, 예측 적중률을 검증해 남깁니다."
                 image="https://siminbupjung-blog.web.app/og-prediction.png"
             />
@@ -1361,7 +1361,7 @@ export default function CasePrediction() {
             {/* 헤더가 fixed top-0 이므로 상단 여백이 필요하다. 다른 페이지와 같은 pt-28. */}
             <main className="max-w-4xl mx-auto px-4 pt-28 pb-16">
                 <div className="mb-10">
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">재판 결과 예측</h1>
+                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">대법원 재판 결과 예측</h1>
                     <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
                         확률을 팔지 않고 근거를 팝니다. 숫자보다 <strong className="text-gray-800">그 숫자가 어디서 나왔는지</strong>를 먼저 보여주고,
                         예측한 뒤에는 <strong className="text-gray-800">맞았는지 틀렸는지를 남깁니다.</strong>
@@ -1406,7 +1406,7 @@ export default function CasePrediction() {
 
                 <div className="mt-10">
                     <SNSShareBar
-                        title="재판 결과 예측 — 근거를 공개하는 분석"
+                        title="대법원 재판 결과 예측 — 근거를 공개하는 분석"
                         url="https://xn--lg3b0kt4n41f.kr/prediction"
                     />
                 </div>
