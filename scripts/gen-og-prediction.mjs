@@ -19,7 +19,22 @@ import { Resvg } from '@resvg/resvg-js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..');
-const OUT_PATH = join(REPO_ROOT, 'public', 'og-prediction.png');
+/**
+ * 두 곳에 쓴다.
+ *
+ * og-prediction.png — 예전 주소. functions/index.js 의 SSR 메타가 아직 이 주소를
+ *   가리키고 있어(함수 배포 전까지) 내용을 최신으로 유지해야 링크 붙여넣기 미리보기가
+ *   깨지지 않는다.
+ *
+ * og-prediction-supreme.png — 새 주소. 카카오톡·페이스북이 이미지를 30일 캐시하므로
+ *   같은 주소로 내용만 바꾸면 옛 이미지가 계속 보인다. 주소를 새로 주면 캐시가 없는
+ *   상태에서 시작하므로 바로 새 이미지가 뜬다. 사이트 전체 캐시 헤더를 건드리지 않고
+ *   이 페이지만 갱신하는 방법이다.
+ */
+const OUT_PATHS = [
+    join(REPO_ROOT, 'public', 'og-prediction.png'),
+    join(REPO_ROOT, 'public', 'og-prediction-supreme.png'),
+];
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -152,9 +167,10 @@ function main() {
         font,
         background: C.bg0,
     });
-    writeFileSync(OUT_PATH, resvg.render().asPng());
+    const png = resvg.render().asPng();
+    for (const out of OUT_PATHS) writeFileSync(out, png);
 
-    console.log(`[gen-og-prediction] wrote ${OUT_PATH} (font: ${source})`);
+    console.log(`[gen-og-prediction] wrote ${OUT_PATHS.length} files (font: ${source})`);
 }
 
 main();

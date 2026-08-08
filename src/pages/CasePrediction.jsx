@@ -1354,7 +1354,7 @@ export default function CasePrediction() {
             <SEOHead
                 title="대법원 재판 결과 예측 — 근거를 공개하는 분석 | 시민법정"
                 description="대법원 사건의 결론을 확률로 제시하되, 그 확률이 어디서 나왔는지를 함께 공개합니다. 기저율과 조문 근거를 밝히고, 예측 적중률을 검증해 남깁니다."
-                image="https://siminbupjung-blog.web.app/og-prediction.png"
+                image="https://siminbupjung-blog.web.app/og-prediction-supreme.png"
             />
             <Header />
 
