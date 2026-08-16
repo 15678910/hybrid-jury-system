@@ -25,7 +25,11 @@ export const ISSUES = [
 
         concern: {
             claim: '검찰의 수사권이 사라지면 경찰을 견제할 기관이 없어져 경찰 권력이 비대해진다.',
-            raisedBy: [],   // 보도 수집 후 채운다 — 원격 세션에서 언론 도메인 차단
+            raisedBy: [
+                { who: '파이낸셜뉴스', when: '2026-08-14', source: '「검사 수사권 없앴는데 후속 입법은 ‘미완’…형사사법 공백 ‘암운’」', url: 'https://www.fnnews.com/news/202608140551381921' },
+                { who: 'MBC', when: '2026', source: '「‘수사 검사’ 사라졌다‥이젠 경찰에 강력 경고」', url: 'https://imnews.imbc.com/replay/2026/nwtoday/article/6842458_37012.html' },
+                { who: '봉지욱 기자(매봉쇼)', when: '2026-08', source: '유튜브 방송 화면 자료', url: '' },
+            ],
         },
 
         factCheck: {
@@ -61,8 +65,12 @@ export const ISSUES = [
         relatedArticles: ['공소청법 제4조제1호', '공소청법 제4조제3호'],
 
         concern: {
-            claim: '검사가 수사를 하지 못하면 사건을 충분히 파악하지 못한 채 재판을 맡게 되어 공소유지가 부실해진다.',
-            raisedBy: [],
+            claim: '검사가 수사를 하지 못하면 사건을 충분히 파악하지 못한 채 재판을 맡게 되어 공소유지가 부실해진다. 보완수사는 최장 두 달까지 걸릴 수 있는데 공소청 단계의 구속기간은 최대 20일이어서, 수사가 지연되면 피의자를 석방해야 할 수 있다는 지적도 함께 제기된다.',
+            raisedBy: [
+                { who: '파이낸셜뉴스', when: '2026-08-14', source: '「검사 수사권 없앴는데 후속 입법은 ‘미완’…형사사법 공백 ‘암운’」', url: 'https://www.fnnews.com/news/202608140551381921' },
+                { who: '정성호 법무부장관', when: '2026', source: '「검찰 보완수사권 폐지 법안 시행시 고소인·피해자 없는 인지사건은 사실상 경찰 종결」', url: 'https://v.daum.net/v/KG2c9bKpTJ' },
+                { who: '봉지욱 기자(매봉쇼)', when: '2026-08', source: '「과수부 축소 → 공소유지 공백 우려」 화면 자료', url: '' },
+            ],
         },
 
         factCheck: {

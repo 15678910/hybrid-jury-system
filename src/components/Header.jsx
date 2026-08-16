@@ -161,6 +161,12 @@ export default function Header() {
                                         사법개혁안 비교
                                     </Link>
                                     <Link
+                                        to="/law-diff"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                    >
+                                        수사·기소 분리 조문분석
+                                    </Link>
+                                    <Link
                                         to="/law-database"
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                     >
@@ -272,6 +278,7 @@ export default function Header() {
                                 <Link to="/trial-schedule" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>📅 재판 일정</Link>
                                 <Link to="/judge-evaluation" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>AI의 판사평가</Link>
                                 <Link to="/reform-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>사법개혁안 비교</Link>
+                                <Link to="/law-diff" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>수사·기소 분리 조문분석</Link>
                                 <Link to="/law-database" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>법령DB</Link>
                                 <Link to="/judicial-network" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>관계도</Link>
                                 <Link to="/prediction" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>대법원 재판 결과 예측</Link>

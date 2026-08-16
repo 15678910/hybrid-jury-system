@@ -31,6 +31,7 @@ const EuropeJurySystem = lazy(() => import('./pages/EuropeJurySystem'))
 const JudiciaryNews = lazy(() => import('./pages/JudiciaryNews'))
 const SentencingAnalysis = lazy(() => import('./pages/SentencingAnalysis'))
 const ReformAnalysis = lazy(() => import('./pages/ReformAnalysis'))
+const LawDiffAnalysis = lazy(() => import('./pages/LawDiffAnalysis'))
 const LawDatabase = lazy(() => import('./pages/LawDatabase'))
 const JudgeEvaluation = lazy(() => import('./pages/JudgeEvaluation'))
 const JudgeDetail = lazy(() => import('./pages/JudgeDetail'))
@@ -102,6 +103,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/europe-jury" element={<EuropeJurySystem />} />
           <Route path="/jury-analysis" element={<JuryTrialAnalysis />} />
           <Route path="/reform-analysis" element={<ReformAnalysis />} />
+          <Route path="/law-diff" element={<LawDiffAnalysis />} />
           <Route path="/law-database" element={<LawDatabase />} />
           <Route path="/judge-evaluation" element={<JudgeEvaluation />} />
           <Route path="/judge/:name" element={<JudgeDetail />} />
