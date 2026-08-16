@@ -15,8 +15,10 @@
  *
  * 사용법:
  *   cd functions
- *   node collect_bill_reports.cjs --list     # 대상 법안과 붙어 있는 문서 목록만 출력, 다운로드 안 함
- *   node collect_bill_reports.cjs --fetch    # 보고서 PDF 수집 + 텍스트 추출
+ *   node collect_bill_reports.cjs --list       # 대상 법안과 붙어 있는 문서 목록만 출력, 다운로드 안 함
+ *   node collect_bill_reports.cjs --fetch      # 심사보고서/검토보고서 PDF 수집 + 텍스트 추출
+ *   node collect_bill_reports.cjs --originals  # 대안·원안의 의안원문/위원회제출안 등 원문 문서 + 회의록 수집
+ *                                               (심사보고서는 대안 자체 내용을 담지 않는다 — 원문·회의록으로 보완)
  */
 
 const fs = require('fs');
@@ -24,7 +26,9 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 const OUT_DIR = process.env.REPORT_OUT_DIR || path.join(__dirname, '..', 'docs', 'bills', 'reports');
+const ORIGINAL_OUT_DIR = process.env.ORIGINAL_OUT_DIR || path.join(__dirname, '..', 'docs', 'bills', 'originals');
 const BASE = 'https://likms.assembly.go.kr';
+const RECORD_BASE = 'https://record.assembly.go.kr';
 
 /**
  * 수집 대상. billId/billNo 는 상세 페이지에서 실제로 확인한 값이다.
@@ -52,6 +56,24 @@ const TARGETS = [
 
 /** 받을 문서명. 그 외(의안원문, 위원회제출안 등)는 이미 별도로 보관 중이라 건너뛴다. */
 const WANTED_DOC_NAMES = new Set(['심사보고서', '검토보고서']);
+
+/**
+ * --originals 대상. 공포된 법(대안)과 그 내용의 뿌리인 원안(정부안/의원안)을 나란히 둔다.
+ * 대안은 심사보고서를 갖지 않고(WANTED_DOC_NAMES 문서가 없음), 실제 조문은
+ * 의안원문/위원회제출안/위원회의결안/본회의수정안에만 있다. role 로 대안·원안을 구분해
+ * 텍스트 헤더에 남긴다 — 둘을 혼동하는 것이 이 수집의 실패 지점이다.
+ */
+const ORIGINAL_TARGETS = [
+    { billNo: '2217594', billId: 'PRC_V2X6E0Z3G1E7L2P0N0A0B4W9O2W3V3', label: '공소청법안(대안)', role: '대안' },
+    { billNo: '2217197', billId: 'ARC_U2N6N0X3Z0G3U1K7D3G9G5V5G0W4H1', label: '공소청법안(정부)', role: '원안' },
+    { billNo: '2217595', billId: 'PRC_E2O6I0Q3W1N7J1E9W3M8D5N2U3W8V6', label: '중대범죄수사청법안(대안)', role: '대안' },
+    { billNo: '2217200', billId: 'ARC_L2R6V0O3Q0N3D1H7S5B7N5M5W1X1Y8', label: '중대범죄수사청법안(정부)', role: '원안' },
+    { billNo: '2220257', billId: 'PRC_N2W6S0L7W2J9D1I8A1B1I5I1G6H8F5', label: '형사소송법 일부개정법률안(대안)', role: '대안' },
+    { billNo: '2213247', billId: 'PRC_Y2N5I0A9B1L9R1Q7D4R2I5T8O7H1H3', label: '정부조직법 일부개정법률안(대안)', role: '대안' },
+];
+
+/** --originals 에서 받을 문서명. */
+const WANTED_ORIGINAL_DOC_NAMES = new Set(['의안원문', '위원회제출안', '위원회의결안', '본회의수정안', '체계자구검토보고서']);
 
 const sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
 
@@ -146,7 +168,9 @@ const fetchDocList = async (session, billId, fields) => {
         body: params.toString(),
     });
     const body = await res.text();
-    return { status: res.status, htmlLen: body.length, docs: parseDocLinks(body) };
+    return {
+        status: res.status, htmlLen: body.length, docs: parseDocLinks(body), html: body,
+    };
 };
 
 /** 4단계: 대안에 병합된 원안(관련법안) billId 목록 */
@@ -217,6 +241,7 @@ const renderTextHeader = (meta) => {
     L.push(`의안번호  : ${meta.billNo || ''}`);
     L.push(`법안명    : ${meta.billName || ''}`);
     L.push(`문서명    : ${meta.docName || ''}`);
+    if (meta.role) L.push(`역할      : ${meta.role}`);
     L.push(`소관위원회: ${meta.committee || ''}`);
     L.push(`billId    : ${meta.billId || ''}`);
     L.push(`출처 URL  : ${meta.sourceUrl || ''}`);
@@ -247,8 +272,70 @@ const collectDocsForBill = async (session, billId, targetLabel) => {
         docs: docRes.docs,
         docListStatus: docRes.status,
         docListLen: docRes.htmlLen,
+        docHtml: docRes.html,
         fields: detail.fields,
     };
+};
+
+/**
+ * billInfo.do 응답 조각에서 회의록 뷰어(record.assembly.go.kr) 링크를 찾는다.
+ * <a href="...">텍스트</a> 형태를 우선 파싱하고, 태그 밖에 노출된 URL(onclick 등)도 예비로 훑는다.
+ * meetingId 기준으로 중복 제거한다.
+ */
+const parseMeetingLinks = (html) => {
+    const norm = String(html || '').replace(/&amp;/g, '&');
+    const links = [];
+    const seen = new Set();
+
+    for (const tagMatch of norm.matchAll(/<a\b[^>]*href="([^"]*record\.assembly\.go\.kr[^"]*minutes\/download\/pdf\.do\?[^"]*)"[^>]*>([\s\S]*?)<\/a>/g)) {
+        const href = tagMatch[1];
+        const idM = href.match(/[?&]id=([^&"']+)/);
+        if (!idM) continue;
+        const meetingId = idM[1];
+        if (seen.has(meetingId)) continue;
+        seen.add(meetingId);
+        const tag = tagMatch[0];
+        const titleM = tag.match(/\btitle="([^"]*)"/);
+        const innerText = tagMatch[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        links.push({
+            meetingId, title: titleM ? titleM[1].trim() : '', text: innerText, href,
+        });
+    }
+
+    for (const urlMatch of norm.matchAll(/https?:\/\/record\.assembly\.go\.kr[^\s"'()<>]*minutes\/download\/pdf\.do\?[^\s"'()<>]*/g)) {
+        const href = urlMatch[0];
+        const idM = href.match(/[?&]id=([^&"']+)/);
+        if (!idM) continue;
+        const meetingId = idM[1];
+        if (seen.has(meetingId)) continue;
+        seen.add(meetingId);
+        links.push({
+            meetingId, title: '', text: '', href,
+        });
+    }
+
+    return links;
+};
+
+/** 회의록 PDF 다운로드. record.assembly.go.kr 은 세션 대상이 아니고 응답이 느릴 수 있어 타임아웃을 둔다. */
+const downloadMeetingPdf = async (url) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    try {
+        const res = await fetch(url, { signal: controller.signal });
+        const buf = Buffer.from(await res.arrayBuffer());
+        const contentType = res.headers.get('content-type') || '';
+        const isPdf = buf.slice(0, 5).toString('latin1') === '%PDF-';
+        return {
+            status: res.status, buf, contentType, isPdf, url, error: null,
+        };
+    } catch (e) {
+        return {
+            status: null, buf: Buffer.alloc(0), contentType: null, isPdf: false, url, error: e.message,
+        };
+    } finally {
+        clearTimeout(timer);
+    }
 };
 
 const runList = async () => {
@@ -429,6 +516,186 @@ const runFetch = async () => {
     console.log('\n수집로그:', path.join(OUT_DIR, '_수집로그.json'));
 };
 
+/**
+ * 대안은 심사보고서가 없다(위원회에서 「개정안을 반영하여 대안을 제안」이라고만 적는다).
+ * 실제 조문은 대안·원안 각자의 의안원문/위원회제출안/위원회의결안/본회의수정안에 있고,
+ * 찬반토론 요지는 회의록에 있다. ORIGINAL_TARGETS 는 대안·원안을 role 로 나란히 둔 목록이므로
+ * TARGETS 처럼 walkRelated 로 관련법안을 추적할 필요가 없다 — 각 billId 를 그대로 훑는다.
+ */
+const runOriginals = async () => {
+    fs.mkdirSync(ORIGINAL_OUT_DIR, { recursive: true });
+    const meetingDir = path.join(ORIGINAL_OUT_DIR, '회의록');
+    fs.mkdirSync(meetingDir, { recursive: true });
+    const collectedAt = new Date().toISOString();
+    const log = [];
+
+    const session = await openSession();
+    if (!session.cookies || !session.csrf) {
+        console.log(`FAIL 세션: 쿠키 또는 CSRF 확보 실패 (HTTP ${session.status})`);
+        return;
+    }
+    console.log(`OK   세션 확보 — CSRF ${session.csrf.slice(0, 8)}...`);
+
+    for (const t of ORIGINAL_TARGETS) {
+        console.log(`\n=== ${t.label} (billNo=${t.billNo}, 역할=${t.role}) ===`);
+        const bill = await collectDocsForBill(session, t.billId, t.label);
+        if (!bill.ok) {
+            log.push({
+                의안번호: t.billNo, 법안명: t.label, 문서명: null, billId: t.billId, bookId: null, 역할: t.role, ok: false, reason: bill.reason,
+            });
+            console.log(`FAIL ${t.billId}: ${bill.reason}`);
+            continue;
+        }
+        console.log(`  [${bill.billNo}] ${bill.billName} | 소관위 ${bill.committee || '?'}`);
+
+        // 1) 의안원문류 문서
+        const wanted = bill.docs.filter((d) => WANTED_ORIGINAL_DOC_NAMES.has(d.docName) && d.type === '1');
+        if (!wanted.length) {
+            const present = bill.docs.map((d) => d.docName).join(', ') || '없음';
+            console.log(`  SKIP [${bill.billNo}] ${bill.billName} — 대상 문서 없음 (문서 ${present})`);
+            log.push({
+                의안번호: bill.billNo, 법안명: bill.billName, 문서명: null, billId: t.billId, bookId: null, 역할: t.role,
+                ok: false, reason: `대상 문서명(의안원문/위원회제출안/위원회의결안/본회의수정안/체계자구검토보고서) 없음. 실제 문서: ${present}`,
+            });
+        }
+
+        for (const doc of wanted) {
+            await sleep(400);
+            const dl = await downloadPdf(doc.bookId);
+            const sourceUrl = dl.url;
+
+            if (dl.status !== 200 || !dl.isPdf) {
+                log.push({
+                    의안번호: bill.billNo, 법안명: bill.billName, 문서명: doc.docName, billId: t.billId, bookId: doc.bookId, 역할: t.role,
+                    ok: false, reason: `PDF 아님 또는 다운로드 실패 (HTTP ${dl.status}, bytes ${dl.buf.length}, head "${dl.buf.slice(0, 5).toString('latin1')}")`,
+                });
+                console.log(`  FAIL [${bill.billNo}] ${bill.billName} ${doc.docName}: PDF 검증 실패 (HTTP ${dl.status})`);
+                continue;
+            }
+
+            const rawBaseName = `${bill.billNo}_${sanitizeName(bill.billName)}_${doc.docName}`;
+            const baseName = resolveBaseName(rawBaseName, doc.bookId);
+            const pdfPath = path.join(ORIGINAL_OUT_DIR, `${baseName}.pdf`);
+            const txtPath = path.join(ORIGINAL_OUT_DIR, `${baseName}.txt`);
+            fs.writeFileSync(pdfPath, dl.buf);
+
+            const extracted = await extractPdfText(pdfPath, txtPath);
+            if (!extracted.ok) {
+                log.push({
+                    의안번호: bill.billNo, 법안명: bill.billName, 문서명: doc.docName, billId: t.billId, bookId: doc.bookId, 역할: t.role,
+                    ok: false, pdfBytes: dl.buf.length, reason: extracted.reason, contentDisposition: dl.contentDisposition, file: pdfPath,
+                });
+                console.log(`  FAIL [${bill.billNo}] ${bill.billName} ${doc.docName}: 텍스트 추출 실패 — ${extracted.reason}`);
+                continue;
+            }
+
+            const header = renderTextHeader({
+                billNo: bill.billNo,
+                billName: bill.billName,
+                docName: doc.docName,
+                role: t.role,
+                committee: bill.committee,
+                billId: t.billId,
+                sourceUrl,
+                collectedAt,
+                tool: extracted.tool,
+            });
+            fs.writeFileSync(txtPath, header + extracted.text, 'utf8');
+
+            log.push({
+                의안번호: bill.billNo,
+                법안명: bill.billName,
+                문서명: doc.docName,
+                billId: t.billId,
+                bookId: doc.bookId,
+                역할: t.role,
+                ok: true,
+                pdfBytes: dl.buf.length,
+                txtChars: extracted.text.length,
+                추출도구: extracted.tool,
+                contentDisposition: dl.contentDisposition,
+                file: pdfPath,
+            });
+            console.log(`  OK   [${bill.billNo}] ${bill.billName} — ${doc.docName} (${dl.buf.length} bytes, 텍스트 ${extracted.text.length}자, ${extracted.tool})`);
+        }
+
+        // 2) 회의록 링크
+        const meetings = parseMeetingLinks(bill.docHtml);
+        if (!meetings.length) {
+            console.log(`  회의록 링크 없음`);
+        }
+
+        for (const meeting of meetings) {
+            await sleep(400);
+            const meetingName = meeting.title || meeting.text || `회의록_${meeting.meetingId}`;
+            const meetingUrl = meeting.href.startsWith('http') ? meeting.href : `${RECORD_BASE}${meeting.href}`;
+            const dl = await downloadMeetingPdf(meetingUrl);
+
+            if (!dl.isPdf) {
+                const reason = dl.error
+                    ? `다운로드 실패: ${dl.error}`
+                    : `PDF 아님 (HTTP ${dl.status}, content-type "${dl.contentType}", bytes ${dl.buf.length})`;
+                log.push({
+                    의안번호: bill.billNo, 법안명: bill.billName, 문서명: '회의록', billId: t.billId, bookId: null, 역할: t.role,
+                    meetingId: meeting.meetingId, 회의명: meetingName, ok: false, reason, url: meetingUrl,
+                });
+                console.log(`  FAIL [${bill.billNo}] 회의록 ${meeting.meetingId} (${meetingName}): ${reason}`);
+                continue;
+            }
+
+            const meetingBaseName = sanitizeName(`${bill.billNo}_${bill.billName}_회의록_${meeting.meetingId}`);
+            const pdfPath = path.join(meetingDir, `${meetingBaseName}.pdf`);
+            const txtPath = path.join(meetingDir, `${meetingBaseName}.txt`);
+            fs.writeFileSync(pdfPath, dl.buf);
+
+            const extracted = await extractPdfText(pdfPath, txtPath);
+            if (!extracted.ok) {
+                log.push({
+                    의안번호: bill.billNo, 법안명: bill.billName, 문서명: '회의록', billId: t.billId, bookId: null, 역할: t.role,
+                    meetingId: meeting.meetingId, 회의명: meetingName, ok: false, pdfBytes: dl.buf.length, reason: extracted.reason, url: meetingUrl, file: pdfPath,
+                });
+                console.log(`  FAIL [${bill.billNo}] 회의록 ${meeting.meetingId} (${meetingName}): 텍스트 추출 실패 — ${extracted.reason}`);
+                continue;
+            }
+
+            const header = renderTextHeader({
+                billNo: bill.billNo,
+                billName: bill.billName,
+                docName: `회의록(${meetingName})`,
+                role: t.role,
+                committee: bill.committee,
+                billId: t.billId,
+                sourceUrl: meetingUrl,
+                collectedAt,
+                tool: extracted.tool,
+            });
+            fs.writeFileSync(txtPath, header + extracted.text, 'utf8');
+
+            log.push({
+                의안번호: bill.billNo,
+                법안명: bill.billName,
+                문서명: '회의록',
+                billId: t.billId,
+                bookId: null,
+                역할: t.role,
+                meetingId: meeting.meetingId,
+                회의명: meetingName,
+                ok: true,
+                pdfBytes: dl.buf.length,
+                txtChars: extracted.text.length,
+                추출도구: extracted.tool,
+                url: meetingUrl,
+                file: pdfPath,
+            });
+            console.log(`  OK   [${bill.billNo}] 회의록 ${meeting.meetingId} (${meetingName}) — ${dl.buf.length} bytes, 텍스트 ${extracted.text.length}자, ${extracted.tool}`);
+        }
+    }
+
+    fs.writeFileSync(path.join(ORIGINAL_OUT_DIR, '_수집로그.json'), JSON.stringify({ collectedAt, log }, null, 2), 'utf8');
+    console.log('\n수집로그:', path.join(ORIGINAL_OUT_DIR, '_수집로그.json'));
+};
+
 if (process.argv.includes('--fetch')) runFetch();
 else if (process.argv.includes('--list')) runList();
-else console.log('사용법: node collect_bill_reports.cjs --list | --fetch');
+else if (process.argv.includes('--originals')) runOriginals();
+else console.log('사용법: node collect_bill_reports.cjs --list | --fetch | --originals');
