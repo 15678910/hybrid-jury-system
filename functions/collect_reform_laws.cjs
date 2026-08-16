@@ -90,25 +90,81 @@ const TARGETS = [
         target: 'eflaw', MST: null, searchName: '정부조직법', efYd: '20261002',
         why: '공소청법 제정이유가 지목한 근거법 (법률 제21065호). 설계문서 목록에는 없으나 조직 개편의 출발점',
     },
+    {
+        file: '경찰법_원문',
+        target: 'law', MST: '268727',
+        why: '국가수사본부의 근거법. police-power-concentration 쟁점에서 경찰 쪽 조문의 근거가 된다',
+    },
 ];
+
+const sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
+
+/**
+ * law.go.kr 이 산발적으로 HTTP 404 / 빈 본문을 돌려주는 문제 대응.
+ * 같은 요청을 곧바로 다시 보내면 대체로 정상 응답이 온다 (속도 제한이 아니라 간헐적 오류).
+ * fn() 을 최대 3회까지 재시도하고, check(result) 가 실패 사유 문자열을 돌려주면 재시도한다.
+ */
+const withRetry = async (label, fn, check) => {
+    const delays = [800, 2000];
+    let result;
+    let reason = '';
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+        result = await fn();
+        reason = check(result);
+        if (!reason) return { result, attempts: attempt, ok: true };
+        if (attempt < 3) {
+            console.log(`RETRY ${label} (${attempt + 1}/3) — ${reason}`);
+            await sleep(delays[attempt - 1]);
+        }
+    }
+    return { result, attempts: 3, ok: false, reason };
+};
 
 const api = async (params) => {
     const p = new URLSearchParams({ OC, type: 'JSON', ...params });
     const url = `https://www.law.go.kr/DRF/lawService.do?${p}`;
-    const res = await fetch(url, { headers: { Accept: 'application/json' } });
-    const text = await res.text();
-    return { status: res.status, text };
+    try {
+        const res = await fetch(url, { headers: { Accept: 'application/json' } });
+        const text = await res.text();
+        return { status: res.status, text };
+    } catch (e) {
+        return { status: 0, text: '', error: e.message };
+    }
+};
+
+/** api() 결과를 검증한다. 통과하면 res.json 에 파싱된 본문을 실어 둔다. */
+const checkApiResult = (res) => {
+    if (res.error) return `네트워크 실패: ${res.error}`;
+    if (res.status !== 200) return `HTTP ${res.status}, len ${res.text.length}`;
+    let json = null;
+    try { json = JSON.parse(res.text); } catch { /* noop */ }
+    if (!json || !json['법령']) return `HTTP ${res.status}, len ${res.text.length}`;
+    res.json = json;
+    return null;
 };
 
 const searchApi = async (params) => {
     const p = new URLSearchParams({ OC, type: 'JSON', display: '100', ...params });
     const url = `https://www.law.go.kr/DRF/lawSearch.do?${p}`;
-    const res = await fetch(url, { headers: { Accept: 'application/json' } });
-    const text = await res.text();
-    let json = null;
-    try { json = JSON.parse(text); } catch { /* HTML = 인증 실패 */ }
-    const body = json ? json[Object.keys(json)[0]] : null;
-    return { status: res.status, body, rows: body ? [].concat(body.law || []) : [] };
+    try {
+        const res = await fetch(url, { headers: { Accept: 'application/json' } });
+        const text = await res.text();
+        let json = null;
+        try { json = JSON.parse(text); } catch { /* HTML = 인증 실패 */ }
+        const body = json ? json[Object.keys(json)[0]] : null;
+        return { status: res.status, text, body, rows: body ? [].concat(body.law || []) : [] };
+    } catch (e) {
+        return {
+            status: 0, text: '', body: null, rows: [], error: e.message,
+        };
+    }
+};
+
+const checkSearchResult = (res) => {
+    if (res.error) return `네트워크 실패: ${res.error}`;
+    if (res.status !== 200) return `HTTP ${res.status}, len ${res.text.length}`;
+    if (!res.body) return `HTTP ${res.status}, len ${res.text.length}`;
+    return null;
 };
 
 const arr = (v) => (v == null ? [] : [].concat(v));
@@ -212,15 +268,33 @@ const runFetch = async () => {
     const collectedAt = new Date().toISOString().slice(0, 10);
     const log = [];
 
-    for (const t of TARGETS) {
+    for (let i = 0; i < TARGETS.length; i += 1) {
+        const t = TARGETS[i];
+        if (i > 0) await sleep(300); // 요청을 몰아치지 않도록 대상 사이에 간격을 둔다
+
         let MST = t.MST;
 
         // MST 를 모르는 항목은 먼저 검색해서 확정한다 (추측 금지)
         if (!MST && t.searchName) {
-            const { rows } = await searchApi({ target: t.target, query: t.searchName });
-            const hit = rows.find((r) => r['법령명한글'] === t.searchName && r['시행일자'] === t.efYd);
+            const { result: sres, attempts: sAttempts, ok: sOk } = await withRetry(
+                `${t.file}(검색)`,
+                () => searchApi({ target: t.target, query: t.searchName }),
+                checkSearchResult,
+            );
+            if (!sOk) {
+                log.push({
+                    file: t.file, ok: false, 시도: sAttempts,
+                    reason: `${sAttempts}회 시도 후 실패: HTTP ${sres.status}, len ${sres.text.length}`,
+                });
+                console.log(`SKIP ${t.file}: MST 검색 ${sAttempts}회 시도 후 실패 (HTTP ${sres.status}, len ${sres.text.length})`);
+                continue;
+            }
+            const hit = sres.rows.find((r) => r['법령명한글'] === t.searchName && r['시행일자'] === t.efYd);
             if (!hit) {
-                log.push({ file: t.file, ok: false, reason: `검색으로 MST 확정 실패 (${t.searchName}, 시행 ${t.efYd})` });
+                log.push({
+                    file: t.file, ok: false, 시도: sAttempts,
+                    reason: `검색으로 MST 확정 실패 (${t.searchName}, 시행 ${t.efYd})`,
+                });
                 console.log(`SKIP ${t.file}: MST 확정 실패`);
                 continue;
             }
@@ -230,23 +304,17 @@ const runFetch = async () => {
         const params = { target: t.target, MST };
         if (t.efYd) params.efYd = t.efYd;
 
-        let res;
-        try {
-            res = await api(params);
-        } catch (e) {
-            log.push({ file: t.file, ok: false, reason: `네트워크 실패: ${e.message}` });
-            console.log(`FAIL ${t.file}: ${e.message}`);
+        const { result: res, attempts, ok } = await withRetry(t.file, () => api(params), checkApiResult);
+        if (!ok) {
+            log.push({
+                file: t.file, ok: false, 시도: attempts,
+                reason: `${attempts}회 시도 후 실패: HTTP ${res.status}, len ${res.text.length}`,
+            });
+            console.log(`FAIL ${t.file}: ${attempts}회 시도 후 실패 (HTTP ${res.status}, len ${res.text.length})`);
             continue;
         }
 
-        let json = null;
-        try { json = JSON.parse(res.text); } catch { /* noop */ }
-        if (!json || !json['법령']) {
-            log.push({ file: t.file, ok: false, reason: `응답이 법령 JSON 이 아님 (HTTP ${res.status}, len ${res.text.length})` });
-            console.log(`FAIL ${t.file}: 응답 이상 (len ${res.text.length})`);
-            continue;
-        }
-
+        const json = res.json;
         const body = json['법령'];
         const bi = body['기본정보'] || {};
         const text = renderText(body, { ...t, MST, collectedAt });
@@ -256,7 +324,7 @@ const runFetch = async () => {
 
         const n = arr((body['조문'] || {})['조문단위']).length;
         log.push({
-            file: t.file, ok: true,
+            file: t.file, ok: true, 시도: attempts,
             법령명: bi['법령명_한글'], 법령ID: bi['법령ID'],
             공포일자: ymd(bi['공포일자']), 공포번호: bi['공포번호'],
             시행일자: ymd(bi['시행일자']), 제개정: bi['제개정구분'],
