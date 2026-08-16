@@ -203,7 +203,7 @@ function IssueCard({ issue }) {
             {issue.ourProposal?.text && (
                 <div className="border-2 border-purple-400 bg-purple-50 rounded p-3">
                     <p className="text-base font-bold text-purple-800 mb-1">
-                        주권자사법개혁추진준비위원회 안 · 정책 판단입니다 (사실 확인이 아닙니다)
+                        우리 안 · 정책 판단입니다 (사실 확인이 아닙니다)
                     </p>
                     <RichText text={issue.ourProposal.text} className="text-lg text-gray-900 leading-relaxed" />
                     {issue.ourProposal.rationale && (
