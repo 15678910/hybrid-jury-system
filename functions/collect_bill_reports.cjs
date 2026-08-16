@@ -1,0 +1,430 @@
+/**
+ * 국회 심사보고서·검토보고서 수집기
+ * 설계: docs/analysis/수사기소분리_쟁점분석_설계.md 후속 — 위원회 심사자료 확보
+ *
+ * 목적: 의안정보시스템(likms.assembly.go.kr)에서 대상 법안의 **심사보고서·검토보고서**
+ *       PDF 를 받아 docs/bills/reports/ 에 원문 PDF + 추출 텍스트로 저장한다.
+ *
+ * 원칙 (CLAUDE.md 2026-03-18 「법률 정보 부정확」 사건 재발 방지):
+ *   - bookId·문서명을 추측하지 않는다. 응답 HTML 에서 파싱한 값만 쓴다.
+ *   - 위원장 대안은 자체 심사보고서를 갖지 않는다. 그 안에 병합된 원안들의
+ *     보고서를 받아야 한다 (walkRelated). 대안 자체만 보고 끝내지 않는다.
+ *   - 받지 못한 문서는 사유를 기록하고 건너뛴다. 채우지 않는다.
+ *
+ * billId 는 --list 로 확인한 값이다 (탐침 기록: docs/bills/reports/_수집로그.json).
+ *
+ * 사용법:
+ *   cd functions
+ *   node collect_bill_reports.cjs --list     # 대상 법안과 붙어 있는 문서 목록만 출력, 다운로드 안 함
+ *   node collect_bill_reports.cjs --fetch    # 보고서 PDF 수집 + 텍스트 추출
+ */
+
+const fs = require('fs');
+const path = require('path');
+const { execFileSync } = require('child_process');
+
+const OUT_DIR = process.env.REPORT_OUT_DIR || path.join(__dirname, '..', 'docs', 'bills', 'reports');
+const BASE = 'https://likms.assembly.go.kr';
+
+/**
+ * 수집 대상. billId/billNo 는 상세 페이지에서 실제로 확인한 값이다.
+ * walkRelated=true 인 대안은 자체 문서 목록과 별개로, 대안에 병합된
+ * 원안(관련법안)들의 문서 목록도 함께 받는다.
+ */
+const TARGETS = [
+    {
+        billNo: '2217594', billId: 'PRC_V2X6E0Z3G1E7L2P0N0A0B4W9O2W3V3', label: '공소청법안(대안)', walkRelated: true,
+        why: '공포된 공소청법의 본체. 대안 자체에는 보고서가 없고 원안 쪽에 있다',
+    },
+    {
+        billNo: '2217595', billId: 'PRC_E2O6I0Q3W1N7J1E9W3M8D5N2U3W8V6', label: '중대범죄수사청법안(대안)', walkRelated: true,
+        why: '공포된 중수청법의 본체',
+    },
+    {
+        billNo: '2220257', billId: 'PRC_N2W6S0L7W2J9D1I8A1B1I5I1G6H8F5', label: '형사소송법 일부개정법률안(대안)', walkRelated: true,
+        why: '2026-07-31 통과. 의안원문은 이미 보관 중이고 여기서는 보고서를 받는다',
+    },
+];
+
+/** 받을 문서명. 그 외(의안원문, 위원회제출안 등)는 이미 별도로 보관 중이라 건너뛴다. */
+const WANTED_DOC_NAMES = new Set(['심사보고서', '검토보고서']);
+
+const sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
+
+const sanitizeName = (name) => String(name || '')
+    .replace(/[\\/:*?"<>|]/g, '_')
+    .replace(/\s+/g, '_')
+    .trim();
+
+/** 1단계: 세션 쿠키 + CSRF 토큰 확보 (실행당 1회) */
+const openSession = async () => {
+    const res = await fetch(`${BASE}/bill/bi/bill/sch/detailedSchPage.do?detailedTab=billDtl`);
+    const cookies = res.headers.getSetCookie().map((c) => c.split(';')[0]).join('; ');
+    const body = await res.text();
+
+    // 속성 순서를 가정하지 않고 name= 과 content=/value= 를 각각 따로 찾는다.
+    let csrf = null;
+    let m = body.match(/<meta[^>]*name="_csrf"[^>]*content="([^"]*)"/)
+        || body.match(/<meta[^>]*content="([^"]*)"[^>]*name="_csrf"/);
+    if (m) csrf = m[1];
+    if (!csrf) {
+        m = body.match(/<input[^>]*name="_csrf"[^>]*value="([^"]*)"/)
+            || body.match(/<input[^>]*value="([^"]*)"[^>]*name="_csrf"/);
+        if (m) csrf = m[1];
+    }
+
+    return { cookies, csrf, status: res.status };
+};
+
+/** <form id="form" ...> 안의 모든 hidden input 을 이름-값 쌍으로 파싱한다. 목록을 하드코딩하지 않는다. */
+const parseHiddenFields = (html) => {
+    const formMatch = html.match(/<form[^>]*\bid="form"[^>]*>([\s\S]*?)<\/form>/);
+    if (!formMatch) return null;
+    const formHtml = formMatch[1];
+    const fields = {};
+    for (const tagMatch of formHtml.matchAll(/<input\b[^>]*>/g)) {
+        const tag = tagMatch[0];
+        const nameM = tag.match(/\bname="([^"]*)"/);
+        if (!nameM) continue;
+        const valueM = tag.match(/\bvalue="([^"]*)"/);
+        fields[nameM[1]] = valueM ? valueM[1] : '';
+    }
+    return fields;
+};
+
+/** 2단계: 법안 상세 페이지 → hidden 필드 + 제목(의안번호/법안명) + 소관위원회 */
+const fetchBillDetail = async (session, billId) => {
+    const res = await fetch(`${BASE}/bill/bi/billDetailPage.do?billId=${billId}`, {
+        headers: { Cookie: session.cookies },
+    });
+    const body = await res.text();
+    const fields = parseHiddenFields(body);
+
+    const h3 = body.match(/<h3[^>]*title="\[([^\]]*)\]\s*([^"]+)"/);
+    const billNo = h3 ? h3[1] : null;
+    const billName = h3 ? h3[2].trim() : null;
+
+    const cm = body.match(/소관위원회<\/strong>\s*<div[^>]*>\s*([^<]+?)\s*<\/div>/);
+    const committee = cm ? cm[1].trim() : null;
+
+    return {
+        status: res.status, htmlLen: body.length, fields, billNo, billName, committee,
+    };
+};
+
+/** 3단계: 문서 목록. FileGate 링크가 있는 <a> 태그를 통째로 파싱한다 (javascript:goDownload(...) 로 감싼 hwp 링크도 있음). */
+const parseDocLinks = (html) => {
+    const norm = html.replace(/&amp;/g, '&');
+    const docs = [];
+    for (const tagMatch of norm.matchAll(/<a\b[^>]*>/g)) {
+        const tag = tagMatch[0];
+        const hrefM = tag.match(/FileGate\?bookId=([0-9A-Fa-f-]+)&type=(\d)/);
+        if (!hrefM) continue;
+        const titleM = tag.match(/\btitle="([^"]*)"/);
+        const rawTitle = titleM ? titleM[1] : '';
+        const docName = rawTitle.replace(/\s*\([^()]*다운로드\)\s*$/, '').trim();
+        docs.push({ docName, bookId: hrefM[1], type: hrefM[2], rawTitle });
+    }
+    return docs;
+};
+
+const fetchDocList = async (session, billId, fields) => {
+    const params = new URLSearchParams(fields);
+    const res = await fetch(`${BASE}/bill/bi/bill/detail/billInfo.do`, {
+        method: 'POST',
+        headers: {
+            Cookie: session.cookies,
+            'X-CSRF-TOKEN': session.csrf,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Referer: `${BASE}/bill/bi/billDetailPage.do?billId=${billId}`,
+        },
+        body: params.toString(),
+    });
+    const body = await res.text();
+    return { status: res.status, htmlLen: body.length, docs: parseDocLinks(body) };
+};
+
+/** 4단계: 대안에 병합된 원안(관련법안) billId 목록 */
+const fetchRelatedBillIds = async (session, billId, fields) => {
+    const params = new URLSearchParams(fields);
+    const res = await fetch(`${BASE}/bill/bi/bill/detail/anBillInfo.do`, {
+        method: 'POST',
+        headers: {
+            Cookie: session.cookies,
+            'X-CSRF-TOKEN': session.csrf,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Referer: `${BASE}/bill/bi/billDetailPage.do?billId=${billId}`,
+        },
+        body: params.toString(),
+    });
+    const body = await res.text();
+    const ids = new Set();
+    for (const m of body.matchAll(/data-bill-id="([^"]+)"/g)) {
+        if (m[1] && m[1] !== billId) ids.add(m[1]);
+    }
+    return { status: res.status, htmlLen: body.length, relatedBillIds: [...ids] };
+};
+
+/** 5단계: PDF 다운로드. Content-Type 은 항상 application/unknown 이라 매직바이트로 검증한다. */
+const downloadPdf = async (bookId) => {
+    const url = `${BASE}/filegate/servlet/FileGate?bookId=${bookId}&type=1`;
+    const res = await fetch(url);
+    const buf = Buffer.from(await res.arrayBuffer());
+    const contentDisposition = res.headers.get('content-disposition') || '';
+    const isPdf = buf.slice(0, 5).toString('latin1') === '%PDF-';
+    return {
+        status: res.status, buf, contentDisposition, isPdf, url,
+    };
+};
+
+/** pdftotext 우선, 실패하거나 200자 미만이면 pdf-parse 로 재시도한다 (repo-root node_modules 에서 resolve). */
+const extractPdfText = async (pdfPath, txtPath) => {
+    let text = '';
+    let tool = 'pdftotext';
+    try {
+        execFileSync('pdftotext', ['-layout', '-enc', 'UTF-8', pdfPath, txtPath], { stdio: ['ignore', 'ignore', 'pipe'] });
+        text = fs.readFileSync(txtPath, 'utf8');
+    } catch {
+        text = '';
+    }
+
+    if (!text || text.trim().length < 200) {
+        try {
+            const pdfParsePath = require.resolve('pdf-parse', { paths: [path.join(__dirname, '..')] });
+            const pdfParse = require(pdfParsePath);
+            const data = await pdfParse(fs.readFileSync(pdfPath));
+            text = data.text || '';
+            tool = 'pdf-parse';
+        } catch (e) {
+            return {
+                ok: false, tool: 'none', text: '', reason: `pdftotext·pdf-parse 모두 실패: ${e.message}`,
+            };
+        }
+    }
+
+    return { ok: true, tool, text };
+};
+
+const renderTextHeader = (meta) => {
+    const L = [];
+    L.push('='.repeat(70));
+    L.push(`의안번호  : ${meta.billNo || ''}`);
+    L.push(`법안명    : ${meta.billName || ''}`);
+    L.push(`문서명    : ${meta.docName || ''}`);
+    L.push(`소관위원회: ${meta.committee || ''}`);
+    L.push(`billId    : ${meta.billId || ''}`);
+    L.push(`출처 URL  : ${meta.sourceUrl || ''}`);
+    L.push(`수집일시  : ${meta.collectedAt || ''}`);
+    L.push(`추출도구  : ${meta.tool || ''}`);
+    L.push('='.repeat(70));
+    L.push('');
+    return L.join('\n');
+};
+
+const collectDocsForBill = async (session, billId, targetLabel) => {
+    const detail = await fetchBillDetail(session, billId);
+    if (!detail.fields) {
+        return {
+            billId, ok: false, reason: `상세 페이지에서 <form id="form"> 을 찾지 못함 (HTTP ${detail.status}, len ${detail.htmlLen})`,
+        };
+    }
+    await sleep(400);
+
+    const docRes = await fetchDocList(session, billId, detail.fields);
+    return {
+        billId,
+        ok: true,
+        billNo: detail.billNo || detail.fields.billNo || null,
+        billName: detail.billName,
+        committee: detail.committee,
+        targetLabel,
+        docs: docRes.docs,
+        docListStatus: docRes.status,
+        docListLen: docRes.htmlLen,
+        fields: detail.fields,
+    };
+};
+
+const runList = async () => {
+    const session = await openSession();
+    if (!session.cookies || !session.csrf) {
+        console.log(`FAIL 세션: 쿠키 또는 CSRF 확보 실패 (HTTP ${session.status})`);
+        return;
+    }
+    console.log(`OK   세션 확보 — CSRF ${session.csrf.slice(0, 8)}...`);
+
+    for (const t of TARGETS) {
+        console.log(`\n[${t.label}] billNo=${t.billNo} billId=${t.billId}`);
+        const own = await collectDocsForBill(session, t.billId, t.label);
+        if (!own.ok) {
+            console.log(`  FAIL ${t.billId}: ${own.reason}`);
+            continue;
+        }
+        console.log(`  대안: [${own.billNo}] ${own.billName} | 소관위 ${own.committee || '?'}`);
+        own.docs.forEach((d) => console.log(`    - ${d.docName} (type=${d.type}, bookId=${d.bookId})`));
+
+        if (!t.walkRelated) continue;
+
+        await sleep(400);
+        const rel = await fetchRelatedBillIds(session, t.billId, own.fields);
+        if (!rel.relatedBillIds.length) {
+            console.log(`  관련법안 없음 (HTTP ${rel.status}, len ${rel.htmlLen})`);
+            continue;
+        }
+        console.log(`  관련법안 ${rel.relatedBillIds.length}건`);
+        for (const relId of rel.relatedBillIds) {
+            await sleep(400);
+            const relDoc = await collectDocsForBill(session, relId, t.label);
+            if (!relDoc.ok) {
+                console.log(`    FAIL ${relId}: ${relDoc.reason}`);
+                continue;
+            }
+            console.log(`    - [${relDoc.billNo}] ${relDoc.billName} | 소관위 ${relDoc.committee || '?'}`);
+            relDoc.docs.forEach((d) => console.log(`        - ${d.docName} (type=${d.type}, bookId=${d.bookId})`));
+        }
+    }
+};
+
+/**
+ * 같은 법안에 같은 문서명(예: 검토보고서)이 두 번 이상 붙는 경우가 실제로 있다
+ * (여러 법안을 묶어 병합심사한 보고서가 각 법안 페이지에 별도 bookId 로 걸림).
+ * bookId 가 다르면 서로 다른 문서이므로 덮어쓰지 않고 _2, _3 접미사로 구분한다.
+ */
+const usedBaseNames = new Map();
+const resolveBaseName = (base, bookId) => {
+    let list = usedBaseNames.get(base);
+    if (!list) {
+        list = [];
+        usedBaseNames.set(base, list);
+    }
+    let idx = list.indexOf(bookId);
+    if (idx === -1) {
+        list.push(bookId);
+        idx = list.length - 1;
+    }
+    return idx === 0 ? base : `${base}_${idx + 1}`;
+};
+
+const runFetch = async () => {
+    fs.mkdirSync(OUT_DIR, { recursive: true });
+    const collectedAt = new Date().toISOString();
+    const log = [];
+
+    const session = await openSession();
+    if (!session.cookies || !session.csrf) {
+        console.log(`FAIL 세션: 쿠키 또는 CSRF 확보 실패 (HTTP ${session.status})`);
+        return;
+    }
+    console.log(`OK   세션 확보 — CSRF ${session.csrf.slice(0, 8)}...`);
+
+    const processBillId = async (billId, targetLabel) => {
+        const bill = await collectDocsForBill(session, billId, targetLabel);
+        if (!bill.ok) {
+            log.push({
+                의안번호: null, 법안명: null, 문서명: null, billId, bookId: null, ok: false, reason: bill.reason,
+            });
+            console.log(`FAIL ${billId}: ${bill.reason}`);
+            return;
+        }
+
+        const wanted = bill.docs.filter((d) => WANTED_DOC_NAMES.has(d.docName) && d.type === '1');
+        if (!wanted.length) {
+            console.log(`SKIP [${bill.billNo}] ${bill.billName} — 심사보고서/검토보고서 없음 (문서 ${bill.docs.map((d) => d.docName).join(', ') || '없음'})`);
+        }
+
+        for (const doc of wanted) {
+            await sleep(400);
+            const dl = await downloadPdf(doc.bookId);
+            const sourceUrl = dl.url;
+
+            if (dl.status !== 200 || !dl.isPdf) {
+                log.push({
+                    의안번호: bill.billNo, 법안명: bill.billName, 문서명: doc.docName, billId, bookId: doc.bookId,
+                    ok: false, reason: `PDF 아님 또는 다운로드 실패 (HTTP ${dl.status}, bytes ${dl.buf.length}, head "${dl.buf.slice(0, 5).toString('latin1')}")`,
+                });
+                console.log(`FAIL [${bill.billNo}] ${bill.billName} ${doc.docName}: PDF 검증 실패 (HTTP ${dl.status})`);
+                continue;
+            }
+
+            const rawBaseName = `${bill.billNo}_${sanitizeName(bill.billName)}_${doc.docName}`;
+            const baseName = resolveBaseName(rawBaseName, doc.bookId);
+            const pdfPath = path.join(OUT_DIR, `${baseName}.pdf`);
+            const txtPath = path.join(OUT_DIR, `${baseName}.txt`);
+            fs.writeFileSync(pdfPath, dl.buf);
+
+            const extracted = await extractPdfText(pdfPath, txtPath);
+            if (!extracted.ok) {
+                log.push({
+                    의안번호: bill.billNo, 법안명: bill.billName, 문서명: doc.docName, billId, bookId: doc.bookId,
+                    ok: false, pdfBytes: dl.buf.length, reason: extracted.reason, contentDisposition: dl.contentDisposition, file: pdfPath,
+                });
+                console.log(`FAIL [${bill.billNo}] ${bill.billName} ${doc.docName}: 텍스트 추출 실패 — ${extracted.reason}`);
+                continue;
+            }
+
+            const header = renderTextHeader({
+                billNo: bill.billNo,
+                billName: bill.billName,
+                docName: doc.docName,
+                committee: bill.committee,
+                billId,
+                sourceUrl,
+                collectedAt,
+                tool: extracted.tool,
+            });
+            const finalText = header + extracted.text;
+            fs.writeFileSync(txtPath, finalText, 'utf8');
+
+            log.push({
+                의안번호: bill.billNo,
+                법안명: bill.billName,
+                문서명: doc.docName,
+                billId,
+                bookId: doc.bookId,
+                ok: true,
+                pdfBytes: dl.buf.length,
+                txtChars: extracted.text.length,
+                추출도구: extracted.tool,
+                contentDisposition: dl.contentDisposition,
+                file: pdfPath,
+            });
+            console.log(`OK   [${bill.billNo}] ${bill.billName} — ${doc.docName} (${dl.buf.length} bytes, 텍스트 ${extracted.text.length}자, ${extracted.tool})`);
+        }
+    };
+
+    for (const t of TARGETS) {
+        console.log(`\n=== ${t.label} (billNo=${t.billNo}) ===`);
+        await processBillId(t.billId, t.label);
+
+        if (!t.walkRelated) continue;
+
+        await sleep(400);
+        const own = await fetchBillDetail(session, t.billId);
+        if (!own.fields) {
+            log.push({
+                의안번호: t.billNo, 법안명: t.label, 문서명: null, billId: t.billId, bookId: null, ok: false, reason: `관련법안 조회용 hidden 필드 파싱 실패 (HTTP ${own.status})`,
+            });
+            console.log(`FAIL ${t.billId}: 관련법안 조회용 hidden 필드 파싱 실패`);
+            continue;
+        }
+        await sleep(400);
+        const rel = await fetchRelatedBillIds(session, t.billId, own.fields);
+        if (!rel.relatedBillIds.length) {
+            console.log(`  관련법안 없음 (HTTP ${rel.status}, len ${rel.htmlLen})`);
+            continue;
+        }
+        for (const relId of rel.relatedBillIds) {
+            await sleep(400);
+            await processBillId(relId, t.label);
+        }
+    }
+
+    fs.writeFileSync(path.join(OUT_DIR, '_수집로그.json'), JSON.stringify({ collectedAt, log }, null, 2), 'utf8');
+    console.log('\n수집로그:', path.join(OUT_DIR, '_수집로그.json'));
+};
+
+if (process.argv.includes('--fetch')) runFetch();
+else if (process.argv.includes('--list')) runList();
+else console.log('사용법: node collect_bill_reports.cjs --list | --fetch');
