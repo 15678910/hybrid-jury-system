@@ -5,7 +5,7 @@
 소관위원회: 법제사법위원회
 billId    : PRC_Z2J5S0V6P1V1W1M6C2K3S0S1V1P6I1
 출처 URL  : https://likms.assembly.go.kr/filegate/servlet/FileGate?bookId=59B144B8-2C1E-8DF7-FAFE-CF211191746A&type=1
-수집일시  : 2026-08-16T12:47:16.605Z
+수집일시  : 2026-08-16T12:55:42.182Z
 추출도구  : pdftotext
 ======================================================================
         공소청 설치 및 운영에 관한 법률안

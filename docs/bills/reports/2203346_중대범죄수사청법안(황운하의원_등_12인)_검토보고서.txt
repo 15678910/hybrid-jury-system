@@ -5,7 +5,7 @@
 소관위원회: 행정안전위원회
 billId    : PRC_A2I4I0H8F2G7E1E3M2N8L3M1K2L6J1
 출처 URL  : https://likms.assembly.go.kr/filegate/servlet/FileGate?bookId=8172A791-0A4F-D5A0-1B01-AF0CFB0AF5F9&type=1
-수집일시  : 2026-08-16T12:47:16.605Z
+수집일시  : 2026-08-16T12:55:42.182Z
 추출도구  : pdftotext
 ======================================================================
    제418회국회(정기회)

@@ -5,7 +5,7 @@
 소관위원회: 법제사법위원회
 billId    : PRC_S2R4Q0O6K0J3I1I3H4P5O5M5J4I3H0
 출처 URL  : https://likms.assembly.go.kr/filegate/servlet/FileGate?bookId=616345B9-01CD-02F3-54E1-31A1C462C2A3&type=1
-수집일시  : 2026-08-16T12:47:16.605Z
+수집일시  : 2026-08-16T12:55:42.182Z
 추출도구  : pdftotext
 ======================================================================
     제417회국회(임시회)

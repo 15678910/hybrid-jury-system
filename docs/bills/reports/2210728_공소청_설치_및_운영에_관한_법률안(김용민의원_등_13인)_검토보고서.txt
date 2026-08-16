@@ -5,7 +5,7 @@
 소관위원회: 법제사법위원회
 billId    : PRC_Z2J5S0V6P1V1W1M6C2K3S0S1V1P6I1
 출처 URL  : https://likms.assembly.go.kr/filegate/servlet/FileGate?bookId=EE09FE12-8B8B-2AF2-100F-2FAD30F9C587&type=1
-수집일시  : 2026-08-16T12:47:16.605Z
+수집일시  : 2026-08-16T12:55:42.182Z
 추출도구  : pdftotext
 ======================================================================
             제426회국회(임시회)

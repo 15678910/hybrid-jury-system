@@ -5,7 +5,7 @@
 소관위원회: 행정안전위원회
 billId    : PRC_B2N5K0P6B1F1D1F6N3B1W0S5W5J9R9
 출처 URL  : https://likms.assembly.go.kr/filegate/servlet/FileGate?bookId=95256EEF-93F1-2BA2-19F1-A62F66AFB812&type=1
-수집일시  : 2026-08-16T12:47:16.605Z
+수집일시  : 2026-08-16T12:55:42.182Z
 추출도구  : pdftotext
 ======================================================================
     제433회국회(임시회)

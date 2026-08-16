@@ -44,6 +44,10 @@ const TARGETS = [
         billNo: '2220257', billId: 'PRC_N2W6S0L7W2J9D1I8A1B1I5I1G6H8F5', label: '형사소송법 일부개정법률안(대안)', walkRelated: true,
         why: '2026-07-31 통과. 의안원문은 이미 보관 중이고 여기서는 보고서를 받는다',
     },
+    {
+        billNo: '2213247', billId: 'PRC_Y2N5I0A9B1L9R1Q7D4R2I5T8O7H1H3', label: '정부조직법 일부개정법률안(대안)', walkRelated: true,
+        why: '검찰청 폐지와 공소청·중수청 신설의 근거인 법률 제21065호. 조직 개편의 출발점이다',
+    },
 ];
 
 /** 받을 문서명. 그 외(의안원문, 위원회제출안 등)는 이미 별도로 보관 중이라 건너뛴다. */

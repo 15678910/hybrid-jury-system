@@ -5,7 +5,7 @@
 소관위원회: 법제사법위원회
 billId    : PRC_Q2X6Y0X7X1V3U0U8C3D2B3C8B2Z8Z1
 출처 URL  : https://likms.assembly.go.kr/filegate/servlet/FileGate?bookId=A8E0DD7C-23D6-EC7B-58E1-32A9438C847C&type=1
-수집일시  : 2026-08-16T12:47:16.605Z
+수집일시  : 2026-08-16T12:55:42.182Z
 추출도구  : pdftotext
 ======================================================================
               형사소송법 일부개정법률안

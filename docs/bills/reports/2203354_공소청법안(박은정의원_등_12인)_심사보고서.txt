@@ -5,7 +5,7 @@
 소관위원회: 법제사법위원회
 billId    : PRC_Y2W4W0V8V2D7E1C3D3B5A3A6I8I5G0
 출처 URL  : https://likms.assembly.go.kr/filegate/servlet/FileGate?bookId=60876FD6-CB1D-2EF6-3080-585E44CAF153&type=1
-수집일시  : 2026-08-16T12:47:16.605Z
+수집일시  : 2026-08-16T12:55:42.182Z
 추출도구  : pdftotext
 ======================================================================
                           공소청법안

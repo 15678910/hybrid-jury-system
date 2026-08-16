@@ -5,7 +5,7 @@
 소관위원회: 법제사법위원회
 billId    : PRC_V2W6R0S6Q2R9P1O5O0W6W3V9W4U5U2
 출처 URL  : https://likms.assembly.go.kr/filegate/servlet/FileGate?bookId=AD000BDD-BD1C-C3AC-B0B9-EAE273C894C7&type=1
-수집일시  : 2026-08-16T12:47:16.605Z
+수집일시  : 2026-08-16T12:55:42.182Z
 추출도구  : pdftotext
 ======================================================================
            제437회국회(임시회)

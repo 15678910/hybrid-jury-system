@@ -5,7 +5,7 @@
 소관위원회: 행정안전위원회
 billId    : PRC_Z2E6O0Q3O1P2G1I0A5Q2K2Q3H4P1U7
 출처 URL  : https://likms.assembly.go.kr/filegate/servlet/FileGate?bookId=CA680C0B-7EA1-3CB3-0977-5AF3A1515373&type=1
-수집일시  : 2026-08-16T12:47:16.605Z
+수집일시  : 2026-08-16T12:55:42.182Z
 추출도구  : pdftotext
 ======================================================================
                 중대범죄수사청법 제정에 관한 청원

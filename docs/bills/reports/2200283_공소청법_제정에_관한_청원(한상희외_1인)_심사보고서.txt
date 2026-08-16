@@ -5,7 +5,7 @@
 소관위원회: 법제사법위원회
 billId    : PRC_A2D6L0Y3I1Z2W1B0F4P9A3D8Z5L6R6
 출처 URL  : https://likms.assembly.go.kr/filegate/servlet/FileGate?bookId=281766AE-6F18-73E2-4D97-609799ECB63C&type=1
-수집일시  : 2026-08-16T12:47:16.605Z
+수집일시  : 2026-08-16T12:55:42.182Z
 추출도구  : pdftotext
 ======================================================================
               공소청법 제정에 관한 청원

@@ -5,7 +5,7 @@
 소관위원회: 행정안전위원회
 billId    : PRC_B2N5K0P6B1F1D1F6N3B1W0S5W5J9R9
 출처 URL  : https://likms.assembly.go.kr/filegate/servlet/FileGate?bookId=83768E16-94B5-81EE-DCA7-D55661F863F6&type=1
-수집일시  : 2026-08-16T12:47:16.605Z
+수집일시  : 2026-08-16T12:55:42.182Z
 추출도구  : pdftotext
 ======================================================================
             제426회국회(임시회)
