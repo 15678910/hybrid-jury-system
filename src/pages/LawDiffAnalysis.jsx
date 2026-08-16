@@ -236,7 +236,8 @@ export default function LawDiffAnalysis() {
             />
             <Header />
 
-            <main className="max-w-5xl mx-auto px-4 py-8">
+            {/* Header 가 fixed 라 그 높이만큼 본문을 내린다. 다른 페이지와 같은 pt-24 를 쓴다. */}
+            <main className="max-w-5xl mx-auto px-4 pt-24 pb-16">
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                     수사·기소 분리 — 조문으로 확인한 것
                 </h1>
