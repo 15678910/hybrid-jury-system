@@ -203,7 +203,7 @@ function IssueCard({ issue }) {
             {issue.ourProposal?.text && (
                 <div className="border-2 border-purple-400 bg-purple-50 rounded p-3">
                     <p className="text-base font-bold text-purple-800 mb-1">
-                        우리 안 · 정책 판단입니다 (사실 확인이 아닙니다)
+                        주권자사법개혁추진준비위원회 안 · 정책 판단입니다 (사실 확인이 아닙니다)
                     </p>
                     <RichText text={issue.ourProposal.text} className="text-lg text-gray-900 leading-relaxed" />
                     {issue.ourProposal.rationale && (
@@ -251,7 +251,7 @@ export default function LawDiffAnalysis() {
                     <ul className="text-lg text-gray-700 space-y-1 leading-relaxed">
                         <li>· <span className="font-semibold">제기된 우려</span>는 누가 언제 말했는지 출처를 함께 적습니다</li>
                         <li>· <span className="font-semibold">사실 확인</span>은 조문과 입법자료로만 합니다</li>
-                        <li>· <span className="font-semibold">우리 안</span>은 정책 판단임을 명시하고 시각적으로 구분합니다</li>
+                        <li>· <span className="font-semibold">주권자사법개혁추진준비위원회 안</span>은 정책 판단임을 명시하고 시각적으로 구분합니다</li>
                         <li>· 확인하지 못한 것은 <span className="font-semibold">「판단 불가」</span>로 두고 채우지 않습니다</li>
                     </ul>
                 </div>
