@@ -114,8 +114,11 @@ export const ISSUES = [
         relatedArticles: ['공소청법 제21조', '중수청법 제44조'],
 
         concern: {
-            claim: '(우리가 대비 과정에서 발견한 것이며, 외부에서 제기된 우려가 아니다)',
+            claim: '주권자사법개혁추진준비위원회가 대비 과정에서 발견한 것이며, 외부에서 제기된 우려가 아니다.',
             raisedBy: [],
+            // 외부 우려가 아니라 우리 발견이므로 「출처 미확인」 경고를 띄우지 않는다.
+            // raisedBy 가 비어 있다는 사실은 같지만 뜻이 정반대다.
+            isOwnFinding: true,
         },
 
         factCheck: {

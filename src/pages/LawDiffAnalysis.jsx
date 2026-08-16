@@ -143,6 +143,9 @@ function ArticleCard({ diff }) {
 function IssueCard({ issue }) {
     const tone = VERDICT_LABELS[issue.factCheck.verdict]?.tone ?? 'gray';
     const hasSource = issue.concern.raisedBy.length > 0;
+    // raisedBy 가 비어 있어도 뜻이 둘로 갈린다 — 아직 못 찾은 것인지,
+    // 애초에 외부 우려가 아니라 우리가 발견한 것인지. 경고는 앞쪽에만 띄운다.
+    const isOwnFinding = issue.concern.isOwnFinding === true;
 
     return (
         <div className="border border-gray-200 rounded-lg bg-white p-5 space-y-4">
@@ -156,7 +159,7 @@ function IssueCard({ issue }) {
             {/* ① 제기된 우려 */}
             {issue.concern.claim && (
                 <div className="bg-gray-50 rounded p-3">
-                    <p className="text-base font-bold text-gray-500 mb-1">제기된 우려</p>
+                    <p className="text-base font-bold text-gray-500 mb-1">{isOwnFinding ? '대비 과정에서 발견한 것' : '제기된 우려'}</p>
                     <RichText text={issue.concern.claim} className="text-lg text-gray-800 leading-relaxed" />
                     {hasSource ? (
                         <ul className="mt-2 space-y-0.5">
@@ -169,7 +172,7 @@ function IssueCard({ issue }) {
                                 </li>
                             ))}
                         </ul>
-                    ) : (
+                    ) : isOwnFinding ? null : (
                         <p className="text-base text-amber-700 mt-2 font-semibold">⚠ 출처 미확인 — 공개 전 보도 확인 필요</p>
                     )}
                 </div>
