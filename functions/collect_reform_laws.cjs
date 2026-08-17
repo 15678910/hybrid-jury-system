@@ -95,6 +95,11 @@ const TARGETS = [
         target: 'law', MST: '268727',
         why: '국가수사본부의 근거법. police-power-concentration 쟁점에서 경찰 쪽 조문의 근거가 된다',
     },
+    {
+        file: '국유재산법_원문',
+        target: 'law', MST: '283349',
+        why: '청사ㆍ장비를 기관 사이에 옮기는 절차의 근거. 제16조(관리전환)ㆍ제17조(유상 원칙)ㆍ제22조(총괄청의 용도폐지 요구ㆍ직권). ndfa-transfer 쟁점에서 NDFC 건물의 향방을 따지는 데 쓴다',
+    },
 ];
 
 const sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });

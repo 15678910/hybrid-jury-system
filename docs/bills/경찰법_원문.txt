@@ -11,7 +11,7 @@
 출처     : 국가법령정보센터 OPEN API
 요청      : lawService.do target=law MST=268727
 웹 확인  : https://www.law.go.kr/법령/%EA%B5%AD%EA%B0%80%EA%B2%BD%EC%B0%B0%EA%B3%BC%20%EC%9E%90%EC%B9%98%EA%B2%BD%EC%B0%B0%EC%9D%98%20%EC%A1%B0%EC%A7%81%20%EB%B0%8F%20%EC%9A%B4%EC%98%81%EC%97%90%20%EA%B4%80%ED%95%9C%20%EB%B2%95%EB%A5%A0
-수집일시 : 2026-08-16
+수집일시 : 2026-08-17
 수집이유 : 국가수사본부의 근거법. police-power-concentration 쟁점에서 경찰 쪽 조문의 근거가 된다
 ======================================================================
 
