@@ -12,7 +12,7 @@ import { ISSUES, IRREVERSIBILITY, IRREVERSIBILITY_EXCLUDED, VERDICT_LABELS } fro
  * 화면 규칙 두 가지가 데이터의 규칙에서 나온다.
  *  ① 근거의 층을 테두리로 구분한다. 색만으로 가르지 않는다 —
  *     색약과 흑백 인쇄에서 무너지기 때문이다.
- *  ② 「우리 안」은 라벨과 테두리 둘로 표시한다. 사실과 판단이 섞여 보이면 안 된다.
+ *  ② 「주권자사법개혁추진준비위원회 안」은 라벨과 테두리 둘로 표시한다. 사실과 판단이 섞여 보이면 안 된다.
  */
 
 const CHANGE_STYLE = {
@@ -144,7 +144,7 @@ function IssueCard({ issue }) {
     const tone = VERDICT_LABELS[issue.factCheck.verdict]?.tone ?? 'gray';
     const hasSource = issue.concern.raisedBy.length > 0;
     // raisedBy 가 비어 있어도 뜻이 둘로 갈린다 — 아직 못 찾은 것인지,
-    // 애초에 외부 우려가 아니라 우리가 발견한 것인지. 경고는 앞쪽에만 띄운다.
+    // 애초에 외부 우려가 아니라 주권자사법개혁추진준비위원회가 발견한 것인지. 경고는 앞쪽에만 띄운다.
     const isOwnFinding = issue.concern.isOwnFinding === true;
 
     return (
@@ -202,7 +202,7 @@ function IssueCard({ issue }) {
                 )}
             </div>
 
-            {/* ③ 우리 안 — 라벨과 테두리 둘로 표시 */}
+            {/* ③ 주권자사법개혁추진준비위원회 안 — 라벨과 테두리 둘로 표시 */}
             {issue.ourProposal?.text && (
                 <div className="border-2 border-purple-400 bg-purple-50 rounded p-3">
                     <p className="text-base font-bold text-purple-800 mb-1">
@@ -220,11 +220,11 @@ function IssueCard({ issue }) {
                 </div>
             )}
 
-            {/* ④ 타 안 — 출처 있는 것만. 「우리 안」과 혼동되지 않게 테두리도 색도 달리한다 */}
+            {/* ④ 타 안 — 출처 있는 것만. 「주권자사법개혁추진준비위원회 안」과 혼동되지 않게 테두리도 색도 달리한다 */}
             {issue.otherProposals?.length > 0 && (
                 <div className="border border-gray-300 bg-gray-50 rounded p-3">
                     <p className="text-base font-bold text-gray-600 mb-1">
-                        다른 곳에서 나온 안 — 우리 제안이 아닙니다
+                        다른 곳에서 나온 안 — 주권자사법개혁추진준비위원회 제안이 아닙니다
                     </p>
                     <ul className="space-y-2">
                         {issue.otherProposals.map((p, i) => (
@@ -408,7 +408,7 @@ export default function LawDiffAnalysis() {
                                 만드는 것이 아니라, <span className="font-semibold">되돌리는 비용을 감당하기 어려울 만큼 높이는 것</span>입니다.
                             </p>
                             <p className="text-base text-amber-800 mt-2 font-semibold">
-                                ⚠ 아래는 전부 우리 판단이며, 헌법학 문헌으로 아직 검증하지 않았습니다.
+                                ⚠ 아래는 전부 주권자사법개혁추진준비위원회 판단이며, 헌법학 문헌으로 아직 검증하지 않았습니다.
                             </p>
                         </div>
 
