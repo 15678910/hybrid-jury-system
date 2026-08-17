@@ -210,14 +210,43 @@ function IssueCard({ issue }) {
                     </p>
                     <RichText text={issue.ourProposal.text} className="text-lg text-gray-900 leading-relaxed" />
                     {issue.ourProposal.rationale && (
-                        <p className="text-lg text-gray-700 leading-relaxed mt-2">
-                            <span className="font-semibold">왜 그런가 — </span>{issue.ourProposal.rationale}
-                        </p>
+                        // RichText 로 감싼다 — rationale 에도 **강조**와 줄바꿈이 들어 있어
+                        // 그냥 출력하면 별표가 화면에 그대로 보인다 (reasoning 과 같은 처리)
+                        <RichText
+                            text={`**왜 그런가 —** ${issue.ourProposal.rationale}`}
+                            className="text-lg text-gray-700 leading-relaxed mt-2"
+                        />
                     )}
                 </div>
             )}
 
-            {issue.note && <p className="text-base text-gray-500 leading-relaxed">{issue.note}</p>}
+            {/* ④ 타 안 — 출처 있는 것만. 「우리 안」과 혼동되지 않게 테두리도 색도 달리한다 */}
+            {issue.otherProposals?.length > 0 && (
+                <div className="border border-gray-300 bg-gray-50 rounded p-3">
+                    <p className="text-base font-bold text-gray-600 mb-1">
+                        다른 곳에서 나온 안 — 우리 제안이 아닙니다
+                    </p>
+                    <ul className="space-y-2">
+                        {issue.otherProposals.map((p, i) => (
+                            <li key={i}>
+                                <p className="text-lg text-gray-800 leading-relaxed">
+                                    <span className="font-bold text-gray-900">{p.who} — </span>{p.text}
+                                </p>
+                                {p.source && (
+                                    <p className="text-base text-gray-500">
+                                        {p.source}
+                                        {p.url && (
+                                            <a href={p.url} target="_blank" rel="noreferrer" className="ml-1 text-blue-600 hover:underline">원문</a>
+                                        )}
+                                    </p>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            {issue.note && <RichText text={issue.note} className="text-base text-gray-500 leading-relaxed" />}
         </div>
     );
 }
