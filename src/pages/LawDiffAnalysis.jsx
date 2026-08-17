@@ -222,6 +222,67 @@ function IssueCard({ issue }) {
     );
 }
 
+/**
+ * 인용 법령 목록
+ *
+ * 본문의 조문 인용은 모두 이 표의 법령을 가리킨다. 「제9조의2」처럼 조문 번호만
+ * 적으면 어느 법의 조문인지 알 수 없으므로, 법종구분(법률·대통령령·부령·행정규칙)과
+ * 공포번호까지 함께 둔다. 같은 조문 번호가 여러 법령에 있고, 무엇보다 **법률에 있는
+ * 것과 시행령에 있는 것은 고치는 절차가 다르기 때문**이다 — 이 분석의 핵심 논점이
+ * 「법률이 정하지 않아 시행령으로 내려간다」는 것이므로 층위 표시가 곧 논거가 된다.
+ */
+function LawRegistry() {
+    return (
+        <section className="bg-white border border-gray-300 rounded p-4">
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">인용 법령</h2>
+            <p className="text-base text-gray-600 mb-3 leading-relaxed">
+                본문의 조문 인용은 모두 아래 법령의 것이다. <strong className="font-bold text-gray-900">법률·대통령령·부령·행정규칙은 고치는 절차가 다르므로</strong> 층위를 함께 적는다 —
+                법률은 국회 의결을 거치지만 대통령령은 국무회의, 부령은 장관, 행정규칙은 기관장 선에서 바뀐다.
+            </p>
+            <div className="overflow-x-auto">
+                <table className="w-full text-base border-collapse">
+                    <thead>
+                        <tr className="bg-gray-100 text-gray-700">
+                            <th className="text-left font-bold p-2 border border-gray-300">법령명</th>
+                            <th className="text-left font-bold p-2 border border-gray-300 whitespace-nowrap">법종구분</th>
+                            <th className="text-left font-bold p-2 border border-gray-300 whitespace-nowrap">공포번호</th>
+                            <th className="text-left font-bold p-2 border border-gray-300 whitespace-nowrap">공포·시행</th>
+                            <th className="text-left font-bold p-2 border border-gray-300 whitespace-nowrap">소관</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {LAWS.map((law) => (
+                            <tr key={law.id} className={law.verified ? '' : 'bg-amber-50'}>
+                                <td className="p-2 border border-gray-300 align-top">
+                                    <span className="font-bold text-gray-900">{law.formalName || law.name}</span>
+                                    {law.formalName && law.formalName !== law.name && (
+                                        <span className="text-gray-500"> (약칭 {law.name})</span>
+                                    )}
+                                    {law.note && <p className="text-gray-600 mt-1 leading-relaxed">{law.note}</p>}
+                                    {law.sourceFile && <p className="text-gray-400 mt-1 break-all">{law.sourceFile}</p>}
+                                </td>
+                                <td className="p-2 border border-gray-300 align-top whitespace-nowrap text-gray-800">{law.kind || '—'}</td>
+                                <td className="p-2 border border-gray-300 align-top whitespace-nowrap text-gray-800">{law.lawNumber || '미확인'}</td>
+                                <td className="p-2 border border-gray-300 align-top whitespace-nowrap text-gray-800">
+                                    {law.promulgated || '—'}
+                                    {law.effective && <><br />시행 {law.effective}</>}
+                                </td>
+                                <td className="p-2 border border-gray-300 align-top whitespace-nowrap text-gray-800">{law.ministry || '—'}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            <p className="text-base text-amber-800 mt-2 leading-relaxed">
+                바탕이 옅은 노랑인 줄은 <strong className="font-bold">아직 원문을 수집하지 못한 법령</strong>이다. 다른 법령이 인용한 것을 옮겨 적었을 뿐이므로, 조문 자체는 원문으로 확인해야 한다.
+            </p>
+            <p className="text-base text-gray-500 mt-1 leading-relaxed">
+                원문은 국가법령정보센터에서 받아 저장소에 보관한다(<span className="break-all">docs/bills/</span>). 조문 문언은 요약하지 않고 그대로 옮긴다.
+            </p>
+        </section>
+    );
+}
+
 export default function LawDiffAnalysis() {
     const [tab, setTab] = useState('issues');
 
@@ -281,21 +342,13 @@ export default function LawDiffAnalysis() {
                         {ISSUES.map((issue) => (
                             <IssueCard key={issue.id} issue={issue} />
                         ))}
+                        <LawRegistry />
                     </div>
                 )}
 
                 {tab === 'articles' && (
                     <div className="space-y-6">
-                        <div className="grid sm:grid-cols-3 gap-3">
-                            {LAWS.map((law) => (
-                                <div key={law.id} className="bg-white border border-gray-200 rounded p-3">
-                                    <p className="font-bold text-gray-900">{law.name}</p>
-                                    {law.lawNumber && <p className="text-base text-gray-500 mt-1">{law.lawNumber}</p>}
-                                    {law.effective && <p className="text-base text-gray-500">시행 {law.effective}</p>}
-                                    {law.note && <p className="text-base text-gray-600 mt-1 leading-relaxed">{law.note}</p>}
-                                </div>
-                            ))}
-                        </div>
+                        <LawRegistry />
 
                         <section>
                             <h2 className="text-2xl font-bold text-gray-900 mb-3">공소청법 ↔ 검찰청법 ({ARTICLE_DIFFS.length}건)</h2>
