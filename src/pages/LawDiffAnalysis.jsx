@@ -325,7 +325,9 @@ export default function LawDiffAnalysis() {
         <div className="min-h-screen bg-gray-50">
             <SEOHead
                 title="수사·기소 분리 조문 분석 — 시민법정"
-                description="공소청법·중수청법·형사소송법 개정을 조문 단위로 대비하고, 제기된 우려를 조문으로 검증했습니다."
+                description="공소청법·중수청법·형사소송법 개정이 무엇을 바꾸는지 조문을 나란히 놓고 확인합니다. 제기된 우려를 조문으로 검증하고, 인용한 법령의 공포번호까지 함께 공개합니다."
+                path="/law-diff"
+                image="https://siminbupjung-blog.web.app/og-law-diff.png"
             />
             <Header />
 

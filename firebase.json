@@ -107,6 +107,10 @@
         "function": "juryAnalysisPage"
       },
       {
+        "source": "/law-diff",
+        "function": "lawDiffPage"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

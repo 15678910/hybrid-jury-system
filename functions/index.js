@@ -3484,6 +3484,16 @@ exports.predictionPage = createStaticPageHandler(
     630
 );
 
+// 수사·기소 분리 조문 분석
+exports.lawDiffPage = createStaticPageHandler(
+    '/law-diff',
+    '수사·기소 분리 — 조문으로 검증한 쟁점 | 시민법정',
+    '공소청법·중수청법·형사소송법 개정이 무엇을 바꾸는지 조문을 나란히 놓고 확인합니다. 제기된 우려를 조문으로 검증하고, 인용한 법령의 공포번호까지 함께 공개합니다.',
+    'https://siminbupjung-blog.web.app/og-law-diff.png',
+    1200,
+    630
+);
+
 // 법률 데이터베이스
 exports.lawDatabasePage = createStaticPageHandler(
     '/law-database',
