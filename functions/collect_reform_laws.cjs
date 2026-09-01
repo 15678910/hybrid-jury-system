@@ -110,6 +110,35 @@ const TARGETS = [
         target: 'law', MST: '283467',
         why: '제7조의2 가 법 제10조제2항제2호의 「대통령령으로 정하는 사항」을 「인건비 총액의 변동을 수반하는」 하부기구 설치ㆍ정원 조정으로 한정한다. 기본운영규정 개정에 장관 승인이 언제 필요한지가 여기서 갈린다',
     },
+    // ── judgment-disclosure(판결서 공개) 쟁점 검증용 (2026-09-01 추가) ──────────
+    // 세 법이 판결서·재판기록의 공개를 각각 다른 자리에서 정한다.
+    // 형소법 제59조의3(확정 판결서등의 열람ㆍ복사) / 민소법 제163조의2(판결서의 열람ㆍ복사)
+    // / 법원조직법 제57조(재판의 공개). 셋을 나란히 놓고 봐야 쟁점이 성립한다.
+    // 조문 제목부터 갈린다 — 형사는 「확정」이 붙고 민사는 안 붙는다. 이름을 옮겨 적을 때
+    // 서로 바꿔 쓰기 쉬우니(2026-09-01 실제로 한 번 뒤집어 적었다) 원문을 열어 확인할 것.
+    {
+        // ⚠️ target=law 로 받으면 안 된다. 제21241호는 단계 시행이라 target=law 가
+        //    마지막 시행분(2027-12-31)을 돌려준다 — 2026-09-01 확인.
+        //    오늘 시행 중인 판을 받으려면 eflaw + efYd 로 시행일을 못 박아야 한다.
+        file: '형사소송법_현행',
+        target: 'eflaw', MST: '281865', efYd: '20260701',
+        why: 'judgment-disclosure 쟁점의 형사 쪽 근거 — 제59조의3(확정 판결서등의 열람ㆍ복사) — 형사는 「확정된 사건」만이다. 2026-09-01 기준 시행 중인 판(제21241호 중 2026-07-01 시행분)',
+    },
+    {
+        file: '형사소송법_20261002시행',
+        target: 'eflaw', MST: '288579', efYd: '20261002',
+        why: '같은 법의 2026-10-02 시행분(공포 제21857호). 대조 결과 제59조의3은 이 개정에서 바뀌지 않는다 — 그 사실을 확인해 두려고 받았다. 현행만 보면 「확정 시행」과 「앞으로 바뀔 것」을 섞게 된다',
+    },
+    {
+        file: '민사소송법_원문',
+        target: 'law', MST: '252393',
+        why: 'judgment-disclosure 쟁점의 민사 쪽 근거 — 제163조의2(판결서의 열람ㆍ복사) — 민사는 「선고된 사건」이면 되고 확정되지 않은 판결서도 포함한다. 형사와 요건이 다른 핵심 대목',
+    },
+    {
+        file: '법원조직법_원문',
+        target: 'law', MST: '284023',
+        why: 'judgment-disclosure 쟁점의 상위 근거 — 제57조(재판의 공개). 헌법 제109조를 받는 조문',
+    },
 ];
 
 const sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
@@ -278,13 +307,37 @@ const runSearch = async () => {
     }
 };
 
+/**
+ * --only=a,b 로 일부만 다시 받는다.
+ * 이미 받아 둔 원문을 통째로 다시 내려받으면 그날의 법령 상태로 전부 덮어써져
+ * 「무엇을 이번에 바꿨는지」가 diff 에서 사라진다. 그래서 증분 수집을 기본으로 둔다.
+ * 이 경우 _수집로그.json 은 덮어쓰지 않고 같은 file 항목만 갈아 끼운다.
+ */
+const parseOnly = () => {
+    const a = process.argv.find((v) => v.startsWith('--only='));
+    if (!a) return null;
+    const names = a.slice('--only='.length).split(',').map((s) => s.trim()).filter(Boolean);
+    return names.length ? names : null;
+};
+
 const runFetch = async () => {
     fs.mkdirSync(OUT_DIR, { recursive: true });
     const collectedAt = new Date().toISOString().slice(0, 10);
     const log = [];
 
-    for (let i = 0; i < TARGETS.length; i += 1) {
-        const t = TARGETS[i];
+    const only = parseOnly();
+    const targets = only ? TARGETS.filter((t) => only.includes(t.file)) : TARGETS;
+    if (only) {
+        const missing = only.filter((n) => !TARGETS.some((t) => t.file === n));
+        if (missing.length) {
+            console.error(`--only 에 없는 대상이 있습니다: ${missing.join(', ')}`);
+            process.exit(1);
+        }
+        console.log(`증분 수집: ${targets.map((t) => t.file).join(', ')}\n`);
+    }
+
+    for (let i = 0; i < targets.length; i += 1) {
+        const t = targets[i];
         if (i > 0) await sleep(300); // 요청을 몰아치지 않도록 대상 사이에 간격을 둔다
 
         let MST = t.MST;
@@ -350,8 +403,20 @@ const runFetch = async () => {
         console.log(`OK   ${t.file}.txt — ${bi['법령명_한글']} | 조문 ${n} | ${Buffer.byteLength(text, 'utf8')} bytes`);
     }
 
-    fs.writeFileSync(path.join(OUT_DIR, '_수집로그.json'), JSON.stringify({ collectedAt, log }, null, 2), 'utf8');
-    console.log('\n수집로그:', path.join(OUT_DIR, '_수집로그.json'));
+    const logPath = path.join(OUT_DIR, '_수집로그.json');
+    let out = { collectedAt, log };
+    if (only && fs.existsSync(logPath)) {
+        // 증분 수집이면 이번에 받은 항목만 갈아 끼우고 나머지 기록은 남긴다.
+        try {
+            const prev = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+            const kept = (prev.log || []).filter((e) => !log.some((n) => n.file === e.file));
+            out = { collectedAt, 이전수집일: prev.collectedAt, log: [...kept, ...log] };
+        } catch (e) {
+            console.log(`기존 수집로그를 읽지 못해 새로 씁니다: ${e.message}`);
+        }
+    }
+    fs.writeFileSync(logPath, JSON.stringify(out, null, 2), 'utf8');
+    console.log('\n수집로그:', logPath);
 };
 
 if (process.argv.includes('--fetch')) runFetch();
