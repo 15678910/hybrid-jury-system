@@ -13,7 +13,7 @@ const CSS = `
 @font-face { font-family:'NotoKR'; src:url('file://${F(900)}') format('truetype'); font-weight:900; }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{width:1600px;height:1200px;}body{width:1600px;height:1200px;overflow:hidden;}
-body{font-family:'NotoKR',sans-serif;background:linear-gradient(160deg,#eaf2fb 0%,#dce9f8 55%,#cfe0f4 100%);color:#12294a;display:flex;flex-direction:column;padding:36px 52px 24px;}
+body{font-family:'NotoKR',sans-serif;background:linear-gradient(160deg,#eaf2fb 0%,#dce9f8 55%,#cfe0f4 100%);color:#12294a;display:flex;flex-direction:column;padding:36px 52px 24px;word-break:keep-all;overflow-wrap:break-word;}
 .top{display:flex;align-items:flex-start;gap:26px;margin-bottom:10px;}
 .chip{background:#12356b;color:#fff;font-weight:900;font-size:32px;padding:14px 26px;border-radius:14px;letter-spacing:1px;white-space:nowrap;align-self:flex-start;box-shadow:0 6px 14px rgba(18,53,107,.25);}
 .titles{flex:1;}
