@@ -51,6 +51,12 @@ h1 .bar{color:#8fa8c9;font-weight:400;margin:0 14px;}
 .chips{display:flex;flex-wrap:wrap;gap:10px;padding:0 24px;}
 .chips .c{background:#eef4ff;border:2px solid #b9cdec;color:#1e3a5f;font-weight:700;font-size:31px;border-radius:999px;padding:6px 15px;}
 .dense .item .tx{font-size:33.5px;line-height:1.34;}.dense .ref{font-size:24.5px;}.dense .fbox{font-size:28px;padding:7px 12px;}.dense .colhead .t{font-size:34px;}
+body.m1 .chip{font-size:31px;}body.m1 h1{font-size:65px;}body.m1 .sub{font-size:35px;}body.m1 .page{font-size:29px;}
+body.m1 .colhead .n{font-size:28px;}body.m1 .colhead .t{font-size:38px;}body.m1 .item .tx{font-size:39px;}
+body.m1 .ref{font-size:27px;}body.m1 .big{font-size:37px;}body.m1 .warnbox .tag{font-size:26px;}body.m1 .warnbox .tx{font-size:31px;}
+body.m1 .bottom{font-size:37px;}body.m1 .bottom .pre{font-size:26px;}body.m1 .propose{font-size:28px;}
+body.m1 .fbox{font-size:31px;}body.m1 .farr{font-size:31px;}body.m1 .chips .c{font-size:30px;}
+body.m1.dense .item .tx{font-size:32.5px;}body.m1.dense .ref{font-size:23.5px;}body.m1.dense .fbox{font-size:27px;}body.m1.dense .colhead .t{font-size:33px;}
 `;
 
 const cards = [
@@ -73,7 +79,7 @@ const cards = [
    ['그래도 수사와 기소는 <b>한 지붕(검찰청)</b> 아래'],
   ]},
  ],
- bottom:'핵심은 — <span class="k">검사가 수사도 하고 기소도 하는 구조</span>, 여기가 출발점'},
+ bottom:'핵심은 — <span class="k">검사가 수사도 하고 기소도 하는 구조?</span>, 여기가 출발점'},
 // ───────────────────────── 2단계
 { step:'2단계', title:'뭐가 달라지나', sub:'검찰청 폐지 — 「공소청 + 중수청」으로 (2026.10.2 시행)', page:'2 / 8',
  cols:[
@@ -233,7 +239,7 @@ function renderCol(c){
 }
 
 cards.forEach((card,idx)=>{
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${CSS}</style></head><body class="${card.dense?'dense':''}">
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${CSS}</style></head><body class="${idx>0?'m1 ':''}${card.dense?'dense':''}">
   <div class="top">
     <div class="chip">형사소송법 개정</div>
     <div class="titles"><h1><span class="step">${card.step}</span><span class="bar">|</span>${card.title}</h1>
