@@ -61,6 +61,7 @@ h1 .bar{color:#8fa8c9;font-weight:400;margin:0 14px;}
 .farr{color:#1a56c9;font-size:30px;font-weight:900;}
 .chips{display:flex;flex-wrap:wrap;gap:10px;padding:0 24px;}
 .chips .c{background:#eef4ff;border:2px solid #b9cdec;color:#1e3a5f;font-weight:700;font-size:29px;border-radius:999px;padding:6px 15px;}
+.dense .item .tx{font-size:30.5px;line-height:1.36;}.dense .ref{font-size:22.5px;}.dense .fbox{font-size:26px;padding:7px 12px;}.dense .colhead .t{font-size:32px;}
 `;
 
 const cards = [
@@ -144,28 +145,30 @@ const cards = [
   ]},
  ],
  bottom:'조직도가 바뀌어도 사람이 그대로면 — <span class="k">첫 2년이 갈림길</span>이다'},
-// ───────────────────────── 5단계 (신설·제안)
-{ step:'5단계', title:'그럼 중수청은 누구로 채우나', sub:'공소청과 완전히 분리된 수사청의 이상적 구성', page:'5 / 8',
+// ───────────────────────── 5단계 (중수청법 원문 기반 구성도)
+{ step:'5단계', dense:true, title:'중수청, 어떻게 짜야 하나', sub:'법이 세운 뼈대 위에 — 사람의 구성과 밖의 감시 (중수청법 원문 대조)', page:'5 / 8',
  propose:'②·③열은 주권자사법개혁추진준비위원회의 제안입니다 — ①열의 조문 확인과 구분됩니다',
  cols:[
-  {n:'1',t:'법이 정해 둔 것 (조문)',items:[
-   ['청장 자격 — 수사·법률 사무 <b>15년</b>(판사·검사·변호사 포함)','중수청법 제8조①'],
-   ['수사관 신규채용은 <b>공개경쟁이 원칙</b>','중수청법 제20조①'],
-   ['그러나 <b>출신 구성비 규정은 없다</b> — 검찰 인력의 이관 특례만 있다','부칙 제4조'],
-  ],warnDots:[2]},
-  {n:'2',t:'제안 — 구성의 원칙',items:[
-   ['<b>어느 한 출신도 다수가 되지 않게</b> — 출신별 상한(예: 3분의 1)'],
-   ['<b>공개경쟁 채용이 기본</b> — 이관 특례는 별도 적격 심사를 거쳐'],
-   ['시행 초기 <b>지휘 보직의 출신 편중을 제한</b> — 첫 2년이 관행을 만든다'],
+  {n:'1',t:'법이 세운 뼈대 (조문)',
+   flow:['청장 — 임기 2년·중임 불가·국회 탄핵 대상','↓','차장 · 시도 지방수사청','↓','수사관 1~9급 (특정직) · 수사연구관'],
+   items:[
+   ['<b>감찰관</b> — 내·외부 공개모집, 임기 2년, 전보·면직 제한으로 신분 보장','중수청법 제26~28조'],
+   ['칸막이 — 공소청 <b>파견·겸임 금지</b> · 퇴직 후 <b>2년 검사 임용 불가</b>','제24조·제25조'],
   ]},
-  {n:'3',t:'제안 — 누구를 어디에',items:[
-   ['<b>검찰·경찰 수사관</b> — 수사 실무의 축, 다만 비율 상한'],
-   ['<b>변호사</b> — 압수·영장의 적법절차와 인권을 안에서 감시하는 전담역'],
-   ['<b>회계사·디지털포렌식 전문가</b> — 부패·경제범죄 수사의 필수 전문성'],
-   ['<b>시민</b> — 수사심의위원회를 무작위 명부·구속력 있게'],
+  {n:'2',t:'제안 — 사람의 구성',items:[
+   ['<b>공개경쟁 채용이 기본</b> + <b>출신별 상한 3분의 1</b> — 어느 출신도 다수가 안 되게','제20조① 원칙'],
+   ['<b>회계사·포렌식·자금추적 전문가</b>를 경력경쟁으로','제20조① 단서 활용'],
+   ['<b>적법절차관(변호사)</b> — 압수·영장의 적법성을 집행 전에 검토하는 내부 전담역'],
+   ['시행 초기 <b>지휘 보직의 출신 편중 제한</b>'],
   ]},
+  {n:'3',t:'제안 — 밖의 감시',items:[
+   ['현행 수사심의위 — 명부는 <b>청장이 위촉</b>, 회의만 무작위 15명, 결정은 <b>권고</b>','제44조③·⑤ — 안에서 뽑은 눈'],
+   ['<b>시민기소심사위원회</b> — 기소·불기소를 무작위 시민이 심사, 결정에 <b>구속력</b>'],
+   ['<b>법률감찰단</b>(입법부 산하) — 수사·기소를 행정부 밖에서 상시 감찰'],
+   ['<b>시민옴부즈만</b> — 시민 진정을 조사해 공표'],
+  ],warnDots:[0]},
  ],
- bottom:'<span class="pre">제안</span>출신이 아니라 <span class="k">기능으로 짠 조직</span>이어야 분리가 완성된다'},
+ bottom:'<span class="pre">제안</span>안의 칸막이는 법이 세웠다 — 아직 없는 것은 <span class="k">밖의 눈</span>, 그것이 우리 안이다'},
 // ───────────────────────── 6단계(구 4단계)
 { step:'6단계', title:'변호사 시장은 어떻게 커지나', sub:'「신청할 수 있다」가 늘어날 때 생기는 일', page:'6 / 8',
  cols:[
@@ -241,7 +244,7 @@ function renderCol(c){
 }
 
 cards.forEach((card,idx)=>{
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${CSS}</style></head><body>
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${CSS}</style></head><body class="${card.dense?'dense':''}">
   <div class="top">
     <div class="chip">형사소송법 개정</div>
     <div class="titles"><h1><span class="step">${card.step}</span><span class="bar">|</span>${card.title}</h1>
