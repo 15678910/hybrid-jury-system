@@ -31,41 +31,41 @@ body{font-family:'NotoKR',sans-serif;background:linear-gradient(160deg,#eaf2fb 0
 h1{font-size:62px;font-weight:900;color:#0e2a55;line-height:1.08;letter-spacing:-1px;}
 h1 .step{color:#1a56c9;}
 h1 .bar{color:#8fa8c9;font-weight:400;margin:0 14px;}
-.sub{font-size:32px;color:#3d5a85;font-weight:700;margin-top:10px;}
+.sub{font-size:33px;color:#3d5a85;font-weight:700;margin-top:10px;}
 .page{margin-left:auto;background:#fff;border:3px solid #12356b;color:#12356b;font-weight:900;font-size:30px;padding:8px 22px;border-radius:999px;}
 .cols{display:flex;gap:26px;flex:1 1 0;min-height:0;overflow:hidden;margin-top:16px;}
 .col{flex:1;background:#fff;border-radius:22px;box-shadow:0 10px 24px rgba(18,53,107,.13);padding:0 0 18px;display:flex;flex-direction:column;overflow:hidden;}
 .colhead{background:#12356b;color:#fff;padding:16px 22px;display:flex;align-items:center;gap:14px;}
 .colhead .n{background:#fff;color:#12356b;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:27px;flex:none;}
-.colhead .t{font-size:34px;font-weight:900;line-height:1.15;}
+.colhead .t{font-size:36px;font-weight:900;line-height:1.15;}
 .item{padding:0 24px;display:flex;gap:13px;align-items:flex-start;}
-.item .dot{width:13px;height:13px;border-radius:3px;background:#1a56c9;margin-top:18px;flex:none;}
+.item .dot{width:14px;height:14px;border-radius:3px;background:#1a56c9;margin-top:20px;flex:none;}
 .item .dot.warn{background:#d97706;}
 .item .dot.bad{background:#c2410c;}
-.item .tx{font-size:33px;line-height:1.38;color:#1e3a5f;}
+.item .tx{font-size:36px;line-height:1.4;color:#1e3a5f;}
 .item b{color:#0e2a55;font-weight:900;}
-.ref{display:block;font-size:24px;color:#6b84a8;margin-top:2px;font-weight:400;}
+.ref{display:block;font-size:26px;color:#6b84a8;margin-top:2px;font-weight:400;}
 .big{font-size:34px;font-weight:900;color:#12356b;}
 .warnbox{flex:none;margin-top:14px;background:#fff7e6;border:3px solid #f0b429;border-radius:16px;padding:14px 24px;display:flex;gap:18px;align-items:flex-start;}
 .warnbox .tag{background:#b45309;color:#fff;font-weight:900;font-size:25px;padding:7px 16px;border-radius:10px;flex:none;margin-top:2px;}
-.warnbox .tx{font-size:28px;line-height:1.4;color:#7c4a03;font-weight:700;}
-.bottom{flex:none;margin-top:14px;background:linear-gradient(90deg,#0e2a55,#164a9e);color:#fff;border-radius:18px;padding:16px 30px;font-size:33px;font-weight:900;line-height:1.3;box-shadow:0 8px 18px rgba(14,42,85,.3);}
+.warnbox .tx{font-size:29px;line-height:1.4;color:#7c4a03;font-weight:700;}
+.bottom{flex:none;margin-top:14px;background:linear-gradient(90deg,#0e2a55,#164a9e);color:#fff;border-radius:18px;padding:16px 30px;font-size:35px;font-weight:900;line-height:1.3;box-shadow:0 8px 18px rgba(14,42,85,.3);}
 .bottom .k{color:#ffd34d;}
 .bottom .pre{display:inline-block;background:#ffd34d;color:#0e2a55;font-size:25px;border-radius:9px;padding:3px 14px;margin-right:16px;vertical-align:6px;}
 .foot{flex:none;margin-top:9px;display:flex;justify-content:space-between;font-size:21px;color:#5d7699;font-weight:700;}
-.propose{margin-top:2px;margin-bottom:6px;background:#eef4ff;border:3px dashed #1a56c9;border-radius:14px;padding:10px 22px;font-size:26px;font-weight:900;color:#12356b;}
+.propose{margin-top:2px;margin-bottom:6px;background:#eef4ff;border:3px dashed #1a56c9;border-radius:14px;padding:10px 22px;font-size:27px;font-weight:900;color:#12356b;}
 .flow{display:flex;align-items:center;gap:10px;padding:0 24px;flex-wrap:wrap;}
-.fbox{background:#eef4ff;border:2.5px solid #1a56c9;color:#12356b;font-weight:900;font-size:28px;border-radius:12px;padding:9px 14px;line-height:1.2;}
+.fbox{background:#eef4ff;border:2.5px solid #1a56c9;color:#12356b;font-weight:900;font-size:30px;border-radius:12px;padding:9px 14px;line-height:1.2;}
 .fbox.gray{background:#f1f3f7;border-color:#8fa8c9;color:#44618c;}
 .colbody{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;padding:6px 0 10px;}
 .farr{color:#1a56c9;font-size:30px;font-weight:900;}
 .chips{display:flex;flex-wrap:wrap;gap:10px;padding:0 24px;}
-.chips .c{background:#eef4ff;border:2px solid #b9cdec;color:#1e3a5f;font-weight:700;font-size:27px;border-radius:999px;padding:6px 15px;}
+.chips .c{background:#eef4ff;border:2px solid #b9cdec;color:#1e3a5f;font-weight:700;font-size:29px;border-radius:999px;padding:6px 15px;}
 `;
 
 const cards = [
 // ───────────────────────── 1단계
-{ step:'1단계', title:'지금 제도는?', sub:'수사와 기소가 어떻게 나뉘어 있나 (2026.10.1까지)', page:'1 / 6',
+{ step:'1단계', title:'지금 제도는?', sub:'수사와 기소가 어떻게 나뉘어 있나 (2026.10.1까지)', page:'1 / 8',
  cols:[
   {n:'1',t:'검사는 무엇을 하나',items:[
    ['부패·경제범죄 등 <b>수사 개시</b>','검찰청법 제4조①1'],
@@ -85,7 +85,7 @@ const cards = [
  ],
  bottom:'핵심은 — <span class="k">검사가 수사도 하고 기소도 하는 구조</span>, 여기가 출발점'},
 // ───────────────────────── 2단계
-{ step:'2단계', title:'뭐가 달라지나', sub:'검찰청 폐지 — 「공소청 + 중수청」으로 (2026.10.2 시행)', page:'2 / 6',
+{ step:'2단계', title:'뭐가 달라지나', sub:'검찰청 폐지 — 「공소청 + 중수청」으로 (2026.10.2 시행)', page:'2 / 8',
  cols:[
   {n:'1',t:'조직이 갈린다',flow:['검찰청 폐지','→','공소청 (법무부)<br>기소·공소유지','＋','중수청 (행안부)<br>중대범죄 수사'],items:[
    ['공소청법 <b>법률 제21490호</b> · 중수청법 <b>제21491호</b>','2026.3.24 공포 · 10.2 시행'],
@@ -103,8 +103,29 @@ const cards = [
  ],
  warn:'검사가 없어지는 것이 아니라 「수사하는 검사」가 없어진다 · 조항마다 시행일이 다르다(본칙 10.2, 녹화는 공포 후 1년)',
  bottom:'<span class="k">「하나의 검찰」</span>에서 <span class="k">「기소의 공소청 + 수사의 중수청」</span>으로'},
-// ───────────────────────── 3단계
-{ step:'3단계', title:'중수청이 「검찰 중심」이 되면?', sub:'부칙이 열어 둔 문 — 인적 연속성의 문제', page:'3 / 6',
+// ───────────────────────── 3단계 (신설)
+{ step:'3단계', title:'시민의 절차는 어떻게 달라지나', sub:'늘어난 권리, 그리고 그 안의 약한 고리 (조문 확인)', page:'3 / 8',
+ cols:[
+  {n:'1',t:'고발인 이의신청 부활',items:[
+   ['2022년부터 막혀 있던 <b>고발인의 이의신청</b>이 되살아난다','형소법 제245조의7②(신설)'],
+   ['다만 <b>대통령령으로 정하는 범죄에 한정</b>','같은 항'],
+   ['이의신청이 있으면 <b>검사에게 자동 송치</b>','같은 조 ④(종전 ②)'],
+  ]},
+  {n:'2',t:'수사 기한 3개월 신설',items:[
+   ['고소·고발 수리일부터 <b>3개월 내</b> 수사를 마쳐 송치 여부 결정','형소법 제238조'],
+   ['그런데 지연 이의제기는 <b>6개월</b>이 지나야 가능','형소법 제245조의11①1'],
+   ['<b>그 사이 석 달</b>은 다툴 통로가 없는 구간',''],
+  ],warnDots:[2]},
+  {n:'3',t:'검사 면담의 문제',items:[
+   ['「면담을 <b>신청할 수 있다</b>」 곁에 「검사는 <b>수리 여부를 결정할 수 있다</b>」','형소법 제245조의13②(신설)'],
+   ['거부 사유 제한 <b>없음</b> · 이유 통지 <b>없음</b> · 불복 절차 <b>없음</b>',''],
+   ['같은 조문이 피의자 면담엔 <b>변호인 조력을 보장</b>, 고소인 면담엔 <b>없다</b>','제245조의13⑤ 대비'],
+  ],warnDots:[1,2]},
+ ],
+ warn:'면담 수리의 기준은 「사실관계 확인의 필요성」 — 고소인의 사정이 아니라 검사의 사건 처리에 필요한가이다 (제245조의13①)',
+ bottom:'권리는 늘었다 — 다만 <span class="k">어떤 것은 문이고, 면담은 문의 그림</span>이다'},
+// ───────────────────────── 4단계(구 3단계)
+{ step:'4단계', title:'중수청이 「검찰 중심」이 되면?', sub:'부칙이 열어 둔 문 — 인적 연속성의 문제', page:'4 / 8',
  cols:[
   {n:'1',t:'옮겨 갈 수 있게 설계됐다',items:[
    ['검찰청 공무원, 희망하면 <b>시행일에 중수청 수사관으로</b>','중수청법 부칙 제4조①'],
@@ -123,8 +144,30 @@ const cards = [
   ]},
  ],
  bottom:'조직도가 바뀌어도 사람이 그대로면 — <span class="k">첫 2년이 갈림길</span>이다'},
-// ───────────────────────── 4단계
-{ step:'4단계', title:'변호사 시장은 어떻게 커지나', sub:'「신청할 수 있다」가 늘어날 때 생기는 일', page:'4 / 6',
+// ───────────────────────── 5단계 (신설·제안)
+{ step:'5단계', title:'그럼 중수청은 누구로 채우나', sub:'공소청과 완전히 분리된 수사청의 이상적 구성', page:'5 / 8',
+ propose:'②·③열은 주권자사법개혁추진준비위원회의 제안입니다 — ①열의 조문 확인과 구분됩니다',
+ cols:[
+  {n:'1',t:'법이 정해 둔 것 (조문)',items:[
+   ['청장 자격 — 수사·법률 사무 <b>15년</b>(판사·검사·변호사 포함)','중수청법 제8조①'],
+   ['수사관 신규채용은 <b>공개경쟁이 원칙</b>','중수청법 제20조①'],
+   ['그러나 <b>출신 구성비 규정은 없다</b> — 검찰 인력의 이관 특례만 있다','부칙 제4조'],
+  ],warnDots:[2]},
+  {n:'2',t:'제안 — 구성의 원칙',items:[
+   ['<b>어느 한 출신도 다수가 되지 않게</b> — 출신별 상한(예: 3분의 1)'],
+   ['<b>공개경쟁 채용이 기본</b> — 이관 특례는 별도 적격 심사를 거쳐'],
+   ['시행 초기 <b>지휘 보직의 출신 편중을 제한</b> — 첫 2년이 관행을 만든다'],
+  ]},
+  {n:'3',t:'제안 — 누구를 어디에',items:[
+   ['<b>검찰·경찰 수사관</b> — 수사 실무의 축, 다만 비율 상한'],
+   ['<b>변호사</b> — 압수·영장의 적법절차와 인권을 안에서 감시하는 전담역'],
+   ['<b>회계사·디지털포렌식 전문가</b> — 부패·경제범죄 수사의 필수 전문성'],
+   ['<b>시민</b> — 수사심의위원회를 무작위 명부·구속력 있게'],
+  ]},
+ ],
+ bottom:'<span class="pre">제안</span>출신이 아니라 <span class="k">기능으로 짠 조직</span>이어야 분리가 완성된다'},
+// ───────────────────────── 6단계(구 4단계)
+{ step:'6단계', title:'변호사 시장은 어떻게 커지나', sub:'「신청할 수 있다」가 늘어날 때 생기는 일', page:'6 / 8',
  cols:[
   {n:'1',t:'신청 절차가 일곱 갈래로',chips:['시정조치 신청','녹화영상 열람·복사','불송치 이의신청','수사지연 이의제기','기록 열람·등사','검사 면담 신청','재정신청 확대'],items:[
    ['그런데 개정법 전문에 <b>「국선」 0회 · 「법률구조」 0회</b>','의안 2220257 원문 검색'],
@@ -142,7 +185,7 @@ const cards = [
  ],
  bottom:'절차가 늘수록 <span class="k">「신청서를 써 줄 사람」의 값</span>이 오른다'},
 // ───────────────────────── 5단계
-{ step:'5단계', title:'왜 논란이 되나', sub:'방향의 논쟁이 아니라 「구멍을 메웠는가」의 논쟁', page:'5 / 6',
+{ step:'7단계', title:'왜 논란이 되나', sub:'방향의 논쟁이 아니라 「구멍을 메웠는가」의 논쟁', page:'7 / 8',
  cols:[
   {n:'1',t:'숫자가 어긋난다',items:[
    ['구속기간 <b>최대 20일</b> (10일+연장 10일·1회)','형소법 제203조·제205조①'],
@@ -163,8 +206,8 @@ const cards = [
  warn:'확정되어 시행되는 것과 앞으로 논의될 것을 구분해서 볼 것 — 섞이면 오보가 된다',
  bottom:'쟁점은 폐지 여부가 아니라 — <span class="k">어긋난 숫자와 빈 통제 장치</span>'},
 // ───────────────────────── 6단계
-{ step:'6단계', title:'대안은 무엇인가', sub:'시민이 이해관계자가 되면 되돌리기 어렵다', page:'6 / 6',
- propose:'이 카드는 주권자사법개혁추진준비위원회의 제안입니다 — 1~5단계의 조문 확인 결과와 구분됩니다',
+{ step:'8단계', title:'대안은 무엇인가', sub:'시민이 이해관계자가 되면 되돌리기 어렵다', page:'8 / 8',
+ propose:'이 카드는 주권자사법개혁추진준비위원회의 제안입니다 — 조문 확인 결과와 구분됩니다',
  cols:[
   {n:'1',t:'시민이 결정에 들어간다',items:[
    ['<b>시민기소심사위원회</b> — 위원은 무작위 추첨, 결정엔 구속력'],
