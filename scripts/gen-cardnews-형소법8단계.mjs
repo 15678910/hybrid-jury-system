@@ -15,7 +15,7 @@ const CSS = `
 html{width:1600px;height:1200px;}body{width:1600px;height:1200px;overflow:hidden;}
 body{font-family:'NotoKR',sans-serif;background:linear-gradient(160deg,#eaf2fb 0%,#dce9f8 55%,#cfe0f4 100%);color:#12294a;display:flex;flex-direction:column;padding:36px 52px 24px;word-break:keep-all;overflow-wrap:break-word;}
 .top{display:flex;align-items:flex-start;gap:26px;margin-bottom:10px;}
-.chip{background:#12356b;color:#fff;font-weight:900;font-size:32px;padding:14px 26px;border-radius:14px;letter-spacing:1px;white-space:nowrap;align-self:flex-start;box-shadow:0 6px 14px rgba(18,53,107,.25);}
+.chip{background:#12356b;color:#fff;font-weight:900;font-size:32px;line-height:1.25;text-align:center;padding:12px 26px;border-radius:14px;letter-spacing:1px;white-space:nowrap;align-self:flex-start;box-shadow:0 6px 14px rgba(18,53,107,.25);}
 .titles{flex:1;}
 h1{font-size:66px;font-weight:900;color:#0e2a55;line-height:1.08;letter-spacing:-1px;}
 h1 .step{color:#1a56c9;}
@@ -241,7 +241,7 @@ function renderCol(c){
 cards.forEach((card,idx)=>{
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${CSS}</style></head><body class="${idx>0?'m1 ':''}${card.dense?'dense':''}">
   <div class="top">
-    <div class="chip">형사소송법 개정</div>
+    <div class="chip">형사소송법 개정<br>문제와 보완</div>
     <div class="titles"><h1><span class="step">${card.step}</span><span class="bar">|</span>${card.title}</h1>
     <div class="sub">${card.sub}</div></div>
     <div class="page">${card.page}</div>
