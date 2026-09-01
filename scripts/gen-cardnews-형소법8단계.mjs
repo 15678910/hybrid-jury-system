@@ -1,15 +1,4 @@
-// 형사소송법 개정 카드뉴스 생성기 — 6단계 요약 분석 (2026-09-01)
-// 산출물: docs/cardnews/형소법개정_6단계/*.png (1600×1200)
-//
-// 사용법:
-//   1) 같은 폴더에 fonts/notokr-{400,700,900}.ttf 를 둔다 (Noto Sans KR — Google Fonts에서 내려받기)
-//   2) node scripts/gen-cardnews-형소법6단계.mjs   → cardN.html 생성
-//   3) 스크린샷은 창틀 없는 headless_shell 로 찍는다 (chrome --headless=new 는
-//      가상 창틀 87px 때문에 뷰포트가 1113px가 되어 하단이 잘린다 — 실측 확인):
-//      headless_shell --no-sandbox --hide-scrollbars --window-size=1600,1200 \
-//        --screenshot=cardN.png file://.../cardN.html
-// 내용 원칙: 조문·수치는 저장소에서 검증된 것만 쓰고 근거를 항목마다 표기한다.
-//            6단계(대안)는 주권자사법개혁추진준비위원회 제안임을 배지로 명시한다.
+// 형사소송법 개정 카드뉴스 생성기 — 6단계 요약 분석
 // 내용 원칙: 조문·수치는 저장소에서 검증된 것만 쓰고 근거를 항목마다 표기한다.
 //            6단계(대안)는 주권자사법개혁추진준비위원회 제안임을 배지로 명시한다.
 import fs from 'fs';
@@ -26,42 +15,42 @@ const CSS = `
 html{width:1600px;height:1200px;}body{width:1600px;height:1200px;overflow:hidden;}
 body{font-family:'NotoKR',sans-serif;background:linear-gradient(160deg,#eaf2fb 0%,#dce9f8 55%,#cfe0f4 100%);color:#12294a;display:flex;flex-direction:column;padding:36px 52px 24px;}
 .top{display:flex;align-items:flex-start;gap:26px;margin-bottom:10px;}
-.chip{background:#12356b;color:#fff;font-weight:900;font-size:30px;padding:14px 26px;border-radius:14px;letter-spacing:1px;white-space:nowrap;align-self:flex-start;box-shadow:0 6px 14px rgba(18,53,107,.25);}
+.chip{background:#12356b;color:#fff;font-weight:900;font-size:32px;padding:14px 26px;border-radius:14px;letter-spacing:1px;white-space:nowrap;align-self:flex-start;box-shadow:0 6px 14px rgba(18,53,107,.25);}
 .titles{flex:1;}
-h1{font-size:62px;font-weight:900;color:#0e2a55;line-height:1.08;letter-spacing:-1px;}
+h1{font-size:66px;font-weight:900;color:#0e2a55;line-height:1.08;letter-spacing:-1px;}
 h1 .step{color:#1a56c9;}
 h1 .bar{color:#8fa8c9;font-weight:400;margin:0 14px;}
-.sub{font-size:33px;color:#3d5a85;font-weight:700;margin-top:10px;}
+.sub{font-size:36px;color:#3d5a85;font-weight:700;margin-top:10px;}
 .page{margin-left:auto;background:#fff;border:3px solid #12356b;color:#12356b;font-weight:900;font-size:30px;padding:8px 22px;border-radius:999px;}
 .cols{display:flex;gap:26px;flex:1 1 0;min-height:0;overflow:hidden;margin-top:16px;}
 .col{flex:1;background:#fff;border-radius:22px;box-shadow:0 10px 24px rgba(18,53,107,.13);padding:0 0 18px;display:flex;flex-direction:column;overflow:hidden;}
 .colhead{background:#12356b;color:#fff;padding:16px 22px;display:flex;align-items:center;gap:14px;}
-.colhead .n{background:#fff;color:#12356b;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:27px;flex:none;}
-.colhead .t{font-size:36px;font-weight:900;line-height:1.15;}
+.colhead .n{background:#fff;color:#12356b;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:29px;flex:none;}
+.colhead .t{font-size:39px;font-weight:900;line-height:1.15;}
 .item{padding:0 24px;display:flex;gap:13px;align-items:flex-start;}
 .item .dot{width:14px;height:14px;border-radius:3px;background:#1a56c9;margin-top:20px;flex:none;}
 .item .dot.warn{background:#d97706;}
 .item .dot.bad{background:#c2410c;}
-.item .tx{font-size:36px;line-height:1.4;color:#1e3a5f;}
+.item .tx{font-size:40px;line-height:1.38;color:#1e3a5f;}
 .item b{color:#0e2a55;font-weight:900;}
-.ref{display:block;font-size:26px;color:#6b84a8;margin-top:2px;font-weight:400;}
-.big{font-size:34px;font-weight:900;color:#12356b;}
+.ref{display:block;font-size:28px;color:#6b84a8;margin-top:2px;font-weight:400;}
+.big{font-size:38px;font-weight:900;color:#12356b;}
 .warnbox{flex:none;margin-top:14px;background:#fff7e6;border:3px solid #f0b429;border-radius:16px;padding:14px 24px;display:flex;gap:18px;align-items:flex-start;}
-.warnbox .tag{background:#b45309;color:#fff;font-weight:900;font-size:25px;padding:7px 16px;border-radius:10px;flex:none;margin-top:2px;}
-.warnbox .tx{font-size:29px;line-height:1.4;color:#7c4a03;font-weight:700;}
-.bottom{flex:none;margin-top:14px;background:linear-gradient(90deg,#0e2a55,#164a9e);color:#fff;border-radius:18px;padding:16px 30px;font-size:35px;font-weight:900;line-height:1.3;box-shadow:0 8px 18px rgba(14,42,85,.3);}
+.warnbox .tag{background:#b45309;color:#fff;font-weight:900;font-size:27px;padding:7px 16px;border-radius:10px;flex:none;margin-top:2px;}
+.warnbox .tx{font-size:32px;line-height:1.4;color:#7c4a03;font-weight:700;}
+.bottom{flex:none;margin-top:14px;background:linear-gradient(90deg,#0e2a55,#164a9e);color:#fff;border-radius:18px;padding:16px 30px;font-size:38px;font-weight:900;line-height:1.3;box-shadow:0 8px 18px rgba(14,42,85,.3);}
 .bottom .k{color:#ffd34d;}
-.bottom .pre{display:inline-block;background:#ffd34d;color:#0e2a55;font-size:25px;border-radius:9px;padding:3px 14px;margin-right:16px;vertical-align:6px;}
+.bottom .pre{display:inline-block;background:#ffd34d;color:#0e2a55;font-size:27px;border-radius:9px;padding:3px 14px;margin-right:16px;vertical-align:6px;}
 .foot{flex:none;margin-top:9px;display:flex;justify-content:space-between;font-size:21px;color:#5d7699;font-weight:700;}
-.propose{margin-top:2px;margin-bottom:6px;background:#eef4ff;border:3px dashed #1a56c9;border-radius:14px;padding:10px 22px;font-size:27px;font-weight:900;color:#12356b;}
+.propose{margin-top:2px;margin-bottom:6px;background:#eef4ff;border:3px dashed #1a56c9;border-radius:14px;padding:8px 22px;font-size:29px;font-weight:900;color:#12356b;}
 .flow{display:flex;align-items:center;gap:10px;padding:0 24px;flex-wrap:wrap;}
-.fbox{background:#eef4ff;border:2.5px solid #1a56c9;color:#12356b;font-weight:900;font-size:30px;border-radius:12px;padding:9px 14px;line-height:1.2;}
+.fbox{background:#eef4ff;border:2.5px solid #1a56c9;color:#12356b;font-weight:900;font-size:32px;border-radius:12px;padding:9px 14px;line-height:1.2;}
 .fbox.gray{background:#f1f3f7;border-color:#8fa8c9;color:#44618c;}
 .colbody{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;padding:6px 0 10px;}
-.farr{color:#1a56c9;font-size:30px;font-weight:900;}
+.farr{color:#1a56c9;font-size:32px;font-weight:900;}
 .chips{display:flex;flex-wrap:wrap;gap:10px;padding:0 24px;}
-.chips .c{background:#eef4ff;border:2px solid #b9cdec;color:#1e3a5f;font-weight:700;font-size:29px;border-radius:999px;padding:6px 15px;}
-.dense .item .tx{font-size:30.5px;line-height:1.36;}.dense .ref{font-size:22.5px;}.dense .fbox{font-size:26px;padding:7px 12px;}.dense .colhead .t{font-size:32px;}
+.chips .c{background:#eef4ff;border:2px solid #b9cdec;color:#1e3a5f;font-weight:700;font-size:31px;border-radius:999px;padding:6px 15px;}
+.dense .item .tx{font-size:33.5px;line-height:1.34;}.dense .ref{font-size:24.5px;}.dense .fbox{font-size:28px;padding:7px 12px;}.dense .colhead .t{font-size:34px;}
 `;
 
 const cards = [
