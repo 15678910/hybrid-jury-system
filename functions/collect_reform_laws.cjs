@@ -139,6 +139,19 @@ const TARGETS = [
         target: 'law', MST: '284023',
         why: 'judgment-disclosure 쟁점의 상위 근거 — 제57조(재판의 공개). 헌법 제109조를 받는 조문',
     },
+    {
+        // 제21241호의 마지막 시행분. 제59조의3 이 「확정」에서 미확정으로 넓어지는
+        // 개정 후 문언이 여기에 있다 (부칙 제1조 시행 2027-12-31, 제2조 소급 적용).
+        // target=law 로 받으면 이 버전이 온다 — 「현행」이 아니라는 점에 주의.
+        file: '형사소송법_20271231시행',
+        target: 'eflaw', MST: '281865', efYd: '20271231',
+        why: 'judgment-disclosure 쟁점 — 개정 후 제59조의3(미확정 판결서 공개) 문언 대조용. 2026-09-02 수집',
+    },
+    {
+        file: '법원조직법_20261001시행',
+        target: 'eflaw', MST: '285179', efYd: '20261001',
+        why: 'judgment-disclosure 쟁점 — 2026-10-01 시행분(제21503호)이 제57조 등에 영향을 주는지 대조용. 2026-09-02 수집',
+    },
 ];
 
 const sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
