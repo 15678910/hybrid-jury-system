@@ -152,6 +152,16 @@ const TARGETS = [
         target: 'eflaw', MST: '285179', efYd: '20261001',
         why: 'judgment-disclosure 쟁점 — 2026-10-01 시행분(제21503호)이 제57조 등에 영향을 주는지 대조용. 2026-09-02 수집',
     },
+    {
+        file: '소액사건심판법_원문',
+        target: 'law', MST: '249281',
+        why: 'objection-literacy-threshold 쟁점 — 구술제소(제4조)·진술조력인 등 「글을 못 써도 되는」 절차의 선례 조문. 2026-09-02 수집',
+    },
+    {
+        file: '경찰수사규칙_원문',
+        target: 'law', MST: '287735',
+        why: 'objection-literacy-threshold 쟁점 — 불송치 이의신청의 서식·방식 근거(행정안전부령). 별지 서식 자체는 API 에 없으므로 조문의 서식 지정만 확인. 2026-09-02 수집',
+    },
 ];
 
 const sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
