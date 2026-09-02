@@ -937,6 +937,7 @@ export default function App() {
                                         <Link to="/news" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">사법뉴스</Link>
                                         <Link to="/blog" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">블로그</Link>
                                         <Link to="/videos" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">동영상</Link>
+                                        <Link to="/cardnews" className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600">카드뉴스</Link>
                                     </div>
                                 </div>
                             </div>
@@ -1072,6 +1073,7 @@ export default function App() {
                                 <Link to="/news" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">사법뉴스</Link>
                                 <Link to="/blog" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">블로그</Link>
                                 <Link to="/videos" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">동영상</Link>
+                                <Link to="/cardnews" onClick={() => setMobileMenuOpen(false)} className="block w-full text-left px-6 py-2 hover:bg-gray-100 transition">카드뉴스</Link>
                             </div>
 
                             <button

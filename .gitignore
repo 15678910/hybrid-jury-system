@@ -81,3 +81,13 @@ public/og-trial-schedule.png
 
 # 비공개 메모 — 저장소가 공개이므로 커밋하지 않는다
 docs/private/
+
+# 카드뉴스 생성용 Noto Sans KR 폰트 (각 6MB, 총 18MB) — 저장소에 넣지 않는다.
+# 필요 시 fonts.google.com 에서 Noto Sans KR 400/700/900 을 받아 scripts/fonts/ 에 둔다.
+scripts/fonts/notokr-*.ttf
+
+# 스크립트 실행 결과를 리다이렉트한 임시 출력물
+/*_out.txt
+
+# .hwpx 압축을 풀어 놓은 작업 폴더 (원본 .hwpx 는 추적한다)
+docs/bills/**/hwpx/

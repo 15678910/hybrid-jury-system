@@ -19,9 +19,8 @@ const AdminBlog = lazy(() => import('./pages/AdminBlog'))
 const AdminNews = lazy(() => import('./pages/AdminNews'))
 const Videos = lazy(() => import('./pages/Videos'))
 const AdminVideos = lazy(() => import('./pages/AdminVideos'))
-// 카드뉴스 임시 비활성화
-// const CardNews = lazy(() => import('./pages/CardNews'))
-// const AdminCardNews = lazy(() => import('./pages/AdminCardNews'))
+// 카드뉴스 — 정적 시리즈 갤러리(src/data/cardNews.js). Firestore 기반 CardNews/AdminCardNews 는 2026-01 비활성화 상태 유지
+const CardNewsGallery = lazy(() => import('./pages/CardNewsGallery'))
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
 const TermsOfService = lazy(() => import('./pages/TermsOfService'))
 const Governance = lazy(() => import('./pages/Governance'))
@@ -89,9 +88,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:id" element={<BlogPost />} />
           <Route path="/videos" element={<Videos />} />
-          {/* 카드뉴스 임시 비활성화 */}
-          {/* <Route path="/cardnews" element={<CardNews />} /> */}
-          {/* <Route path="/cardnews/admin" element={<AdminCardNews />} /> */}
+          <Route path="/cardnews" element={<CardNewsGallery />} />
+          <Route path="/cardnews/:slug" element={<CardNewsGallery />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/governance" element={<Governance />} />

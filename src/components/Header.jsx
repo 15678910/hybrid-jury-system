@@ -222,6 +222,12 @@ export default function Header() {
                                     >
                                         동영상
                                     </Link>
+                                    <Link
+                                        to="/cardnews"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                    >
+                                        카드뉴스
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -288,7 +294,8 @@ export default function Header() {
                                 <p className="text-gray-500 text-sm mb-2">미디어</p>
                                 <Link to="/news" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>사법뉴스</Link>
                                 <Link to="/blog" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>블로그</Link>
-                                <Link to="/videos" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
+                                <Link to="/videos" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
+                                <Link to="/cardnews" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>카드뉴스</Link>
                             </div>
                             <button onClick={() => { scrollToSection('signature'); setMobileMenuOpen(false); }} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg text-center">
                                 참여하기

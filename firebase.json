@@ -111,6 +111,14 @@
         "function": "lawDiffPage"
       },
       {
+        "source": "/cardnews",
+        "function": "cardNewsPage"
+      },
+      {
+        "source": "/cardnews/**",
+        "function": "cardNewsPage"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
