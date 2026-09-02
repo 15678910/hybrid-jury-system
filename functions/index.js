@@ -3479,6 +3479,9 @@ exports.judgeDetailPage = functions.https.onRequest(async (req, res) => {
 // ============================================
 const CRAWLER_REGEX = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i;
 const DEFAULT_OG_IMAGE = 'https://siminbupjung-blog.web.app/og-image.jpg';
+// og:url 의 도메인. 카카오톡은 카드 클릭 시 og:url 을 목적지로 쓰므로 공식 공유 도메인(시민법정.kr 의
+// punycode)이어야 한다. SEOHead.jsx 의 BASE_URL, SNSShareBar.jsx 의 getShareUrl 과 같은 값이다.
+const SITE_ORIGIN = 'https://xn--lg3b0kt4n41f.kr';
 
 // 브라우저(비크롤러) 요청은 SPA 로 넘긴다. App.jsx 가 ?r= 을 읽어 해당 경로로 이동시키며,
 // r 외의 쿼리(person, tab 등)는 그대로 전달된다.
@@ -3502,7 +3505,7 @@ function sendSpaRedirect(req, res, route) {
 function sendStaticOgPage(res, { route, title, description, image, imageWidth, imageHeight, ogType = 'website', status = 200 }) {
     const safeTitle = escapeHtml(String(title || ''));
     const safeDescription = escapeHtml(String(description || ''));
-    const pageUrl = `https://siminbupjung-blog.web.app${route}`;
+    const pageUrl = `${SITE_ORIGIN}${route}`;
     const ogImage = image || DEFAULT_OG_IMAGE;
     const ogImageType = /\.png(\?|$)/i.test(ogImage) ? 'image/png' : (/\.jpe?g(\?|$)/i.test(ogImage) ? 'image/jpeg' : '');
     const imgExtraMeta = [
