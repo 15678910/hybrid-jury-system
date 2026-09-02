@@ -1,17 +1,19 @@
 // 판결서 공개 카드뉴스 생성기 — 6단계 시리즈 (확정판, 2026-09-01 원문 검증 완료)
-// 내용 원칙: 조문·연혁은 docs/bills/의 형소법·민소법·법원조직법 원문에서 직접 확인했다.
+// 내용 원칙: 조문·연혁은 docs/bills/의 헌법·형소법·민소법·법원조직법 원문에서 직접 확인했다.
+//            1단계의 헌법 제109조는 전문 인용 (2026-09-02, docs/bills/헌법_원문.txt 제109조와 대조).
 //            수수료 등 대법원규칙 위임 사항만 「확인 필요」로 남긴다.
 //            5~6단계는 주권자사법개혁추진준비위원회 제안임을 배지로 명시한다.
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
 
-const OUT = path.dirname(new URL(import.meta.url).pathname);
-const F = (w) => path.join(OUT, 'fonts', `notokr-${w}.ttf`);
+const OUT = path.dirname(fileURLToPath(import.meta.url)); // Windows 에서 .pathname 은 /C:/… 가 되어 깨진다
+const F = (w) => pathToFileURL(path.join(OUT, 'fonts', `notokr-${w}.ttf`)).href; // file:// URL (Windows 경로 포함)
 
 const CSS = `
-@font-face { font-family:'NotoKR'; src:url('file://${F(400)}') format('truetype'); font-weight:400; }
-@font-face { font-family:'NotoKR'; src:url('file://${F(700)}') format('truetype'); font-weight:700; }
-@font-face { font-family:'NotoKR'; src:url('file://${F(900)}') format('truetype'); font-weight:900; }
+@font-face { font-family:'NotoKR'; src:url('${F(400)}') format('truetype'); font-weight:400; }
+@font-face { font-family:'NotoKR'; src:url('${F(700)}') format('truetype'); font-weight:700; }
+@font-face { font-family:'NotoKR'; src:url('${F(900)}') format('truetype'); font-weight:900; }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{width:1600px;height:1200px;}body{width:1600px;height:1200px;overflow:hidden;}
 body{font-family:'NotoKR',sans-serif;background:linear-gradient(160deg,#f3efe7 0%,#ece5d8 55%,#e2d8c6 100%);color:#2c2416;display:flex;flex-direction:column;padding:36px 52px 24px;word-break:keep-all;overflow-wrap:break-word;}
@@ -32,6 +34,9 @@ h1 .bar{color:#c2ad8a;font-weight:400;margin:0 14px;}
 .item .dot{width:14px;height:14px;border-radius:3px;background:#a16207;margin-top:20px;flex:none;}
 .item .dot.warn{background:#c2410c;}
 .item .tx{font-size:39px;line-height:1.38;color:#43371f;}
+.col.tight .item .tx{font-size:34px;line-height:1.34;}
+.col.tight .item .tx.quote{font-size:31px;line-height:1.36;}
+.col.tight .ref{font-size:25px;}
 .item b{color:#3a2a0e;font-weight:900;}
 .ref{display:block;font-size:27px;color:#9a8a68;margin-top:2px;font-weight:400;}
 .warnbox{flex:none;margin-top:14px;background:#fff2ee;border:3px solid #e0693c;border-radius:16px;padding:14px 24px;display:flex;gap:18px;align-items:flex-start;}
@@ -48,11 +53,11 @@ const cards = [
 // ───────────────────────── 1단계
 { step:'1단계', title:'재판은 공개다 — 그런데 판결문은?', sub:'법이 선언한 원칙과 열람의 현실 (원문 확인)', page:'1 / 6',
  cols:[
-  {n:'1',t:'법은 이렇게 선언한다',items:[
-   ['「재판의 심리와 판결은 <b>공개</b>한다」','법원조직법 제57조① · 헌법 제109조와 같은 문언'],
-   ['비공개 예외는 <b>심리에만</b> 있다 — <b>판결은 비공개로 할 길이 조문에 없다</b>','같은 항 단서'],
-   ['비공개 결정도 <b>이유를 밝혀 선고</b>해야 한다','같은 조 ②'],
-  ]},
+  {n:'1',t:'헌법이 이렇게 선언한다',items:[
+   ['「재판의 심리와 판결은 <b>공개</b>한다. 다만, <b>심리</b>는 국가의 안전보장 또는 안녕질서를 방해하거나 선량한 풍속을 해할 염려가 있을 때에는 법원의 결정으로 공개하지 아니할 수 있다」','헌법 제109조 (전문)'],
+   ['비공개 예외는 <b>심리에만</b> 있다 — <b>판결은 비공개로 할 길이 헌법에 없다</b>','같은 조 단서'],
+   ['법원조직법도 같은 문언 — 비공개 결정은 <b>이유를 밝혀 선고</b>해야 한다','법원조직법 제57조①·②'],
+  ],quote:[0],tight:true},
   {n:'2',t:'그런데 판결문을 보려면',items:[
    ['형사는 <b>확정된 사건만</b> 열람·복사할 수 있다','형소법 제59조의3①'],
    ['<b>비실명화 처리</b>를 거친 문서로 제공된다','같은 조 ② · 민소법 제163조의2③'],
@@ -164,11 +169,12 @@ const cards = [
 ];
 
 function renderCol(c){
-  let h = `<div class="col"><div class="colhead"><div class="n">${c.n}</div><div class="t">${c.t}</div></div><div class="colbody" style="flex:1;display:flex;flex-direction:column;justify-content:space-evenly;padding:6px 0 10px;">`;
+  let h = `<div class="col${c.tight?' tight':''}"><div class="colhead"><div class="n">${c.n}</div><div class="t">${c.t}</div></div><div class="colbody" style="flex:1;display:flex;flex-direction:column;justify-content:space-evenly;padding:6px 0 10px;">`;
   (c.items||[]).forEach((it,i)=>{
     const [tx,ref] = it;
     const cls = (c.warnDots||[]).includes(i) ? 'dot warn' : 'dot';
-    h += `<div class="item"><div class="${cls}"></div><div class="tx">${tx}${ref?`<span class="ref">${ref}</span>`:''}</div></div>`;
+    const txc = (c.quote||[]).includes(i) ? 'tx quote' : 'tx';
+    h += `<div class="item"><div class="${cls}"></div><div class="${txc}">${tx}${ref?`<span class="ref">${ref}</span>`:''}</div></div>`;
   });
   return h + `</div></div>`;
 }
@@ -185,7 +191,7 @@ cards.forEach((card,idx)=>{
   <div class="cols">${card.cols.map(renderCol).join('')}</div>
   ${card.warn?`<div class="warnbox"><div class="tag">주의</div><div class="tx">${card.warn}</div></div>`:''}
   <div class="bottom">${card.bottom}</div>
-  <div class="foot"><span>시민법정 · 주권자사법개혁추진준비위원회(준) — 시민법정.kr/law-diff</span><span>근거: 형소법·민소법·법원조직법 원문 대조 (법률 제21241·19516·21451호 등, 항목별 조문 표기)</span></div>
+  <div class="foot"><span>시민법정 · 주권자사법개혁추진준비위원회(준) — 시민법정.kr/law-diff</span><span>근거: 헌법·형소법·민소법·법원조직법 원문 대조 (항목별 조문 표기)</span></div>
   </body></html>`;
   fs.writeFileSync(path.join(OUT, `jcard${idx+1}.html`), html);
   console.log(`jcard${idx+1}.html 생성`);

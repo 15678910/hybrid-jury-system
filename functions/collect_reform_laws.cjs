@@ -167,6 +167,11 @@ const TARGETS = [
         target: 'law', MST: '277347',
         why: 'objection-literacy-threshold 쟁점 — 진술조력인(제36조 이하)의 근거 조문. 제안 ③ 「절차조력인 확장」이 기대는 선례. 2026-09-02 수집',
     },
+    {
+        file: '헌법_원문',
+        target: 'law', MST: '61603',
+        why: 'judgment-disclosure 쟁점 — 제109조(재판 공개)의 원문. 카드 1단계에 전문을 인용하기 위해. 2026-09-02 수집',
+    },
 ];
 
 const sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
