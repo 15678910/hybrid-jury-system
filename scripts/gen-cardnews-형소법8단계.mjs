@@ -3,14 +3,15 @@
 //            6단계(대안)는 주권자사법개혁추진준비위원회 제안임을 배지로 명시한다.
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
 
-const OUT = path.dirname(new URL(import.meta.url).pathname);
-const F = (w) => path.join(OUT, 'fonts', `notokr-${w}.ttf`);
+const OUT = path.dirname(fileURLToPath(import.meta.url)); // Windows 에서 .pathname 은 /C:/… 가 되어 깨진다
+const F = (w) => pathToFileURL(path.join(OUT, 'fonts', `notokr-${w}.ttf`)).href; // file:// URL (Windows 경로 포함)
 
 const CSS = `
-@font-face { font-family:'NotoKR'; src:url('file://${F(400)}') format('truetype'); font-weight:400; }
-@font-face { font-family:'NotoKR'; src:url('file://${F(700)}') format('truetype'); font-weight:700; }
-@font-face { font-family:'NotoKR'; src:url('file://${F(900)}') format('truetype'); font-weight:900; }
+@font-face { font-family:'NotoKR'; src:url('${F(400)}') format('truetype'); font-weight:400; }
+@font-face { font-family:'NotoKR'; src:url('${F(700)}') format('truetype'); font-weight:700; }
+@font-face { font-family:'NotoKR'; src:url('${F(900)}') format('truetype'); font-weight:900; }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{width:1600px;height:1200px;}body{width:1600px;height:1200px;overflow:hidden;}
 body{font-family:'NotoKR',sans-serif;background:linear-gradient(160deg,#eaf2fb 0%,#dce9f8 55%,#cfe0f4 100%);color:#12294a;display:flex;flex-direction:column;padding:36px 52px 24px;word-break:keep-all;overflow-wrap:break-word;}
@@ -171,7 +172,7 @@ const cards = [
    ['그런데 개정법 전문에 <b>「국선」 0회 · 「법률구조」 0회</b>','의안 2220257 원문 검색'],
   ]},
   {n:'2',t:'조력 없이는 좁은 문',items:[
-   ['이의신청 <b>기소율 2%대 정체</b> — 신청은 4년새 2배','대검찰청 국정감사 자료 2021~25'],
+   ['이의신청 <b>기소율 2%대 정체</b> — 신청은 4년새 2배','대검찰청 집계 2021~25 (이투데이·디지털타임스 2026.2 보도)'],
    ['1심 형사재판 <b>무변호인 34%</b>','사법연감 2022 (2021년 통계)'],
    ['기록 열람 <b>거부에 불복 절차 없음</b>','형소법 제245조의12④'],
   ]},
