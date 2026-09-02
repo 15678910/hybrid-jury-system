@@ -162,6 +162,11 @@ const TARGETS = [
         target: 'law', MST: '287735',
         why: 'objection-literacy-threshold 쟁점 — 불송치 이의신청의 서식·방식 근거(행정안전부령). 별지 서식 자체는 API 에 없으므로 조문의 서식 지정만 확인. 2026-09-02 수집',
     },
+    {
+        file: '성폭력처벌법_원문',
+        target: 'law', MST: '277347',
+        why: 'objection-literacy-threshold 쟁점 — 진술조력인(제36조 이하)의 근거 조문. 제안 ③ 「절차조력인 확장」이 기대는 선례. 2026-09-02 수집',
+    },
 ];
 
 const sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
