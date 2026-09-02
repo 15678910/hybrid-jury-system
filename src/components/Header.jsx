@@ -161,6 +161,12 @@ export default function Header() {
                                         사법개혁안 비교
                                     </Link>
                                     <Link
+                                        to="/law-diff"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                    >
+                                        수사·기소 분리 조문분석
+                                    </Link>
+                                    <Link
                                         to="/law-database"
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                     >
@@ -171,6 +177,12 @@ export default function Header() {
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                     >
                                         관계도
+                                    </Link>
+                                    <Link
+                                        to="/prediction"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600 whitespace-nowrap"
+                                    >
+                                        대법원 재판 결과 예측
                                     </Link>
                                 </div>
                             </div>
@@ -209,6 +221,12 @@ export default function Header() {
                                         className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
                                     >
                                         동영상
+                                    </Link>
+                                    <Link
+                                        to="/cardnews"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700 hover:text-blue-600"
+                                    >
+                                        카드뉴스
                                     </Link>
                                 </div>
                             </div>
@@ -266,15 +284,18 @@ export default function Header() {
                                 <Link to="/trial-schedule" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>📅 재판 일정</Link>
                                 <Link to="/judge-evaluation" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>AI의 판사평가</Link>
                                 <Link to="/reform-analysis" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>사법개혁안 비교</Link>
+                                <Link to="/law-diff" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>수사·기소 분리 조문분석</Link>
                                 <Link to="/law-database" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>법령DB</Link>
-                                <Link to="/judicial-network" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>관계도</Link>
+                                <Link to="/judicial-network" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>관계도</Link>
+                                <Link to="/prediction" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>대법원 재판 결과 예측</Link>
                             </div>
                             {/* 모바일 미디어 서브메뉴 */}
                             <div className="pl-4 border-l-2 border-gray-200">
                                 <p className="text-gray-500 text-sm mb-2">미디어</p>
                                 <Link to="/news" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>사법뉴스</Link>
                                 <Link to="/blog" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>블로그</Link>
-                                <Link to="/videos" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
+                                <Link to="/videos" className="block hover:text-blue-600 transition font-medium mb-2" onClick={() => setMobileMenuOpen(false)}>동영상</Link>
+                                <Link to="/cardnews" className="block hover:text-blue-600 transition font-medium" onClick={() => setMobileMenuOpen(false)}>카드뉴스</Link>
                             </div>
                             <button onClick={() => { scrollToSection('signature'); setMobileMenuOpen(false); }} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg text-center">
                                 참여하기

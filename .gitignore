@@ -7,6 +7,17 @@ backend/.env
 **/.env
 **/.env.*
 
+# 단, .env.example 은 자리표시자만 담긴 「문서」이므로 예외로 추적한다.
+# (실제 값이 든 .env / .env.local / .env.production / functions/.env 는
+#  위·아래 규칙으로 계속 차단된다 — 이 예외는 .example 접미사에만 적용됨)
+!.env.example
+!**/.env.example
+
+# 탐침 스크립트의 스텁 테스트 산출물 (가짜 데이터)
+# ※ 실제 API 응답 샘플(functions/probe_T*.json)은 근거 자료이므로 커밋한다.
+#    조작된 값이 실제 통계로 오인되는 것만 막는다.
+functions/probe_TEST_*.json
+
 # Firebase Service Account Key (절대 공유하면 안됨!)
 serviceAccountKey.json
 **/serviceAccountKey.json
@@ -67,3 +78,16 @@ lighthouse-*.json
 # 빌드 산출물/배포 캐시 (추적 안 함 — 빌드 시 재생성)
 .firebase/
 public/og-trial-schedule.png
+
+# 비공개 메모 — 저장소가 공개이므로 커밋하지 않는다
+docs/private/
+
+# 카드뉴스 생성용 Noto Sans KR 폰트 (각 6MB, 총 18MB) — 저장소에 넣지 않는다.
+# 필요 시 fonts.google.com 에서 Noto Sans KR 400/700/900 을 받아 scripts/fonts/ 에 둔다.
+scripts/fonts/notokr-*.ttf
+
+# 스크립트 실행 결과를 리다이렉트한 임시 출력물
+/*_out.txt
+
+# .hwpx 압축을 풀어 놓은 작업 폴더 (원본 .hwpx 는 추적한다)
+docs/bills/**/hwpx/

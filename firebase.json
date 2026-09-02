@@ -71,6 +71,10 @@
         "function": "judicialNetworkPage"
       },
       {
+        "source": "/prediction",
+        "function": "predictionPage"
+      },
+      {
         "source": "/law-database",
         "function": "lawDatabasePage"
       },
@@ -101,6 +105,18 @@
       {
         "source": "/jury-analysis",
         "function": "juryAnalysisPage"
+      },
+      {
+        "source": "/law-diff",
+        "function": "lawDiffPage"
+      },
+      {
+        "source": "/cardnews",
+        "function": "cardNewsPage"
+      },
+      {
+        "source": "/cardnews/**",
+        "function": "cardNewsPage"
       },
       {
         "source": "**",

@@ -36,8 +36,21 @@ function setCorsHeaders(req, res) {
 async function verifyAdmin(req, res) {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        const adminKey = req.headers['x-admin-key'];
-        if (adminKey === process.env.ADMIN_SECRET_KEY) return true;
+        // ⚠️ 2026-08-31 수정 — 인증 우회 차단.
+        // 이전 코드는 `adminKey === process.env.ADMIN_SECRET_KEY` 한 줄이었다.
+        // ADMIN_SECRET_KEY 가 미설정이면 양쪽이 모두 undefined 가 되어,
+        // 헤더를 아예 보내지 않은 요청이 관리자로 통과했다(=인증 없음).
+        // 그래서 ① 키 미설정이면 무조건 거부(fail-fast) ② 문자열 여부·길이 확인 후
+        // ③ timingSafeEqual 로 비교한다. 이 세 가지를 되돌리지 말 것.
+        const expected = process.env.ADMIN_SECRET_KEY;
+        const provided = req.headers['x-admin-key'];
+        if (typeof expected === 'string' && expected.length > 0 &&
+            typeof provided === 'string' && provided.length === expected.length) {
+            const a = Buffer.from(provided, 'utf8');
+            const b = Buffer.from(expected, 'utf8');
+            if (a.length === b.length && crypto.timingSafeEqual(a, b)) return true;
+        }
+        if (!expected) console.error('ADMIN_SECRET_KEY 미설정 — 관리자 요청을 전부 거부합니다.');
         res.status(401).json({ error: '인증이 필요합니다.' });
         return false;
     }
@@ -2313,6 +2326,119 @@ exports.collectNewsManual = functions
     }
 });
 
+// ========== 사법뉴스 생성 중단 감시 ==========
+// [2026-08-31] 2026.8.8 이후 23일간 사법뉴스가 끊겼는데 아무도 몰랐다.
+//   원인은 결제 중단으로 Cloud Scheduler 작업이 사라진 것이었다. 함수는 콘솔에
+//   남아 있어 목록만 봐서는 정상으로 보였다 — 그래서 '함수가 있는가'가 아니라
+//   '결과물이 실제로 생겼는가'를 본다. 침묵하는 실패를 잡는 것이 목적이다.
+//
+// 비용: 하루 1회 실행 + 문서 40건 읽기. 텔레그램 발송은 이상이 있을 때만.
+//   (2026-07-05 에 판결 크롤러 스케줄을 비용 때문에 내렸으므로 여기 얹지 않고
+//    가벼운 전용 함수로 둔다.)
+const NEWS_STALE_DAYS = 3;
+
+const checkNewsStale = async () => {
+    // category 로 where + createdAt orderBy 를 함께 쓰면 복합 색인이 필요하다.
+    // 색인 없이도 동작하도록 최근 글을 시간순으로 받아 코드에서 걸러낸다.
+    const snap = await db.collection('posts')
+        .orderBy('createdAt', 'desc')
+        .limit(40)
+        .get();
+
+    let latest = null;
+    snap.forEach((doc) => {
+        if (latest) return;
+        const d = doc.data();
+        if (d.category === '사법뉴스' && d.createdAt) {
+            latest = { id: doc.id, title: d.title, createdAt: d.createdAt.toDate() };
+        }
+    });
+
+    const now = new Date();
+    // 한국 날짜 기준으로 '며칠째'를 센다 (UTC 로 세면 하루가 어긋난다).
+    const kstDay = (dt) => Math.floor((dt.getTime() + 9 * 3600 * 1000) / 86400000);
+    const daysSince = latest ? kstDay(now) - kstDay(latest.createdAt) : null;
+
+    // 최근 40건 안에 사법뉴스가 없으면 그것 자체가 오래 끊겼다는 뜻이다.
+    const stale = latest === null || daysSince >= NEWS_STALE_DAYS;
+    const result = {
+        stale,
+        thresholdDays: NEWS_STALE_DAYS,
+        daysSince,
+        latest: latest ? { id: latest.id, title: latest.title, createdAt: latest.createdAt.toISOString() } : null,
+    };
+
+    if (!stale) {
+        console.log(`News staleness OK (${daysSince}d since last post)`);
+        return result;
+    }
+
+    const lines = latest
+        ? [
+            '🚨 <b>사법뉴스가 멈췄습니다</b>',
+            '',
+            `마지막 글: ${latest.title}`,
+            `생성 후 <b>${daysSince}일째</b> 새 글이 없습니다 (기준 ${NEWS_STALE_DAYS}일).`,
+            '',
+            '확인할 것:',
+            '① Cloud Scheduler 에 autoCollectNews 작업이 살아 있는가',
+            '② 프로젝트가 Blaze 요금제인가 (강등되면 스케줄이 삭제된다)',
+            '③ 네이버 뉴스 API 키가 유효한가',
+            '',
+            `👉 https://siminbupjung-blog.web.app/blog/${latest.id}`,
+        ]
+        : [
+            '🚨 <b>사법뉴스를 찾지 못했습니다</b>',
+            '',
+            `최근 글 ${snap.size}건 안에 사법뉴스가 없습니다. 오래 끊겼거나 글이 지워졌을 수 있습니다.`,
+            '',
+            '확인할 것: Cloud Scheduler 의 autoCollectNews 작업과 요금제 상태.',
+        ];
+
+    try {
+        await sendTelegramMessage(GROUP_CHAT_ID, lines.join('\n'));
+        result.notified = true;
+    } catch (e) {
+        console.error('Stale-news telegram notify failed:', e);
+        result.notified = false;
+    }
+
+    console.error(`News stale: ${daysSince}d since last post`);
+    return result;
+};
+
+// 매일 07:30 (KST) — autoCollectNews 가 06:00 에 도는 뒤라 여유를 둔다.
+exports.newsStaleCheck = functions
+    .runWith({ timeoutSeconds: 120, memory: '256MB' })
+    .pubsub.schedule('30 7 * * *')
+    .timeZone('Asia/Seoul')
+    .onRun(async () => {
+        try {
+            await checkNewsStale();
+        } catch (e) {
+            console.error('News stale check error:', e);
+        }
+        return null;
+    });
+
+// 수동 점검 트리거 (테스트·확인용) — 다른 크롤러들과 같은 쌍 구조
+exports.triggerNewsStaleCheck = functions
+    .runWith({ timeoutSeconds: 120, memory: '256MB' })
+    .https.onRequest(async (req, res) => {
+        setCorsHeaders(req, res);
+        if (req.method === 'OPTIONS') {
+            res.status(204).send('');
+            return;
+        }
+        if (!(await verifyAdmin(req, res))) return;
+        try {
+            const result = await checkNewsStale();
+            res.json({ success: true, ...result });
+        } catch (e) {
+            console.error('Manual stale check error:', e);
+            res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+        }
+    });
 // 대법원 보도자료 수동 수집 (테스트용)
 exports.collectSupremeCourtNews = functions.https.onRequest(async (req, res) => {
     setCorsHeaders(req, res);
@@ -3353,60 +3479,81 @@ exports.judgeDetailPage = functions.https.onRequest(async (req, res) => {
 // ============================================
 const CRAWLER_REGEX = /facebookexternalhit|Twitterbot|TelegramBot|Kakao-Agent|Kakaotalk-Scrap|slackbot|linkedinbot|pinterest|googlebot|bingbot|naverbot|yeti/i;
 const DEFAULT_OG_IMAGE = 'https://siminbupjung-blog.web.app/og-image.jpg';
+// og:url 의 도메인. 카카오톡은 카드 클릭 시 og:url 을 목적지로 쓰므로 공식 공유 도메인(시민법정.kr 의
+// punycode)이어야 한다. SEOHead.jsx 의 BASE_URL, SNSShareBar.jsx 의 getShareUrl 과 같은 값이다.
+const SITE_ORIGIN = 'https://xn--lg3b0kt4n41f.kr';
 
-function createStaticPageHandler(route, title, description, imageUrl, imageWidth, imageHeight) {
-    return functions.https.onRequest(async (req, res) => {
-        const userAgent = req.get('User-Agent') || '';
-        const isCrawler = CRAWLER_REGEX.test(userAgent);
-
-        if (!isCrawler) {
-            const queryString = req.url.includes('?') ? '&' + req.url.split('?')[1] : '';
-            const redirectUrl = `/?r=${route}${queryString}`;
-            return res.send(`<!DOCTYPE html>
+// 브라우저(비크롤러) 요청은 SPA 로 넘긴다. App.jsx 가 ?r= 을 읽어 해당 경로로 이동시키며,
+// r 외의 쿼리(person, tab 등)는 그대로 전달된다.
+function sendSpaRedirect(req, res, route) {
+    // 쿼리는 URLSearchParams 로 다시 직렬화한다 — " < > 같은 문자가 그대로 들어오면 아래 HTML 속성과
+    // JS 문자열을 깨뜨릴 수 있어서다. 이미 퍼센트 인코딩된 값(person=%EA%B9%80…)은 그대로 유지된다.
+    const rawQuery = req.url.includes('?') ? req.url.slice(req.url.indexOf('?') + 1) : '';
+    const forwardQuery = rawQuery ? new URLSearchParams(rawQuery).toString() : '';
+    const queryString = forwardQuery ? '&' + forwardQuery : '';
+    const redirectUrl = `/?r=${route}${queryString}`;
+    return res.send(`<!DOCTYPE html>
 <html>
 <head><meta http-equiv="refresh" content="0;url=${redirectUrl}"><script>window.location.replace("${redirectUrl}")</script></head>
 <body>Loading...</body>
 </html>`);
-        }
+}
 
-        const pageUrl = `https://siminbupjung-blog.web.app${route}`;
-        const ogImage = imageUrl || DEFAULT_OG_IMAGE;
-        const ogImageType = /\.png(\?|$)/i.test(ogImage) ? 'image/png' : (/\.jpe?g(\?|$)/i.test(ogImage) ? 'image/jpeg' : '');
-        const imgExtraMeta = [
-            `<meta property="og:image:secure_url" content="${ogImage}" />`,
-            ogImageType ? `<meta property="og:image:type" content="${ogImageType}" />` : '',
-            imageWidth ? `<meta property="og:image:width" content="${imageWidth}" />` : '',
-            imageHeight ? `<meta property="og:image:height" content="${imageHeight}" />` : '',
-        ].filter(Boolean).join('\n    ');
+// 크롤러용 OG 페이지 한 장을 보낸다 — 정적 페이지 핸들러(createStaticPageHandler)와
+// 동적 라우트(/cardnews/:slug 등)가 같은 HTML/OG 구조를 쓰되 템플릿을 중복하지 않도록 여기 모았다.
+// title/description 은 여기서 escapeHtml 을 거친다 — 호출자가 상수를 넘기든 DB 값을 넘기든 안전하다.
+function sendStaticOgPage(res, { route, title, description, image, imageWidth, imageHeight, ogType = 'website', status = 200 }) {
+    const safeTitle = escapeHtml(String(title || ''));
+    const safeDescription = escapeHtml(String(description || ''));
+    const pageUrl = `${SITE_ORIGIN}${route}`;
+    const ogImage = image || DEFAULT_OG_IMAGE;
+    const ogImageType = /\.png(\?|$)/i.test(ogImage) ? 'image/png' : (/\.jpe?g(\?|$)/i.test(ogImage) ? 'image/jpeg' : '');
+    const imgExtraMeta = [
+        `<meta property="og:image:secure_url" content="${ogImage}" />`,
+        ogImageType ? `<meta property="og:image:type" content="${ogImageType}" />` : '',
+        imageWidth ? `<meta property="og:image:width" content="${imageWidth}" />` : '',
+        imageHeight ? `<meta property="og:image:height" content="${imageHeight}" />` : '',
+    ].filter(Boolean).join('\n    ');
 
-        const html = `<!doctype html>
+    const html = `<!doctype html>
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${title} - 시민법정</title>
-    <meta name="description" content="${description}" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="${title}" />
-    <meta property="og:description" content="${description}" />
+    <title>${safeTitle} - 시민법정</title>
+    <meta name="description" content="${safeDescription}" />
+    <meta property="og:type" content="${ogType}" />
+    <meta property="og:title" content="${safeTitle}" />
+    <meta property="og:description" content="${safeDescription}" />
     <meta property="og:image" content="${ogImage}" />
     ${imgExtraMeta}
     <meta property="og:url" content="${pageUrl}" />
     <meta property="og:site_name" content="시민법정" />
     <meta property="og:locale" content="ko_KR" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="${title}" />
-    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:title" content="${safeTitle}" />
+    <meta name="twitter:description" content="${safeDescription}" />
     <meta name="twitter:image" content="${ogImage}" />
   </head>
   <body>
-    <h1>${title}</h1>
-    <p>${description}</p>
+    <h1>${safeTitle}</h1>
+    <p>${safeDescription}</p>
   </body>
 </html>`;
 
-        res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
-        res.status(200).send(html);
+    // 200 만 캐시한다. 404 를 CDN 에 10분 물려 두면 함수 배포가 호스팅보다 늦었을 때 복구가 늦어진다.
+    res.set('Cache-Control', status === 200 ? 'public, max-age=300, s-maxage=600' : 'no-store');
+    res.status(status).send(html);
+}
+
+function createStaticPageHandler(route, title, description, imageUrl, imageWidth, imageHeight) {
+    return functions.https.onRequest(async (req, res) => {
+        const userAgent = req.get('User-Agent') || '';
+        const isCrawler = CRAWLER_REGEX.test(userAgent);
+
+        if (!isCrawler) return sendSpaRedirect(req, res, route);
+
+        return sendStaticOgPage(res, { route, title, description, image: imageUrl, imageWidth, imageHeight });
     });
 }
 
@@ -3473,6 +3620,27 @@ exports.judicialNetworkPage = createStaticPageHandler(
     'https://siminbupjung-blog.web.app/%EA%B4%80%EA%B3%84%EB%8F%84.png'
 );
 
+// 대법원 재판 결과 예측 — 확률이 아니라 근거를 공개하는 분석
+// OG 이미지는 scripts/gen-og-prediction.mjs 가 빌드 시점에 생성한다(prebuild 훅).
+exports.predictionPage = createStaticPageHandler(
+    '/prediction',
+    '대법원 재판 결과 예측 — 근거를 공개하는 분석 | 시민법정',
+    '대법원 사건의 결론을 확률로 제시하기 전에, 그 확률이 어디서 나왔는지를 먼저 공개합니다. 기저율과 조문 근거를 밝히고, 예측 적중률을 검증해 남깁니다.',
+    'https://siminbupjung-blog.web.app/og-prediction-supreme.png',
+    1200,
+    630
+);
+
+// 수사·기소 분리 조문 분석
+exports.lawDiffPage = createStaticPageHandler(
+    '/law-diff',
+    '수사·기소 분리 — 조문으로 검증한 쟁점 | 시민법정',
+    '공소청법·중수청법·형사소송법 개정이 무엇을 바꾸는지 조문을 나란히 놓고 확인합니다. 제기된 우려를 조문으로 검증하고, 인용한 법령의 공포번호까지 함께 공개합니다.',
+    'https://siminbupjung-blog.web.app/og-law-diff.png',
+    1200,
+    630
+);
+
 // 법률 데이터베이스
 exports.lawDatabasePage = createStaticPageHandler(
     '/law-database',
@@ -3501,6 +3669,91 @@ exports.simulationPage = createStaticPageHandler(
     '당신이 참심원이 되어 내란 사건을 판단해보세요. 시민이 참여하면 판결이 달라집니다.',
     'https://siminbupjung-blog.web.app/og-simulation.png'
 );
+
+// ============================================
+// 카드뉴스 SSR (/cardnews, /cardnews/:slug)
+// ============================================
+// slug 는 src/data/cardNews.js 의 CARD_NEWS_SERIES 와 반드시 맞춘다
+// (프론트는 ESM, 여기는 CJS 라 그 파일을 직접 import 하지 않는다).
+// 대표 이미지는 각 시리즈의 첫 장 public/cardnews/<slug>/1.png (1600×1200).
+const CARD_NEWS_META = {
+    'investigation-rules-2026': {
+        title: '법무부 입법예고 「검사와 특별사법경찰관의 상호협력에 관한 규정 제정안」 카드뉴스',
+        description: '수사·기소 분리 형소법(2026.10.2 시행)에 맞춰 법무부가 입법예고한 수사준칙 개정령안과 특사경 협력규정 제정안을 조문으로 대조합니다. 법이 지운 「지휘」가 대통령령에서 되살아나는지 — 제29조의2 ② 호송 의무, 제8조의3 「요청」과 「요구」, 제정안 제25조 「이행해야 한다」를 확인하고 이재명 정부에 묻습니다.',
+    },
+    'judgment-disclosure': {
+        title: '판결서 공개 — 6단계 카드뉴스',
+        description: '헌법 제109조는 재판을 공개한다고 선언하는데 판결문은 왜 읽기 어려운가. 형사·민사 판결서 열람 조문을 원문으로 대조하고, 2027.12.31 시행되는 형사 미확정 판결서 공개까지 — 막히는 지점 다섯과 남은 과제를 정리합니다.',
+    },
+    'criminal-procedure-2026': {
+        title: '형사소송법 개정 — 수사·기소 분리 카드뉴스',
+        description: '2026.10.2 시행되는 검찰청 폐지·공소청·중수청 체제가 무엇을 바꾸는지 조문으로 확인합니다. 시민의 절차가 어떻게 달라지는지, 중수청이 「검찰 중심」이 되면 어떤 문제가 생기는지, 글을 몰라도 작동하는 권리까지 — 9단계로 정리했습니다.',
+    },
+};
+// 목록(/cardnews)의 대표 이미지는 최신 시리즈의 첫 장
+const CARD_NEWS_INDEX_META = {
+    title: '카드뉴스',
+    description: '형사소송법 개정, 수사준칙 입법예고, 판결서 공개 — 사법개혁 쟁점을 조문 원문으로 대조한 카드뉴스 시리즈.',
+    slug: 'investigation-rules-2026',
+};
+const cardNewsImageUrl = (slug) => `https://siminbupjung-blog.web.app/cardnews/${slug}/1.png`;
+
+exports.cardNewsPage = functions.https.onRequest(async (req, res) => {
+    const userAgent = req.get('User-Agent') || '';
+    const isCrawler = CRAWLER_REGEX.test(userAgent);
+
+    // req.path: '/cardnews' 또는 '/cardnews/<slug>'
+    const segments = req.path.split('/').filter(Boolean);
+    const rawSlug = segments[1] || '';
+
+    // 정적 파일 경로(/cardnews/<slug>/1.png 등)가 여기까지 왔다는 것은 dist 에 그 파일이 없다는 뜻이다
+    // (호스팅은 실제 파일을 먼저 찾고, 없을 때만 rewrite 를 탄다). 이때 HTML 을 200 으로 돌려주면
+    // firebase.json 의 png 캐시 규칙(30일)에 HTML 이 박혀 og:image 가 한 달간 깨진다. 반드시 404 로 끊는다.
+    if (segments.length > 2 || /[.][a-z0-9]{2,5}$/i.test(rawSlug)) {
+        res.set('Cache-Control', 'no-store');
+        return res.status(404).send('Not Found');
+    }
+
+    // slug 는 소문자·숫자·하이픈만 매칭한다. 대소문자 오타는 소문자로 맞춰 본다.
+    const slug = rawSlug.toLowerCase();
+    const series = /^[a-z0-9-]{1,80}$/.test(slug) ? CARD_NEWS_META[slug] : null;
+    // URL 에서 온 문자열은 encodeURIComponent 를 거쳐야 HTML 속성·JS 문자열에 안전하다.
+    const requestedRoute = rawSlug ? `/cardnews/${encodeURIComponent(rawSlug)}` : '/cardnews';
+
+    if (!isCrawler) {
+        // 아는 slug 는 정규형(소문자)으로, 모르는 slug 는 요청 경로 그대로 SPA 에 넘겨
+        // 프론트가 「없는 시리즈」 화면을 보여 주게 한다.
+        return sendSpaRedirect(req, res, series ? `/cardnews/${slug}` : requestedRoute);
+    }
+
+    if (series) {
+        return sendStaticOgPage(res, {
+            route: `/cardnews/${slug}`,
+            title: series.title,
+            description: series.description,
+            image: cardNewsImageUrl(slug),
+            imageWidth: 1600,
+            imageHeight: 1200,
+            ogType: 'article',
+        });
+    }
+
+    if (rawSlug) {
+        // 없는 시리즈 — 크롤러는 200 이 아니면 미리보기를 만들지 않으므로 OG 를 꾸미지 않고 404 만 돌려준다.
+        res.set('Cache-Control', 'no-store');
+        return res.status(404).send('Not Found');
+    }
+
+    // 목록 페이지
+    return sendStaticOgPage(res, {
+        route: '/cardnews',
+        title: CARD_NEWS_INDEX_META.title,
+        description: CARD_NEWS_INDEX_META.description,
+        image: cardNewsImageUrl(CARD_NEWS_INDEX_META.slug),
+        imageWidth: 1600,
+        imageHeight: 1200,
+    });
+});
 
 // 판례 상세 페이지
 exports.precedentDetailPage = functions.https.onRequest(async (req, res) => {

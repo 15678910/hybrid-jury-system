@@ -19,9 +19,8 @@ const AdminBlog = lazy(() => import('./pages/AdminBlog'))
 const AdminNews = lazy(() => import('./pages/AdminNews'))
 const Videos = lazy(() => import('./pages/Videos'))
 const AdminVideos = lazy(() => import('./pages/AdminVideos'))
-// 카드뉴스 임시 비활성화
-// const CardNews = lazy(() => import('./pages/CardNews'))
-// const AdminCardNews = lazy(() => import('./pages/AdminCardNews'))
+// 카드뉴스 — 정적 시리즈 갤러리(src/data/cardNews.js). Firestore 기반 CardNews/AdminCardNews 는 2026-01 비활성화 상태 유지
+const CardNewsGallery = lazy(() => import('./pages/CardNewsGallery'))
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
 const TermsOfService = lazy(() => import('./pages/TermsOfService'))
 const Governance = lazy(() => import('./pages/Governance'))
@@ -31,10 +30,12 @@ const EuropeJurySystem = lazy(() => import('./pages/EuropeJurySystem'))
 const JudiciaryNews = lazy(() => import('./pages/JudiciaryNews'))
 const SentencingAnalysis = lazy(() => import('./pages/SentencingAnalysis'))
 const ReformAnalysis = lazy(() => import('./pages/ReformAnalysis'))
+const LawDiffAnalysis = lazy(() => import('./pages/LawDiffAnalysis'))
 const LawDatabase = lazy(() => import('./pages/LawDatabase'))
 const JudgeEvaluation = lazy(() => import('./pages/JudgeEvaluation'))
 const JudgeDetail = lazy(() => import('./pages/JudgeDetail'))
 const JudicialNetwork = lazy(() => import('./pages/JudicialNetwork'))
+const CasePrediction = lazy(() => import('./pages/CasePrediction'))
 const InsurrectionTrialAnalysis = lazy(() => import('./pages/InsurrectionTrialAnalysis'))
 const TrialSchedule = lazy(() => import('./pages/TrialSchedule'))
 const JudgeSimulation = lazy(() => import('./pages/JudgeSimulation'))
@@ -87,9 +88,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:id" element={<BlogPost />} />
           <Route path="/videos" element={<Videos />} />
-          {/* 카드뉴스 임시 비활성화 */}
-          {/* <Route path="/cardnews" element={<CardNews />} /> */}
-          {/* <Route path="/cardnews/admin" element={<AdminCardNews />} /> */}
+          <Route path="/cardnews" element={<CardNewsGallery />} />
+          <Route path="/cardnews/:slug" element={<CardNewsGallery />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/governance" element={<Governance />} />
@@ -101,10 +101,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/europe-jury" element={<EuropeJurySystem />} />
           <Route path="/jury-analysis" element={<JuryTrialAnalysis />} />
           <Route path="/reform-analysis" element={<ReformAnalysis />} />
+          <Route path="/law-diff" element={<LawDiffAnalysis />} />
           <Route path="/law-database" element={<LawDatabase />} />
           <Route path="/judge-evaluation" element={<JudgeEvaluation />} />
           <Route path="/judge/:name" element={<JudgeDetail />} />
           <Route path="/judicial-network" element={<JudicialNetwork />} />
+          <Route path="/prediction" element={<CasePrediction />} />
           <Route path="/trial-analysis" element={<InsurrectionTrialAnalysis />} />
           <Route path="/trial-schedule" element={<TrialSchedule />} />
           <Route path="/case-search" element={<CaseSearch />} />

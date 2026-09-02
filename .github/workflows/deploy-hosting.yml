@@ -57,6 +57,11 @@ jobs:
       - name: 빌드 산출물 확인
         run: |
           test -f dist/index.html || { echo "::error::dist/index.html 이 없습니다"; exit 1; }
+          # 카드뉴스 PNG 가 빠진 채 배포되면 /cardnews/** rewrite 가 png URL 에 HTML 을 200 으로 돌려주고
+          # 그것이 30일 캐시에 박힌다. public/cardnews/ 가 git 에 있는지 여기서 걸러낸다.
+          for d in public/cardnews/*/; do
+            test -f "dist/${d#public/}1.png" || { echo "::error::dist/${d#public/}1.png 이 없습니다 — public/cardnews/ 를 커밋했는지 확인"; exit 1; }
+          done
           echo "생성된 청크:"
           ls -1 dist/assets/ | head -20
           echo "OG 이미지:"
