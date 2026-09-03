@@ -126,6 +126,14 @@ firebase deploy --only functions                  # 백엔드 함수
 
 ## 자주 발생하는 실수 (반복 방지)
 
+### 🚨 2026-09-03 사건 (npm install 이 미선언 패키지를 지움 → 스크립트 의존성 유실)
+- **사건**: `npm install --save-dev ffmpeg-static` 을 실행하자 `node_modules/canvas` 가 사라짐. 릴스 생성기가 canvas 를 쓰도록 짜 둔 직후였다
+- **원인**: npm 은 install 때 package.json 에 선언되지 않은(extraneous) 패키지를 정리한다. canvas 는 어느 스크립트가 쓰고 있었지만 devDependencies 에 없었다
+- **교훈**:
+  1. `scripts/` 의 스크립트가 쓰는 패키지도 **반드시 devDependencies 에 선언**한다. `require.resolve` 가 지금 되는 것과 선언돼 있는 것은 다르다
+  2. 패키지를 새로 넣기 전 `npm ls --depth=0 2>&1 | grep extraneous` 로 선언 안 된 패키지가 있는지 본다
+  3. 사라진 뒤 대안: 릴스 생성기는 이미 있는 Python Pillow 로 바꿨다(`scripts/gen_reel.py`). 네이티브 바이너리를 또 받는 것보다 낫다
+
 ### 🚨 2026-07-07 사건 (블로그 글 삭제→재작성 = 공유 링크 영구 파손)
 - **사건**: `/blog/VjKO7SPGvfHVDXs0gInQ` 등 이미 SNS·검색에 공유된 블로그 링크가 "글을 찾을 수 없습니다"(404)로 깨짐
 - **원인**: 글을 **삭제 후 새로 작성**하면 Firestore 자동 문서 ID가 바뀜 → 옛 ID로 된 모든 공유 링크(트위터·카카오·검색)가 404. 삭제된 옛 ID는 방문통계(analytics)에만 흔적이 남고 `posts` 컬렉션엔 존재하지 않음
