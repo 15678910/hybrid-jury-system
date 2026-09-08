@@ -12,7 +12,7 @@
 ```
 ls functions/.env                 # 있으면 로컬
 git status -sb                    # main...origin/main
-ls scripts/audio/news-inv scripts/audio/news-jeje scripts/audio/news-decree   # ⚠️ ElevenLabs 음성 원본 — git 에 없다 (§4)
+ls scripts/audio/news-inv scripts/audio/news-jeje scripts/audio/news-decree   # ElevenLabs 음성 원본 — 2026-09-08 저녁부터 git 에도 있다 (§4)
 ```
 
 ---
@@ -67,14 +67,13 @@ ls scripts/audio/news-inv scripts/audio/news-jeje scripts/audio/news-decree   # 
 
 ## 4. 저장소에 없는 것 (⚠️ 이 PC 에만 있다)
 
+> ElevenLabs 음성 28개(`scripts/audio/news-*/`)는 사용자 요청으로 **git 에 커밋했다**(5c5b6fa, 3.3MB). `.gitignore` 에 `!scripts/audio/news-*/**` 예외. 새 시리즈 음성도 같은 규칙으로 자동 포함된다.
+
 ```
-scripts/audio/news-inv/1..9.mp3     ElevenLabs 현빈 — 수사준칙 9문장
-scripts/audio/news-jeje/1..9.mp3    ElevenLabs 현빈 — 직제 9문장
-scripts/audio/news-decree/1..10.mp3 ElevenLabs 현빈 — 대통령령 절차 10문장
 reels/*.mp4                          릴스·뉴스 원본(1080×1920). 웹용 720p 는 public/ 에 커밋됨
 docs/bills/공소청직제_2026입법예고/*.pdf   보도자료 원본(텍스트 추출본은 커밋됨)
 ```
-`scripts/audio/` 를 잃으면 ElevenLabs 에서 다시 받아야 한다(무료 크레딧 소모). **다른 곳에 한 번 백업해 두길 권한다.**
+reels/ 원본은 생성기로 다시 만들 수 있고, PDF 는 텍스트 추출본이 커밋돼 있다.
 
 ---
 
@@ -95,5 +94,5 @@ docs/bills/공소청직제_2026입법예고/*.pdf   보도자료 원본(텍스�
 - 내용 판정: 사법통제부 신설은 형소법(245조의8⑧·197조의2⑦·197조의3⑦)에 근거 → 위법 아님, 명칭만 법 밖 / 대응부서 5곳 「수사개시 단계부터 전담」은 형소법 195③·정부조직법 2① 에 비추어 위임 범위 초과 소지 / 검사 정원은 법률 사항.
 - 국회법 98조의2 는 2026.9.8 시행분을 law.go.kr 에서 받아 인용했다(①~⑥·⑨). 국회에 부결·수정권이 없다는 점이 4단계의 결론.
 - 직제안 시리즈 6단계 문구를 「법사위 보고」→「제98조의2 검토결과보고서 채택」으로 정정(제출은 이미 법정 의무).
-- 영상: 릴스·AI 뉴스 배포됨. AI 뉴스는 **ElevenLabs 현빈 음성 10문장**으로 교체 완료(`scripts/audio/news-decree/1~10.mp3`, 10번은 사용자 추가 문구 「이재명 대통령은 밝히십시오」). 세 시리즈 모두 같은 목소리다. 이 폴더도 git 에 없다 — §4 와 함께 백업할 것.
+- 영상: 릴스·AI 뉴스 배포됨. AI 뉴스는 **ElevenLabs 현빈 음성 10문장**으로 교체 완료(`scripts/audio/news-decree/1~10.mp3`, 10번은 사용자 추가 문구 「이재명 대통령은 밝히십시오」). 세 시리즈 모두 같은 목소리다. (이후 git 에 커밋됨, §4)
 - 상단 여백은 이제 `--top 100` 이 관례(뉴스·릴스 모두). 기본값은 여전히 196/200 이니 명령에 `--top 100` 을 붙일 것.
