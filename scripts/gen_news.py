@@ -1,13 +1,23 @@
-# 카드뉴스 → 30초 AI 뉴스 (세로 1080×1920, AI 음성 낭독 + 자막 + 음악 베드)
+# 카드뉴스 → AI 개벽뉴스 (세로 1080×1920, AI 음성 낭독 + 자막 + 음악 베드)
 #
-# 사용: python scripts/gen_news.py --slug investigation-rules-2026 [--music public/music.mp3] [--out reels/<slug>-news.mp4]
+# 사용: python scripts/gen_news.py --slug investigation-rules-2026 [--music public/music.mp3]
+#         [--engine edge|elevenlabs] [--out reels/<slug>-news.mp4]
 #
-# 대본: scripts/news-scripts/<slug>.json  { voice, rate, segments:[{img, text}] }
-#   각 세그먼트마다 edge-tts 로 한국어 신경망 음성을 만들고, 그 길이만큼 해당 카드 이미지를 보여 준다.
+# 대본: scripts/news-scripts/<slug>.json
+#   { title, series, voice, rate, engine, elevenVoiceId, elevenModel, segments:[{img, text}] }
+#   각 세그먼트마다 AI 음성을 만들고, 그 길이만큼 해당 카드 이미지를 보여 준다.
 #   자막(낭독문)은 Pillow 로 프레임에 구워 넣으므로 ffmpeg 자막 필터가 필요 없다.
-# 음성: edge-tts(온라인, 무료). 음악: --music 이 있으면 낭독 아래에 -20dB 로 깔고 시작/끝 페이드.
+#
+# 음성 엔진:
+#   edge       — edge-tts(마이크로소프트 신경망, 온라인·무료). 기본값.
+#   elevenlabs — ElevenLabs(더 자연스러운 발음, 유료). API 키가 필요하다.
+#                ⚠️ 키는 환경변수 ELEVENLABS_API_KEY 로만 읽는다 — 코드·대본에 절대 적지 말 것.
+#                   PowerShell 한 세션: $env:ELEVENLABS_API_KEY="발급받은키"  (닫으면 사라짐)
+#                   또는 functions/.env 에 ELEVENLABS_API_KEY=... (이미 gitignore).
+#                voice_id 는 대본의 elevenVoiceId 또는 --eleven-voice 로 준다(ElevenLabs 계정에서 확인).
+# 음악: --music 이 있으면 낭독 아래에 -20dB 로 깔고 시작/끝 페이드.
 # 렌더: 세그먼트 이미지 concat(각자 제 길이) → 무음 영상 → 음성+음악 mux.
-import argparse, asyncio, json, os, subprocess, sys, tempfile
+import argparse, asyncio, json, os, subprocess, sys, tempfile, urllib.request, urllib.error
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 import edge_tts
@@ -16,6 +26,38 @@ try:
     sys.stdout.reconfigure(encoding='utf-8')  # ≈·한글 print 가 cp949 에서 깨지지 않게
 except Exception:
     pass
+
+def load_env_file(p):
+    # functions/.env 등에서 KEY=VALUE 를 읽어 os.environ 에 없으면 채운다(키를 코드에 두지 않기 위함).
+    try:
+        for line in Path(p).read_text(encoding='utf-8').splitlines():
+            line = line.strip()
+            if not line or line.startswith('#') or '=' not in line:
+                continue
+            k, v = line.split('=', 1)
+            os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+    except Exception:
+        pass
+
+def tts_elevenlabs(text, path, voice_id, model):
+    key = os.environ.get('ELEVENLABS_API_KEY')
+    if not key:
+        sys.exit('ELEVENLABS_API_KEY 가 없다. 환경변수나 functions/.env 에 넣어라(채팅에 붙여넣지 말 것).')
+    if not voice_id:
+        sys.exit('elevenVoiceId 가 없다. 대본 JSON 의 elevenVoiceId 또는 --eleven-voice 로 지정해라.')
+    body = json.dumps({
+        'text': text,
+        'model_id': model,
+        'voice_settings': {'stability': 0.4, 'similarity_boost': 0.8, 'style': 0.15, 'use_speaker_boost': True},
+    }).encode('utf-8')
+    url = f'https://api.elevenlabs.io/v1/text-to-speech/{voice_id}?output_format=mp3_44100_128'
+    req = urllib.request.Request(url, data=body, method='POST', headers={
+        'xi-api-key': key, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg'})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            Path(path).write_bytes(r.read())
+    except urllib.error.HTTPError as e:
+        sys.exit(f'ElevenLabs 오류 {e.code}: {e.read().decode("utf-8","replace")[:300]}')
 
 ROOT = Path(__file__).resolve().parent.parent
 FFMPEG = ROOT / 'node_modules' / 'ffmpeg-static' / ('ffmpeg.exe' if os.name == 'nt' else 'ffmpeg')
@@ -30,13 +72,20 @@ ap.add_argument('--slug', required=True)
 ap.add_argument('--music')
 ap.add_argument('--out')
 ap.add_argument('--music-db', default='-20dB')
+ap.add_argument('--engine', choices=['edge', 'elevenlabs'])
+ap.add_argument('--eleven-voice')
 A = ap.parse_args()
 if not FFMPEG.exists():
     sys.exit(f'ffmpeg 없음: {FFMPEG}')
+load_env_file(ROOT / 'functions' / '.env')  # ELEVENLABS_API_KEY 를 여기서도 읽는다
 spec = json.loads((ROOT / 'scripts' / 'news-scripts' / f'{A.slug}.json').read_text(encoding='utf-8'))
 segs = spec['segments']
+TITLE = spec.get('title', 'AI 1분 개벽뉴스')
 voice = spec.get('voice', 'ko-KR-InJoonNeural')
 rate = spec.get('rate', '+0%')
+engine = A.engine or spec.get('engine', 'edge')
+eleven_voice = A.eleven_voice or spec.get('elevenVoiceId')
+eleven_model = spec.get('elevenModel', 'eleven_multilingual_v2')
 out = Path(A.out) if A.out else ROOT / 'reels' / f'{A.slug}-news.mp4'
 out = out if out.is_absolute() else ROOT / out
 
@@ -79,13 +128,13 @@ BG = bg()
 
 def frame(seg, idx, total):
     img = BG.copy(); d = ImageDraw.Draw(img, 'RGBA')
-    # 상단: AI 뉴스 배지 + 시리즈 (상단 안전영역 아래)
+    # 상단: 개벽뉴스 배지 + 시리즈 (상단 안전영역 아래)
     f_badge = font(900, 40)
-    badge = 'AI 뉴스'; bw = d.textlength(badge, font=f_badge) + 44
+    badge = TITLE; bw = d.textlength(badge, font=f_badge) + 44
     roundrect(d, (40, 200, 40 + bw, 268), 14, fill=RED)
     d.text((62, 208), badge, font=f_badge, fill=(255, 255, 255))
-    f_ser = font(700, 30)
-    d.text((40 + bw + 20, 214), spec.get('series', ''), font=f_ser, fill=MUTED)
+    f_ser = font(700, 28)
+    d.text((40 + bw + 18, 216), spec.get('series', ''), font=f_ser, fill=MUTED)
     # 진행 점
     dotx = W - 40 - total * 26
     for i in range(total):
@@ -111,8 +160,12 @@ def frame(seg, idx, total):
 
 # ── 세그먼트별 TTS + 프레임 ───────────────────────────────────────────
 tmp = Path(tempfile.mkdtemp(prefix='news-'))
-async def tts(text, path):
-    await edge_tts.Communicate(text, voice, rate=rate).save(str(path))
+print(f'음성 엔진: {engine}' + (f' (voice {eleven_voice}, {eleven_model})' if engine == 'elevenlabs' else f' ({voice}, rate {rate})'))
+def synth(text, path):
+    if engine == 'elevenlabs':
+        tts_elevenlabs(text, path, eleven_voice, eleven_model)
+    else:
+        asyncio.run(edge_tts.Communicate(text, voice, rate=rate).save(str(path)))
 
 def dur(path):
     r = subprocess.run([str(FFMPEG), '-i', str(path)], capture_output=True, text=True, encoding='utf-8', errors='replace')
@@ -124,7 +177,7 @@ auds, frames, durs = [], [], []
 total = len(segs)
 for i, seg in enumerate(segs):
     ap_ = tmp / f'a{i}.mp3'
-    asyncio.run(tts(seg['text'], ap_))
+    synth(seg['text'], ap_)
     d_i = dur(ap_) + 0.15   # 문장 끝 짧은 여유
     auds.append(ap_); durs.append(d_i)
     fp = tmp / f'f{i}.png'; frame(seg, i, total).save(fp); frames.append(fp)
