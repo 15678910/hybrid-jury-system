@@ -53,17 +53,25 @@ function SeriesList() {
                                 to={`/cardnews/${s.slug}`}
                                 className="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg hover:border-blue-300 transition"
                             >
-                                <img
-                                    src={cardImageUrl(s.slug, 1)}
-                                    alt={`${s.title} 1단계`}
-                                    className="w-full block"
-                                    loading="lazy"
-                                />
+                                <div className="relative">
+                                    <img
+                                        src={cardImageUrl(s.slug, 1)}
+                                        alt={`${s.title} 1단계`}
+                                        className="w-full block"
+                                        loading="lazy"
+                                    />
+                                    {(s.news || s.reel) && (
+                                        <span className="absolute top-3 right-3 inline-flex items-center gap-1 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">
+                                            ▶ 영상
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="p-5">
                                     <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
                                         <span className="font-bold text-blue-700">{s.count}장</span>
                                         <span>·</span>
                                         <span>{formatDate(s.date)}</span>
+                                        {(s.news || s.reel) && (<><span>·</span><span className="text-red-600 font-bold">영상</span></>)}
                                     </div>
                                     <h2 className="text-lg font-bold text-gray-900 leading-snug group-hover:text-blue-700">{s.title}</h2>
                                     <p className="mt-2 text-sm text-gray-600 line-clamp-3">{s.description}</p>
