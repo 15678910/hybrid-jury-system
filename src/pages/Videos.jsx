@@ -384,10 +384,13 @@ export default function Videos() {
                                                         className="w-full block aspect-[9/16] bg-black"
                                                         aria-label={sv.title}
                                                     />
-                                                    {/* 영상 안에는 배지를 빼고, 카드 위 오버레이 배지 하나로 표기 */}
-                                                    <span className={`absolute top-2 left-2 text-xs font-bold text-white px-2.5 py-1 rounded-full ${sv.kind === '릴스' ? 'bg-blue-600' : 'bg-red-600'}`}>
-                                                        {sv.kind}
-                                                    </span>
+                                                    {/* AI 뉴스는 영상 안에 「AI 1분 개벽늬우스」 배지가 있으므로 카드 밖에는 두지 않는다(중복 방지).
+                                                        릴스 영상에는 「릴스」 표기가 없어 오버레이로만 붙인다. */}
+                                                    {sv.kind === '릴스' && (
+                                                        <span className="absolute top-2 left-2 text-xs font-bold text-white px-2.5 py-1 rounded-full bg-blue-600">
+                                                            릴스
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <div className="p-3">
                                                     <h3 className="font-bold text-gray-900 text-sm line-clamp-2">{sv.title}</h3>
