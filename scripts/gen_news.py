@@ -74,6 +74,7 @@ ap.add_argument('--out')
 ap.add_argument('--music-db', default='-20dB')
 ap.add_argument('--engine', choices=['edge', 'elevenlabs'])
 ap.add_argument('--eleven-voice')
+ap.add_argument('--voice-dir', help='세그먼트별 음성 파일(1.mp3..N.mp3)이 든 폴더. speakclone 등에서 받은 음성을 쓸 때.')
 A = ap.parse_args()
 if not FFMPEG.exists():
     sys.exit(f'ffmpeg 없음: {FFMPEG}')
@@ -94,6 +95,12 @@ def font(w, s):
     if not p.exists():
         sys.exit(f'폰트 없음: {p}')
     return ImageFont.truetype(str(p), s)
+
+# 제목 배지 서체 — 대본 JSON 의 titleFont(scripts/fonts/ 기준 파일명) 또는 기본 레트로체.
+_TITLE_FONT_FILE = spec.get('titleFont', 'blackhansans.ttf')
+def title_font(s):
+    p = FONTS / _TITLE_FONT_FILE
+    return ImageFont.truetype(str(p), s) if p.exists() else font(900, s)
 
 def wrap(d, text, f, max_w, max_lines):
     words = [w for w in __import__('re').split(r'(\s+)', text) if w]
@@ -128,18 +135,18 @@ BG = bg()
 
 def frame(seg, idx, total):
     img = BG.copy(); d = ImageDraw.Draw(img, 'RGBA')
-    # 상단: 개벽뉴스 배지 + 시리즈 (상단 안전영역 아래)
-    f_badge = font(900, 40)
-    badge = TITLE; bw = d.textlength(badge, font=f_badge) + 44
-    roundrect(d, (40, 200, 40 + bw, 268), 14, fill=RED)
-    d.text((62, 208), badge, font=f_badge, fill=(255, 255, 255))
-    f_ser = font(700, 28)
-    d.text((40 + bw + 18, 216), spec.get('series', ''), font=f_ser, fill=MUTED)
-    # 진행 점
+    # 상단: 개벽늬우스 배지(레트로 서체) + 시리즈 (상단 안전영역 아래)
+    f_badge = title_font(46)
+    badge = TITLE; bw = d.textlength(badge, font=f_badge) + 48
+    roundrect(d, (40, 196, 40 + bw, 274), 14, fill=RED)
+    d.text((64, 206), badge, font=f_badge, fill=(255, 255, 255))
+    # 진행 점 (오른쪽)
     dotx = W - 40 - total * 26
     for i in range(total):
         on = i == idx
-        d.ellipse((dotx + i * 26, 224, dotx + i * 26 + 16, 240), fill=(RED if on else (90, 105, 122)))
+        d.ellipse((dotx + i * 26, 227, dotx + i * 26 + 16, 243), fill=(RED if on else (90, 105, 122)))
+    # 시리즈 — 배지 아래 줄 (겹침 방지)
+    d.text((44, 292), spec.get('series', ''), font=font(700, 30), fill=MUTED)
     # 카드 이미지 (그림자 + 둥근 모서리)
     sh = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(sh).rounded_rectangle((CARD_X, CARD_Y + 16, CARD_X + CARD_W, CARD_Y + CARD_H + 16), radius=22, fill=(0, 0, 0, 120))
@@ -160,9 +167,23 @@ def frame(seg, idx, total):
 
 # ── 세그먼트별 TTS + 프레임 ───────────────────────────────────────────
 tmp = Path(tempfile.mkdtemp(prefix='news-'))
-print(f'음성 엔진: {engine}' + (f' (voice {eleven_voice}, {eleven_model})' if engine == 'elevenlabs' else f' ({voice}, rate {rate})'))
-def synth(text, path):
-    if engine == 'elevenlabs':
+voice_dir = Path(A.voice_dir) if A.voice_dir else None
+if voice_dir and not voice_dir.is_absolute():
+    voice_dir = ROOT / voice_dir
+if voice_dir:
+    print(f'음성: 폴더 사용 {voice_dir} (세그먼트별 1.mp3..{len(segs)}.mp3)')
+else:
+    print(f'음성 엔진: {engine}' + (f' (voice {eleven_voice}, {eleven_model})' if engine == 'elevenlabs' else f' ({voice}, rate {rate})'))
+
+def synth(text, path, i):
+    if voice_dir:
+        import shutil
+        for ext in ('mp3', 'wav', 'm4a'):
+            src = voice_dir / f'{i+1}.{ext}'
+            if src.exists():
+                shutil.copy(src, path); return
+        sys.exit(f'음성 파일 없음: {voice_dir}/{i+1}.mp3 (세그먼트마다 1.mp3..{len(segs)}.mp3 이 있어야 한다)')
+    elif engine == 'elevenlabs':
         tts_elevenlabs(text, path, eleven_voice, eleven_model)
     else:
         asyncio.run(edge_tts.Communicate(text, voice, rate=rate).save(str(path)))
@@ -177,7 +198,7 @@ auds, frames, durs = [], [], []
 total = len(segs)
 for i, seg in enumerate(segs):
     ap_ = tmp / f'a{i}.mp3'
-    synth(seg['text'], ap_)
+    synth(seg['text'], ap_, i)
     d_i = dur(ap_) + 0.15   # 문장 끝 짧은 여유
     auds.append(ap_); durs.append(d_i)
     fp = tmp / f'f{i}.png'; frame(seg, i, total).save(fp); frames.append(fp)
