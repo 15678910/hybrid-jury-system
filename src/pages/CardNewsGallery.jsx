@@ -148,8 +148,8 @@ function SeriesView({ series }) {
                             {series.news && (
                                 <div>
                                     <div className="flex items-center gap-2 mb-3">
-                                        <span className="text-xs font-bold text-white bg-red-600 rounded px-2 py-0.5">AI 1분 개벽뉴스</span>
-                                        <span className="text-sm font-medium text-gray-800">AI 음성 요약</span>
+                                        {/* 영상 안에 「AI 1분 개벽늬우스」 배지가 있어 여기선 설명만 — 중복 제거 */}
+                                        <span className="text-sm font-medium text-gray-800">AI 1분 개벽늬우스 — AI 음성 요약</span>
                                     </div>
                                     <div className="mx-auto w-full max-w-[360px] rounded-2xl overflow-hidden shadow-md border border-gray-200 bg-black">
                                         <video
