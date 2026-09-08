@@ -135,6 +135,34 @@ function SeriesView({ series }) {
                     <p className="mt-4 text-gray-700 leading-relaxed">{series.description}</p>
                     <p className="mt-2 text-sm text-gray-500">카드를 누르면 크게 볼 수 있고, 각 카드 아래의 「이미지 저장」으로 한 장씩 내려받아 SNS 에 올릴 수 있습니다.</p>
 
+                    {series.reel && (
+                        <div className="mt-8">
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-xs font-bold text-white bg-blue-600 rounded px-2 py-0.5">릴스</span>
+                                <span className="text-sm font-medium text-gray-800">세로 요약 영상 — 릴스·숏츠·틱톡</span>
+                            </div>
+                            <div className="mx-auto w-full max-w-[360px] rounded-2xl overflow-hidden shadow-md border border-gray-200 bg-black">
+                                <video
+                                    src={series.reel}
+                                    controls
+                                    playsInline
+                                    preload="metadata"
+                                    className="w-full block aspect-[9/16] bg-black"
+                                    aria-label={`${series.short} 릴스 영상`}
+                                />
+                            </div>
+                            <div className="mt-2 text-center">
+                                <a
+                                    href={series.reel}
+                                    download={`${series.short}_릴스.mp4`}
+                                    className="inline-block text-sm px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-100 text-gray-700"
+                                >
+                                    영상 저장
+                                </a>
+                            </div>
+                        </div>
+                    )}
+
                     <ol className="mt-8 space-y-8">
                         {Array.from({ length: total }, (_, i) => i + 1).map((n) => (
                             <li key={n} id={`card-${n}`} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
