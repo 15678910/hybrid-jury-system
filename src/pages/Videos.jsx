@@ -86,6 +86,40 @@ export default function Videos() {
         s.reel && { key: `${s.slug}-reel`, kind: '릴스', title: `${s.short} — 릴스`, src: s.reel, slug: s.slug },
     ].filter(Boolean));
 
+    // 고른 숏츠를 바로 보내기.
+    //  · 모바일(파일 공유 지원): 영상 파일 자체를 네이티브 공유 시트로 → 카톡·인스타 등 앱에 바로 첨부.
+    //  · 그 외: 해당 카드뉴스 페이지 링크를 네이티브 공유 또는 클립보드 복사.
+    const [sendingKey, setSendingKey] = useState(null);
+    const sendShort = async (sv) => {
+        const origin = window.location.origin.includes('localhost') ? 'https://xn--lg3b0kt4n41f.kr' : window.location.origin;
+        const pageUrl = `${origin}/cardnews/${sv.slug}`;
+        const text = `${sv.title} | 시민법정`;
+        try {
+            setSendingKey(sv.key);
+            const abs = sv.src.startsWith('http') ? sv.src : `${window.location.origin}${sv.src}`;
+            const res = await fetch(abs);
+            const blob = await res.blob();
+            const file = new File([blob], `${sv.title}.mp4`, { type: 'video/mp4' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: sv.title, text: `${text}\n${pageUrl}` });
+                return;
+            }
+        } catch (e) {
+            // 파일 공유 미지원/취소 → 링크 공유로
+        } finally {
+            setSendingKey(null);
+        }
+        if (navigator.share) {
+            try { await navigator.share({ title: sv.title, text, url: pageUrl }); return; } catch (e) { /* 취소 */ return; }
+        }
+        try {
+            await navigator.clipboard.writeText(`${text}\n${pageUrl}`);
+            alert(`링크가 복사되었습니다:\n${pageUrl}\n\n영상 파일을 직접 보내려면 「영상 저장」으로 내려받아 첨부하세요.`);
+        } catch (e) {
+            alert('공유에 실패했습니다.');
+        }
+    };
+
     // 공유된 동영상 모달로 표시
     useEffect(() => {
         if (sharedVideoId && !loading) {
@@ -356,18 +390,25 @@ export default function Videos() {
                                                 </div>
                                                 <div className="p-3">
                                                     <h3 className="font-bold text-gray-900 text-sm line-clamp-2">{sv.title}</h3>
-                                                    <div className="mt-2 flex items-center justify-between gap-2">
-                                                        <Link to={`/cardnews/${sv.slug}`} className="text-xs font-medium text-blue-600 hover:underline">
-                                                            전체 카드·조문 보기 →
-                                                        </Link>
+                                                    <div className="mt-2 flex items-center gap-2">
+                                                        <button
+                                                            onClick={() => sendShort(sv)}
+                                                            disabled={sendingKey === sv.key}
+                                                            className="flex-1 text-xs font-bold px-2.5 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+                                                        >
+                                                            {sendingKey === sv.key ? '준비 중…' : '📤 이 숏츠 보내기'}
+                                                        </button>
                                                         <a
                                                             href={sv.src}
                                                             download={`${sv.title}.mp4`}
-                                                            className="shrink-0 text-xs px-2.5 py-1 rounded-lg border border-gray-300 hover:bg-gray-100 text-gray-700"
+                                                            className="shrink-0 text-xs px-2.5 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-100 text-gray-700"
                                                         >
-                                                            영상 저장
+                                                            저장
                                                         </a>
                                                     </div>
+                                                    <Link to={`/cardnews/${sv.slug}`} className="mt-2 inline-block text-xs font-medium text-blue-600 hover:underline">
+                                                        전체 카드·조문 보기 →
+                                                    </Link>
                                                 </div>
                                             </div>
                                         ))}
