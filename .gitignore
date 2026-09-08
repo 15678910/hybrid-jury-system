@@ -98,5 +98,6 @@ scripts/audio/
 
 # 카드뉴스 생성기의 중간 HTML (gen-cardnews-*.mjs → PNG 렌더용) — card HTML 중간 산출물
 scripts/ocard*.html
+scripts/dcard*.html
 scripts/pcard*.html
 scripts/jcard*.html
