@@ -10,7 +10,7 @@
 export const CARD_NEWS_SERIES = [
     {
         slug: 'prosecution-office-org-2026',
-        news: '/cardnews/prosecution-office-org-2026/news.mp4?v=20260908c',
+        news: '/cardnews/prosecution-office-org-2026/news.mp4?v=20260908d',
         reel: '/cardnews/prosecution-office-org-2026/reel.mp4?v=20260908',
         title: '법무부 입법예고 「공소청과 그 소속기관 직제」 제정안 카드뉴스 — 이재명 정부에 묻는다',
         short: '공소청 직제안 7단계',
@@ -37,7 +37,7 @@ export const CARD_NEWS_SERIES = [
         // scripts/gen_reel.py 로 만든 뒤 720×1280 웹용으로 재인코딩해 커밋한다(원본은 reels/, gitignore).
         reel: '/cardnews/investigation-rules-2026/reel.mp4?v=20260908',
         // AI 1분 개벽뉴스(세로 영상, AI 음성 낭독) — scripts/gen_news.py. 720×1280 재인코딩 커밋.
-        news: '/cardnews/investigation-rules-2026/news.mp4?v=20260908c',
+        news: '/cardnews/investigation-rules-2026/news.mp4?v=20260908d',
         description: '수사·기소 분리 형소법(2026.10.2 시행)에 맞춰 법무부가 입법예고한 수사준칙 개정령안과 특사경 협력규정 제정안을 조문으로 대조합니다. 법이 지운 「지휘」가 대통령령에서 되살아나는지 — 제29조의2 ② 호송 의무, 제8조의3 「요청」과 「요구」, 제정안 제25조 「이행해야 한다」를 확인하고 이재명 정부에 묻습니다.',
         date: '2026-09-02',
         count: 7,

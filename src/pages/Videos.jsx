@@ -384,12 +384,10 @@ export default function Videos() {
                                                         className="w-full block aspect-[9/16] bg-black"
                                                         aria-label={sv.title}
                                                     />
-                                                    {/* 릴스만 배지 표시 — AI 뉴스는 영상 안에 이미 「AI 1분 개벽늬우스」 배지가 있어 중복을 뺀다 */}
-                                                    {sv.kind === '릴스' && (
-                                                        <span className="absolute top-2 left-2 text-xs font-bold text-white px-2 py-0.5 rounded-full bg-blue-600">
-                                                            릴스
-                                                        </span>
-                                                    )}
+                                                    {/* 영상 안에는 배지를 빼고, 카드 위 오버레이 배지 하나로 표기 */}
+                                                    <span className={`absolute top-2 left-2 text-xs font-bold text-white px-2.5 py-1 rounded-full ${sv.kind === '릴스' ? 'bg-blue-600' : 'bg-red-600'}`}>
+                                                        {sv.kind}
+                                                    </span>
                                                 </div>
                                                 <div className="p-3">
                                                     <h3 className="font-bold text-gray-900 text-sm line-clamp-2">{sv.title}</h3>

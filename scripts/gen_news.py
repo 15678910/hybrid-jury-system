@@ -158,20 +158,16 @@ BG = bg()
 
 def frame(seg, idx, total):
     img = BG.copy(); d = ImageDraw.Draw(img, 'RGBA')
-    # 상단: 개벽늬우스 배지(레트로 서체) + 시리즈 (상단 안전영역 아래)
-    f_badge = title_font(46)
-    badge = TITLE; bw = d.textlength(badge, font=f_badge) + 48
-    roundrect(d, (40, 196, 40 + bw, 274), 14, fill=RED)
-    d.text((64, 206), badge, font=f_badge, fill=(255, 255, 255))
-    # 진행 점 (오른쪽)
+    # 상단: 진행 점(오른쪽) + 시리즈 제목. 「AI 1분 개벽늬우스」 배지는 영상 안에서 빼고
+    # /videos 카드의 오버레이 배지로만 표기한다(사용자 요청: 위 배지만, 아래 박힌 배지 삭제).
     dotx = W - 40 - total * 26
     for i in range(total):
         on = i == idx
-        d.ellipse((dotx + i * 26, 227, dotx + i * 26 + 16, 243), fill=(RED if on else (90, 105, 122)))
-    # 시리즈 제목 — 배지 아래, 릴스 제목과 같은 큰 크기(62px·900). 이것이 화면의 「제목」이다.
+        d.ellipse((dotx + i * 26, 210, dotx + i * 26 + 16, 226), fill=(RED if on else (90, 105, 122)))
+    # 시리즈 제목 — 릴스 제목과 같은 큰 크기(62px·900). 화면의 「제목」이다.
     f_ser = font(900, 62)
     for i, ln in enumerate(wrap(d, spec.get('series', ''), f_ser, W - 80, 2)):
-        d.text((44, 300 + i * 76), ln, font=f_ser, fill=INK)
+        d.text((44, 210 + i * 76), ln, font=f_ser, fill=INK)
     # 카드 이미지 (그림자 + 둥근 모서리)
     sh = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(sh).rounded_rectangle((CARD_X, CARD_Y + 16, CARD_X + CARD_W, CARD_Y + CARD_H + 16), radius=22, fill=(0, 0, 0, 120))
