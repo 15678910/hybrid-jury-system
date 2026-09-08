@@ -168,8 +168,10 @@ def frame(seg, idx, total):
     for i in range(total):
         on = i == idx
         d.ellipse((dotx + i * 26, 227, dotx + i * 26 + 16, 243), fill=(RED if on else (90, 105, 122)))
-    # 시리즈 — 배지 아래 줄 (겹침 방지)
-    d.text((44, 292), spec.get('series', ''), font=font(700, 30), fill=MUTED)
+    # 시리즈 제목 — 배지 아래, 릴스 제목과 같은 큰 크기(62px·900). 이것이 화면의 「제목」이다.
+    f_ser = font(900, 62)
+    for i, ln in enumerate(wrap(d, spec.get('series', ''), f_ser, W - 80, 2)):
+        d.text((44, 300 + i * 76), ln, font=f_ser, fill=INK)
     # 카드 이미지 (그림자 + 둥근 모서리)
     sh = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(sh).rounded_rectangle((CARD_X, CARD_Y + 16, CARD_X + CARD_W, CARD_Y + CARD_H + 16), radius=22, fill=(0, 0, 0, 120))
@@ -178,12 +180,12 @@ def frame(seg, idx, total):
     mask = Image.new('L', (CARD_W, CARD_H), 0)
     ImageDraw.Draw(mask).rounded_rectangle((0, 0, CARD_W - 1, CARD_H - 1), radius=22, fill=255)
     img.paste(card, (CARD_X, CARD_Y), mask)
-    # 자막(낭독문) — 카드 아래, 하단 안전영역 위. 릴스 제목과 같은 크기(62px·900).
-    f_cap = font(900, 62)
-    lines = wrap(d, seg['text'], f_cap, W - 90, 4)
-    y = 1390
+    # 자막(낭독문) — 카드 아래. 제목이 아니라 본문이므로 릴스 자막 크기(40px·700)로 작게.
+    f_cap = font(700, 40)
+    lines = wrap(d, seg['text'], f_cap, W - 100, 4)
+    y = 1450
     for ln in lines:
-        d.text((45, y), ln, font=f_cap, fill=INK); y += 76
+        d.text((50, y), ln, font=f_cap, fill=INK); y += 54
     # 하단 안내
     d.text((55, 1770), '전체 카드·조문 원문 → 시민법정.kr/cardnews', font=font(400, 28), fill=MUTED)
     return img
