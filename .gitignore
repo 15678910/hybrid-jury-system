@@ -94,7 +94,8 @@ docs/bills/**/hwpx/
 
 # 릴스·숏츠 영상 산출물 (scripts/gen-reel.mjs) — 용량이 커서 저장소에 넣지 않는다
 reels/
-scripts/audio/
+scripts/audio/*
+!scripts/audio/news-*/          # ElevenLabs 낭독 원본은 저장소에 보관한다(백업 목적, 수 MB). 그 외 음악·임시 파일은 제외
 
 # 카드뉴스 생성기의 중간 HTML (gen-cardnews-*.mjs → PNG 렌더용) — card HTML 중간 산출물
 scripts/ocard*.html
