@@ -93,10 +93,13 @@ ap.add_argument('--slug', required=True)
 ap.add_argument('--music')
 ap.add_argument('--out')
 ap.add_argument('--music-db', default='-20dB')
+ap.add_argument('--top', type=int, default=196, help='상단 여백(px). 배지 시작 y. SNS 상단 UI 안전영역 고려 기본 196')
 ap.add_argument('--engine', choices=['edge', 'elevenlabs', 'polly'])
 ap.add_argument('--eleven-voice')
 ap.add_argument('--voice-dir', help='세그먼트별 음성 파일(1.mp3..N.mp3)이 든 폴더. speakclone 등에서 받은 음성을 쓸 때.')
 A = ap.parse_args()
+TOP = A.top
+CARD_Y = TOP + 364   # 배지→제목→카드 간격은 고정, 상단 여백만 움직인다
 if not FFMPEG.exists():
     sys.exit(f'ffmpeg 없음: {FFMPEG}')
 load_env_file(ROOT / 'functions' / '.env')  # ELEVENLABS_API_KEY 를 여기서도 읽는다
@@ -162,17 +165,17 @@ def frame(seg, idx, total):
     # 사이트 카드 밖에는 같은 배지를 두지 않는다(중복 방지, 2026-09-08 결정).
     f_badge = title_font(46)
     badge = TITLE; bw = d.textlength(badge, font=f_badge) + 48
-    roundrect(d, (40, 196, 40 + bw, 274), 14, fill=RED)
-    d.text((64, 206), badge, font=f_badge, fill=(255, 255, 255))
+    roundrect(d, (40, TOP, 40 + bw, TOP + 78), 14, fill=RED)
+    d.text((64, TOP + 10), badge, font=f_badge, fill=(255, 255, 255))
     # 진행 점 (오른쪽)
     dotx = W - 40 - total * 26
     for i in range(total):
         on = i == idx
-        d.ellipse((dotx + i * 26, 227, dotx + i * 26 + 16, 243), fill=(RED if on else (90, 105, 122)))
+        d.ellipse((dotx + i * 26, TOP + 31, dotx + i * 26 + 16, TOP + 47), fill=(RED if on else (90, 105, 122)))
     # 시리즈 제목 — 배지 아래, 릴스 제목과 같은 큰 크기(62px·900). 화면의 「제목」이다.
     f_ser = font(900, 62)
     for i, ln in enumerate(wrap(d, spec.get('series', ''), f_ser, W - 80, 2)):
-        d.text((44, 300 + i * 76), ln, font=f_ser, fill=INK)
+        d.text((44, TOP + 104 + i * 76), ln, font=f_ser, fill=INK)
     # 카드 이미지 (그림자 + 둥근 모서리)
     sh = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(sh).rounded_rectangle((CARD_X, CARD_Y + 16, CARD_X + CARD_W, CARD_Y + CARD_H + 16), radius=22, fill=(0, 0, 0, 120))
@@ -184,7 +187,7 @@ def frame(seg, idx, total):
     # 자막(낭독문) — 카드 아래. 제목이 아니라 본문이므로 릴스 자막 크기(40px·700)로 작게.
     f_cap = font(700, 40)
     lines = wrap(d, seg['text'], f_cap, W - 100, 4)
-    y = 1450
+    y = CARD_Y + CARD_H + 140
     for ln in lines:
         d.text((50, y), ln, font=f_cap, fill=INK); y += 54
     # 하단 안내
@@ -274,4 +277,8 @@ r = subprocess.run(args, capture_output=True, text=True, encoding='utf-8', error
 if r.returncode != 0:
     sys.exit('ffmpeg mux 실패:\n' + '\n'.join(r.stderr.splitlines()[-20:]))
 mb = out.stat().st_size / 1048576
-print(f'완료: {out.relative_to(ROOT)} ({mb:.1f} MB, ≈{T:.1f}s, {W}×{H})')
+try:
+    _shown = out.relative_to(ROOT)
+except ValueError:
+    _shown = out
+print(f'완료: {_shown} ({mb:.1f} MB, ≈{T:.1f}s, {W}×{H})')

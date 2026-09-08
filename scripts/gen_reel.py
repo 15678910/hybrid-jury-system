@@ -27,10 +27,13 @@ XF, FPS = 0.6, 30
 ap = argparse.ArgumentParser()
 ap.add_argument('--slug', required=True)
 ap.add_argument('--sec', type=float, default=7)
+ap.add_argument('--top', type=int, default=200, help='상단 여백(px). SNS 상단 UI 안전영역 고려 기본 200')
 ap.add_argument('--audio')
 ap.add_argument('--out')
 ap.add_argument('--frames-only', action='store_true', help='PNG 프레임만 만들고 인코딩은 건너뛴다 (시안 검토용)')
 A = ap.parse_args()
+TOP = A.top
+CARD_Y = TOP + 440   # 칩→배지→제목→카드 간격 고정, 상단 여백만 이동
 SEC = A.sec
 out = Path(A.out) if A.out else ROOT / 'reels' / f'{A.slug}.mp4'
 out = out if out.is_absolute() else ROOT / out
@@ -105,23 +108,23 @@ def render_frame(n):
     f30 = font(700, 30)
     chip = f"시민법정 카드뉴스  ·  {cap.get('series') or series['short']}"
     cw = text_w(d, chip, f30) + 44
-    d.rounded_rectangle((40, 200, 40 + cw, 256), radius=28, fill=(255, 255, 255, 30))
-    d.text((62, 208), chip, font=f30, fill=MUTED)
+    d.rounded_rectangle((40, TOP, 40 + cw, TOP + 56), radius=28, fill=(255, 255, 255, 30))
+    d.text((62, TOP + 8), chip, font=f30, fill=MUTED)
 
     # 단계 배지 + 페이지
     f44 = font(900, 44)
     badge = f'{n}단계'
     bw = text_w(d, badge, f44) + 48
-    d.rounded_rectangle((40, 292, 40 + bw, 362), radius=16, fill=AMBER)
-    d.text((64, 298), badge, font=f44, fill=(26, 18, 0))
+    d.rounded_rectangle((40, TOP + 92, 40 + bw, TOP + 162), radius=16, fill=AMBER)
+    d.text((64, TOP + 98), badge, font=f44, fill=(26, 18, 0))
     f34 = font(700, 34)
     page = f"{n} / {series['count']}"
-    d.text((W - 40 - text_w(d, page, f34), 308), page, font=f34, fill=MUTED)
+    d.text((W - 40 - text_w(d, page, f34), TOP + 108), page, font=f34, fill=MUTED)
 
     # 제목 (최대 2줄, 62px)
     f62 = font(900, 62)
     for i, line in enumerate(wrap(d, series['steps'][n - 1], f62, W - 80, 2)):
-        d.text((40, 392 + i * 78), line, font=f62, fill=INK)
+        d.text((40, TOP + 192 + i * 78), line, font=f62, fill=INK)
 
     # 카드 이미지 — 그림자 + 둥근 모서리
     shadow = Image.new('RGBA', (W, H), (0, 0, 0, 0))
@@ -139,7 +142,7 @@ def render_frame(n):
     if n - 1 < len(subs) and subs[n - 1]:
         f40 = font(700, 40)
         for i, line in enumerate(wrap(d, subs[n - 1], f40, W - 100, 3)):
-            d.text((50, 1440 + i * 54), line, font=f40, fill=INK)
+            d.text((50, CARD_Y + CARD_H + 50 + i * 54), line, font=f40, fill=INK)
 
     # 하단 안내 (UI 에 가려도 되는 보조 정보)
     d.text((50, 1690), '전체 카드와 조문 원문  →  시민법정.kr/cardnews', font=font(400, 30), fill=MUTED)
