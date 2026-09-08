@@ -39,6 +39,27 @@ def load_env_file(p):
     except Exception:
         pass
 
+def tts_polly(text, path, voice, poly_engine, rate):
+    # AWS Polly (신경망 한국어 Seoyeon). SSML 로 속도·억양 제어.
+    # 자격증명은 표준 AWS 방식으로만 읽는다(코드에 두지 않는다):
+    #   환경변수 AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY / AWS_DEFAULT_REGION,
+    #   또는 ~/.aws/credentials.  채팅에 키를 붙여넣지 말 것.
+    try:
+        import boto3  # pip install boto3
+    except ImportError:
+        sys.exit('boto3 가 없다. pip install boto3 후 AWS 자격증명을 환경변수로 설정해라(키를 채팅에 넣지 말 것).')
+    region = os.environ.get('AWS_DEFAULT_REGION') or os.environ.get('AWS_REGION') or 'ap-northeast-2'
+    try:
+        client = boto3.client('polly', region_name=region)
+        pct = 100 + int(str(rate).replace('%', '').replace('+', '') or 0)
+        esc = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        ssml = f'<speak><prosody rate="{pct}%">{esc}</prosody></speak>'
+        r = client.synthesize_speech(Text=ssml, TextType='ssml', OutputFormat='mp3',
+                                     VoiceId=voice, Engine=poly_engine)
+        Path(path).write_bytes(r['AudioStream'].read())
+    except Exception as e:
+        sys.exit(f'Polly 오류: {e}\n자격증명·리전(현재 {region})·음성({voice}) 을 확인해라.')
+
 def tts_elevenlabs(text, path, voice_id, model):
     key = os.environ.get('ELEVENLABS_API_KEY')
     if not key:
@@ -72,7 +93,7 @@ ap.add_argument('--slug', required=True)
 ap.add_argument('--music')
 ap.add_argument('--out')
 ap.add_argument('--music-db', default='-20dB')
-ap.add_argument('--engine', choices=['edge', 'elevenlabs'])
+ap.add_argument('--engine', choices=['edge', 'elevenlabs', 'polly'])
 ap.add_argument('--eleven-voice')
 ap.add_argument('--voice-dir', help='세그먼트별 음성 파일(1.mp3..N.mp3)이 든 폴더. speakclone 등에서 받은 음성을 쓸 때.')
 A = ap.parse_args()
@@ -87,6 +108,8 @@ rate = spec.get('rate', '+0%')
 engine = A.engine or spec.get('engine', 'edge')
 eleven_voice = A.eleven_voice or spec.get('elevenVoiceId')
 eleven_model = spec.get('elevenModel', 'eleven_multilingual_v2')
+polly_voice = spec.get('pollyVoice', 'Seoyeon')
+polly_engine = spec.get('pollyEngine', 'neural')
 out = Path(A.out) if A.out else ROOT / 'reels' / f'{A.slug}-news.mp4'
 out = out if out.is_absolute() else ROOT / out
 
@@ -173,7 +196,9 @@ if voice_dir and not voice_dir.is_absolute():
 if voice_dir:
     print(f'음성: 폴더 사용 {voice_dir} (세그먼트별 1.mp3..{len(segs)}.mp3)')
 else:
-    print(f'음성 엔진: {engine}' + (f' (voice {eleven_voice}, {eleven_model})' if engine == 'elevenlabs' else f' ({voice}, rate {rate})'))
+    _info = {'elevenlabs': f'(voice {eleven_voice}, {eleven_model})',
+             'polly': f'(Polly {polly_voice}/{polly_engine}, rate {rate})'}.get(engine, f'({voice}, rate {rate})')
+    print(f'음성 엔진: {engine} {_info}')
 
 def synth(text, path, i):
     if voice_dir:
@@ -185,6 +210,8 @@ def synth(text, path, i):
         sys.exit(f'음성 파일 없음: {voice_dir}/{i+1}.mp3 (세그먼트마다 1.mp3..{len(segs)}.mp3 이 있어야 한다)')
     elif engine == 'elevenlabs':
         tts_elevenlabs(text, path, eleven_voice, eleven_model)
+    elif engine == 'polly':
+        tts_polly(text, path, polly_voice, polly_engine, rate)
     else:
         asyncio.run(edge_tts.Communicate(text, voice, rate=rate).save(str(path)))
 
