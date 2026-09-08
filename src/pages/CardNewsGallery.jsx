@@ -191,6 +191,16 @@ function SeriesView({ series }) {
                                     </div>
                                 </div>
                             )}
+                            {series.related && (
+                                <div className="sm:col-span-2 mt-1 text-center">
+                                    <Link
+                                        to={series.related.to}
+                                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-sm"
+                                    >
+                                        📄 {series.related.label} 자세히 보기 →
+                                    </Link>
+                                </div>
+                            )}
                         </div>
                     )}
 

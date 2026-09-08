@@ -4,3 +4,4 @@
 Pillow>=10        # 프레임 렌더(카드 합성·자막)
 edge-tts>=7       # AI 뉴스 한국어 음성(온라인, 무료) — gen_news.py 전용
 boto3>=1.34     # AWS Polly 음성(--engine polly) 쓸 때만. AWS 자격증명은 환경변수/~/.aws 로.
+qrcode>=7      # 종료 카드 QR(append_endcard.py) 쓸 때만
