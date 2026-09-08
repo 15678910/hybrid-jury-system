@@ -10,8 +10,8 @@
 export const CARD_NEWS_SERIES = [
     {
         slug: 'prosecution-office-org-2026',
-        news: '/cardnews/prosecution-office-org-2026/news.mp4',
-        reel: '/cardnews/prosecution-office-org-2026/reel.mp4',
+        news: '/cardnews/prosecution-office-org-2026/news.mp4?v=20260908',
+        reel: '/cardnews/prosecution-office-org-2026/reel.mp4?v=20260908',
         title: '법무부 입법예고 「공소청과 그 소속기관 직제」 제정안 카드뉴스 — 이재명 정부에 묻는다',
         short: '공소청 직제안 7단계',
         description: '법무부가 9월 4일 입법예고한 공소청 직제안(대통령령)을 보도자료 원문과 공소청법·형소법·중수청법·검사정원법 조문으로 대조합니다. 수사 부서 110곳을 지우고도 검사 2,292명은 그대로인 정원, 검사가 경찰을 통제하는 「사법통제부」, 중수청 합동수사과와 1대1로 앉는 대응 부서 5곳 — 준비위는 검사 정원 3분의 1 이상 감축과 불송치 심사에 시민이 앉는 구조를 제안하고, 「지휘」를 지운 정부가 「통제」라는 이름으로 되돌릴 것인지 묻습니다.',
@@ -35,9 +35,9 @@ export const CARD_NEWS_SERIES = [
         short: '수사준칙 개정안·특사경 제정안 7단계',
         // 릴스(세로 영상) — public/cardnews/<slug>/reel.mp4. 있으면 상세 페이지 상단에 임베드된다.
         // scripts/gen_reel.py 로 만든 뒤 720×1280 웹용으로 재인코딩해 커밋한다(원본은 reels/, gitignore).
-        reel: '/cardnews/investigation-rules-2026/reel.mp4',
+        reel: '/cardnews/investigation-rules-2026/reel.mp4?v=20260908',
         // AI 1분 개벽뉴스(세로 영상, AI 음성 낭독) — scripts/gen_news.py. 720×1280 재인코딩 커밋.
-        news: '/cardnews/investigation-rules-2026/news.mp4',
+        news: '/cardnews/investigation-rules-2026/news.mp4?v=20260908',
         description: '수사·기소 분리 형소법(2026.10.2 시행)에 맞춰 법무부가 입법예고한 수사준칙 개정령안과 특사경 협력규정 제정안을 조문으로 대조합니다. 법이 지운 「지휘」가 대통령령에서 되살아나는지 — 제29조의2 ② 호송 의무, 제8조의3 「요청」과 「요구」, 제정안 제25조 「이행해야 한다」를 확인하고 이재명 정부에 묻습니다.',
         date: '2026-09-02',
         count: 7,
