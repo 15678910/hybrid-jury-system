@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
+import { CARD_NEWS_SERIES } from '../data/cardNews';
 import { collection, getDocs, query, orderBy, limit, startAfter } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
@@ -77,6 +78,13 @@ export default function Videos() {
     const VIDEOS_PER_PAGE = 9;
 
     const categories = ['전체', '해외 사례', '사법개혁', '인터뷰', '뉴스', '숏폼'];
+
+    // 「숏폼」 — 카드뉴스의 자체 호스팅 세로 영상(AI 1분 개벽늬우스·릴스)을 유튜브 없이 여기서 보여준다.
+    // src/data/cardNews.js 의 news·reel 필드에서 자동으로 모은다.
+    const cardShorts = CARD_NEWS_SERIES.flatMap((s) => [
+        s.news && { key: `${s.slug}-news`, kind: 'AI 1분 개벽늬우스', title: `${s.short} — AI 1분 개벽늬우스`, src: s.news, slug: s.slug },
+        s.reel && { key: `${s.slug}-reel`, kind: '릴스', title: `${s.short} — 릴스`, src: s.reel, slug: s.slug },
+    ].filter(Boolean));
 
     // 공유된 동영상 모달로 표시
     useEffect(() => {
@@ -324,7 +332,41 @@ export default function Videos() {
                         </div>
                     ) : (
                         <>
-                            {/* 동영상 그리드 */}
+                            {/* 숏폼 — 카드뉴스 자체 영상(세로). 유튜브 없이 사이트 영상으로 채운다. */}
+                            {(selectedCategory === '숏폼' || selectedCategory === '전체') && cardShorts.length > 0 && (
+                                <div className="mb-10">
+                                    {selectedCategory === '전체' && (
+                                        <h2 className="text-lg font-bold text-gray-900 mb-4">숏폼 — 카드뉴스 영상</h2>
+                                    )}
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                                        {cardShorts.map((sv) => (
+                                            <div key={sv.key} className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden">
+                                                <div className="relative bg-black">
+                                                    <video
+                                                        src={sv.src}
+                                                        controls
+                                                        playsInline
+                                                        preload="metadata"
+                                                        className="w-full block aspect-[9/16] bg-black"
+                                                        aria-label={sv.title}
+                                                    />
+                                                    <span className={`absolute top-2 left-2 text-xs font-bold text-white px-2 py-0.5 rounded-full ${sv.kind === '릴스' ? 'bg-blue-600' : 'bg-red-600'}`}>
+                                                        {sv.kind}
+                                                    </span>
+                                                </div>
+                                                <div className="p-3">
+                                                    <h3 className="font-bold text-gray-900 text-sm line-clamp-2">{sv.title}</h3>
+                                                    <Link to={`/cardnews/${sv.slug}`} className="mt-2 inline-block text-xs font-medium text-blue-600 hover:underline">
+                                                        전체 카드·조문 보기 →
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 동영상 그리드 (유튜브) */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {videos.filter(video => selectedCategory === '전체' || video.category === selectedCategory).map(video => {
                                     const videoId = video.videoId || extractYouTubeId(video.url);
@@ -441,7 +483,8 @@ export default function Videos() {
                                 })}
                             </div>
 
-                            {videos.filter(video => selectedCategory === '전체' || video.category === selectedCategory).length === 0 && (
+                            {videos.filter(video => selectedCategory === '전체' || video.category === selectedCategory).length === 0 &&
+                              !((selectedCategory === '숏폼' || selectedCategory === '전체') && cardShorts.length > 0) && (
                                 <div className="text-center py-12 text-gray-500">
                                     {selectedCategory === '전체' ? '등록된 동영상이 없습니다.' : `'${selectedCategory}' 카테고리의 동영상이 없습니다.`}
                                 </div>
