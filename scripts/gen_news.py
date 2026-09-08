@@ -178,12 +178,12 @@ def frame(seg, idx, total):
     mask = Image.new('L', (CARD_W, CARD_H), 0)
     ImageDraw.Draw(mask).rounded_rectangle((0, 0, CARD_W - 1, CARD_H - 1), radius=22, fill=255)
     img.paste(card, (CARD_X, CARD_Y), mask)
-    # 자막(낭독문) — 카드 아래, 하단 안전영역 위. 큰 글씨 최대 4줄.
-    f_cap = font(900, 52)
-    lines = wrap(d, seg['text'], f_cap, W - 110, 4)
-    y = 1430
+    # 자막(낭독문) — 카드 아래, 하단 안전영역 위. 릴스 자막과 같은 크기(40px·700).
+    f_cap = font(700, 40)
+    lines = wrap(d, seg['text'], f_cap, W - 100, 4)
+    y = 1450
     for ln in lines:
-        d.text((55, y), ln, font=f_cap, fill=INK); y += 66
+        d.text((50, y), ln, font=f_cap, fill=INK); y += 54
     # 하단 안내
     d.text((55, 1770), '전체 카드·조문 원문 → 시민법정.kr/cardnews', font=font(400, 28), fill=MUTED)
     return img
