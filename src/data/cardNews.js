@@ -10,7 +10,7 @@
 export const CARD_NEWS_SERIES = [
     {
         slug: 'decree-process-2026',
-        news: '/cardnews/decree-process-2026/news.mp4?v=20260908b',
+        news: '/cardnews/decree-process-2026/news.mp4?v=20260908c',
         reel: '/cardnews/decree-process-2026/reel.mp4?v=20260908b',
         title: '대통령령은 어떻게 법이 되나 — 공소청 직제안 입법예고·국회·법원 절차 카드뉴스',
         short: '대통령령 절차 7단계',
