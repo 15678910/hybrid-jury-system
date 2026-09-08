@@ -124,34 +124,47 @@ export default function SNSShareBar() {
         window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank', 'width=600,height=400');
     };
 
-    const shareToInstagram = async () => {
+    // 모바일 기기의 네이티브 공유 시트(Web Share API). 있으면 인스타·틱톡 등 설치된 앱으로 바로 연결된다.
+    // 성공/시트 표시 시 true, 미지원이면 false 를 돌려 데스크톱 대체 동작으로 넘어간다.
+    const nativeShare = async () => {
+        if (typeof navigator !== 'undefined' && navigator.share) {
+            try {
+                await navigator.share({ title: document.title, text: getFullShareText(), url: getShareUrl() });
+                return true;
+            } catch (e) {
+                // 사용자가 취소한 경우도 시트는 떴으므로 대체 동작을 실행하지 않는다.
+                return true;
+            }
+        }
+        return false;
+    };
+
+    const copyAndOpen = async (home, label) => {
         try {
             await navigator.clipboard.writeText(`${getFullShareText()}\n\n${getShareUrl()}`);
-            alert('텍스트가 복사되었습니다!\n인스타그램에서 붙여넣기 해주세요.');
-            window.open('https://www.instagram.com/', '_blank');
+            alert(`텍스트가 복사되었습니다!\n${label}에서 붙여넣기 해주세요.`);
+            window.open(home, '_blank');
         } catch (err) {
             alert('복사에 실패했습니다.');
         }
     };
 
-    const shareToThreads = async () => {
-        try {
-            await navigator.clipboard.writeText(`${getFullShareText()}\n\n${getShareUrl()}`);
-            alert('텍스트가 복사되었습니다!\nThreads에서 붙여넣기 해주세요.');
-            window.open('https://www.threads.net/', '_blank');
-        } catch (err) {
-            alert('복사에 실패했습니다.');
-        }
+    // 인스타·틱톡은 웹에서 URL 을 받아 글을 여는 공식 방법이 없다.
+    // 모바일: 네이티브 공유 시트로 앱에 바로 연결. 데스크톱: 문구 복사 후 홈 열기.
+    const shareToInstagram = async () => {
+        if (await nativeShare()) return;
+        await copyAndOpen('https://www.instagram.com/', '인스타그램');
     };
 
     const shareToTikTok = async () => {
-        try {
-            await navigator.clipboard.writeText(`${getFullShareText()}\n\n${getShareUrl()}`);
-            alert('텍스트가 복사되었습니다!\nTikTok에서 붙여넣기 해주세요.');
-            window.open('https://www.tiktok.com/', '_blank');
-        } catch (err) {
-            alert('복사에 실패했습니다.');
-        }
+        if (await nativeShare()) return;
+        await copyAndOpen('https://www.tiktok.com/', 'TikTok');
+    };
+
+    // Threads 는 웹 글쓰기 창(intent/post)이 있어 바로 연결된다.
+    const shareToThreads = () => {
+        const text = `${getFullShareText()}\n${getShareUrl()}`;
+        window.open(`https://www.threads.net/intent/post?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
     };
 
     const shareToLinkedIn = () => {
