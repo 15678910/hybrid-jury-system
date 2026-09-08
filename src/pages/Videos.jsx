@@ -356,9 +356,18 @@ export default function Videos() {
                                                 </div>
                                                 <div className="p-3">
                                                     <h3 className="font-bold text-gray-900 text-sm line-clamp-2">{sv.title}</h3>
-                                                    <Link to={`/cardnews/${sv.slug}`} className="mt-2 inline-block text-xs font-medium text-blue-600 hover:underline">
-                                                        전체 카드·조문 보기 →
-                                                    </Link>
+                                                    <div className="mt-2 flex items-center justify-between gap-2">
+                                                        <Link to={`/cardnews/${sv.slug}`} className="text-xs font-medium text-blue-600 hover:underline">
+                                                            전체 카드·조문 보기 →
+                                                        </Link>
+                                                        <a
+                                                            href={sv.src}
+                                                            download={`${sv.title}.mp4`}
+                                                            className="shrink-0 text-xs px-2.5 py-1 rounded-lg border border-gray-300 hover:bg-gray-100 text-gray-700"
+                                                        >
+                                                            영상 저장
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
