@@ -10,8 +10,8 @@
 export const CARD_NEWS_SERIES = [
     {
         slug: 'decree-process-2026',
-        news: '/cardnews/decree-process-2026/news.mp4?v=20260908',
-        reel: '/cardnews/decree-process-2026/reel.mp4?v=20260908',
+        news: '/cardnews/decree-process-2026/news.mp4?v=20260908b',
+        reel: '/cardnews/decree-process-2026/reel.mp4?v=20260908b',
         title: '대통령령은 어떻게 법이 되나 — 공소청 직제안 입법예고·국회·법원 절차 카드뉴스',
         short: '대통령령 절차 7단계',
         description: '법무부가 9월 4일 입법예고한 공소청 직제안과 검사정원법 시행령을 계기로, 대통령령이 만들어지는 절차를 조문으로 확인합니다. 헌법 제75조·제89조, 행정절차법의 입법예고 40일 원칙, 국회법 제98조의2의 국회 검토 절차와 그 한계를 원문으로 대조하고, 닷새짜리 예고에 단축 사유가 없다는 점과 직제안의 법률 위반 여부를 판정한 뒤, 상위법 개정·대법원 명령규칙 심사·헌법소원이라는 세 가지 길을 제안합니다.',

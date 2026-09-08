@@ -199,7 +199,7 @@ const cards = [
    ['정부의 답과 국무회의 결과를 <b>이 카드에 이어 기록한다</b>','주권자사법개혁추진준비위원회(준)'],
   ],tight:true},
  ],
- bottom:'<span class="pre">질문</span>절차를 지키지 않은 규범은 — <span class="k">내용을 묻기 전에</span> 묻는다'},
+ bottom:'<span class="pre">질문</span>절차를 지키지 않은 규범은 내용을 묻기 전에 묻는다 — <span class="k">이재명 대통령은 밝히십시오</span>'},
 ];
 
 function renderCol(c){
