@@ -1,0 +1,58 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700;900&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* 1~9장과 같은 CSS(_source_1-9.html) — 캔버스만 1600×1200 으로 맞췄다 */
+:root{--ink:#0E1726;--ink2:#2A3442;--ground:#F1F2EE;--paper:#FFFFFF;--brass:#8F6B0E;--brass-l:#F0E6C2;--red:#A93A2C;--red-l:#F5E3DF;--slate:#5C6470;--line:#D3D6CE}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1440px;height:1080px;overflow:hidden}
+body{background:#0E1726;font-family:'Noto Sans KR','Malgun Gothic',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;word-break:keep-all}
+.card{width:1440px;height:1080px;background:var(--ground);padding:84px 88px 72px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.eyebrow{font-size:22px;letter-spacing:.18em;color:var(--brass);font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.eyebrow .n{color:var(--slate);letter-spacing:.05em;font-weight:500}
+.body{flex:1;display:flex;flex-direction:column;gap:14px;margin-top:20px;font-size:23.5px;line-height:1.5;color:var(--ink2)}
+.foot{display:flex;justify-content:space-between;align-items:flex-end;font-size:20px;color:var(--slate);border-top:2px solid var(--line);padding-top:15px;margin-top:18px}
+.foot b{color:var(--ink);font-weight:700}
+.quote{font-family:'Noto Serif KR',serif;font-size:34px;line-height:1.45;font-weight:700;color:var(--ink);border-left:8px solid var(--brass);padding:6px 0 6px 28px}
+.box{background:var(--paper);border:2px solid var(--line);border-radius:6px;padding:16px 25px}
+.box h3{font-size:20px;letter-spacing:.1em;color:var(--brass);font-weight:700;margin-bottom:7px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.last{background:var(--ink);color:#E9ECF1}
+.last .eyebrow{color:#D3B45B}.last .eyebrow .n{color:#8A93A3}
+.last .quote{color:#FFFDF6;border-color:#E5C566;font-size:36px;line-height:1.32}
+.last .quote em{font-style:normal;color:#E5C566}
+.last .body{color:#C9CFDA}
+.last .foot{border-color:#3A4557;color:#8A93A3}.last .foot b{color:#E9ECF1}
+.last .box{background:#16202F;border-color:#3A4557}
+.last .box h3{color:#D3B45B}
+.last .box p{font-size:22px;line-height:1.46;color:#C9CFDA}
+.last .box b,.wh{color:#FFFDF6;font-weight:700}
+.last .end{font-family:'Noto Serif KR',serif;font-size:26px;line-height:1.45;font-weight:700;color:#FFFDF6;margin-top:auto}
+.last .end em{font-style:normal;color:#E5C566}
+.ask{display:flex;flex-direction:column;gap:5px}
+.ask .q{display:flex;gap:14px;align-items:flex-start;font-size:24.5px;line-height:1.38;color:#FFFDF6;font-weight:500}
+.ask .q .k{flex:0 0 42px;height:42px;border-radius:50%;background:#E5C566;color:#0E1726;font-family:'Noto Serif KR',serif;font-weight:900;font-size:24px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+</style></head><body>
+
+<!-- 10 대리인에게 묻는다 -->
+<section class="card last">
+  <div class="eyebrow"><span>대리인 이재명 대통령에게 묻는다</span><span class="n">10 / 10</span></div>
+  <div class="body">
+    <p class="quote">초과세수는 하늘에서 떨어진 돈이 아니다.<br>돈을 낸 사람에게 묻지 않고 쓰는 것은<br><em>재정이 아니라 처분이다.</em></p>
+    <div class="row">
+      <div class="box"><h3>누구의 돈인가</h3>
+        <p>「반도체 잭팟」이라 부르지만 그 바탕은 노동자의 <b>근로소득세</b>, 국민의 <b>부가가치세</b>, 기업의 <b>법인세</b>다. 쌓아 두는 것까지는 좋다. 그러나 아이들 교육에서 얼마를 덜어 청년·신혼부부에게 얼마를 줄지, 세수가 꺾이면 무엇부터 지킬지를 <b>정부가 혼자 정할 권리는 없다.</b></p></div>
+      <div class="box"><h3>한 손과 다른 손</h3>
+        <p>대통령은 <b>감사원을 국회로 옮기고</b> 권한을 나누는 개헌을 말해 왔다. 행정부가 스스로를 감사하는 구조를 끝내자는 것이다. 30% 특례는 정확히 그 반대다 — 국회가 승인한 지출을 <b>행정부가 국회 없이 바꾼다.</b> 대통령이 말한 원칙을 대통령의 기금에 적용하면 노르웨이가 된다. 적용하지 않은 것이 이 법안이다.</p></div>
+    </div>
+    <div class="box"><h3>빛의 혁명이 위임한 것</h3>
+      <p>계엄은 국회를 봉쇄하려 했고, 시민은 국회를 지켰다. 광장이 보여 준 민주주의는 <b>시민들의 합의</b>였지 한 사람에 대한 위임이 아니었다. 그 합의의 대리인으로 대통령을 세웠다. 국회도 국민이 선출한 기구다. <b>국회를 우회하는 대통령은 국민을 더 직접 대표하는 것이 아니라, 국민이 뽑은 다른 대표를 지우는 것이다.</b> 그 민주주의를 실천할 첫 자리가 이 기금이다.</p></div>
+    <div class="ask">
+      <div class="q"><span class="k">1</span><span>국회가 승인한 지출을 국회 없이 바꾸는 30% 특례와 한도 없는 전출 — 감사원을 국회로 옮기겠다는 원칙과 어떻게 양립합니까?</span></div>
+      <div class="q"><span class="k">2</span><span>인출 상한과 교부금 새 공식을 정부의 재량이 아니라 <span class="wh">여야 합의와 국회 의결</span>로 정하겠습니까?</span></div>
+    </div>
+    <p class="end">열쇠는 사회적 합의에, 그 합의를 대표하는 국회에 두라.<br><em>그것이 빛의 혁명의 뜻이고, 그 대리인이 바라는 민주주의를 실천하는 길이다.</em></p>
+  </div>
+  <div class="foot"><span><b>나라 곳간은 만들되, 열쇠는 국회가</b> · 2026. 9.</span><span>10 / 10</span></div>
+</section>
+</body></html>
