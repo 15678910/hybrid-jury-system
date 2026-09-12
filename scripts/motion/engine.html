@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<!--
+  AI 1분 개벽늬우스 — 모션 그래픽 엔진 (1080×1920).
+  scripts/render_motion.mjs 가 이 파일을 헤드리스 크롬으로 열고, window.__init(spec) 으로 장면을 심은 뒤
+  window.seek(t) 를 프레임마다 호출해 스크린샷을 찍는다. CSS 애니메이션·타이머를 쓰지 않고
+  모든 움직임을 t(초)의 함수로 계산하므로 몇 번을 찍어도 같은 프레임이 나온다(결정적 렌더).
+
+  spec = { title, series, segments:[{ t0, dur, gap, text, scene }], total }
+  scene.type: stats | bars | list | split | cards | arrows | quote
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&display=swap">
+<style>
+@font-face{font-family:'NotoKR';src:url('../fonts/notokr-400.ttf');font-weight:400}
+@font-face{font-family:'NotoKR';src:url('../fonts/notokr-700.ttf');font-weight:700}
+@font-face{font-family:'NotoKR';src:url('../fonts/notokr-900.ttf');font-weight:900}
+@font-face{font-family:'BHS';src:url('../fonts/blackhansans.ttf')}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden}
+body{background:linear-gradient(180deg,#152741 0%,#0E1726 52%,#0a1220 100%);font-family:'NotoKR',sans-serif;color:#F4F2EA;word-break:keep-all;-webkit-font-smoothing:antialiased;position:relative}
+.serif{font-family:'Noto Serif KR','NotoKR',serif}
+#badge{position:absolute;left:40px;top:100px;height:78px;padding:0 26px;border-radius:14px;background:#D7261E;color:#fff;font-family:'BHS','NotoKR';font-size:44px;line-height:78px;letter-spacing:.5px;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+#dots{position:absolute;right:56px;top:131px;display:flex;gap:10px}
+#dots i{width:16px;height:16px;border-radius:50%;background:#3a4a60;display:block}
+#dots i.on{background:#D7261E}
+#series{position:absolute;left:44px;top:204px;width:992px;font-size:62px;font-weight:900;line-height:1.16;color:#FFFDF6;letter-spacing:-1px}
+#stage{position:absolute;left:60px;top:430px;width:960px;height:930px}
+.scene{position:absolute;inset:0;opacity:0;will-change:opacity,transform;display:flex;flex-direction:column;justify-content:center}
+#caption{position:absolute;left:56px;top:1420px;width:968px;font-size:40px;font-weight:700;line-height:1.38;color:#FFFDF6;min-height:170px}
+#caption span{opacity:.18;transition:none}
+#caption span.on{opacity:1}
+#foot{position:absolute;left:56px;top:1790px;width:968px;font-size:28px;color:#8A93A3;font-weight:400}
+#foot b{color:#C9CFDA;font-weight:700}
+
+/* ── 공통 부품 ── */
+.hd{font-size:30px;letter-spacing:.14em;color:#E5C566;font-weight:700;margin-bottom:26px}
+.ref{font-size:26px;color:#8A93A3;font-weight:400;margin-top:8px}
+.item{position:relative;will-change:opacity,transform}
+.gold{color:#E5C566}.red{color:#FF6B5B}.pale{color:#C9CFDA}.dim{color:#7d8ba0}
+
+/* stats */
+.stat{display:flex;align-items:baseline;gap:22px;padding:26px 0;border-bottom:1px solid #2c3a50}
+.stat .v{font-family:'Noto Serif KR','NotoKR',serif;font-size:132px;font-weight:900;line-height:1;color:#FFFDF6;letter-spacing:-2px;font-variant-numeric:tabular-nums;min-width:420px}
+.stat .v small{font-size:56px;margin-left:6px;font-weight:700}
+.stat .l{font-size:34px;color:#C9CFDA;line-height:1.35}
+.stat.red .v{color:#FF6B5B}
+
+/* bars */
+.bar{margin:0 0 44px}
+.bar .lab{display:flex;justify-content:space-between;align-items:baseline;font-size:38px;font-weight:700;margin-bottom:14px}
+.bar .lab .val{font-family:'Noto Serif KR','NotoKR',serif;font-size:74px;font-weight:900;font-variant-numeric:tabular-nums}
+.bar .trk{height:54px;background:#1d2a3d;border-radius:12px;overflow:hidden}
+.bar .fil{height:100%;width:0;border-radius:12px;background:#C9CFDA}
+.bar.red .fil{background:#D7261E}.bar.red .val{color:#FF6B5B}
+.bar.gold .fil{background:#E5C566}.bar.gold .val{color:#E5C566}
+.bar .sub{font-size:28px;color:#8A93A3;margin-top:10px}
+
+/* list */
+.li{display:flex;gap:22px;align-items:flex-start;padding:22px 0;border-bottom:1px solid #22304a}
+.li .k{flex:0 0 58px;height:58px;border-radius:50%;background:#E5C566;color:#0E1726;font-family:'Noto Serif KR','NotoKR',serif;font-weight:900;font-size:32px;display:flex;align-items:center;justify-content:center;margin-top:4px}
+.li.red .k{background:#D7261E;color:#fff}
+.li.check .k{background:#2f9e6b;color:#fff;font-size:34px}
+.li .tx{font-size:40px;line-height:1.35;font-weight:700;color:#FFFDF6;position:relative}
+.li.big .tx{font-size:48px}
+.li .tx .strk{position:absolute;left:0;top:52%;height:6px;width:0;background:#FF6B5B;border-radius:3px}
+.li.strike .tx{color:#8A93A3}
+.li .tx b{color:#FF6B5B}
+.li .tag{display:inline-block;font-size:24px;font-weight:900;background:#D7261E;color:#fff;border-radius:8px;padding:2px 12px;margin-left:14px;vertical-align:8px}
+.li .ref{margin-top:6px}
+
+/* split */
+.split{display:flex;flex-direction:column;gap:0;height:100%;justify-content:center}
+.box{background:#16202F;border:2px solid #3A4557;border-radius:18px;padding:34px 40px;position:relative}
+.box .t{font-size:28px;letter-spacing:.12em;font-weight:700;color:#E5C566;margin-bottom:12px}
+.box .n{font-family:'Noto Serif KR','NotoKR',serif;font-size:56px;font-weight:900;line-height:1.22;color:#FFFDF6}
+.box .d{font-size:32px;color:#C9CFDA;margin-top:14px;line-height:1.4}
+.box .d b{color:#FFFDF6}
+.box.red .t{color:#FF6B5B}.box.red .n{color:#FF6B5B}
+.arrow{height:120px;display:flex;align-items:center;justify-content:center;font-size:96px;color:#E5C566;font-weight:900}
+
+/* cards */
+.cards{display:flex;flex-direction:column;gap:22px;height:100%;justify-content:center}
+.card{background:#16202F;border:2px solid #3A4557;border-radius:18px;padding:30px 38px;display:flex;gap:26px;align-items:center}
+.card .flag{flex:0 0 150px;font-family:'Noto Serif KR','NotoKR',serif;font-size:44px;font-weight:900;line-height:1.15}
+.card .body{flex:1}
+.card .tag{display:inline-block;font-size:26px;font-weight:900;border-radius:8px;padding:4px 14px;margin-bottom:10px}
+.card.gold .flag{color:#E5C566}.card.gold .tag{background:#E5C566;color:#0E1726}
+.card.red .flag{color:#FF6B5B}.card.red .tag{background:#D7261E;color:#fff}
+.card .d{font-size:32px;color:#C9CFDA;line-height:1.4}
+.card .d b{color:#FFFDF6}
+
+/* arrows */
+.arrows{height:100%;display:flex;flex-direction:column;justify-content:center;gap:70px}
+.arow{position:relative}
+.arow .lab{display:flex;justify-content:space-between;font-size:44px;font-weight:900;margin-bottom:18px}
+.arow .line{height:14px;background:#22304a;border-radius:7px;position:relative;overflow:visible}
+.arow .fill{position:absolute;top:0;height:14px;border-radius:7px;width:0}
+.arow .head{position:absolute;top:-22px;width:0;height:0;border-top:29px solid transparent;border-bottom:29px solid transparent;opacity:0}
+.arow.gold .fill{background:#E5C566;left:0}.arow.gold .head{border-left:44px solid #E5C566}
+.arow.red .fill{background:#D7261E;right:0}.arow.red .head{border-right:44px solid #D7261E}
+.arow .cap{font-size:32px;color:#C9CFDA;margin-top:16px}
+.qmark{font-family:'Noto Serif KR','NotoKR',serif;font-size:220px;font-weight:900;color:#FF6B5B;text-align:center;line-height:1;opacity:0}
+
+/* quote */
+.quote{height:auto;display:flex;flex-direction:column;justify-content:center;gap:34px;border-left:12px solid #E5C566;padding-left:44px}
+.quote .ln{font-family:'Noto Serif KR','NotoKR',serif;font-size:66px;font-weight:900;line-height:1.28;color:#FFFDF6}
+.quote .ln.sm{font-size:44px;font-weight:700;color:#C9CFDA}
+.quote .ln.gold{color:#E5C566}
+</style>
+</head>
+<body>
+<div id="badge">AI 1분 개벽늬우스</div>
+<div id="dots"></div>
+<div id="series"></div>
+<div id="stage"></div>
+<div id="caption"></div>
+<div id="foot">전체 카드·조문 원문 → <b>시민법정.kr/cardnews</b></div>
+
+<script>
+(() => {
+  const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+  const easeOut = (p) => 1 - Math.pow(1 - p, 3);
+  const easeInOut = (p) => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  // u(장면 내 경과초)에서 start 부터 len 동안 0→1
+  const prog = (u, start, len) => clamp((u - start) / len);
+  const fmt = (v, dec) => dec ? v.toFixed(dec) : Math.round(v).toLocaleString('ko-KR');
+  const esc = (s) => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  const rich = (s) => esc(s).replace(/&lt;(\/?)(b|br)&gt;/g, '<$1$2>').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');  // <b> <br> **굵게** 만 허용
+  const fadeIn = (el, p, dy = 28) => { el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * dy}px)`; };
+
+  let SPEC = null, scenes = [], captionWords = [];
+
+  // ── 장면 빌더: DOM 을 만들고 update(u, dur) 를 돌려준다 ──
+  const builders = {
+    stats(sc, root) {
+      const els = sc.items.map((it, i) => {
+        const d = document.createElement('div'); d.className = 'stat item' + (it.tone === 'red' ? ' red' : '');
+        d.innerHTML = `<div class="v"><span class="num">0</span><small>${esc(it.unit || '')}</small></div><div class="l">${rich(it.label)}</div>`;
+        root.appendChild(d); return d;
+      });
+      return (u) => els.forEach((d, i) => {
+        const p = easeOut(prog(u, .15 + i * .55, .55)); fadeIn(d, p);
+        const c = easeOut(prog(u, .15 + i * .55, 1.3));
+        d.querySelector('.num').textContent = fmt(sc.items[i].v * c, sc.items[i].dec || 0);
+      });
+    },
+    bars(sc, root) {
+      if (sc.heading) { const h = document.createElement('div'); h.className = 'hd'; h.textContent = sc.heading; root.appendChild(h); }
+      const els = sc.items.map((it) => {
+        const d = document.createElement('div'); d.className = 'bar item ' + (it.tone || '');
+        d.innerHTML = `<div class="lab"><span>${rich(it.label)}</span><span class="val">0${esc(it.unit || '')}</span></div><div class="trk"><div class="fil"></div></div>${it.sub ? `<div class="sub">${rich(it.sub)}</div>` : ''}`;
+        root.appendChild(d); return d;
+      });
+      return (u) => els.forEach((d, i) => {
+        const it = sc.items[i]; const p = easeOut(prog(u, .15 + i * .5, .5)); fadeIn(d, p);
+        const c = easeOut(prog(u, .3 + i * .5, 1.3));
+        d.querySelector('.fil').style.width = (it.v / (sc.max || 100) * 100 * c) + '%';
+        d.querySelector('.val').textContent = fmt(it.v * c, it.dec || 0) + (it.unit || '');
+      });
+    },
+    list(sc, root) {
+      if (sc.heading) { const h = document.createElement('div'); h.className = 'hd'; h.textContent = sc.heading; root.appendChild(h); }
+      const els = sc.items.map((it, i) => {
+        const d = document.createElement('div'); d.className = 'li item ' + (it.state || '') + (sc.big ? ' big' : '');
+        const k = it.state === 'check' ? '✓' : (it.k || (i + 1));
+        d.innerHTML = `<div class="k">${esc(k)}</div><div><div class="tx">${rich(it.text)}${it.state === 'strike' ? '<span class="strk"></span>' : ''}${it.tag ? `<span class="tag">${esc(it.tag)}</span>` : ''}</div>${it.ref ? `<div class="ref">${rich(it.ref)}</div>` : ''}</div>`;
+        root.appendChild(d); return d;
+      });
+      const step = sc.step || .5;
+      return (u) => els.forEach((d, i) => {
+        const p = easeOut(prog(u, .15 + i * step, .5)); d.style.opacity = p; d.style.transform = `translateX(${(1 - p) * -40}px)`;
+        const s = d.querySelector('.strk'); if (s) s.style.width = (easeInOut(prog(u, .7 + i * step, .5)) * 100) + '%';
+        const t = d.querySelector('.tag'); if (t) t.style.opacity = prog(u, .8 + i * step, .3);
+      });
+    },
+    split(sc, root) {
+      const w = document.createElement('div'); w.className = 'split'; root.appendChild(w);
+      const mk = (b) => { const d = document.createElement('div'); d.className = 'box item ' + (b.tone || ''); d.innerHTML = `<div class="t">${esc(b.title)}</div><div class="n">${rich(b.name)}</div><div class="d">${rich(b.body)}</div>`; return d; };
+      const a = mk(sc.top), ar = document.createElement('div'), b = mk(sc.bottom);
+      ar.className = 'arrow item'; ar.textContent = sc.arrow || '↓'; w.append(a, ar, b);
+      return (u) => {
+        fadeIn(a, easeOut(prog(u, .15, .5)), -30);
+        ar.style.opacity = prog(u, .9, .4); ar.style.transform = `translateY(${(1 - easeOut(prog(u, .9, .6))) * -30}px)`;
+        fadeIn(b, easeOut(prog(u, 1.3, .5)), 40);
+      };
+    },
+    cards(sc, root) {
+      const w = document.createElement('div'); w.className = 'cards'; root.appendChild(w);
+      const els = sc.items.map((it) => {
+        const d = document.createElement('div'); d.className = 'card item ' + (it.tone || '');
+        d.innerHTML = `<div class="flag">${rich(it.name)}</div><div class="body"><span class="tag">${esc(it.tag)}</span><div class="d">${rich(it.body)}</div></div>`;
+        w.appendChild(d); return d;
+      });
+      return (u) => els.forEach((d, i) => fadeIn(d, easeOut(prog(u, .15 + i * .7, .55)), 36));
+    },
+    arrows(sc, root) {
+      const w = document.createElement('div'); w.className = 'arrows'; root.appendChild(w);
+      const rows = sc.items.map((it) => {
+        const d = document.createElement('div'); d.className = 'arow item ' + (it.tone || 'gold');
+        d.innerHTML = `<div class="lab"><span>${rich(it.from)}</span><span>${rich(it.to)}</span></div><div class="line"><div class="fill"></div><div class="head"></div></div><div class="cap">${rich(it.cap || '')}</div>`;
+        w.appendChild(d); return d;
+      });
+      const q = document.createElement('div'); q.className = 'qmark'; q.textContent = sc.mark || '?'; w.appendChild(q);
+      return (u) => {
+        rows.forEach((d, i) => {
+          const st = .15 + i * 1.1; fadeIn(d, easeOut(prog(u, st, .4)));
+          const c = easeInOut(prog(u, st + .3, 1.0)); const fill = d.querySelector('.fill'), head = d.querySelector('.head');
+          fill.style.width = (c * 100) + '%'; head.style.opacity = c > .98 ? 1 : 0;
+          if (d.classList.contains('red')) head.style.right = 'calc(100% - 44px)'; else head.style.left = 'calc(100% - 44px)';
+        });
+        const qp = easeOut(prog(u, .15 + rows.length * 1.1 + .2, .5)); q.style.opacity = qp; q.style.transform = `scale(${.6 + .4 * qp})`;
+      };
+    },
+    quote(sc, root) {
+      const w = document.createElement('div'); w.className = 'quote'; root.appendChild(w);
+      const els = sc.lines.map((ln) => { const d = document.createElement('div'); d.className = 'ln item ' + (ln.tone || ''); d.dataset.text = ln.text; d.innerHTML = rich(ln.text); w.appendChild(d); return d; });
+      return (u) => els.forEach((d, i) => {
+        const ln = sc.lines[i]; const st = .15 + i * .9;
+        if (ln.type) { // 한 글자씩
+          const n = Math.floor(prog(u, st, ln.dur || 1.6) * ln.text.length); d.textContent = ln.text.slice(0, n); d.style.opacity = 1;
+        } else fadeIn(d, easeOut(prog(u, st, .6)), 24);
+      });
+    },
+  };
+
+  window.__init = (spec) => {
+    SPEC = spec; scenes = [];
+    document.getElementById('badge').textContent = spec.title || 'AI 1분 개벽늬우스';
+    document.getElementById('series').textContent = spec.series || '';
+    const dots = document.getElementById('dots'); dots.innerHTML = spec.segments.map(() => '<i></i>').join('');
+    const stage = document.getElementById('stage'); stage.innerHTML = '';
+    spec.segments.forEach((seg) => {
+      const root = document.createElement('div'); root.className = 'scene'; stage.appendChild(root);
+      const sc = seg.scene || { type: 'quote', lines: [{ text: seg.text }] };
+      const b = builders[sc.type] || builders.quote;
+      scenes.push({ root, update: b(sc, root) });
+    });
+    return true;
+  };
+
+  window.seek = (t) => {
+    if (!SPEC) return;
+    const segs = SPEC.segments; let k = segs.length - 1;
+    for (let i = 0; i < segs.length; i++) if (t < segs[i].t0 + segs[i].dur) { k = i; break; }
+    const seg = segs[k], u = t - seg.t0, last = k === segs.length - 1;
+    document.querySelectorAll('#dots i').forEach((d, i) => d.classList.toggle('on', i === k));
+    // 장면 표시: 들어올 때 0.45초 페이드, 나갈 때 마지막 0.35초 페이드(마지막 장면은 유지)
+    scenes.forEach((s, i) => {
+      if (i !== k) { s.root.style.opacity = 0; return; }
+      const inP = easeOut(prog(u, 0, .45)); const outP = last ? 1 : 1 - prog(u, seg.dur - .35, .35);
+      s.root.style.opacity = Math.min(inP, outP); s.root.style.transform = `translateY(${(1 - inP) * 24}px)`;
+      s.update(u, seg.dur);
+    });
+    // 자막: 낭독 길이(dur - gap)에 맞춰 낱말이 켜진다
+    const cap = document.getElementById('caption');
+    if (cap.dataset.k !== String(k)) {
+      cap.dataset.k = String(k); cap.innerHTML = seg.text.split(' ').map(w => `<span>${esc(w)}</span>`).join(' ');
+      captionWords = [...cap.querySelectorAll('span')];
+    }
+    const speak = Math.max(seg.dur - (seg.gap || 0) - .25, .5);
+    const n = Math.ceil(clamp(u / speak) * captionWords.length);
+    captionWords.forEach((w, i) => w.classList.toggle('on', i < n));
+  };
+})();
+</script>
+</body>
+</html>
