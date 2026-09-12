@@ -1,0 +1,85 @@
+{
+  "_comment": "수사준칙편 모션 장면. 순서 = scripts/news-scripts/investigation-rules-2026.json segments(9). 조문은 카드 원문(docs/cardnews/수사준칙개정안_7단계)에서 옮겼다. 8장면은 준비위 제안.",
+  "scenes": [
+    {
+      "type": "list",
+      "heading": "개정 형사소송법 — 2026년 10월 2일 시행",
+      "big": true,
+      "step": 0.7,
+      "items": [
+        { "text": "검사의 수사지휘", "state": "strike", "k": "×", "ref": "법이 지웠다" },
+        { "text": "검사와 사법경찰관은 「협력」한다", "state": "check", "ref": "형소법 제195조" }
+      ]
+    },
+    {
+      "type": "split",
+      "top": { "title": "법률", "name": "「지휘」를 지웠다", "body": "개정 형사소송법 — 국회가 정했다" },
+      "arrow": "↓",
+      "bottom": { "title": "대통령령", "name": "수사준칙 개정안", "body": "법무부 입법예고 — 그 흔적이 <b>대통령령으로 되살아난다</b>", "tone": "red" }
+    },
+    {
+      "type": "list",
+      "heading": "제29조의2 ② — 「피의자 호송」",
+      "step": 0.6,
+      "items": [
+        { "text": "구속영장 청구 전 검사 면담", "k": "1", "ref": "형소법 제201조⑦" },
+        { "text": "피의자 호송 협조 의무", "tag": "신설", "state": "red", "ref": "법에 없던 의무가 대통령령에서 생긴다" }
+      ]
+    },
+    {
+      "type": "list",
+      "heading": "상위법이 준 것 vs 대통령령이 얹은 것",
+      "step": 0.55,
+      "items": [
+        { "text": "면담", "state": "check", "ref": "형소법 제201조⑦" },
+        { "text": "의견 제시 요청", "state": "check", "ref": "형소법 제201조⑦" },
+        { "text": "호송 의무", "tag": "대통령령", "state": "red", "ref": "수사준칙 제29조의2 ②" }
+      ]
+    },
+    {
+      "type": "bars",
+      "heading": "제8조의3 — 의무는 어느 쪽에 쌓이는가",
+      "max": 3.5,
+      "items": [
+        { "label": "사법경찰관 — 「하여야 한다」", "v": 3, "unit": "개", "tone": "red", "sub": "의견 요청 · 존중 · 수용 여부 기록" },
+        { "label": "검사 — 「요구할 수 있다」", "v": 1, "unit": "개", "tone": "gold", "sub": "법이 쓴 단어는 「요청」이었다" }
+      ]
+    },
+    {
+      "type": "list",
+      "heading": "특사경 제정안 제25조 — 「지도·조언」의 무게",
+      "big": true,
+      "step": 0.7,
+      "items": [
+        { "text": "「따라야 한다」", "state": "strike", "k": "×", "ref": "지웠다" },
+        { "text": "「이행해야 한다」", "tag": "남았다", "state": "red", "ref": "미이행 → 보완수사·시정조치 (제25조③)" }
+      ]
+    },
+    {
+      "type": "quote",
+      "lines": [
+        { "text": "이름은 협력인데,", "tone": "" },
+        { "text": "형식은 지휘다.", "tone": "gold" },
+        { "text": "협력은 의견을 주고받는 것이다.", "tone": "sm" }
+      ]
+    },
+    {
+      "type": "list",
+      "heading": "준비위의 제안 — 9월 4일 전에",
+      "step": 0.6,
+      "items": [
+        { "text": "제29조의2 ② 호송·협조 의무를 뺀다", "state": "check", "ref": "면담은 화상·전화·검사 출장으로" },
+        { "text": "검사 회신에 기한을 둔다 — 7일", "state": "check", "ref": "기한을 넘기면 사법경찰관 판단으로 진행" },
+        { "text": "「요구」를 「요청」으로 — 법이 쓴 단어로", "state": "check", "ref": "제25조③ 미이행 조항은 뺀다" }
+      ]
+    },
+    {
+      "type": "quote",
+      "lines": [
+        { "text": "법을 지운 정부가,", "tone": "" },
+        { "text": "대통령령으로", "tone": "" },
+        { "text": "되돌릴 것입니까?", "tone": "gold", "type": true, "dur": 1.4 }
+      ]
+    }
+  ]
+}
