@@ -10,9 +10,9 @@
 export const CARD_NEWS_SERIES = [
     {
         slug: 'future-fund-key-2026',
-        news: '/cardnews/future-fund-key-2026/news.mp4?v=20260912c',
+        news: '/cardnews/future-fund-key-2026/news.mp4?v=20260912d',
         // 모션 그래픽판 AI 뉴스 — scripts/gen_motion_news.py (장면: scripts/motion-scenes/<slug>.json). 카드판(news)과 나란히 보여준다.
-        motion: '/cardnews/future-fund-key-2026/motion.mp4?v=20260912b',
+        motion: '/cardnews/future-fund-key-2026/motion.mp4?v=20260912c',
         reel: '/cardnews/future-fund-key-2026/reel.mp4?v=20260911b',
         title: '나라 곳간은 만들되, 열쇠는 입법부가 — 162조 미래대응기금 카드뉴스',
         short: '미래대응기금 10단계',
