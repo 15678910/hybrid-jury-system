@@ -60,7 +60,7 @@ function SeriesList() {
                                         className="w-full block"
                                         loading="lazy"
                                     />
-                                    {(s.news || s.reel) && (
+                                    {(s.news || s.reel || s.motion) && (
                                         <span className="absolute top-3 right-3 inline-flex items-center gap-1 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">
                                             ▶ 영상
                                         </span>
@@ -71,7 +71,7 @@ function SeriesList() {
                                         <span className="font-bold text-blue-700">{s.count}장</span>
                                         <span>·</span>
                                         <span>{formatDate(s.date)}</span>
-                                        {(s.news || s.reel) && (<><span>·</span><span className="text-red-600 font-bold">영상</span></>)}
+                                        {(s.news || s.reel || s.motion) && (<><span>·</span><span className="text-red-600 font-bold">영상</span></>)}
                                     </div>
                                     <h2 className="text-lg font-bold text-gray-900 leading-snug group-hover:text-blue-700">{s.title}</h2>
                                     <p className="mt-2 text-sm text-gray-600 line-clamp-3">{s.description}</p>
@@ -143,8 +143,8 @@ function SeriesView({ series }) {
                     <p className="mt-4 text-gray-700 leading-relaxed">{series.description}</p>
                     <p className="mt-2 text-sm text-gray-500">카드를 누르면 크게 볼 수 있고, 각 카드 아래의 「이미지 저장」으로 한 장씩 내려받아 SNS 에 올릴 수 있습니다.</p>
 
-                    {(series.news || series.reel) && (
-                        <div className="mt-8 grid gap-6 sm:grid-cols-2">
+                    {(series.news || series.reel || series.motion) && (
+                        <div className={`mt-8 grid gap-6 sm:grid-cols-2 ${series.motion ? 'lg:grid-cols-3' : ''}`}>
                             {series.news && (
                                 <div>
                                     <div className="flex items-center gap-2 mb-3">
@@ -165,6 +165,33 @@ function SeriesView({ series }) {
                                         <a
                                             href={series.news}
                                             download={`${series.short}_AI뉴스.mp4`}
+                                            className="inline-block text-sm px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-100 text-gray-700"
+                                        >
+                                            영상 저장
+                                        </a>
+                                    </div>
+                                </div>
+                            )}
+                            {series.motion && (
+                                <div>
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <span className="text-xs font-bold text-white bg-purple-600 rounded px-2 py-0.5">모션</span>
+                                        <span className="text-sm font-medium text-gray-800">AI 1분 개벽늬우스 — 모션 그래픽판</span>
+                                    </div>
+                                    <div className="mx-auto w-full max-w-[360px] rounded-2xl overflow-hidden shadow-md border border-gray-200 bg-black">
+                                        <video
+                                            src={series.motion}
+                                            controls
+                                            playsInline
+                                            preload="metadata"
+                                            className="w-full block aspect-[9/16] bg-black"
+                                            aria-label={`${series.short} AI 1분 개벽뉴스 모션 그래픽 영상`}
+                                        />
+                                    </div>
+                                    <div className="mt-2 text-center">
+                                        <a
+                                            href={series.motion}
+                                            download={`${series.short}_AI뉴스_모션.mp4`}
                                             className="inline-block text-sm px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-100 text-gray-700"
                                         >
                                             영상 저장
@@ -200,7 +227,7 @@ function SeriesView({ series }) {
                                 </div>
                             )}
                             {series.related && (
-                                <div className="sm:col-span-2 mt-1 text-center">
+                                <div className={`sm:col-span-2 ${series.motion ? 'lg:col-span-3' : ''} mt-1 text-center`}>
                                     <Link
                                         to={series.related.to}
                                         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-sm"

@@ -80,9 +80,10 @@ export default function Videos() {
     const categories = ['전체', '해외 사례', '사법개혁', '인터뷰', '뉴스', '숏폼'];
 
     // 「숏폼」 — 카드뉴스의 자체 호스팅 세로 영상(AI 1분 개벽늬우스·릴스)을 유튜브 없이 여기서 보여준다.
-    // src/data/cardNews.js 의 news·reel 필드에서 자동으로 모은다.
+    // src/data/cardNews.js 의 news·motion·reel 필드에서 자동으로 모은다.
     const cardShorts = CARD_NEWS_SERIES.flatMap((s) => [
         s.news && { key: `${s.slug}-news`, kind: 'AI 1분 개벽늬우스', title: `${s.short} — AI 1분 개벽늬우스`, src: s.news, slug: s.slug },
+        s.motion && { key: `${s.slug}-motion`, kind: '모션', title: `${s.short} — AI 1분 개벽늬우스 · 모션 그래픽판`, src: s.motion, slug: s.slug },
         s.reel && { key: `${s.slug}-reel`, kind: '릴스', title: `${s.short} — 릴스`, src: s.reel, slug: s.slug },
     ].filter(Boolean));
 
@@ -389,6 +390,11 @@ export default function Videos() {
                                                     {sv.kind === '릴스' && (
                                                         <span className="absolute top-2 left-2 text-xs font-bold text-white px-2.5 py-1 rounded-full bg-blue-600">
                                                             릴스
+                                                        </span>
+                                                    )}
+                                                    {sv.kind === '모션' && (
+                                                        <span className="absolute top-2 right-2 text-xs font-bold text-white px-2.5 py-1 rounded-full bg-purple-600">
+                                                            모션
                                                         </span>
                                                     )}
                                                 </div>
