@@ -97,6 +97,7 @@ ap.add_argument('--top', type=int, default=196, help='상단 여백(px). 배지 
 ap.add_argument('--engine', choices=['edge', 'elevenlabs', 'polly'])
 ap.add_argument('--eleven-voice')
 ap.add_argument('--voice-dir', help='세그먼트별 음성 파일(1.mp3..N.mp3)이 든 폴더. speakclone 등에서 받은 음성을 쓸 때.')
+ap.add_argument('--gap', type=float, default=0.8, help='문장 사이 쉼(초). 음성 뒤에 무음을 붙이고 화면 시간도 같이 늘린다. 기본 0.8')
 A = ap.parse_args()
 TOP = A.top
 CARD_Y = TOP + 364   # 배지→제목→카드 간격은 고정, 상단 여백만 움직인다
@@ -232,8 +233,13 @@ total = len(segs)
 for i, seg in enumerate(segs):
     ap_ = tmp / f'a{i}.mp3'
     synth(seg['text'], ap_, i)
-    d_i = dur(ap_) + 0.15   # 문장 끝 짧은 여유
-    auds.append(ap_); durs.append(d_i)
+    # 문장 뒤 쉼(--gap): 음성 끝에 무음을 붙여 WAV 로 통일한다(서로 다른 mp3 를 -c copy 로 잇지 않는다).
+    # 화면 시간(durs)도 같은 길이라 음성과 카드 전환이 끝까지 어긋나지 않는다.
+    ap_w = tmp / f'a{i}.wav'
+    subprocess.run([str(FFMPEG), '-y', '-i', str(ap_), '-af', f'apad=pad_dur={A.gap:.3f}', '-ar', '44100', '-ac', '1', str(ap_w)],
+                   capture_output=True, text=True, encoding='utf-8', errors='replace')
+    d_i = dur(ap_w)
+    auds.append(ap_w); durs.append(d_i)
     fp = tmp / f'f{i}.png'; frame(seg, i, total).save(fp); frames.append(fp)
     print(f"세그먼트 {i+1}/{total}: {durs[i]:.2f}s")
 T = sum(durs)
@@ -255,7 +261,7 @@ subprocess.run([str(FFMPEG), '-y', '-f', 'concat', '-safe', '0', '-i', str(listf
 avf = tmp / 'alist.txt'
 avf.write_text('\n'.join(f"file '{a.as_posix()}'" for a in auds), encoding='utf-8')
 voicemp3 = tmp / 'voice.mp3'
-subprocess.run([str(FFMPEG), '-y', '-f', 'concat', '-safe', '0', '-i', str(avf), '-c', 'copy', str(voicemp3)],
+subprocess.run([str(FFMPEG), '-y', '-f', 'concat', '-safe', '0', '-i', str(avf), '-c:a', 'libmp3lame', '-q:a', '2', str(voicemp3)],
                capture_output=True, text=True, encoding='utf-8', errors='replace')
 
 # ── mux: 영상 + 음성 (+ 음악 베드) ────────────────────────────────────
