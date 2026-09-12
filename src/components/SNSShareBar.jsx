@@ -1,8 +1,15 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { KakaoIcon, FacebookIcon, XIcon, InstagramIcon, TelegramIcon, ThreadsIcon, TikTokIcon, LinkedInIcon } from './icons';
+
+// og:image 의 실제 픽셀 크기 캐시(URL → {w,h}). 카카오 피드는 imageWidth/imageHeight 를 받지 않으면
+// 이미지 비율을 알지 못한 채 세로 틀로 그려 가로 이미지가 잘린다(2026-09-12 블로그 공유에서 확인).
+// 클릭 시점에 동기적으로 값을 넘기려고 페이지 진입 때 미리 읽어 둔다.
+const OG_IMAGE_SIZE = new Map();
 
 export default function SNSShareBar() {
     const [kakaoReady, setKakaoReady] = useState(false);
+    const location = useLocation();
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -28,6 +35,23 @@ export default function SNSShareBar() {
         const desc = getOgDescription();
         return `${document.title}\n\n${desc}\n\n#시민법정 #참심제 #사법개혁`;
     };
+
+    // og:image 크기 미리 읽기 — Helmet 이 메타를 늦게 바꾸므로 두 번 시도한다
+    useEffect(() => {
+        const preload = () => {
+            const src = getOgImage();
+            if (!src || OG_IMAGE_SIZE.has(src)) return;
+            const img = new Image();
+            img.onload = () => {
+                if (img.naturalWidth > 0) OG_IMAGE_SIZE.set(src, { w: img.naturalWidth, h: img.naturalHeight });
+            };
+            img.src = src;
+        };
+        const t1 = setTimeout(preload, 800);
+        const t2 = setTimeout(preload, 3000);
+        return () => { clearTimeout(t1); clearTimeout(t2); };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [location.pathname, location.search]);
 
     // 페이지별 OG 메타 태그에서 동적으로 설명/이미지 가져오기
     // react-helmet-async가 관리하는 태그(data-rh)를 우선 읽고, 없으면 마지막 매칭 태그 사용
@@ -75,12 +99,15 @@ export default function SNSShareBar() {
                     });
                 } else {
                     const url = getShareUrl();
+                    const imageUrl = getOgImage();
+                    const size = OG_IMAGE_SIZE.get(imageUrl);
                     window.Kakao.Share.sendDefault({
                         objectType: 'feed',
                         content: {
                             title: document.title,
                             description: getOgDescription(),
-                            imageUrl: getOgImage(),
+                            imageUrl,
+                            ...(size ? { imageWidth: size.w, imageHeight: size.h } : {}),
                             link: { mobileWebUrl: url, webUrl: url },
                         },
                         buttons: [{ title: '자세히 보기', link: { mobileWebUrl: url, webUrl: url } }],
