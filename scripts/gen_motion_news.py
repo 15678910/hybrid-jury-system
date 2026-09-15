@@ -20,6 +20,8 @@ ap.add_argument('--slug', required=True)
 ap.add_argument('--voice-dir')
 ap.add_argument('--music')
 ap.add_argument('--music-db', default='-20dB')
+ap.add_argument('--outro', type=float, default=0.0, help='마지막 낭독이 끝난 뒤 화면을 N초 더 잡고 음악을 --outro-db 로 올린다(엔딩 스웰)')
+ap.add_argument('--outro-db', type=float, default=-8.0, help='엔딩 스웰 목표 음량(dB). amix 가 6dB 낮추므로 종료카드 --music-db 는 이 값−6 으로 준다')
 ap.add_argument('--gap', type=float, default=0.8)
 ap.add_argument('--fps', type=int, default=30)
 ap.add_argument('--out')
@@ -84,6 +86,8 @@ for i, seg in enumerate(segs):
         need = float(scenes[i].get('dur', 0)) * 0.85
         if d < need:
             run([FFMPEG, '-y', '-i', src, '-af', f'apad=pad_dur={A.gap + (need - d):.3f}', '-ar', '44100', '-ac', '1', wav]); d = dur(wav)
+    if A.outro and i == len(segs) - 1:
+        run([FFMPEG, '-y', '-i', wav, '-af', f'apad=pad_dur={A.outro:.3f}', wav.with_name('alast.wav')]); wav = wav.with_name('alast.wav'); d = dur(wav)
     auds.append(wav)
     timeline.append({'t0': round(t, 3), 'dur': round(d, 3), 'gap': A.gap, 'text': seg['text'],
                      'scene': scenes[i] if scenes else None})
@@ -127,9 +131,17 @@ if A.music:
     mp = Path(A.music) if Path(A.music).is_absolute() else ROOT / A.music
     if not mp.exists(): sys.exit(f'음악 없음: {mp}')
     args += ['-i', mp]
-    fc = (f"[2:a]atrim=0:{T:.3f},asetpts=PTS-STARTPTS,volume={A.music_db},"
-          f"afade=t=in:st=0:d=1,afade=t=out:st={max(T - 1.5, 0):.2f}:d=1.5[mus];"
-          f"[1:a]volume=+2dB[v];[v][mus]amix=inputs=2:duration=first:dropout_transition=0[aout]")
+    if A.outro:
+        # 낭독 끝(Tn)에서 1초 동안 music_db → outro_db 로 올리고 끝까지 유지. 페이드아웃은 종료카드에서.
+        # volume 의 수식은 dB 가 아니라 선형 배율이다 → 10^(dB/20) 로 바꿔 넣는다
+        Tn = T - A.outro - A.gap; a = 10 ** (float(A.music_db.replace('dB', '')) / 20); b = 10 ** (A.outro_db / 20)
+        vexpr = f"'if(lt(t,{Tn:.3f}),{a:.5f},if(lt(t,{Tn + 1:.3f}),{a:.5f}+({b:.5f}-{a:.5f})*(t-{Tn:.3f}),{b:.5f}))'"
+        fc = (f"[2:a]atrim=0:{T:.3f},asetpts=PTS-STARTPTS,volume={vexpr}:eval=frame,afade=t=in:st=0:d=1[mus];"
+              f"[1:a]volume=+2dB[v];[v][mus]amix=inputs=2:duration=first:dropout_transition=0[aout]")
+    else:
+        fc = (f"[2:a]atrim=0:{T:.3f},asetpts=PTS-STARTPTS,volume={A.music_db},"
+              f"afade=t=in:st=0:d=1,afade=t=out:st={max(T - 1.5, 0):.2f}:d=1.5[mus];"
+              f"[1:a]volume=+2dB[v];[v][mus]amix=inputs=2:duration=first:dropout_transition=0[aout]")
     args += ['-filter_complex', fc, '-map', '0:v', '-map', '[aout]']
 else:
     args += ['-map', '0:v', '-map', '1:a']

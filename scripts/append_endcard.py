@@ -25,6 +25,8 @@ ap.add_argument('--in', dest='inp', required=True)
 ap.add_argument('--slug', required=True)
 ap.add_argument('--out', required=True)
 ap.add_argument('--music')
+ap.add_argument('--music-ss', type=float, default=0.0, help='음악을 이 시각(초)부터 이어 튼다(본편 음악과 연속)')
+ap.add_argument('--music-db', default='-18dB')
 ap.add_argument('--seconds', type=float, default=3.0)
 A = ap.parse_args()
 if not FFMPEG.exists():
@@ -90,8 +92,8 @@ endclip = tmp / 'end.mp4'
 args = [str(FFMPEG), '-y', '-loop', '1', '-t', str(A.seconds), '-i', str(card)]
 if A.music:
     mp = Path(A.music) if Path(A.music).is_absolute() else ROOT / A.music
-    args += ['-i', str(mp), '-map', '0:v', '-map', '1:a',
-             '-af', f'atrim=0:{A.seconds},asetpts=PTS-STARTPTS,volume=-18dB,afade=t=out:st={max(A.seconds-1.2,0):.2f}:d=1.2']
+    args += ['-ss', f'{A.music_ss:.3f}', '-i', str(mp), '-map', '0:v', '-map', '1:a',
+             '-af', f'atrim=0:{A.seconds},asetpts=PTS-STARTPTS,volume={A.music_db},afade=t=out:st={max(A.seconds-1.5,0):.2f}:d=1.5']
 else:
     args += ['-f', 'lavfi', '-t', str(A.seconds), '-i', 'anullsrc=r=44100:cl=stereo', '-map', '0:v', '-map', '1:a']
 args += ['-r', '30', '-vf', f'scale={W}:{H},format=yuv420p,setsar=1', '-c:v', 'libx264', '-crf', '26',
