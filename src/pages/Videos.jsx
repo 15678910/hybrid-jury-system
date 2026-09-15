@@ -85,6 +85,7 @@ export default function Videos() {
         s.news && { key: `${s.slug}-news`, kind: 'AI 1분 개벽늬우스', title: `${s.short} — AI 1분 개벽늬우스`, src: s.news, slug: s.slug },
         s.motion && { key: `${s.slug}-motion`, kind: '모션', title: `${s.short} — AI 1분 개벽늬우스 · 모션 그래픽판`, src: s.motion, slug: s.slug },
         s.reel && { key: `${s.slug}-reel`, kind: '릴스', title: `${s.short} — 릴스`, src: s.reel, slug: s.slug },
+        ...(s.extra || []).map((x) => ({ key: `${s.slug}-${x.src}`, kind: x.kind, title: `${s.short} — ${x.kind} · ${x.label}`, src: x.src, slug: s.slug })),
     ].filter(Boolean));
 
     // 고른 숏츠를 바로 보내기.
@@ -390,6 +391,11 @@ export default function Videos() {
                                                     {sv.kind === '릴스' && (
                                                         <span className="absolute top-2 left-2 text-xs font-bold text-white px-2.5 py-1 rounded-full bg-blue-600">
                                                             릴스
+                                                        </span>
+                                                    )}
+                                                    {sv.kind === '제안편' && (
+                                                        <span className="absolute top-2 right-2 text-xs font-bold text-white px-2.5 py-1 rounded-full bg-amber-600">
+                                                            제안편
                                                         </span>
                                                     )}
                                                     {sv.kind === '모션' && (

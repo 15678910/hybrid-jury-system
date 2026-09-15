@@ -103,6 +103,33 @@ body{background:linear-gradient(180deg,#152741 0%,#0E1726 52%,#0a1220 100%);font
 .arow .cap{font-size:32px;color:#C9CFDA;margin-top:16px}
 .qmark{font-family:'Noto Serif KR','NotoKR',serif;font-size:220px;font-weight:900;color:#FF6B5B;text-align:center;line-height:1;opacity:0}
 
+
+/* ── essay 모드 (지식채널e풍): 검은 화면, 글자만, 내레이션 없음 ── */
+body.essay{background:#000}
+body.essay #series,body.essay #caption{display:none}
+body.essay #badge{transform:scale(.72);transform-origin:left top;opacity:.85}
+body.essay #foot{color:#5c6470}
+body.essay #stage{top:300px;height:1300px;left:80px;width:920px}
+.el{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;height:100%;gap:30px;padding:0 10px}
+.el .ln{font-family:'Noto Serif KR','NotoKR',serif;font-weight:700;color:#F4F2EA;line-height:1.35;letter-spacing:-.5px}
+.el .ln.xl{font-size:92px;font-weight:900;line-height:1.22}
+.el .ln.l{font-size:70px;font-weight:900}
+.el .ln.m{font-size:54px}
+.el .ln.s{font-size:38px;font-weight:400;color:#B8BFCB;font-family:'NotoKR',sans-serif}
+.el .ln.gold{color:#E5C566}.el .ln.red{color:#FF6B5B}.el .ln.dim{color:#7d8ba0}
+.el .rule{width:120px;height:4px;background:#E5C566;border-radius:2px}
+.en{display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;text-align:center}
+.en .v{font-family:'Noto Serif KR','NotoKR',serif;font-size:230px;font-weight:900;line-height:1;color:#F4F2EA;letter-spacing:-6px;font-variant-numeric:tabular-nums}
+.en .v small{font-size:90px;font-weight:700;margin-left:10px;letter-spacing:0}
+.en.gold .v{color:#E5C566}.en.red .v{color:#FF6B5B}
+.en .l{font-size:44px;color:#B8BFCB;margin-top:40px;line-height:1.4;font-weight:400}
+.en .l b{color:#F4F2EA;font-weight:700}
+.law{display:flex;flex-direction:column;justify-content:center;height:100%;padding:0 20px}
+.law .q{font-family:'Noto Serif KR','NotoKR',serif;font-size:56px;font-weight:700;line-height:1.5;color:#F4F2EA;border-left:10px solid #E5C566;padding:10px 0 10px 40px;letter-spacing:-.5px;min-height:1.5em}
+.law .q b{color:#FF6B5B;font-weight:900}
+.law .cite{font-size:34px;color:#8A93A3;margin-top:36px;padding-left:50px;font-weight:400}
+.law .note{font-size:52px;font-weight:900;color:#FF6B5B;margin-top:56px;padding-left:50px;opacity:0}
+
 /* quote */
 .quote{height:auto;display:flex;flex-direction:column;justify-content:center;gap:34px;border-left:12px solid #E5C566;padding-left:44px}
 .quote .ln{font-family:'Noto Serif KR','NotoKR',serif;font-size:66px;font-weight:900;line-height:1.28;color:#FFFDF6}
@@ -213,6 +240,39 @@ body{background:linear-gradient(180deg,#152741 0%,#0E1726 52%,#0a1220 100%);font
         const qp = easeOut(prog(u, .15 + rows.length * 1.1 + .2, .5)); q.style.opacity = qp; q.style.transform = `scale(${.6 + .4 * qp})`;
       };
     },
+
+    lines(sc, root) {
+      const w = document.createElement('div'); w.className = 'el'; root.appendChild(w);
+      const els = sc.lines.map((ln) => {
+        const d = document.createElement('div');
+        if (ln.rule) { d.className = 'rule item'; w.appendChild(d); return d; }
+        d.className = 'ln item ' + (ln.size || 'm') + ' ' + (ln.tone || ''); d.innerHTML = rich(ln.text); w.appendChild(d); return d;
+      });
+      const step = sc.step || 1.1;
+      return (u) => els.forEach((d, i) => { const p = easeOut(prog(u, .2 + i * step, .7)); d.style.opacity = p; d.style.transform = `translateY(${(1 - p) * 18}px)`; });
+    },
+    number(sc, root) {
+      const w = document.createElement('div'); w.className = 'en ' + (sc.tone || ''); root.appendChild(w);
+      w.innerHTML = `<div class="v"><span class="num">0</span><small>${esc(sc.unit || '')}</small></div><div class="l">${rich(sc.label || '')}</div>`;
+      const num = w.querySelector('.num'), lab = w.querySelector('.l'), v = w.querySelector('.v');
+      return (u) => {
+        const c = easeOut(prog(u, .2, sc.count || 1.6)); num.textContent = fmt(sc.v * c, sc.dec || 0);
+        v.style.opacity = prog(u, .1, .4);
+        const p = easeOut(prog(u, .2 + (sc.count || 1.6) * .6, .6)); lab.style.opacity = p; lab.style.transform = `translateY(${(1 - p) * 16}px)`;
+      };
+    },
+    law(sc, root) {
+      const w = document.createElement('div'); w.className = 'law'; root.appendChild(w);
+      w.innerHTML = `<div class="q item"></div><div class="cite item">${rich(sc.cite || '')}</div>${sc.note ? `<div class="note">${rich(sc.note)}</div>` : ''}`;
+      const q = w.querySelector('.q'), cite = w.querySelector('.cite'), note = w.querySelector('.note');
+      const full = sc.text; const tdur = sc.typeDur || Math.min(3.2, .06 * full.length);
+      return (u) => {
+        const n = Math.floor(prog(u, .2, tdur) * full.length);
+        q.innerHTML = rich(full.slice(0, n)) + (n < full.length ? '<span style="color:#E5C566">|</span>' : ''); q.style.opacity = 1;
+        cite.style.opacity = prog(u, .2 + tdur + .2, .5);
+        if (note) { const p = easeOut(prog(u, .2 + tdur + 1.0, .5)); note.style.opacity = p; note.style.transform = `translateY(${(1 - p) * 14}px)`; }
+      };
+    },
     quote(sc, root) {
       const w = document.createElement('div'); w.className = 'quote'; root.appendChild(w);
       const els = sc.lines.map((ln) => { const d = document.createElement('div'); d.className = 'ln item ' + (ln.tone || ''); d.dataset.text = ln.text; d.innerHTML = rich(ln.text); w.appendChild(d); return d; });
@@ -227,6 +287,7 @@ body{background:linear-gradient(180deg,#152741 0%,#0E1726 52%,#0a1220 100%);font
 
   window.__init = (spec) => {
     SPEC = spec; scenes = [];
+    document.body.classList.toggle('essay', !!spec.essay);
     document.getElementById('badge').textContent = spec.title || 'AI 1분 개벽늬우스';
     document.getElementById('series').textContent = spec.series || '';
     const dots = document.getElementById('dots'); dots.innerHTML = spec.segments.map(() => '<i></i>').join('');
@@ -253,6 +314,7 @@ body{background:linear-gradient(180deg,#152741 0%,#0E1726 52%,#0a1220 100%);font
       s.root.style.opacity = Math.min(inP, outP); s.root.style.transform = `translateY(${(1 - inP) * 24}px)`;
       s.update(u, seg.dur);
     });
+    if (SPEC.essay) return;
     // 자막: 낭독 길이(dur - gap)에 맞춰 낱말이 켜진다
     const cap = document.getElementById('caption');
     if (cap.dataset.k !== String(k)) {

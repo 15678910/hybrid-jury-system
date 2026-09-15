@@ -24,16 +24,24 @@ ap.add_argument('--gap', type=float, default=0.8)
 ap.add_argument('--fps', type=int, default=30)
 ap.add_argument('--out')
 ap.add_argument('--stills', help='초 단위 목록(예: 2,30,68). 영상 대신 정지 프레임 PNG 만 뽑는다(시안 확인용)')
+ap.add_argument('--essay', action='store_true', help='essay 화면(검은 배경·글자)에 낭독을 얹는다. 화면 시간 = 낭독 길이와 장면 노출 시간 중 큰 쪽')
+ap.add_argument('--silent', action='store_true', help='내레이션 없이 장면 JSON 의 dur(초)로 타임라인을 만든다(지식채널e풍 essay 모드). 음악만 깐다')
 A = ap.parse_args()
 if not FFMPEG.exists():
     sys.exit(f'ffmpeg 없음: {FFMPEG}')
 
-spec = json.loads((ROOT / 'scripts' / 'news-scripts' / f'{A.slug}.json').read_text(encoding='utf-8'))
-segs = spec['segments']
 scenes_path = ROOT / 'scripts' / 'motion-scenes' / f'{A.slug}.json'
-scenes = json.loads(scenes_path.read_text(encoding='utf-8'))['scenes'] if scenes_path.exists() else []
-if scenes and len(scenes) != len(segs):
-    sys.exit(f'장면 수({len(scenes)})와 대본 문장 수({len(segs)})가 다릅니다: {scenes_path}')
+scenes_doc = json.loads(scenes_path.read_text(encoding='utf-8')) if scenes_path.exists() else {}
+scenes = scenes_doc.get('scenes', [])
+if A.silent:
+    # essay 모드: 대본 파일이 없어도 된다. 장면마다 dur(초) 필수
+    spec = {'title': scenes_doc.get('title', 'AI 1분 개벽늬우스'), 'series': scenes_doc.get('series', '')}
+    segs = [{'text': '', 'dur': float(sc.get('dur', 4.0))} for sc in scenes]
+else:
+    spec = json.loads((ROOT / 'scripts' / 'news-scripts' / f'{A.slug}.json').read_text(encoding='utf-8'))
+    segs = spec['segments']
+    if scenes and len(scenes) != len(segs):
+        sys.exit(f'장면 수({len(scenes)})와 대본 문장 수({len(segs)})가 다릅니다: {scenes_path}')
 
 out = Path(A.out) if A.out else ROOT / 'reels' / f'{A.slug}-motion.mp4'
 out = out if out.is_absolute() else ROOT / out
@@ -62,11 +70,21 @@ def synth(text, path, i):
 
 # ── 문장별 음성 → 무음(gap) 덧붙인 WAV, 길이 = 화면 시간 ──
 auds, timeline, t = [], [], 0.0
+if A.silent:
+    for i, seg in enumerate(segs):
+        timeline.append({'t0': round(t, 3), 'dur': seg['dur'], 'gap': 0, 'text': '', 'scene': scenes[i]}); t += seg['dur']
+    segs = []  # 아래 음성 루프를 건너뛴다
 for i, seg in enumerate(segs):
     src = synth(seg['text'], tmp / f'a{i}.mp3', i)
     wav = tmp / f'a{i}.wav'
     run([FFMPEG, '-y', '-i', src, '-af', f'apad=pad_dur={A.gap:.3f}', '-ar', '44100', '-ac', '1', wav])
-    d = dur(wav); auds.append(wav)
+    d = dur(wav)
+    if A.essay and scenes:
+        # 글자가 다 뜰 시간을 보장한다(장면별 노출 시간의 0.85배 이상). 낭독이 더 길면 낭독을 따른다.
+        need = float(scenes[i].get('dur', 0)) * 0.85
+        if d < need:
+            run([FFMPEG, '-y', '-i', src, '-af', f'apad=pad_dur={A.gap + (need - d):.3f}', '-ar', '44100', '-ac', '1', wav]); d = dur(wav)
+    auds.append(wav)
     timeline.append({'t0': round(t, 3), 'dur': round(d, 3), 'gap': A.gap, 'text': seg['text'],
                      'scene': scenes[i] if scenes else None})
     print(f'문장 {i + 1}/{len(segs)}: {d:.2f}s'); t += d
@@ -74,7 +92,7 @@ T = t
 print(f'총 길이 ≈ {T:.1f}s')
 
 render_spec = {'title': spec.get('title', 'AI 1분 개벽늬우스'), 'series': spec.get('series', ''),
-               'segments': timeline, 'total': round(T, 3), 'width': 1080, 'height': 1920}
+               'segments': timeline, 'total': round(T, 3), 'width': 1080, 'height': 1920, 'essay': bool(A.silent or A.essay)}
 spec_path = tmp / 'spec.json'
 spec_path.write_text(json.dumps(render_spec, ensure_ascii=False, indent=1), encoding='utf-8')
 
@@ -88,6 +106,15 @@ r = subprocess.run(node_cmd + ['--out', str(silent)], text=True, encoding='utf-8
 if r.returncode != 0: sys.exit('프레임 렌더 실패')
 
 # ── 음성 concat → mp3 ──
+if A.silent:
+    out.parent.mkdir(parents=True, exist_ok=True)
+    if not A.music: sys.exit('--silent 에는 --music 이 필요합니다')
+    mp = Path(A.music) if Path(A.music).is_absolute() else ROOT / A.music
+    vol = A.music_db if A.music_db != '-20dB' else '-12dB'  # 내레이션이 없으니 음악을 조금 키운다
+    run([FFMPEG, '-y', '-i', silent, '-i', mp, '-filter_complex',
+         f"[1:a]atrim=0:{T:.3f},asetpts=PTS-STARTPTS,volume={vol},afade=t=in:st=0:d=1.5,afade=t=out:st={max(T-2.5,0):.2f}:d=2.5[aout]",
+         '-map', '0:v', '-map', '[aout]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', '-shortest', out])
+    print(f'완료: {out} (essay, ≈{T:.1f}s, 1080×1920)'); sys.exit(0)
 avf = tmp / 'alist.txt'
 avf.write_text('\n'.join(f"file '{a.as_posix()}'" for a in auds), encoding='utf-8')
 voicemp3 = tmp / 'voice.mp3'

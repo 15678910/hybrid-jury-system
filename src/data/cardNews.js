@@ -13,6 +13,13 @@ export const CARD_NEWS_SERIES = [
         news: '/cardnews/future-fund-key-2026/news.mp4?v=20260912d',
         // 모션 그래픽판 AI 뉴스 — scripts/gen_motion_news.py (장면: scripts/motion-scenes/<slug>.json). 카드판(news)과 나란히 보여준다.
         motion: '/cardnews/future-fund-key-2026/motion.mp4?v=20260912c',
+        // 제안편 — 반도체 세수를 어떻게 쓸 것인가. essay 는 지식채널e풍(내레이션 없음, 글자와 음악), news 는 현빈 음성 뉴스판.
+        // scripts/motion-scenes/semiconductor-windfall-e.json · scripts/news-scripts/semiconductor-windfall-2026.json
+        // ⏸ 배경음악·현빈 낭독 확정 전까지 비활성. 확정되면 아래 주석을 풀고 파일을 public/cardnews/future-fund-key-2026/ 에 두고 ?v= 를 올린다.
+        // extra: [
+        //     { kind: '제안편', label: '반도체 세수, 어디로 가지? — 글로 읽는 2분 30초', src: '/cardnews/future-fund-key-2026/proposal-essay.mp4?v=20260915a', download: '제안편_어디로가지.mp4' },
+        //     { kind: '제안편', label: '반도체 세수, 어디로 가지? — 현빈 낭독판', src: '/cardnews/future-fund-key-2026/proposal-news.mp4?v=20260915a', download: '제안편_어디로가지_낭독.mp4' },
+        // ],
         reel: '/cardnews/future-fund-key-2026/reel.mp4?v=20260911b',
         title: '나라 곳간은 만들되, 열쇠는 입법부가 — 162조 미래대응기금 카드뉴스',
         short: '미래대응기금 10단계',

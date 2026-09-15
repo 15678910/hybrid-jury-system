@@ -60,7 +60,7 @@ function SeriesList() {
                                         className="w-full block"
                                         loading="lazy"
                                     />
-                                    {(s.news || s.reel || s.motion) && (
+                                    {(s.news || s.reel || s.motion || s.extra?.length) && (
                                         <span className="absolute top-3 right-3 inline-flex items-center gap-1 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">
                                             ▶ 영상
                                         </span>
@@ -71,7 +71,7 @@ function SeriesList() {
                                         <span className="font-bold text-blue-700">{s.count}장</span>
                                         <span>·</span>
                                         <span>{formatDate(s.date)}</span>
-                                        {(s.news || s.reel || s.motion) && (<><span>·</span><span className="text-red-600 font-bold">영상</span></>)}
+                                        {(s.news || s.reel || s.motion || s.extra?.length) && (<><span>·</span><span className="text-red-600 font-bold">영상</span></>)}
                                     </div>
                                     <h2 className="text-lg font-bold text-gray-900 leading-snug group-hover:text-blue-700">{s.title}</h2>
                                     <p className="mt-2 text-sm text-gray-600 line-clamp-3">{s.description}</p>
@@ -143,7 +143,7 @@ function SeriesView({ series }) {
                     <p className="mt-4 text-gray-700 leading-relaxed">{series.description}</p>
                     <p className="mt-2 text-sm text-gray-500">카드를 누르면 크게 볼 수 있고, 각 카드 아래의 「이미지 저장」으로 한 장씩 내려받아 SNS 에 올릴 수 있습니다.</p>
 
-                    {(series.news || series.reel || series.motion) && (
+                    {(series.news || series.reel || series.motion || series.extra?.length) && (
                         <div className={`mt-8 grid gap-6 sm:grid-cols-2 ${series.motion ? 'lg:grid-cols-3' : ''}`}>
                             {series.news && (
                                 <div>
@@ -226,6 +226,33 @@ function SeriesView({ series }) {
                                     </div>
                                 </div>
                             )}
+                            {(series.extra || []).map((x) => (
+                                <div key={x.src}>
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <span className="text-xs font-bold text-white bg-amber-600 rounded px-2 py-0.5">{x.kind}</span>
+                                        <span className="text-sm font-medium text-gray-800">{x.label}</span>
+                                    </div>
+                                    <div className="mx-auto w-full max-w-[360px] rounded-2xl overflow-hidden shadow-md border border-gray-200 bg-black">
+                                        <video
+                                            src={x.src}
+                                            controls
+                                            playsInline
+                                            preload="metadata"
+                                            className="w-full block aspect-[9/16] bg-black"
+                                            aria-label={`${series.short} ${x.kind} — ${x.label}`}
+                                        />
+                                    </div>
+                                    <div className="mt-2 text-center">
+                                        <a
+                                            href={x.src}
+                                            download={x.download || `${series.short}_${x.kind}.mp4`}
+                                            className="inline-block text-sm px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-100 text-gray-700"
+                                        >
+                                            영상 저장
+                                        </a>
+                                    </div>
+                                </div>
+                            ))}
                             {series.related && (
                                 <div className={`sm:col-span-2 ${series.motion ? 'lg:col-span-3' : ''} mt-1 text-center`}>
                                     <Link
