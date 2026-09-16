@@ -22,12 +22,12 @@ export const CARD_NEWS_SERIES = [
             { kind: '제안편', label: '세 나라의 곳간 — 노르웨이·캐나다·네덜란드는 무엇을 정부 밖에 두었나 (현빈 낭독, 2분 33초)', src: '/cardnews/future-fund-key-2026/three-funds-news.mp4?v=20260915a', download: '제안편_세나라의곳간.mp4' },
             // 16:9 해설편 본편 — 구법·신법 조문 대조 → 지역 배분 → 세 나라와 대안 → 헌법 제1조. 44화면 12분 54초. wide: 가로 영상(aspect-video, 그리드 전체 폭).
             // scripts/motion-scenes/fund-explainer-2026.json · scripts/news-scripts/fund-explainer-2026.json · 렌더 --wide. 현재 무료 음성(InJoon) 시안, 현빈 녹음 후 교체 예정.
-            { kind: '해설편', label: '해설편 1 — 구법과 신법, 그리고 세 나라의 곳간 (12분 54초)', src: '/cardnews/future-fund-key-2026/explainer.mp4?v=20260916a', download: '해설편1_구법과신법.mp4', wide: true },
+            { kind: '해설편 1', label: '구법과 신법, 그리고 세 나라의 곳간 (12분 54초)', src: '/cardnews/future-fund-key-2026/explainer.mp4?v=20260916a', download: '해설편1_구법과신법.mp4', wide: true },
             // 해설편 2 — 조문 낭독편: 신·구조문대비표 원문을 조문마다 현행→개정안→쉬운 말로→효과 순으로 낭독(diff 장면). 핵심 18조문. 무료 음성 시안, 현빈 녹음 후 교체.
             // scripts/motion-scenes/fund-articles-2026.json · scripts/news-scripts/fund-articles-2026.json
-            { kind: '해설편', label: '해설편 2 — 조문 낭독편: 여섯 법안 핵심 18조문을 한 줄씩 읽는다 (12분 30초)', src: '/cardnews/future-fund-key-2026/articles.mp4?v=20260917a', download: '해설편2_조문낭독.mp4', wide: true },
+            { kind: '해설편 2', label: '조문 낭독편 — 여섯 법안 핵심 18조문을 한 줄씩 읽는다 (12분 30초)', src: '/cardnews/future-fund-key-2026/articles.mp4?v=20260917a', download: '해설편2_조문낭독.mp4', wide: true },
             // 해설편 3 — 조문 낭독편 부록: 특별회계법 2건·기금법 계정 구조·교부금법 제3조③④·국가재정법 제90조② 등 나머지 13조문. 무료 음성 시안.
-            { kind: '해설편', label: '해설편 3 — 조문 낭독편 부록: 나머지 13조문 (9분 2초)', src: '/cardnews/future-fund-key-2026/articles-appendix.mp4?v=20260917a', download: '해설편3_조문낭독_부록.mp4', wide: true },
+            { kind: '해설편 3', label: '조문 낭독편 부록 — 나머지 13조문 (9분 2초)', src: '/cardnews/future-fund-key-2026/articles-appendix.mp4?v=20260917a', download: '해설편3_조문낭독_부록.mp4', wide: true },
             // ⏸ 아래 두 편은 배경음악 확정 대기
             // { kind: '제안편', label: '반도체 세수, 어디로 가지? — 글로 읽는 2분 30초', src: '/cardnews/future-fund-key-2026/proposal-essay.mp4?v=20260915a', download: '제안편_어디로가지.mp4' },
             // { kind: '제안편', label: '반도체 세수, 어디로 가지? — 현빈 낭독판', src: '/cardnews/future-fund-key-2026/proposal-news.mp4?v=20260915a', download: '제안편_어디로가지_낭독.mp4' },
