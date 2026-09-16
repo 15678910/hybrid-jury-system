@@ -1,0 +1,193 @@
+{
+  "_comment": "16:9 해설편 시안(wide). 렌더: python scripts/gen_motion_news.py --slug fund-explainer-pilot --wide --music public/music.mp3. 장면 순서 = news-scripts/fund-explainer-pilot.json segments(9). illus = 엔진 내장 선화(scale|key|vault|building|ballot|coins|split|map|catapult).",
+  "scenes": [
+    {
+      "type": "chapter",
+      "illus": "split",
+      "eyebrow": "What this video does",
+      "title": "두 시선은<br>어디서 갈라지나",
+      "sub": "162조 미래대응기금 — 정부의 설명과 법안의 조문을 나란히 놓는다"
+    },
+    {
+      "type": "compare",
+      "eyebrow": "Two lenses",
+      "title": "같은 기금, 다른 질문",
+      "items": [
+        {
+          "label": "기획예산처의 시선",
+          "text": "무엇에 쓸 것인가<br>AI · 전략산업 · 인재"
+        },
+        {
+          "label": "조문의 시선",
+          "text": "누가 <b>열쇠</b>를 쥐는가",
+          "hi": true
+        }
+      ],
+      "cues": [
+        "",
+        "조문의 시선"
+      ]
+    },
+    {
+      "type": "source",
+      "headline": "2027년 예산안 —<br><b>미래대응기금</b> 신설",
+      "title": "2027년 예산안 및 2026~2030년 국가재정운용계획",
+      "by": "기획예산처 보도자료",
+      "date": "2026-09-01",
+      "note": "국무회의 의결 · 9월 3일 국회 제출",
+      "mark": "자료 출처",
+      "quote": "2027년 국세 584.4조 가운데 162.3조를 미래대응기금으로 — 국회 예산 밖의 새 곳간"
+    },
+    {
+      "type": "stats",
+      "illus": "vault",
+      "items": [
+        {
+          "v": 584.4,
+          "dec": 1,
+          "unit": "조",
+          "label": "2027년 국세 — 전년 추경 대비 +168.9조"
+        },
+        {
+          "v": 162.3,
+          "dec": 1,
+          "unit": "조",
+          "label": "미래대응기금 — 내국세에서 먼저 뗀다",
+          "tone": "red"
+        },
+        {
+          "v": 104.4,
+          "dec": 1,
+          "unit": "조",
+          "label": "여유자금 — 첫해 쓰지 않고 정부가 보관"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "illus": "key",
+      "heading": "조문이 말하는 것",
+      "step": 0.9,
+      "items": [
+        {
+          "text": "국회 확정 지출의 <b>30%</b>를 국회 없이 변경",
+          "state": "red",
+          "ref": "국가재정법 제70조 제3항"
+        },
+        {
+          "text": "세입 부족 보전 전출 — <b>한도 없음</b>, 국회에는 통보만",
+          "state": "red",
+          "ref": "개정안 제70조 제3항 제7호 (신설)"
+        },
+        {
+          "text": "운용심의회 위원장 = <b>기획예산처장관</b>",
+          "state": "red",
+          "ref": "미래대응기금법안 제15조"
+        }
+      ]
+    },
+    {
+      "type": "compare",
+      "illus": "scale",
+      "eyebrow": "Same money, two paths",
+      "title": "같은 돈, 갈라진 길",
+      "items": [
+        {
+          "label": "캐나다 앨버타 · 1976",
+          "text": "정부가 「필요한 곳에」<br><b>1987 적립 중단</b>"
+        },
+        {
+          "label": "노르웨이 · 1990",
+          "text": "인출은 의회 결의로만<br><b>2조 달러 · 25년 준칙</b>",
+          "hi": true
+        }
+      ],
+      "cues": [
+        "",
+        "노르웨이는"
+      ]
+    },
+    {
+      "type": "bars",
+      "illus": "map",
+      "heading": "교부세 −30.5조는 가난한 순서로 빠진다 (1차 추정)",
+      "max": 5.2,
+      "items": [
+        {
+          "label": "경북",
+          "v": 4.5,
+          "dec": 1,
+          "unit": "조",
+          "tone": "red",
+          "sub": "자체 지방세 5.4조의 87%"
+        },
+        {
+          "label": "전남",
+          "v": 3.8,
+          "dec": 1,
+          "unit": "조",
+          "tone": "red"
+        },
+        {
+          "label": "강원",
+          "v": 3.1,
+          "dec": 1,
+          "unit": "조",
+          "tone": "red",
+          "sub": "자체 지방세 3.2조의 98%"
+        },
+        {
+          "label": "서울",
+          "v": 0,
+          "unit": "",
+          "tone": "gold",
+          "sub": "불교부단체 — 0"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "illus": "building",
+      "heading": "이 해설편의 세 장",
+      "big": true,
+      "step": 0.9,
+      "items": [
+        {
+          "text": "여섯 건의 법안이 바꾸는 것",
+          "k": "1",
+          "ref": "기금법 · 국가재정법 · 교부세법 · 교부금법 · 특별회계법 2건"
+        },
+        {
+          "text": "돈은 어디서 빠지는가",
+          "k": "2",
+          "ref": "교부세 −30.5조 · 교부금 −32.5조 · 지역 배분"
+        },
+        {
+          "text": "세 나라는 무엇을 정부 밖에 두었는가",
+          "k": "3",
+          "ref": "노르웨이 · 캐나다 · 네덜란드"
+        }
+      ]
+    },
+    {
+      "type": "quote",
+      "illus": "ballot",
+      "lines": [
+        {
+          "text": "기금을 만들지 말자는 것이 아니다.",
+          "tone": ""
+        },
+        {
+          "text": "열쇠를 정부 재량에 두지 말자는 것이다.",
+          "tone": "gold"
+        },
+        {
+          "text": "다음 장 — 조문을 한 줄씩 읽는다",
+          "tone": "sm",
+          "type": true,
+          "dur": 1.4
+        }
+      ]
+    }
+  ]
+}

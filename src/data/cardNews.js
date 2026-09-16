@@ -20,6 +20,9 @@ export const CARD_NEWS_SERIES = [
             // 세 나라의 곳간편 — 노르웨이 GPFG·캐나다 CPP Investments·네덜란드 ABP(vs FES) 와 미래대응기금법안 대비. 현빈 낭독 13문장.
             // scripts/motion-scenes/three-funds-2026.json · scripts/news-scripts/three-funds-2026.json · 음성 scripts/audio/news-three/
             { kind: '제안편', label: '세 나라의 곳간 — 노르웨이·캐나다·네덜란드는 무엇을 정부 밖에 두었나 (현빈 낭독, 2분 33초)', src: '/cardnews/future-fund-key-2026/three-funds-news.mp4?v=20260915a', download: '제안편_세나라의곳간.mp4' },
+            // 16:9 해설편 본편 — 구법·신법 조문 대조 → 지역 배분 → 세 나라와 대안 → 헌법 제1조. 44화면 12분 54초. wide: 가로 영상(aspect-video, 그리드 전체 폭).
+            // scripts/motion-scenes/fund-explainer-2026.json · scripts/news-scripts/fund-explainer-2026.json · 렌더 --wide. 현재 무료 음성(InJoon) 시안, 현빈 녹음 후 교체 예정.
+            { kind: '해설편', label: '구법과 신법, 그리고 세 나라의 곳간 — 6법안 조문 대조 해설 (12분 54초)', src: '/cardnews/future-fund-key-2026/explainer.mp4?v=20260916a', download: '해설편_구법과신법.mp4', wide: true },
             // ⏸ 아래 두 편은 배경음악 확정 대기
             // { kind: '제안편', label: '반도체 세수, 어디로 가지? — 글로 읽는 2분 30초', src: '/cardnews/future-fund-key-2026/proposal-essay.mp4?v=20260915a', download: '제안편_어디로가지.mp4' },
             // { kind: '제안편', label: '반도체 세수, 어디로 가지? — 현빈 낭독판', src: '/cardnews/future-fund-key-2026/proposal-news.mp4?v=20260915a', download: '제안편_어디로가지_낭독.mp4' },

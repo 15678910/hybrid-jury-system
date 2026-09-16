@@ -9,7 +9,8 @@
   모든 움직임을 t(초)의 함수로 계산하므로 몇 번을 찍어도 같은 프레임이 나온다(결정적 렌더).
 
   spec = { title, series, segments:[{ t0, dur, gap, text, scene }], total }
-  scene.type: stats | bars | list | split | cards | arrows | quote
+  scene.type: stats | bars | list | split | cards | arrows | quote | lines | number | law (essay) | chapter | compare | source (wide)
+  spec.wide: 1920×1080 해설편. scene.illus = scale|key|vault|building|ballot|coins|split|map|catapult (왼쪽 선화)
 -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&display=swap">
 <style>
@@ -130,6 +131,112 @@ body.essay #stage{top:300px;height:1300px;left:80px;width:920px}
 .law .cite{font-size:34px;color:#8A93A3;margin-top:36px;padding-left:50px;font-weight:400}
 .law .note{font-size:52px;font-weight:900;color:#FF6B5B;margin-top:56px;padding-left:50px;opacity:0}
 
+
+/* ── wide 모드 (16:9 해설편): 1920×1080, 검정-보라 바탕, 주황 포인트, 왼쪽 선화 + 오른쪽 내용 ── */
+body.wide{--ac:#F0742E;--ink:#F4F2EA;--mute:#9A96A8;--panel:#1D1926;--line:#332C40;width:1920px;height:1080px;background:radial-gradient(1200px 700px at 30% 20%,#1B1626 0%,#120F1A 60%,#0D0B12 100%)}
+html.wide{width:1920px;height:1080px}
+body.wide #badge{left:60px;top:44px;height:56px;line-height:56px;font-size:30px;padding:0 18px;border-radius:10px;background:var(--ac);box-shadow:none}
+body.wide #dots{display:none}
+body.wide #series{left:60px;top:112px;width:1200px;font-size:26px;font-weight:700;color:var(--mute);letter-spacing:.02em}
+body.wide #stage{left:120px;top:190px;width:1680px;height:640px}
+body.wide #caption{left:0;top:auto;bottom:70px;width:1920px;min-height:0;text-align:center;font-size:40px;line-height:1.35}
+body.wide #caption span{opacity:.42}
+body.wide #caption .pill{display:inline-block;background:rgba(0,0,0,.62);border-radius:12px;padding:12px 34px;max-width:1560px}
+body.wide #foot{left:60px;top:auto;bottom:22px;width:900px;font-size:22px;color:#6b6678}
+#prog{display:none}
+body.wide #prog{display:block;position:absolute;left:0;bottom:0;height:6px;width:0;background:var(--ac)}
+body.wide .scene.has-illus{flex-direction:row;align-items:center;gap:90px}
+body.wide .scene.has-illus .illus{flex:0 0 520px;height:520px;display:flex;align-items:center;justify-content:center}
+body.wide .scene.has-illus .content{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;height:100%}
+body.wide .illus svg{width:520px;height:520px;overflow:visible}
+body.wide .illus path,body.wide .illus circle,body.wide .illus rect,body.wide .illus line,body.wide .illus ellipse,body.wide .illus polyline{fill:none;stroke:var(--ac);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+body.wide .illus .thin{stroke:#8f89a0;stroke-width:3.5}
+/* 기존 부품을 가로 화면 높이(640px)에 맞게 줄인다 */
+body.wide .hd{font-size:24px;color:var(--ac);margin-bottom:18px}
+body.wide .ref{font-size:24px;color:var(--mute)}
+body.wide .gold{color:var(--ac)}
+body.wide .stat{padding:16px 0;border-color:var(--line)}
+body.wide .stat .v{font-size:96px;min-width:330px}
+body.wide .stat .v small{font-size:44px}
+body.wide .stat .l{font-size:30px}
+body.wide .bar{margin-bottom:12px}
+body.wide .bar .lab{font-size:28px;margin-bottom:4px}
+body.wide .bar .lab .val{font-size:44px}
+body.wide .bar .trk{height:28px;background:#241f30}
+body.wide .bar.gold .fil{background:var(--ac)}body.wide .bar.gold .val{color:var(--ac)}
+body.wide .bar .sub{font-size:22px;margin-top:4px}
+body.wide .li{padding:14px 0;border-color:var(--line)}
+body.wide .li .k{flex-basis:48px;height:48px;font-size:26px;background:var(--ac);color:#120F1A}
+body.wide .li .tx{font-size:34px}
+body.wide .li.big .tx{font-size:40px}
+body.wide .box{background:var(--panel);border-color:var(--line);padding:24px 34px}
+body.wide .box .t{font-size:24px;color:var(--ac)}
+body.wide .box .n{font-size:44px}
+body.wide .box .d{font-size:28px}
+body.wide .arrow{height:70px;font-size:60px;color:var(--ac)}
+body.wide .split{flex-direction:row;gap:30px;align-items:center}
+body.wide .split .box{flex:1}
+body.wide .split .arrow{align-self:center}
+body.wide .cards{flex-direction:row;gap:26px;align-items:center}
+body.wide .card{flex:1;flex-direction:column;align-items:flex-start;gap:14px;background:var(--panel);border-color:var(--line);padding:30px 34px}
+body.wide .card .flag{flex:none;font-size:40px}
+body.wide .card.gold .flag{color:var(--ac)}body.wide .card.gold .tag{background:var(--ac);color:#120F1A}
+body.wide .card .d{font-size:28px}
+body.wide .quote{border-left-color:var(--ac);gap:26px}
+body.wide .quote .ln{font-size:56px}
+body.wide .quote .ln.sm{font-size:36px}
+body.wide .quote .ln.gold{color:var(--ac)}
+body.wide .law .q{font-size:46px;border-left-color:var(--ac)}
+body.wide .law .cite{font-size:28px}
+body.wide .law .note{font-size:44px}
+body.wide .en .v{font-size:200px}
+body.wide .arrows{gap:26px}
+body.wide .arow .lab{font-size:34px;margin-bottom:10px}
+body.wide .arow .cap{font-size:26px;margin-top:8px}
+body.wide .qmark{font-size:110px}
+body.wide .el .ln.xl{font-size:110px}
+body.wide .el .ln.l{font-size:76px}
+body.wide .el .ln.m{font-size:56px}
+body.wide .el .ln.gold{color:var(--ac)}
+body.wide .el .rule{background:var(--ac)}
+body.wide .law .q{font-size:50px;line-height:1.45}
+body.wide .law .note{font-size:52px;margin-top:40px}
+/* wide 전용 장면 */
+.eyebrow{font-size:24px;letter-spacing:.22em;color:var(--ac);font-weight:700;margin-bottom:18px;text-transform:uppercase}
+.ch{display:flex;flex-direction:column;justify-content:center;height:100%}
+.ch .title{font-size:76px;font-weight:900;line-height:1.18;color:var(--ink);letter-spacing:-1.5px}
+.ch .title b{color:var(--ac)}
+.ch .ul{width:0;height:6px;background:var(--ac);border-radius:3px;margin-top:26px}
+.ch .sub{font-size:32px;color:var(--mute);margin-top:30px;line-height:1.45;font-weight:400}
+.cmp{display:flex;flex-direction:column;justify-content:center;height:100%}
+.cmp .title{font-size:56px;font-weight:900;line-height:1.2;color:var(--ink);letter-spacing:-1px}
+.cmp .ul{width:0;height:5px;background:var(--ac);border-radius:3px;margin-top:18px;margin-bottom:34px}
+.cmp .row{display:flex;gap:26px}
+.cmp .cell{flex:1;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:26px 32px;position:relative}
+.cmp .cell .lab{font-size:24px;color:var(--mute);margin-bottom:10px;font-weight:400}
+.cmp .cell .tx{font-size:38px;font-weight:700;line-height:1.3;color:var(--ink)}
+.cmp .cell.hi{border-color:var(--ac);background:#211a1a;box-shadow:0 0 0 3px rgba(240,116,46,.35),0 10px 30px rgba(240,116,46,.18)}
+.cmp .cell.red.hi{border-color:var(--ac)}
+.cmp .cell.hi .lab{color:var(--ac)}
+.cmp .cell .tx b{color:var(--ac)}
+.cmp .cell.red{border-color:#8a2f28;background:#231717}
+.cmp .cell.red .lab{color:#FF6B5B}
+.cmp .cell.red .tx b{color:#FF6B5B}
+.cmp .eff{margin-top:26px;font-size:34px;font-weight:700;color:var(--ink);line-height:1.35;padding-left:22px;border-left:6px solid #FF6B5B}
+.cmp .eff b{color:#FF6B5B}
+.src{display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%}
+.src .frame{width:1180px;background:var(--panel);border:2px solid var(--line);border-radius:16px;overflow:hidden}
+.src .thumb{height:290px;background:linear-gradient(135deg,#2a2438,#171320);display:flex;align-items:center;justify-content:center;padding:40px 60px;text-align:center;position:relative}
+.src .thumb img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.src .thumb .big{font-size:48px;font-weight:900;line-height:1.2;color:var(--ink);letter-spacing:-1px;position:relative}
+.src .thumb .big b{color:var(--ac)}
+.src .thumb .mark{position:absolute;right:26px;bottom:22px;background:rgba(0,0,0,.7);color:#fff;font-size:26px;font-weight:700;border-radius:8px;padding:6px 14px}
+.src .meta{padding:18px 34px 22px}
+.src .meta .t{font-size:34px;font-weight:700;color:var(--ink);line-height:1.25}
+.src .meta .by{font-size:26px;color:var(--mute);margin-top:10px;font-weight:400}
+.src .meta .by b{color:var(--ink);font-weight:700}
+.src .q{width:1180px;font-family:'Noto Serif KR','NotoKR',serif;font-size:32px;line-height:1.45;color:var(--ink);border-left:8px solid var(--ac);padding:4px 0 4px 30px;margin-top:18px}
+
 /* quote */
 .quote{height:auto;display:flex;flex-direction:column;justify-content:center;gap:34px;border-left:12px solid #E5C566;padding-left:44px}
 .quote .ln{font-family:'Noto Serif KR','NotoKR',serif;font-size:66px;font-weight:900;line-height:1.28;color:#FFFDF6}
@@ -144,6 +251,7 @@ body.essay #stage{top:300px;height:1300px;left:80px;width:920px}
 <div id="stage"></div>
 <div id="caption"></div>
 <div id="foot">전체 카드·조문 원문 → <b>시민법정.kr/cardnews</b></div>
+<div id="prog"></div>
 
 <script>
 (() => {
@@ -158,6 +266,39 @@ body.essay #stage{top:300px;height:1300px;left:80px;width:920px}
   const fadeIn = (el, p, dy = 28) => { el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * dy}px)`; };
 
   let SPEC = null, scenes = [], captionWords = [];
+
+  // ── 선화(stroke) 일러스트: 경로가 그려지듯 나타난다. 주황 획 = 주제, 회색 획(.thin) = 보조 ──
+  const ICONS = {
+    scale: `<line class="thin" x1="60" y1="470" x2="460" y2="470"/><line x1="260" y1="120" x2="260" y2="470"/><line x1="90" y1="200" x2="430" y2="200"/>
+      <path d="M90 200 L40 330 H140 Z"/><path d="M430 200 L380 330 H480 Z"/><circle cx="260" cy="100" r="22"/>`,
+    key: `<circle cx="150" cy="260" r="90"/><circle cx="150" cy="260" r="34" class="thin"/><line x1="240" y1="260" x2="480" y2="260"/>
+      <line x1="400" y1="260" x2="400" y2="330"/><line x1="450" y1="260" x2="450" y2="310"/><path class="thin" d="M60 420 H440"/>`,
+    vault: `<rect x="70" y="70" width="380" height="380" rx="18"/><circle cx="260" cy="260" r="110"/><circle cx="260" cy="260" r="40"/>
+      <line x1="260" y1="150" x2="260" y2="190"/><line x1="260" y1="330" x2="260" y2="370"/><line x1="150" y1="260" x2="190" y2="260"/><line x1="330" y1="260" x2="370" y2="260"/>
+      <line class="thin" x1="110" y1="450" x2="110" y2="490"/><line class="thin" x1="410" y1="450" x2="410" y2="490"/>`,
+    building: `<line class="thin" x1="40" y1="470" x2="480" y2="470"/><rect x="90" y="200" width="340" height="270"/><path d="M60 200 L260 80 L460 200 Z"/>
+      <line x1="150" y1="240" x2="150" y2="440"/><line x1="223" y1="240" x2="223" y2="440"/><line x1="296" y1="240" x2="296" y2="440"/><line x1="370" y1="240" x2="370" y2="440"/>`,
+    ballot: `<rect x="90" y="220" width="340" height="230" rx="14"/><line class="thin" x1="90" y1="260" x2="430" y2="260"/><rect x="180" y="90" width="160" height="200" rx="8"/>
+      <polyline points="215,190 250,225 310,150"/><line class="thin" x1="200" y1="330" x2="320" y2="330"/><line class="thin" x1="200" y1="380" x2="280" y2="380"/>`,
+    coins: `<ellipse cx="200" cy="420" rx="150" ry="40"/><path d="M50 420 V360 A150 40 0 0 1 350 360 V420"/><path d="M50 360 V300 A150 40 0 0 1 350 300 V360"/>
+      <path class="thin" d="M50 300 V240 A150 40 0 0 1 350 240 V300"/><path d="M380 120 L470 120 L470 210"/><path d="M300 290 L470 120"/>`,
+    split: `<line x1="60" y1="260" x2="240" y2="260"/><path d="M240 260 C320 260 320 120 400 120 H470"/><path d="M240 260 C320 260 320 400 400 400 H470"/>
+      <polyline points="440,90 470,120 440,150"/><polyline class="thin" points="440,370 470,400 440,430"/><circle cx="60" cy="260" r="16"/>`,
+    map: `<path d="M120 90 C200 60 280 110 340 80 C400 50 440 120 430 200 C420 280 470 330 420 400 C370 470 280 420 220 460 C160 500 90 430 100 350 C110 270 60 200 120 90 Z"/>
+      <circle cx="250" cy="250" r="14"/><circle class="thin" cx="330" cy="330" r="10"/><circle class="thin" cx="180" cy="360" r="10"/><circle class="thin" cx="300" cy="150" r="10"/>`,
+    catapult: `<line class="thin" x1="40" y1="470" x2="480" y2="470"/><rect x="220" y="330" width="120" height="140"/><ellipse cx="110" cy="410" rx="45" ry="60"/>
+      <line x1="230" y1="470" x2="440" y2="120"/><circle cx="455" cy="95" r="30"/>`,
+  };
+  const illusSVG = (name) => `<svg viewBox="0 0 520 520" xmlns="http://www.w3.org/2000/svg">${ICONS[name] || ICONS.key}</svg>`;
+  const drawSVG = (svg, p) => {   // p: 0→1, 모든 획을 순서대로 그린다
+    const els = [...svg.querySelectorAll('path,line,circle,rect,ellipse,polyline')]; const n = els.length;
+    els.forEach((e, i) => {
+      let L = 600; try { L = e.getTotalLength ? e.getTotalLength() : 600; } catch (_) {}
+      const q = clamp(p * n - i * .7, 0, 1);   // 획이 조금씩 겹치며 이어 그려진다
+      e.style.strokeDasharray = L; e.style.strokeDashoffset = L * (1 - easeInOut(q));
+    });
+  };
+
 
   // ── 장면 빌더: DOM 을 만들고 update(u, dur) 를 돌려준다 ──
   const builders = {
@@ -241,6 +382,56 @@ body.essay #stage{top:300px;height:1300px;left:80px;width:920px}
       };
     },
 
+
+    // ── wide(해설편) 장면 ──
+    chapter(sc, root) {
+      const w = document.createElement('div'); w.className = 'ch'; root.appendChild(w);
+      w.innerHTML = `${sc.eyebrow ? `<div class="eyebrow item">${esc(sc.eyebrow)}</div>` : ''}<div class="title item">${rich(sc.title)}</div><div class="ul"></div>${sc.sub ? `<div class="sub item">${rich(sc.sub)}</div>` : ''}`;
+      const eb = w.querySelector('.eyebrow'), ti = w.querySelector('.title'), ul = w.querySelector('.ul'), sub = w.querySelector('.sub');
+      return (u) => {
+        if (eb) fadeIn(eb, easeOut(prog(u, .1, .5)), 12);
+        fadeIn(ti, easeOut(prog(u, .35, .6)), 24);
+        ul.style.width = (easeInOut(prog(u, .8, .6)) * 120) + 'px';
+        if (sub) fadeIn(sub, easeOut(prog(u, 1.3, .6)), 16);
+      };
+    },
+    compare(sc, root, seg) {
+      const w = document.createElement('div'); w.className = 'cmp'; root.appendChild(w);
+      w.innerHTML = `${sc.eyebrow ? `<div class="eyebrow item">${esc(sc.eyebrow)}</div>` : ''}<div class="title item">${rich(sc.title || '')}</div><div class="ul"></div>
+        <div class="row">${sc.items.map(it => `<div class="cell item ${it.tone || ''}"><div class="lab">${rich(it.label || '')}</div><div class="tx">${rich(it.text)}</div></div>`).join('')}</div>${sc.effect ? `<div class="eff item">${rich(sc.effect)}</div>` : ''}`;
+      const eb = w.querySelector('.eyebrow'), ti = w.querySelector('.title'), ul = w.querySelector('.ul'), cells = [...w.querySelectorAll('.cell')], eff = w.querySelector('.eff');
+      // 낭독 동기화: sc.cues[i] 가 낭독문에서 나오는 위치(글자 비율)에 i번 칸이 나타나고 강조 테두리가 옮겨 간다.
+      // cue 가 없으면 균등 분할. 낭독이 끝나면 hi:true 로 표시한 칸(없으면 마지막 칸)에 강조가 남는다.
+      const text = (seg && seg.text) || '', n = cells.length, cues = sc.cues || [];
+      const frac = cells.map((_, i) => {
+        const c = cues[i]; if (i === 0) return 0;
+        if (c && text) { const k = text.indexOf(c); if (k >= 0) return k / text.length; }
+        return i / n;
+      });
+      const finalHi = sc.items.some(it => it.hi) ? sc.items.map(it => !!it.hi) : sc.items.map((_, i) => i === n - 1);
+      const effCue = sc.effectCue && text ? text.indexOf(sc.effectCue) / text.length : -1;
+      return (u, d) => {
+        if (eb) fadeIn(eb, easeOut(prog(u, .1, .4)), 10);
+        fadeIn(ti, easeOut(prog(u, .3, .5)), 20); ul.style.width = (easeInOut(prog(u, .7, .5)) * 90) + 'px';
+        const speak = Math.max((d || 8) - ((seg && seg.gap) || 0) - .25, 1);
+        const starts = frac.map((f, i) => i === 0 ? 1.0 : Math.max(1.0 + i * .5, f * speak));
+        const done = u >= speak - .3;
+        cells.forEach((c, i) => {
+          fadeIn(c, easeOut(prog(u, starts[i], .55)), 30);
+          const cur = u >= starts[i] && (i === n - 1 || u < starts[i + 1]);
+          c.classList.toggle('hi', done ? finalHi[i] : cur);
+        });
+        if (eff) { const st = effCue >= 0 ? Math.max(effCue * speak, starts[n - 1] + .6) : starts[n - 1] + 1.0; fadeIn(eff, easeOut(prog(u, st, .6)), 18); }
+      };
+    },
+    source(sc, root) {
+      const w = document.createElement('div'); w.className = 'src'; root.appendChild(w);
+      w.innerHTML = `<div class="frame item"><div class="thumb">${sc.img ? `<img src="${esc(sc.img)}">` : ''}<div class="big">${rich(sc.headline || sc.title)}</div><span class="mark">${esc(sc.mark || '인용 출처')}</span></div>
+        <div class="meta"><div class="t">${rich(sc.title)}</div><div class="by"><b>${esc(sc.by || '')}</b>${sc.date ? ` · ${esc(sc.date)}` : ''}${sc.note ? ` · ${esc(sc.note)}` : ''}</div></div></div>${sc.quote ? `<div class="q item">${rich(sc.quote)}</div>` : ''}`;
+      const fr = w.querySelector('.frame'), q = w.querySelector('.q');
+      return (u) => { fadeIn(fr, easeOut(prog(u, .15, .6)), 30); if (q) fadeIn(q, easeOut(prog(u, 1.2, .6)), 18); };
+    },
+
     lines(sc, root) {
       const w = document.createElement('div'); w.className = 'el'; root.appendChild(w);
       const els = sc.lines.map((ln) => {
@@ -292,11 +483,20 @@ body.essay #stage{top:300px;height:1300px;left:80px;width:920px}
     document.getElementById('series').textContent = spec.series || '';
     const dots = document.getElementById('dots'); dots.innerHTML = spec.segments.map(() => '<i></i>').join('');
     const stage = document.getElementById('stage'); stage.innerHTML = '';
+    document.body.classList.toggle('wide', !!spec.wide); document.documentElement.classList.toggle('wide', !!spec.wide);
     spec.segments.forEach((seg) => {
       const root = document.createElement('div'); root.className = 'scene'; stage.appendChild(root);
       const sc = seg.scene || { type: 'quote', lines: [{ text: seg.text }] };
       const b = builders[sc.type] || builders.quote;
-      scenes.push({ root, update: b(sc, root) });
+      let host = root, ill = null;
+      if (spec.wide && sc.illus) {   // 왼쪽 선화 + 오른쪽 내용
+        root.classList.add('has-illus');
+        ill = document.createElement('div'); ill.className = 'illus'; ill.innerHTML = illusSVG(sc.illus); root.appendChild(ill);
+        host = document.createElement('div'); host.className = 'content'; root.appendChild(host);
+      }
+      const upd = b(sc, host, seg);
+      const svg = ill && ill.querySelector('svg');
+      scenes.push({ root, update: (u, d) => { if (svg) drawSVG(svg, prog(u, .1, Math.min(2.4, d * .45))); upd(u, d); } });
     });
     return true;
   };
@@ -314,11 +514,14 @@ body.essay #stage{top:300px;height:1300px;left:80px;width:920px}
       s.root.style.opacity = Math.min(inP, outP); s.root.style.transform = `translateY(${(1 - inP) * 24}px)`;
       s.update(u, seg.dur);
     });
+    if (SPEC.wide) document.getElementById('prog').style.width = (clamp(t / (SPEC.total || 1)) * 100) + '%';
     if (SPEC.essay) return;
     // 자막: 낭독 길이(dur - gap)에 맞춰 낱말이 켜진다
     const cap = document.getElementById('caption');
     if (cap.dataset.k !== String(k)) {
-      cap.dataset.k = String(k); cap.innerHTML = seg.text.split(' ').map(w => `<span>${esc(w)}</span>`).join(' ');
+      cap.dataset.k = String(k);
+      const html = seg.text.split(' ').map(w => `<span>${esc(w)}</span>`).join(' ');
+      cap.innerHTML = SPEC.wide ? `<div class="pill">${html}</div>` : html;
       captionWords = [...cap.querySelectorAll('span')];
     }
     const speak = Math.max(seg.dur - (seg.gap || 0) - .25, .5);

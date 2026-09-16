@@ -26,6 +26,8 @@ ap.add_argument('--gap', type=float, default=0.8)
 ap.add_argument('--fps', type=int, default=30)
 ap.add_argument('--out')
 ap.add_argument('--stills', help='초 단위 목록(예: 2,30,68). 영상 대신 정지 프레임 PNG 만 뽑는다(시안 확인용)')
+ap.add_argument('--reuse-frames', action='store_true', help='tmp 의 silent.mp4 를 다시 쓰고 음성·음악 믹스만 다시 한다(음악 교체 등)')
+ap.add_argument('--wide', action='store_true', help='16:9 해설편(1920×1080). 장면에 illus 를 주면 왼쪽 선화 + 오른쪽 내용')
 ap.add_argument('--essay', action='store_true', help='essay 화면(검은 배경·글자)에 낭독을 얹는다. 화면 시간 = 낭독 길이와 장면 노출 시간 중 큰 쪽')
 ap.add_argument('--silent', action='store_true', help='내레이션 없이 장면 JSON 의 dur(초)로 타임라인을 만든다(지식채널e풍 essay 모드). 음악만 깐다')
 A = ap.parse_args()
@@ -96,7 +98,8 @@ T = t
 print(f'총 길이 ≈ {T:.1f}s')
 
 render_spec = {'title': spec.get('title', 'AI 1분 개벽늬우스'), 'series': spec.get('series', ''),
-               'segments': timeline, 'total': round(T, 3), 'width': 1080, 'height': 1920, 'essay': bool(A.silent or A.essay)}
+               'segments': timeline, 'total': round(T, 3), 'width': 1920 if A.wide else 1080, 'height': 1080 if A.wide else 1920,
+               'essay': bool(A.silent or A.essay), 'wide': bool(A.wide)}
 spec_path = tmp / 'spec.json'
 spec_path.write_text(json.dumps(render_spec, ensure_ascii=False, indent=1), encoding='utf-8')
 
@@ -106,8 +109,11 @@ if A.stills:
     sys.exit(r.returncode)
 
 silent = tmp / 'silent.mp4'
-r = subprocess.run(node_cmd + ['--out', str(silent)], text=True, encoding='utf-8', errors='replace')
-if r.returncode != 0: sys.exit('프레임 렌더 실패')
+if A.reuse_frames and silent.exists():
+    print(f'프레임 재사용: {silent} (장면·타이밍이 바뀌지 않았을 때만)')
+else:
+    r = subprocess.run(node_cmd + ['--out', str(silent)], text=True, encoding='utf-8', errors='replace')
+    if r.returncode != 0: sys.exit('프레임 렌더 실패')
 
 # ── 음성 concat → mp3 ──
 if A.silent:
@@ -115,7 +121,7 @@ if A.silent:
     if not A.music: sys.exit('--silent 에는 --music 이 필요합니다')
     mp = Path(A.music) if Path(A.music).is_absolute() else ROOT / A.music
     vol = A.music_db if A.music_db != '-20dB' else '-12dB'  # 내레이션이 없으니 음악을 조금 키운다
-    run([FFMPEG, '-y', '-i', silent, '-i', mp, '-filter_complex',
+    run([FFMPEG, '-y', '-i', silent, '-stream_loop', '-1', '-i', mp, '-filter_complex',
          f"[1:a]atrim=0:{T:.3f},asetpts=PTS-STARTPTS,volume={vol},afade=t=in:st=0:d=1.5,afade=t=out:st={max(T-2.5,0):.2f}:d=2.5[aout]",
          '-map', '0:v', '-map', '[aout]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', '-shortest', out])
     print(f'완료: {out} (essay, ≈{T:.1f}s, 1080×1920)'); sys.exit(0)
@@ -130,7 +136,7 @@ args = [FFMPEG, '-y', '-i', silent, '-i', voicemp3]
 if A.music:
     mp = Path(A.music) if Path(A.music).is_absolute() else ROOT / A.music
     if not mp.exists(): sys.exit(f'음악 없음: {mp}')
-    args += ['-i', mp]
+    args += ['-stream_loop', '-1', '-i', mp]   # 음악이 영상보다 짧으면 반복
     if A.outro:
         # 낭독 끝(Tn)에서 1초 동안 music_db → outro_db 로 올리고 끝까지 유지. 페이드아웃은 종료카드에서.
         # volume 의 수식은 dB 가 아니라 선형 배율이다 → 10^(dB/20) 로 바꿔 넣는다
@@ -150,4 +156,4 @@ run(args)
 mb = out.stat().st_size / 1048576
 try: shown = out.relative_to(ROOT)
 except ValueError: shown = out
-print(f'완료: {shown} ({mb:.1f} MB, ≈{T:.1f}s, 1080×1920)')
+print(f'완료: {shown} ({mb:.1f} MB, ≈{T:.1f}s, {"1920×1080" if A.wide else "1080×1920"})')

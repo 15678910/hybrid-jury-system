@@ -227,18 +227,18 @@ function SeriesView({ series }) {
                                 </div>
                             )}
                             {(series.extra || []).map((x) => (
-                                <div key={x.src}>
+                                <div key={x.src} className={x.wide ? 'sm:col-span-2 lg:col-span-3' : ''}>
                                     <div className="flex items-center gap-2 mb-3">
                                         <span className="text-xs font-bold text-white bg-amber-600 rounded px-2 py-0.5">{x.kind}</span>
                                         <span className="text-sm font-medium text-gray-800">{x.label}</span>
                                     </div>
-                                    <div className="mx-auto w-full max-w-[360px] rounded-2xl overflow-hidden shadow-md border border-gray-200 bg-black">
+                                    <div className={`mx-auto w-full rounded-2xl overflow-hidden shadow-md border border-gray-200 bg-black ${x.wide ? 'max-w-[960px]' : 'max-w-[360px]'}`}>
                                         <video
                                             src={x.src}
                                             controls
                                             playsInline
                                             preload="metadata"
-                                            className="w-full block aspect-[9/16] bg-black"
+                                            className={`w-full block bg-black ${x.wide ? 'aspect-video' : 'aspect-[9/16]'}`}
                                             aria-label={`${series.short} ${x.kind} — ${x.label}`}
                                         />
                                     </div>

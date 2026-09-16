@@ -34,6 +34,12 @@ if not FFMPEG.exists():
 inp = Path(A.inp) if Path(A.inp).is_absolute() else ROOT / A.inp
 out = Path(A.out) if Path(A.out).is_absolute() else ROOT / A.out
 
+def dur_of(p):
+    import re
+    r = subprocess.run([str(FFMPEG), '-i', str(p)], capture_output=True, text=True, encoding='utf-8', errors='replace')
+    m = re.search(r'Duration: (\d+):(\d+):(\d+\.\d+)', r.stderr)
+    return int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3)) if m else 0.0
+
 def probe_wh(p):
     r = subprocess.run([str(FFMPEG), '-i', str(p)], capture_output=True, text=True, encoding='utf-8', errors='replace')
     import re
@@ -62,37 +68,60 @@ d = ImageDraw.Draw(img)
 def ctext(y, s, f, fill):
     w = d.textlength(s, font=f); d.text(((W - w) / 2, y), s, font=f, fill=fill)
 
-# 배지
-fb = title_font(int(W * 0.075))
-badge = 'AI 1분 개벽늬우스'; bw = d.textlength(badge, font=fb)
-d.rounded_rectangle(((W - bw) / 2 - 26, int(H * 0.10), (W + bw) / 2 + 26, int(H * 0.10) + fb.size + 26), 14, fill=RED)
-ctext(int(H * 0.10) + 12, badge, fb, INK)
-ctext(int(H * 0.185), '전체 카드 · 조문 원문 · 영상', font('notokr-700.ttf', int(W * 0.05)), MUTED)
+if W > H:
+    # ── 가로(16:9) 카드: 왼쪽 QR, 오른쪽 글 ──
+    S = H
+    qr = qrcode.QRCode(border=2, box_size=10, error_correction=qrcode.constants.ERROR_CORRECT_M)
+    qr.add_data(url_puny); qr.make(fit=True)
+    qimg = qr.make_image(fill_color=(20, 30, 45), back_color=(255, 255, 255)).convert('RGB')
+    qs = int(S * 0.52); qimg = qimg.resize((qs, qs), Image.NEAREST)
+    qx, qy = int(W * 0.14), (H - qs) // 2
+    d.rounded_rectangle((qx - 18, qy - 18, qx + qs + 18, qy + qs + 18), 20, fill=(255, 255, 255))
+    img.paste(qimg, (qx, qy))
+    tx = qx + qs + int(W * 0.06)
+    fb = title_font(int(S * 0.075)); badge = 'AI 1분 개벽늬우스'; bw = d.textlength(badge, font=fb)
+    by = int(H * 0.22)
+    d.rounded_rectangle((tx - 20, by, tx + bw + 20, by + fb.size + 22), 12, fill=RED)
+    d.text((tx, by + 10), badge, font=fb, fill=INK)
+    d.text((tx, int(H * 0.40)), '전체 카드 · 조문 원문 · 영상', font=font('notokr-700.ttf', int(S * 0.05)), fill=MUTED)
+    d.text((tx, int(H * 0.50)), '시민법정.kr', font=title_font(int(S * 0.10)), fill=INK)
+    d.text((tx, int(H * 0.64)), f'/cardnews/{A.slug}', font=font('notokr-400.ttf', int(S * 0.04)), fill=MUTED)
+    d.text((tx, int(H * 0.72)), '카메라로 스캔하세요 · 주권자사법개혁추진준비위원회', font=font('notokr-700.ttf', int(S * 0.034)), fill=MUTED)
+    tmp = Path(tempfile.mkdtemp(prefix='endcard-')); card = tmp / 'card.png'; img.save(card)
+else:
+  # 배지
+  fb = title_font(int(W * 0.075))
+  badge = 'AI 1분 개벽늬우스'; bw = d.textlength(badge, font=fb)
+  d.rounded_rectangle(((W - bw) / 2 - 26, int(H * 0.10), (W + bw) / 2 + 26, int(H * 0.10) + fb.size + 26), 14, fill=RED)
+  ctext(int(H * 0.10) + 12, badge, fb, INK)
+  ctext(int(H * 0.185), '전체 카드 · 조문 원문 · 영상', font('notokr-700.ttf', int(W * 0.05)), MUTED)
 
-# QR (punycode URL)
-qr = qrcode.QRCode(border=2, box_size=10, error_correction=qrcode.constants.ERROR_CORRECT_M)
-qr.add_data(url_puny); qr.make(fit=True)
-qimg = qr.make_image(fill_color=(20, 30, 45), back_color=(255, 255, 255)).convert('RGB')
-qs = int(W * 0.52); qimg = qimg.resize((qs, qs), Image.NEAREST)
-qx, qy = (W - qs) // 2, int(H * 0.30)
-d.rounded_rectangle((qx - 22, qy - 22, qx + qs + 22, qy + qs + 22), 24, fill=(255, 255, 255))
-img.paste(qimg, (qx, qy))
-ctext(qy + qs + 44, '카메라로 스캔하세요', font('notokr-700.ttf', int(W * 0.044)), MUTED)
+  # QR (punycode URL)
+  qr = qrcode.QRCode(border=2, box_size=10, error_correction=qrcode.constants.ERROR_CORRECT_M)
+  qr.add_data(url_puny); qr.make(fit=True)
+  qimg = qr.make_image(fill_color=(20, 30, 45), back_color=(255, 255, 255)).convert('RGB')
+  qs = int(W * 0.52); qimg = qimg.resize((qs, qs), Image.NEAREST)
+  qx, qy = (W - qs) // 2, int(H * 0.30)
+  d.rounded_rectangle((qx - 22, qy - 22, qx + qs + 22, qy + qs + 22), 24, fill=(255, 255, 255))
+  img.paste(qimg, (qx, qy))
+  ctext(qy + qs + 44, '카메라로 스캔하세요', font('notokr-700.ttf', int(W * 0.044)), MUTED)
 
-# 주소
-ctext(int(H * 0.78), '시민법정.kr', title_font(int(W * 0.085)), INK)
-ctext(int(H * 0.845), f'/cardnews/{A.slug}', font('notokr-400.ttf', int(W * 0.038)), MUTED)
-ctext(int(H * 0.90), '주권자사법개혁추진준비위원회', font('notokr-700.ttf', int(W * 0.036)), MUTED)
+  # 주소
+  ctext(int(H * 0.78), '시민법정.kr', title_font(int(W * 0.085)), INK)
+  ctext(int(H * 0.845), f'/cardnews/{A.slug}', font('notokr-400.ttf', int(W * 0.038)), MUTED)
+  ctext(int(H * 0.90), '주권자사법개혁추진준비위원회', font('notokr-700.ttf', int(W * 0.036)), MUTED)
 
-tmp = Path(tempfile.mkdtemp(prefix='endcard-'))
-card = tmp / 'card.png'; img.save(card)
+  tmp = Path(tempfile.mkdtemp(prefix='endcard-'))
+  card = tmp / 'card.png'; img.save(card)
 
 # ── 종료 클립(이미지 N초 + 음악 tail) ─────────────────────────────────
 endclip = tmp / 'end.mp4'
 args = [str(FFMPEG), '-y', '-loop', '1', '-t', str(A.seconds), '-i', str(card)]
 if A.music:
     mp = Path(A.music) if Path(A.music).is_absolute() else ROOT / A.music
-    args += ['-ss', f'{A.music_ss:.3f}', '-i', str(mp), '-map', '0:v', '-map', '1:a',
+    mdur = dur_of(mp); ss = (A.music_ss % mdur) if mdur > 0 else 0.0   # 본편이 음악을 반복 재생했으면 같은 위치에서 이어 튼다
+    if mdur - ss < A.seconds + 0.5: ss = 0.0
+    args += ['-ss', f'{ss:.3f}', '-i', str(mp), '-map', '0:v', '-map', '1:a',
              '-af', f'atrim=0:{A.seconds},asetpts=PTS-STARTPTS,volume={A.music_db},afade=t=out:st={max(A.seconds-1.5,0):.2f}:d=1.5']
 else:
     args += ['-f', 'lavfi', '-t', str(A.seconds), '-i', 'anullsrc=r=44100:cl=stereo', '-map', '0:v', '-map', '1:a']

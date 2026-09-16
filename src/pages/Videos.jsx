@@ -85,7 +85,7 @@ export default function Videos() {
         s.news && { key: `${s.slug}-news`, kind: 'AI 1분 개벽늬우스', title: `${s.short} — AI 1분 개벽늬우스`, src: s.news, slug: s.slug },
         s.motion && { key: `${s.slug}-motion`, kind: '모션', title: `${s.short} — AI 1분 개벽늬우스 · 모션 그래픽판`, src: s.motion, slug: s.slug },
         s.reel && { key: `${s.slug}-reel`, kind: '릴스', title: `${s.short} — 릴스`, src: s.reel, slug: s.slug },
-        ...(s.extra || []).map((x) => ({ key: `${s.slug}-${x.src}`, kind: x.kind, title: `${s.short} — ${x.kind} · ${x.label}`, src: x.src, slug: s.slug })),
+        ...(s.extra || []).map((x) => ({ key: `${s.slug}-${x.src}`, kind: x.kind, title: `${s.short} — ${x.kind} · ${x.label}`, src: x.src, slug: s.slug, wide: !!x.wide })),
     ].filter(Boolean));
 
     // 고른 숏츠를 바로 보내기.
@@ -376,14 +376,14 @@ export default function Videos() {
                                     )}
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                                         {cardShorts.map((sv) => (
-                                            <div key={sv.key} className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden">
+                                            <div key={sv.key} className={`bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden ${sv.wide ? 'col-span-2' : ''}`}>
                                                 <div className="relative bg-black">
                                                     <video
                                                         src={sv.src}
                                                         controls
                                                         playsInline
                                                         preload="metadata"
-                                                        className="w-full block aspect-[9/16] bg-black"
+                                                        className={`w-full block bg-black ${sv.wide ? 'aspect-video' : 'aspect-[9/16]'}`}
                                                         aria-label={sv.title}
                                                     />
                                                     {/* AI 뉴스는 영상 안에 「AI 1분 개벽늬우스」 배지가 있으므로 카드 밖에는 두지 않는다(중복 방지).
@@ -393,9 +393,9 @@ export default function Videos() {
                                                             릴스
                                                         </span>
                                                     )}
-                                                    {sv.kind === '제안편' && (
+                                                    {(sv.kind === '제안편' || sv.kind === '해설편') && (
                                                         <span className="absolute top-2 right-2 text-xs font-bold text-white px-2.5 py-1 rounded-full bg-amber-600">
-                                                            제안편
+                                                            {sv.kind}
                                                         </span>
                                                     )}
                                                     {sv.kind === '모션' && (
