@@ -9,7 +9,7 @@
   모든 움직임을 t(초)의 함수로 계산하므로 몇 번을 찍어도 같은 프레임이 나온다(결정적 렌더).
 
   spec = { title, series, segments:[{ t0, dur, gap, text, scene }], total }
-  scene.type: stats | bars | list | split | cards | arrows | quote | lines | number | law (essay) | chapter | compare | source (wide)
+  scene.type: stats | bars | list | split | cards | arrows | quote | lines | number | law (essay) | chapter | compare | source | diff (wide)
   spec.wide: 1920×1080 해설편. scene.illus = scale|key|vault|building|ballot|coins|split|map|catapult (왼쪽 선화)
 -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&display=swap">
@@ -142,6 +142,10 @@ body.wide #stage{left:120px;top:190px;width:1680px;height:640px}
 body.wide #caption{left:0;top:auto;bottom:70px;width:1920px;min-height:0;text-align:center;font-size:40px;line-height:1.35}
 body.wide #caption span{opacity:.42}
 body.wide #caption .pill{display:inline-block;background:rgba(0,0,0,.62);border-radius:12px;padding:12px 34px;max-width:1560px}
+body.wide #caption.long{font-size:34px}
+body.wide #caption.long .pill{max-width:1680px;padding:10px 28px}
+body.wide #caption.xlong{font-size:30px;line-height:1.3}
+body.wide #caption.xlong .pill{max-width:1760px;padding:8px 24px}
 body.wide #foot{left:60px;top:auto;bottom:22px;width:900px;font-size:22px;color:#6b6678}
 #prog{display:none}
 body.wide #prog{display:block;position:absolute;left:0;bottom:0;height:6px;width:0;background:var(--ac)}
@@ -236,6 +240,31 @@ body.wide .law .note{font-size:52px;margin-top:40px}
 .src .meta .by{font-size:26px;color:var(--mute);margin-top:10px;font-weight:400}
 .src .meta .by b{color:var(--ink);font-weight:700}
 .src .q{width:1180px;font-family:'Noto Serif KR','NotoKR',serif;font-size:32px;line-height:1.45;color:var(--ink);border-left:8px solid var(--ac);padding:4px 0 4px 30px;margin-top:18px}
+
+
+/* diff — 조문 신구대조 낭독: 현행 | 개정안 두 칸, 낭독을 따라 어절이 밝아지고 칸 테두리가 옮겨 간다. {-삭제-} {+신설+} 표기 */
+.dif{display:flex;flex-direction:column;justify-content:flex-start;height:100%;padding-top:6px}
+.dif>*{flex-shrink:0}
+.dif .row.dense .tx{font-size:25px;line-height:1.48}
+.dif .row.dense .col{padding:16px 22px}
+.dif .title{font-size:44px;font-weight:900;color:var(--ink);letter-spacing:-1px;line-height:1.2}
+.dif .title small{font-size:26px;color:var(--mute);font-weight:400;margin-left:14px}
+.dif .ul{width:0;height:5px;background:var(--ac);border-radius:3px;margin:14px 0 22px}
+.dif .row{display:flex;gap:24px;align-items:stretch}
+.dif .col{flex:1;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:20px 26px;position:relative;min-width:0}
+.dif .col .lab{font-size:22px;color:var(--mute);font-weight:700;letter-spacing:.08em;margin-bottom:10px}
+.dif .col.new .lab{color:var(--ac)}
+.dif .col .tx{font-family:'Noto Serif KR','NotoKR',serif;font-size:29px;line-height:1.55;color:var(--ink);word-break:keep-all}
+.dif .tx .w{opacity:.32}
+.dif .tx .w.on{opacity:1}
+.dif .tx .del{color:#FF6B5B;text-decoration:line-through;text-decoration-thickness:3px;text-decoration-color:#FF6B5B}
+.dif .tx .ins{color:var(--ac);font-weight:900;border-bottom:3px solid var(--ac)}
+.dif .col.on{border-color:var(--ac);box-shadow:0 0 0 3px rgba(240,116,46,.3),0 10px 30px rgba(240,116,46,.15)}
+.dif .col.none .tx{color:var(--mute);font-family:'NotoKR',sans-serif;font-size:26px}
+.dif .plain{margin-top:20px;display:flex;gap:16px;align-items:flex-start;font-size:33px;font-weight:700;color:var(--ink);line-height:1.35}
+.dif .plain .pill{flex:none;font-size:20px;font-weight:900;background:var(--ac);color:#120F1A;border-radius:8px;padding:4px 12px;margin-top:6px;letter-spacing:.06em}
+.dif .eff{margin-top:14px;font-size:30px;font-weight:700;color:var(--ink);line-height:1.35;padding-left:20px;border-left:6px solid #FF6B5B}
+.dif .eff b{color:#FF6B5B}
 
 /* quote */
 .quote{height:auto;display:flex;flex-direction:column;justify-content:center;gap:34px;border-left:12px solid #E5C566;padding-left:44px}
@@ -432,6 +461,44 @@ body.wide .law .note{font-size:52px;margin-top:40px}
       return (u) => { fadeIn(fr, easeOut(prog(u, .15, .6)), 30); if (q) fadeIn(q, easeOut(prog(u, 1.2, .6)), 18); };
     },
 
+
+    diff(sc, root, seg) {
+      const w = document.createElement('div'); w.className = 'dif'; root.appendChild(w);
+      // 원문 마크업: {-삭제-} {+신설+}. 어절마다 span.w 로 감싸 낭독을 따라 밝힌다.
+      const mark = (t) => esc(t).replace(/\{-(.+?)-\}/g, '<s class="del">$1</s>').replace(/\{\+(.+?)\+\}/g, '<b class="ins">$1</b>');
+      const words = (t) => {
+        // 태그 안에서는 쪼개지 않도록 토큰 단위로 처리
+        const toks = t.match(/\{-.+?-\}|\{\+.+?\+\}|[^\s{]+|\s+/g) || [];
+        return toks.map(k => /^\s+$/.test(k) ? ' ' : `<span class="w">${mark(k)}</span>`).join('');
+      };
+      const hasOld = !!sc.old;
+      w.innerHTML = `<div class="title item">${rich(sc.title || '')}${sc.sub ? `<small>${esc(sc.sub)}</small>` : ''}</div><div class="ul"></div>
+        <div class="row ${(String(sc.new || '').length > 150 || String(sc.old || '').length > 150) ? 'dense' : ''}">${hasOld ? `<div class="col old item"><div class="lab">현행</div><div class="tx">${words(sc.old)}</div></div>` : `<div class="col old none item"><div class="lab">현행</div><div class="tx">${esc(sc.oldNote || '해당 조문 없음 — 제정안')}</div></div>`}
+        <div class="col new item"><div class="lab">${esc(sc.newLabel || '개정안')}</div><div class="tx">${words(sc.new)}</div></div></div>
+        ${sc.plain ? `<div class="plain item"><span class="pill">쉬운 말로</span><div>${rich(sc.plain)}</div></div>` : ''}
+        ${sc.effect ? `<div class="eff item">${rich(sc.effect)}</div>` : ''}`;
+      const ti = w.querySelector('.title'), ul = w.querySelector('.ul'), oc = w.querySelector('.col.old'), nc = w.querySelector('.col.new');
+      const ow = [...oc.querySelectorAll('.w')], nw = [...nc.querySelectorAll('.w')];
+      const pl = w.querySelector('.plain'), ef = w.querySelector('.eff');
+      const text = (seg && seg.text) || '';
+      const at = (cue, fallback) => { if (cue && text) { const k = text.indexOf(cue); if (k >= 0) return k / text.length; } return fallback; };
+      const c = sc.cues || {};
+      const fOld = hasOld ? at(c.old, .08) : 0, fNew = at(c.new, hasOld ? .42 : .08), fPl = at(c.plain, .78), fEf = at(c.effect, .9);
+      return (u, d) => {
+        fadeIn(ti, easeOut(prog(u, .1, .5)), 16); ul.style.width = (easeInOut(prog(u, .5, .5)) * 90) + 'px';
+        const speak = Math.max((d || 10) - ((seg && seg.gap) || 0) - .25, 1);
+        const tOld = Math.max(.9, fOld * speak), tNew = Math.max(tOld + .6, fNew * speak), tPl = Math.max(tNew + .6, fPl * speak), tEf = Math.max(tPl + .5, fEf * speak);
+        fadeIn(oc, easeOut(prog(u, .7, .5)), 20); fadeIn(nc, easeOut(prog(u, hasOld ? tNew - .3 : .9, .5)), 20);
+        const inOld = u >= tOld && u < tNew, inNew = u >= tNew && u < tPl;
+        oc.classList.toggle('on', hasOld && inOld); nc.classList.toggle('on', inNew || (u >= tPl && !sc.plain && !sc.effect));
+        const light = (arr, p) => { const n = Math.ceil(clamp(p) * arr.length); arr.forEach((x, i) => x.classList.toggle('on', i < n)); };
+        light(ow, hasOld ? (u < tOld ? 0 : (u - tOld) / Math.max(tNew - tOld, .1)) : 1);
+        light(nw, u < tNew ? 0 : (u - tNew) / Math.max(tPl - tNew, .1));
+        if (pl) fadeIn(pl, easeOut(prog(u, tPl, .5)), 16);
+        if (ef) fadeIn(ef, easeOut(prog(u, tEf, .5)), 14);
+      };
+    },
+
     lines(sc, root) {
       const w = document.createElement('div'); w.className = 'el'; root.appendChild(w);
       const els = sc.lines.map((ln) => {
@@ -522,6 +589,7 @@ body.wide .law .note{font-size:52px;margin-top:40px}
       cap.dataset.k = String(k);
       const html = seg.text.split(' ').map(w => `<span>${esc(w)}</span>`).join(' ');
       cap.innerHTML = SPEC.wide ? `<div class="pill">${html}</div>` : html;
+      cap.classList.toggle('long', SPEC.wide && seg.text.length > 150 && seg.text.length <= 230); cap.classList.toggle('xlong', SPEC.wide && seg.text.length > 230);
       captionWords = [...cap.querySelectorAll('span')];
     }
     const speak = Math.max(seg.dur - (seg.gap || 0) - .25, .5);
