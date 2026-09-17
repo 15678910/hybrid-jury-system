@@ -1,5 +1,5 @@
 {
-  "_comment": "essay 모드(검은 화면·글자만·자막 없음) + 낭독. 노르웨이 정부연금기금법(2020.1.1 발효판 번역본) 조문을 금색 타이핑으로 놓고, 한국 법안을 빨간 note/lines 로 맞세운다. 렌더: python scripts/gen_motion_news.py --slug fund-constitution-e --essay --voice-dir scripts/audio/news-constitution --music public/music.mp3 --music-db=-14dB --outro 3 --outro-db -4. 장면 26 = news-scripts/fund-constitution-e.json.",
+  "_comment": "essay 모드(검은 화면·글자만·자막 없음) + 낭독. 노르웨이 정부연금기금법(2020.1.1 발효판 번역본) 조문을 금색 타이핑으로 놓고, 한국 법안을 빨간 note/lines 로 맞세운다. 렌더: python scripts/gen_motion_news.py --slug fund-constitution-e --essay --voice-dir scripts/audio/news-constitution --music public/music.mp3 --music-db=-14dB --outro 3 --outro-db -4. 장면 25 = news-scripts/fund-constitution-e.json.",
   "title": "AI 1분 개벽늬우스",
   "series": "",
   "scenes": [
@@ -94,7 +94,7 @@
       "step": 1.4,
       "lines": [
         {
-          "text": "한국 법안",
+          "text": "미래대응기금 설치 및 운용에 관한 법률안 (정부 제출) 제6조~제9조",
           "size": "s",
           "tone": "red"
         },
@@ -110,7 +110,12 @@
           "rule": true
         },
         {
-          "text": "국회가 확정한 계획의 30%는<br>국회 없이 바꾼다",
+          "text": "국가재정법 개정안 제70조 제3항",
+          "size": "s",
+          "tone": "red"
+        },
+        {
+          "text": "국회가 확정한 계획의 30%는<br>국회 동의 없이 정부가 마음대로 바꿀 수 있다",
           "size": "l",
           "tone": "red"
         }
@@ -130,7 +135,7 @@
       "step": 1.4,
       "lines": [
         {
-          "text": "한국 법안",
+          "text": "국가재정법 개정안 제17조 제2항 · 제53조 제2항 제3호",
           "size": "s",
           "tone": "red"
         },
@@ -146,7 +151,7 @@
           "rule": true
         },
         {
-          "text": "그래서 교부세·교부금 63조가<br>모수에서 빠진다",
+          "text": "지방교부세법 · 지방교육재정교부금법 개정안 —<br>그래서 교부세·교부금 63조가 모수에서 빠진다",
           "size": "l",
           "tone": "red"
         }
@@ -165,7 +170,7 @@
       "step": 1.6,
       "lines": [
         {
-          "text": "한국 법안",
+          "text": "2027년도 예산안 · 미래대응기금운용계획안 (기획예산처)",
           "size": "s",
           "tone": "red"
         },
@@ -189,17 +194,10 @@
     },
     {
       "type": "law",
-      "dur": 9.0,
-      "text": "국왕과 각료회의가 기금을 재원으로 쓸 수 있는 것은 … <b>의회의 동의를 얻기에 시간이 부족한 경우</b>에 한한다.",
-      "cite": "노르웨이 정부연금기금법 제7조 제3항",
-      "typeDur": 3.2
-    },
-    {
-      "type": "law",
       "dur": 10.0,
       "text": "일반회계 예산의 세입 부족을 보전하기 위한 미래대응기금의 일반회계로의 전출금",
-      "cite": "한국 · 국가재정법 개정안 제70조 제3항 제7호 (신설)",
-      "note": "「시간 부족」 요건 없음 · 한도 없음<br>정부가 세입이 모자란다고 판단하면 된다",
+      "cite": "국가재정법 개정안 제70조 제3항 제7호 (신설)",
+      "note": "한도 없음 — 정부가 세입이 모자란다고 하면<br>마음대로 쓸 수 있다",
       "typeDur": 3.0
     },
     {
@@ -215,7 +213,7 @@
       "step": 1.4,
       "lines": [
         {
-          "text": "한국 법안 제13조",
+          "text": "미래대응기금 설치 및 운용에 관한 법률안 제13조",
           "size": "s",
           "tone": "red"
         },
@@ -254,7 +252,7 @@
       "step": 1.4,
       "lines": [
         {
-          "text": "한국 법안 제15조",
+          "text": "미래대응기금 설치 및 운용에 관한 법률안 제15조",
           "size": "s",
           "tone": "red"
         },
@@ -289,7 +287,7 @@
       "step": 1.6,
       "lines": [
         {
-          "text": "한국 법안",
+          "text": "지방교육재정교부금법 개정안 제3조 제2항",
           "size": "s",
           "tone": "red"
         },
@@ -446,7 +444,7 @@
           "size": "l"
         },
         {
-          "text": "국회 — 스스로 통과시킨 법 · 국민 — 자기관련성",
+          "text": "통과되고 나면 — 국회는 스스로 넘긴 권한 · 국민은 자기관련성",
           "size": "s",
           "tone": "dim"
         },
@@ -459,7 +457,7 @@
           "rule": true
         },
         {
-          "text": "남는 길은 하나 — 법이 국회를 지나는 지금",
+          "text": "남는 길은 하나 — 법안이 국회를 지나는 지금",
           "size": "m"
         },
         {
