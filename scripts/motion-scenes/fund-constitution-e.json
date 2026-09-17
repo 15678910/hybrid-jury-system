@@ -8,7 +8,8 @@
       "dur": 6.0,
       "text": "국회는 국가의 예산안을 심의·확정한다.",
       "cite": "헌법 제54조 제1항",
-      "typeDur": 2.4
+      "typeDur": 2.4,
+      "citeFirst": true
     },
     {
       "type": "lines",
@@ -472,7 +473,8 @@
       "dur": 7.0,
       "text": "대한민국의 주권은 국민에게 있고, 모든 권력은 국민으로부터 나온다.",
       "cite": "헌법 제1조 제2항",
-      "typeDur": 3.0
+      "typeDur": 3.0,
+      "citeFirst": true
     },
     {
       "type": "lines",

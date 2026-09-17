@@ -129,6 +129,7 @@ body.essay #stage{top:300px;height:1300px;left:80px;width:920px}
 .law .q{font-family:'Noto Serif KR','NotoKR',serif;font-size:56px;font-weight:700;line-height:1.5;color:#F4F2EA;border-left:10px solid #E5C566;padding:10px 0 10px 40px;letter-spacing:-.5px;min-height:1.5em}
 .law .q b{color:#FF6B5B;font-weight:900}
 .law .cite{font-size:34px;color:#8A93A3;margin-top:36px;padding-left:50px;font-weight:400}
+.law .cite.first{margin-top:0;margin-bottom:28px;color:#E5C566;font-weight:700;font-size:38px}
 .law .note{font-size:52px;font-weight:900;color:#FF6B5B;margin-top:56px;padding-left:50px;opacity:0}
 
 
@@ -521,13 +522,16 @@ body.wide .law .note{font-size:52px;margin-top:40px}
     },
     law(sc, root) {
       const w = document.createElement('div'); w.className = 'law'; root.appendChild(w);
-      w.innerHTML = `<div class="q item"></div><div class="cite item">${rich(sc.cite || '')}</div>${sc.note ? `<div class="note">${rich(sc.note)}</div>` : ''}`;
+      const cf = !!sc.citeFirst;   // 조문 번호(cite)를 인용문 위에 먼저 띄운다 — 「헌법 제54조 제1항. 국회는 …」 낭독 순서와 맞춤
+      w.innerHTML = cf
+        ? `<div class="cite item first">${rich(sc.cite || '')}</div><div class="q item"></div>${sc.note ? `<div class="note">${rich(sc.note)}</div>` : ''}`
+        : `<div class="q item"></div><div class="cite item">${rich(sc.cite || '')}</div>${sc.note ? `<div class="note">${rich(sc.note)}</div>` : ''}`;
       const q = w.querySelector('.q'), cite = w.querySelector('.cite'), note = w.querySelector('.note');
-      const full = sc.text; const tdur = sc.typeDur || Math.min(3.2, .06 * full.length);
+      const full = sc.text; const tdur = sc.typeDur || Math.min(3.2, .06 * full.length); const t0 = cf ? 1.4 : .2;
       return (u) => {
-        const n = Math.floor(prog(u, .2, tdur) * full.length);
+        const n = Math.floor(prog(u, t0, tdur) * full.length);
         q.innerHTML = rich(full.slice(0, n)) + (n < full.length ? '<span style="color:#E5C566">|</span>' : ''); q.style.opacity = 1;
-        cite.style.opacity = prog(u, .2 + tdur + .2, .5);
+        cite.style.opacity = cf ? prog(u, .15, .5) : prog(u, .2 + tdur + .2, .5);
         if (note) { const p = easeOut(prog(u, .2 + tdur + 1.0, .5)); note.style.opacity = p; note.style.transform = `translateY(${(1 - p) * 14}px)`; }
       };
     },

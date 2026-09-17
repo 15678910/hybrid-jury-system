@@ -30,7 +30,7 @@ export const CARD_NEWS_SERIES = [
             { kind: '해설편 3', label: '조문 낭독편 부록 — 나머지 13조문 (9분 2초)', src: '/cardnews/future-fund-key-2026/articles-appendix.mp4?v=20260917a', download: '해설편3_조문낭독_부록.mp4', wide: true },
             // 헌법편 — essay 모드(검은 화면·글자만·자막 없음). 노르웨이 정부연금기금법 조문 vs 한국 법안 여섯 쌍 → 헌법 제54조·제1조. 26화면 6분 38초. 무료 음성 시안, 현빈 녹음 후 교체.
             // scripts/motion-scenes/fund-constitution-e.json · scripts/news-scripts/fund-constitution-e.json · 렌더 --essay
-            { kind: '헌법편', label: '국회는 심의·확정한다 — 노르웨이 법 vs 한국 법안, 그리고 헌법 제1조 (6분 50초)', src: '/cardnews/future-fund-key-2026/constitution-essay.mp4?v=20260917b', download: '헌법편_노르웨이법vs한국법안.mp4' },
+            { kind: '헌법편', label: '국회는 심의·확정한다 — 노르웨이 법 vs 한국 법안, 그리고 헌법 제1조 (6분 53초)', src: '/cardnews/future-fund-key-2026/constitution-essay.mp4?v=20260917c', download: '헌법편_노르웨이법vs한국법안.mp4' },
             // ⏸ 아래 두 편은 배경음악 확정 대기
             // { kind: '제안편', label: '반도체 세수, 어디로 가지? — 글로 읽는 2분 30초', src: '/cardnews/future-fund-key-2026/proposal-essay.mp4?v=20260915a', download: '제안편_어디로가지.mp4' },
             // { kind: '제안편', label: '반도체 세수, 어디로 가지? — 현빈 낭독판', src: '/cardnews/future-fund-key-2026/proposal-news.mp4?v=20260915a', download: '제안편_어디로가지_낭독.mp4' },
