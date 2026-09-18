@@ -235,6 +235,7 @@ function SeriesView({ series }) {
                                     <div className={`mx-auto w-full rounded-2xl overflow-hidden shadow-md border border-gray-200 bg-black ${x.wide ? 'max-w-[960px]' : 'max-w-[360px]'}`}>
                                         <video
                                             src={x.src}
+                                            poster={x.poster}
                                             controls
                                             playsInline
                                             preload="metadata"

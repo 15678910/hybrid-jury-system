@@ -85,7 +85,7 @@ export default function Videos() {
         s.news && { key: `${s.slug}-news`, kind: 'AI 1분 개벽늬우스', title: `${s.short} — AI 1분 개벽늬우스`, src: s.news, slug: s.slug },
         s.motion && { key: `${s.slug}-motion`, kind: '모션', title: `${s.short} — AI 1분 개벽늬우스 · 모션 그래픽판`, src: s.motion, slug: s.slug },
         s.reel && { key: `${s.slug}-reel`, kind: '릴스', title: `${s.short} — 릴스`, src: s.reel, slug: s.slug },
-        ...(s.extra || []).map((x) => ({ key: `${s.slug}-${x.src}`, kind: x.kind, title: `${s.short} — ${x.kind} · ${x.label}`, src: x.src, slug: s.slug, wide: !!x.wide })),
+        ...(s.extra || []).map((x) => ({ key: `${s.slug}-${x.src}`, kind: x.kind, title: `${s.short} — ${x.kind} · ${x.label}`, src: x.src, poster: x.poster, slug: s.slug, wide: !!x.wide })),
     ].filter(Boolean));
 
     // 고른 숏츠를 바로 보내기.
@@ -380,6 +380,7 @@ export default function Videos() {
                                                 <div className="relative bg-black">
                                                     <video
                                                         src={sv.src}
+                                                        poster={sv.poster}
                                                         controls
                                                         playsInline
                                                         preload="metadata"
