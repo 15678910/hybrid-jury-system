@@ -91,34 +91,69 @@ export default function Videos() {
     // 고른 숏츠를 바로 보내기.
     //  · 모바일(파일 공유 지원): 영상 파일 자체를 네이티브 공유 시트로 → 카톡·인스타 등 앱에 바로 첨부.
     //  · 그 외: 해당 카드뉴스 페이지 링크를 네이티브 공유 또는 클립보드 복사.
+    //  ⚠️ navigator.share 는 사용자 제스처 안에서만 열린다. 10~20MB 영상을 fetch 한 뒤에 부르면 제스처가 만료돼
+    //     NotAllowedError 로 조용히 실패한다(2026-09-18 사건). 그래서 ① 링크 공유는 fetch 없이 즉시,
+    //     ② 파일 공유는 「준비(내려받기)」와 「보내기(새 클릭)」 두 단계로 나눈다.
     const [sendingKey, setSendingKey] = useState(null);
+    const [preparedFiles, setPreparedFiles] = useState({}); // key → File (내려받기 완료, 보낼 준비됨)
+    const fileShareSupported = () => {
+        try {
+            return !!(navigator.canShare && navigator.canShare({ files: [new File([''], 'x.mp4', { type: 'video/mp4' })] }));
+        } catch (e) { return false; }
+    };
     const sendShort = async (sv) => {
         const origin = window.location.origin.includes('localhost') ? 'https://xn--lg3b0kt4n41f.kr' : window.location.origin;
         const pageUrl = `${origin}/cardnews/${sv.slug}`;
         const text = `${sv.title} | 시민법정`;
+        const shareLink = async () => {
+            if (navigator.share) {
+                try { await navigator.share({ title: sv.title, text, url: pageUrl }); return; }
+                catch (e) { if (e && e.name === 'AbortError') return; }
+            }
+            try {
+                await navigator.clipboard.writeText(`${text}\n${pageUrl}`);
+                alert(`링크가 복사되었습니다:\n${pageUrl}\n\n영상 파일을 직접 보내려면 「저장」으로 내려받아 첨부하세요.`);
+            } catch (e) {
+                alert('공유에 실패했습니다.');
+            }
+        };
+        const shareFile = async (file) => {
+            try {
+                await navigator.share({ files: [file], title: sv.title, text: `${text}\n${pageUrl}` });
+                setPreparedFiles((m) => { const n = { ...m }; delete n[sv.key]; return n; });
+                return true;
+            } catch (e) {
+                if (e && e.name === 'AbortError') return true;      // 사용자가 닫음
+                return false;                                        // NotAllowedError(제스처 만료) 등
+            }
+        };
+
+        // 파일 공유가 안 되는 환경(PC 브라우저 등): 링크를 제스처 안에서 바로 공유
+        if (!fileShareSupported()) { await shareLink(); return; }
+
+        // 2단계: 이미 내려받아 둔 파일이 있으면 이 클릭(새 제스처)으로 보낸다
+        const ready = preparedFiles[sv.key];
+        if (ready) {
+            const ok = await shareFile(ready);
+            if (!ok) { alert('파일 공유가 열리지 않아 링크를 공유합니다.'); await shareLink(); }
+            return;
+        }
+
+        // 1단계: 내려받기 → 제스처가 아직 살아 있으면 바로 열리고, 만료됐으면 버튼이 「지금 보내기」로 바뀐다
         try {
             setSendingKey(sv.key);
             const abs = sv.src.startsWith('http') ? sv.src : `${window.location.origin}${sv.src}`;
             const res = await fetch(abs);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const blob = await res.blob();
-            const file = new File([blob], `${sv.title}.mp4`, { type: 'video/mp4' });
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({ files: [file], title: sv.title, text: `${text}\n${pageUrl}` });
-                return;
-            }
+            const safeName = `${(sv.title || 'video').replace(/[\\/:*?"<>|]/g, '_').slice(0, 80)}.mp4`;
+            const file = new File([blob], safeName, { type: 'video/mp4' });
+            setPreparedFiles((m) => ({ ...m, [sv.key]: file }));
+            await shareFile(file); // 실패해도 준비 상태는 남는다 → 사용자가 한 번 더 누르면 열린다
         } catch (e) {
-            // 파일 공유 미지원/취소 → 링크 공유로
+            alert('영상을 불러오지 못했습니다. 「저장」으로 내려받아 첨부해 주세요.');
         } finally {
             setSendingKey(null);
-        }
-        if (navigator.share) {
-            try { await navigator.share({ title: sv.title, text, url: pageUrl }); return; } catch (e) { /* 취소 */ return; }
-        }
-        try {
-            await navigator.clipboard.writeText(`${text}\n${pageUrl}`);
-            alert(`링크가 복사되었습니다:\n${pageUrl}\n\n영상 파일을 직접 보내려면 「영상 저장」으로 내려받아 첨부하세요.`);
-        } catch (e) {
-            alert('공유에 실패했습니다.');
         }
     };
 
@@ -413,7 +448,7 @@ export default function Videos() {
                                                             disabled={sendingKey === sv.key}
                                                             className="flex-1 text-xs font-bold px-2.5 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
                                                         >
-                                                            {sendingKey === sv.key ? '준비 중…' : '📤 이 숏츠 보내기'}
+                                                            {sendingKey === sv.key ? '준비 중… (영상 내려받는 중)' : preparedFiles[sv.key] ? '📤 지금 보내기 (준비됨)' : '📤 이 숏츠 보내기'}
                                                         </button>
                                                         <a
                                                             href={sv.src}
