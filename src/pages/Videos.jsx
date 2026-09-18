@@ -180,6 +180,48 @@ export default function Videos() {
         }
     };
 
+    // 숏츠 SNS 개별 공유 — 링크는 카드뉴스 페이지(OG 이미지·제목은 SSR 메타로 나온다). ⚠️ 영문 도메인 고정, X 는 twitter.com/intent/tweet
+    const shareShortTo = (sv, kind) => {
+        const site = 'https://xn--lg3b0kt4n41f.kr';
+        const url = `${site}/cardnews/${sv.slug}`;
+        const text = `${sv.title} | 시민법정`;
+        const copy = async (t) => { try { await navigator.clipboard.writeText(t); return true; } catch (e) { return false; } };
+        if (kind === 'kakao') {
+            if (kakaoReady && window.Kakao?.isInitialized()) {
+                const img = sv.poster
+                    ? { imageUrl: `${site}${sv.poster.split('?')[0]}`, imageWidth: 720, imageHeight: 1280 }
+                    : { imageUrl: `${site}/cardnews/${sv.slug}/1.png`, imageWidth: 1600, imageHeight: 1200 };
+                try {
+                    window.Kakao.Share.sendDefault({
+                        objectType: 'feed',
+                        content: { title: sv.title, description: 'AI 1분 개벽늬우스 — 시민법정.kr', ...img, link: { mobileWebUrl: url, webUrl: url } },
+                        buttons: [{ title: '영상 보기', link: { mobileWebUrl: url, webUrl: url } }],
+                    });
+                    return;
+                } catch (e) { /* 아래 폴백 */ }
+            }
+            copy(`${text}\n${url}`).then(() => alert('링크가 복사되었습니다.\n카카오톡에 붙여넣기 해주세요.'));
+            return;
+        }
+        if (kind === 'x') {
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${sv.title} #시민법정 #미래대응기금`)}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=500');
+            return;
+        }
+        if (kind === 'telegram') {
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(`${url}?t=${Date.now()}`)}&text=${encodeURIComponent(sv.title)}`, '_blank');
+            return;
+        }
+        if (kind === 'facebook') {
+            copy(`${text}\n${url}`).then(() => { alert('링크가 복사되었습니다.\n페이스북 글쓰기 창에 붙여넣기 해주세요.'); window.open('https://www.facebook.com/', '_blank'); });
+            return;
+        }
+        if (kind === 'instagram') {
+            copy(`${text}\n${url}`).then(() => { alert('설명 글이 복사되었습니다.\n영상은 「저장」으로 내려받아 인스타그램 앱에서 릴스로 올리고, 설명란에 붙여넣기 해주세요.'); window.open('https://www.instagram.com/', '_blank'); });
+            return;
+        }
+        copy(url).then((ok) => alert(ok ? `링크가 복사되었습니다:\n${url}` : '복사에 실패했습니다.'));
+    };
+
     // 공유된 동영상 모달로 표시
     useEffect(() => {
         if (sharedVideoId && !loading) {
@@ -480,6 +522,15 @@ export default function Videos() {
                                                         >
                                                             저장
                                                         </a>
+                                                    </div>
+                                                    {/* PC 에서는 Windows 공유창에 설치된 앱만 나오므로 SNS 는 따로 연다 */}
+                                                    <div className="mt-2 flex items-center gap-1.5">
+                                                        <button type="button" onClick={() => shareShortTo(sv, 'kakao')} title="카카오톡" aria-label="카카오톡" className="p-1.5 rounded-full bg-[#FEE500] text-[#191919] hover:opacity-90"><KakaoIcon className="w-4 h-4" /></button>
+                                                        <button type="button" onClick={() => shareShortTo(sv, 'x')} title="X" aria-label="X" className="p-1.5 rounded-full bg-black text-white hover:opacity-90"><XIcon className="w-4 h-4" /></button>
+                                                        <button type="button" onClick={() => shareShortTo(sv, 'telegram')} title="텔레그램" aria-label="텔레그램" className="p-1.5 rounded-full bg-[#229ED9] text-white hover:opacity-90"><TelegramIcon className="w-4 h-4" /></button>
+                                                        <button type="button" onClick={() => shareShortTo(sv, 'facebook')} title="페이스북(링크 복사)" aria-label="페이스북" className="p-1.5 rounded-full bg-[#1877F2] text-white hover:opacity-90"><FacebookIcon className="w-4 h-4" /></button>
+                                                        <button type="button" onClick={() => shareShortTo(sv, 'instagram')} title="인스타그램(저장 후 업로드)" aria-label="인스타그램" className="p-1.5 rounded-full bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white hover:opacity-90"><InstagramIcon className="w-4 h-4" /></button>
+                                                        <button type="button" onClick={() => shareShortTo(sv, 'link')} title="링크 복사" aria-label="링크 복사" className="p-1.5 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300"><LinkIcon className="w-4 h-4" /></button>
                                                     </div>
                                                     <Link to={`/cardnews/${sv.slug}`} className="mt-2 inline-block text-xs font-medium text-blue-600 hover:underline">
                                                         전체 카드·조문 보기 →
