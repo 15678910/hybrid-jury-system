@@ -128,8 +128,31 @@ export default function Videos() {
             }
         };
 
-        // 파일 공유가 안 되는 환경(PC 브라우저 등): 링크를 제스처 안에서 바로 공유
-        if (!fileShareSupported()) { await shareLink(); return; }
+        // 카카오톡으로 링크 공유(feed) — PC 에서도 카카오 웹 공유창이 열린다. 이미지는 시리즈 첫 카드(1600×1200) 또는 포스터.
+        const shareKakao = () => {
+            if (!(kakaoReady && window.Kakao?.isInitialized())) return false;
+            const site = 'https://xn--lg3b0kt4n41f.kr'; // ⚠️ 카카오 공유는 영문(퓨니코드) 도메인 고정
+            const link = `${site}/cardnews/${sv.slug}`;
+            const img = sv.poster
+                ? { imageUrl: `${site}${sv.poster.split('?')[0]}`, imageWidth: 720, imageHeight: 1280 }
+                : { imageUrl: `${site}/cardnews/${sv.slug}/1.png`, imageWidth: 1600, imageHeight: 1200 };
+            try {
+                window.Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: { title: sv.title, description: 'AI 1분 개벽늬우스 — 시민법정.kr', ...img, link: { mobileWebUrl: link, webUrl: link } },
+                    buttons: [{ title: '영상 보기', link: { mobileWebUrl: link, webUrl: link } }],
+                });
+                return true;
+            } catch (e) { return false; }
+        };
+
+        // 파일 공유가 안 되는 환경(PC 브라우저 등): 링크를 클립보드에 넣어 두고 카카오 공유창을 연다(모두 제스처 안에서)
+        if (!fileShareSupported()) {
+            try { await navigator.clipboard.writeText(`${text}\n${pageUrl}`); } catch (e) { /* 무시 */ }
+            if (shareKakao()) return;
+            await shareLink();
+            return;
+        }
 
         // 2단계: 이미 내려받아 둔 파일이 있으면 이 클릭(새 제스처)으로 보낸다
         const ready = preparedFiles[sv.key];
