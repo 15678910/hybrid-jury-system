@@ -394,7 +394,7 @@ export default function Videos() {
                                                             릴스
                                                         </span>
                                                     )}
-                                                    {(sv.kind === '제안편' || sv.kind === '헌법편' || sv.kind.startsWith('해설편')) && (
+                                                    {(sv.kind === '제안편' || sv.kind === '미래대응기금편' || sv.kind.startsWith('해설편')) && (
                                                         <span className="absolute top-2 right-2 text-xs font-bold text-white px-2.5 py-1 rounded-full bg-amber-600">
                                                             {sv.kind}
                                                         </span>
