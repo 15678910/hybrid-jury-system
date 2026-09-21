@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import SEOHead from './components/SEOHead';
 import Poster, { shouldShowPoster } from './Poster'
 import { Link, useNavigate } from 'react-router-dom'
-import { collection, getDocs, query, orderBy, writeBatch, doc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, writeBatch, doc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth, RecaptchaVerifier, signInWithPhoneNumber } from './lib/firebase';
 import ConsentCheckbox from './components/ConsentCheckbox';
 import LoginModal from './components/LoginModal';
@@ -526,6 +526,22 @@ export default function App() {
         }
     };
 
+    // 서명 절차 실패 진단 로그 (2026-09-21) — 사용자 화면의 alert 만으로는 어디서 막혔는지 알 수 없어 서버에 남긴다.
+    // 개인정보는 넣지 않는다(전화번호·이름 금지). 조회는 admin SDK: functions/read_signup_errors.cjs
+    const logSignupError = async (stage, error) => {
+        try {
+            const ua = navigator.userAgent || '';
+            await addDoc(collection(db, 'signup_errors'), {
+                stage,
+                code: String(error?.code || error?.name || 'unknown').slice(0, 80),
+                message: String(error?.message || error || '').slice(0, 300),
+                ua: ua.slice(0, 300),
+                inApp: /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\//i.test(ua),
+                createdAt: serverTimestamp(),
+            });
+        } catch (e) { /* 진단 로그 실패는 무시 */ }
+    };
+
     // SMS 인증 코드 발송
     const sendVerificationCode = async () => {
         // 하루 등록 한도 체크
@@ -562,6 +578,7 @@ export default function App() {
             alert('인증 코드가 발송되었습니다. SMS를 확인해주세요.');
         } catch (error) {
             console.error('SMS 발송 오류:', error);
+            logSignupError('sms_send', error);
             if (error.code === 'auth/too-many-requests') {
                 alert('너무 많은 요청이 있었습니다. 잠시 후 다시 시도해주세요.');
             } else if (error.code === 'auth/invalid-phone-number') {
@@ -591,6 +608,7 @@ export default function App() {
             alert('전화번호 인증이 완료되었습니다!');
         } catch (error) {
             console.error('인증 코드 확인 오류:', error);
+            logSignupError('sms_verify', error);
             if (error.code === 'auth/invalid-verification-code') {
                 alert('인증 코드가 올바르지 않습니다.');
             } else {
@@ -778,6 +796,7 @@ export default function App() {
             });
         } catch (error) {
             console.error('Error saving signature:', error);
+            logSignupError('save', error);
             alert('서명 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
         }
     };
@@ -2105,6 +2124,7 @@ export default function App() {
                                 {!isPhoneVerified && (
                                     <p className="mt-2 text-xs text-gray-500">
                                         * 인증번호는 <strong>xn--lg3b0kt4n41f.kr</strong> (시민법정.kr)에서 발송됩니다. 스팸이 아니니 안심하세요.
+                                        <br />* 문자가 오지 않으면: 휴대폰의 <strong>해외 발신 문자 차단</strong>을 잠시 끄고, 카카오톡 안이 아니라 <strong>크롬·사파리</strong>에서 다시 시도해 주세요.
                                     </p>
                                 )}
 

@@ -34,6 +34,18 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // signup_errors 컬렉션: 서명 절차 실패 진단 로그 (2026-09-21) — 개인정보 없음(단계·오류코드·브라우저·시각만)
+    // 쓰기: 누구나 생성 가능(필드 제한), 읽기: 불가(admin SDK 로만 조회)
+    match /signup_errors/{id} {
+      allow read: if false;
+      allow create: if request.resource.data.keys().hasOnly(['stage', 'code', 'message', 'ua', 'inApp', 'createdAt'])
+                    && request.resource.data.stage is string && request.resource.data.stage.size() <= 30
+                    && request.resource.data.code is string && request.resource.data.code.size() <= 80
+                    && request.resource.data.message is string && request.resource.data.message.size() <= 300
+                    && request.resource.data.ua is string && request.resource.data.ua.size() <= 300;
+      allow update, delete: if false;
+    }
+
     // signature_private 컬렉션: 서명자 개인정보(PII) — 비공개
     // C-1: phone/email/address 등은 여기에 저장하고 클라이언트 읽기를 완전 차단.
     // 관리자 조회/엑셀은 exportSignatures Function(admin SDK)으로만 가능.
