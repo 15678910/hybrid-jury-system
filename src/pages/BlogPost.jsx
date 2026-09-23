@@ -235,6 +235,12 @@ export default function BlogPost() {
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                             {post.title}
                         </h1>
+                        {/* 부제(선택 필드 subtitle): 제목 아래 작은 글씨. 2026-09-24 칼럼 「대법관 한 자리는 누구의 것인가」부터 사용 */}
+                        {post.subtitle && (
+                            <p className="text-lg md:text-xl text-gray-600 font-medium -mt-1 mb-4 leading-snug">
+                                {post.subtitle}
+                            </p>
+                        )}
                         <div className="flex items-center text-gray-500 text-sm">
                             <span>{post.author}</span>
                             <span className="mx-2">·</span>
