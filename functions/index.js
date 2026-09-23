@@ -3,6 +3,7 @@ const fetch = require('node-fetch');
 const admin = require('firebase-admin');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const iconv = require('iconv-lite');
+const { fetchLawtimesNews } = require('./lawtimesNews'); // 법률신문 RSS → 사법뉴스 첫 섹션 (2026-09-23)
 
 // Firebase Admin 초기화
 admin.initializeApp();
@@ -2123,8 +2124,9 @@ const summarizeNewsWithAI = async (newsItems) => {
         .replace(/\s+/g, ' ')
         .trim();
 
-    // 공식 보도자료(대법원 등)를 우선 정렬
-    const sorted = [...newsItems].sort((a, b) => (b.isOfficial ? 1 : 0) - (a.isOfficial ? 1 : 0));
+    // 공식 보도자료(대법원 등)·법률신문 제도 이슈를 우선 정렬
+    const rank = (n) => (n.isOfficial ? 2 : 0) + (n.isLawtimes ? 1 : 0);
+    const sorted = [...newsItems].sort((a, b) => rank(b) - rank(a));
 
     // 상위 3건에서 본문 첫 문장(없으면 제목)을 추출
     const parts = sorted.slice(0, 3).map(n => {
@@ -2180,6 +2182,18 @@ const collectAndPostNews = async (force = false) => {
 
     // 모든 키워드에 대해 뉴스 수집
     let allNews = [];
+
+    // [2026-09-23] 법률신문 RSS를 먼저 넣는다 — 검사 파견·법관 파견·정원·직제 같은 제도 이슈는 법조 전문지가 먼저 다루는데
+    //   구글뉴스 키워드 검색에서는 자주 빠졌다. 맨 앞에 넣어 글의 첫 섹션(「법률신문 · 사법제도 이슈」)이 되게 한다.
+    try {
+        const lawtimesNews = await fetchLawtimesNews({ hours: 24, maxItems: 12 });
+        if (lawtimesNews.length > 0) {
+            console.log(`Adding ${lawtimesNews.length} 법률신문 issue articles`);
+            allNews = allNews.concat(lawtimesNews);
+        }
+    } catch (error) {
+        console.error('법률신문 RSS fetch error:', error.message);
+    }
 
     for (const keyword of NEWS_KEYWORDS) {
         const news = await fetchNewsForKeyword(keyword);
