@@ -73,10 +73,10 @@ for raw in lines:
     if ln == '---':
         out.append('<hr style="margin:36px 0;border:0;border-top:1px solid #ddd">'); continue
     if ln.startswith('## '):
-        out.append('<p><br></p>')  # 소제목 앞 빈 줄: 스타일이 벗겨지는 화면(에디터·일부 앱)에서도 문단 구분이 보이게
-        out.append(f'<h2 style="margin:40px 0 14px;font-size:1.35em;font-weight:700;line-height:1.35;color:#1B2230;border-left:6px solid #C8271E;padding-left:12px">{inline(ln[3:])}</h2>'); continue
+        out.append('<p style="margin:0;height:6px;line-height:0"><br></p>')  # 소제목 앞 빈 줄: 스타일이 벗겨지는 화면(에디터·일부 앱)에서도 문단 구분이 보이게
+        out.append(f'<h2 style="margin:14px 0 10px;font-size:1.35em;font-weight:700;line-height:1.35;color:#1B2230;border-left:6px solid #C8271E;padding-left:12px">{inline(ln[3:])}</h2>'); continue
     if ln.startswith('### '):
-        out.append('<p><br></p>')
+        out.append('<p style="margin:0;height:6px;line-height:0"><br></p>')
         out.append(f'<p style="font-weight:700;margin-top:18px">{inline(ln[4:])}</p>'); continue
     if ln.startswith('*') and ln.endswith('*') and not ln.startswith('**'):
         out.append(f'<p style="font-weight:700;line-height:1.8">{inline(ln[1:-1])}</p>'); continue
@@ -84,8 +84,8 @@ for raw in lines:
 
 close_lists()
 flush_table()
-out.append('<p><br></p>')
-out.append('<p style="margin-top:28px;color:#5C6470;font-size:0.9em">주권자사법개혁추진준비위원회 · 시민법정.kr</p>')
+out.append('<p style="margin:0;height:6px;line-height:0"><br></p>')
+out.append('<p style="margin-top:10px;color:#5C6470;font-size:0.9em">주권자사법개혁추진준비위원회 · 시민법정.kr</p>')
 res = '\n'.join(out)
 for bad in ('확인할 것', '초안', '블로그 게시본', '원문 확인'):
     for L in res.split('\n'):
