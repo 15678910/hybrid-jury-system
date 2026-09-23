@@ -21,6 +21,12 @@ async function main() {
     content = content.replace('__IMAGE_URL__', post.imageUrl);
     if (content.includes('__IMAGE_URL__')) throw new Error('placeholder left');
     for (const bad of ['블로그 게시본', '원문 확인', '확인할 것']) if (content.includes(bad)) throw new Error('bad token: ' + bad);
+    // 덮어쓰기 전 기존 본문을 파일로 남긴다(관리자 화면에서 수정된 내용을 잃지 않도록, 2026-09-24 사건)
+    const bakDir = path.join(__dirname, '..', 'backups', 'post-content');
+    fs.mkdirSync(bakDir, { recursive: true });
+    const bak = path.join(bakDir, `${POST_ID}_${new Date().toISOString().replace(/[:.]/g, '-')}.html`);
+    fs.writeFileSync(bak, post.content, 'utf-8');
+    console.log('backup:', bak);
     console.log('before:', post.content.length, 'chars → after:', content.length, 'chars; title:', post.title);
     await ref.update({ content, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
     console.log('UPDATED', POST_ID, 'https://xn--lg3b0kt4n41f.kr/blog/' + POST_ID);
