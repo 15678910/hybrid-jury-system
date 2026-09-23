@@ -2124,8 +2124,8 @@ const summarizeNewsWithAI = async (newsItems) => {
         .replace(/\s+/g, ' ')
         .trim();
 
-    // 공식 보도자료(대법원 등)·법률신문 제도 이슈를 우선 정렬
-    const rank = (n) => (n.isOfficial ? 2 : 0) + (n.isLawtimes ? 1 : 0);
+    // 요약문 우선순위: 법률신문 제도 이슈 > 공식 보도자료(대법원 등) > 나머지 (2026-09-23 사용자 요청: 법률신문 중심)
+    const rank = (n) => (n.isLawtimes ? 2 : 0) + (n.isOfficial ? 1 : 0);
     const sorted = [...newsItems].sort((a, b) => rank(b) - rank(a));
 
     // 상위 3건에서 본문 첫 문장(없으면 제목)을 추출
@@ -2133,7 +2133,11 @@ const summarizeNewsWithAI = async (newsItems) => {
         const desc = clean(n.description);
         const title = clean(n.title);
         if (desc && desc.length > 10) {
-            const firstSentence = desc.split(/(?<=[.!?。])\s/)[0].trim();
+            // 첫 문장만. 법률신문 RSS 본문은 문장 사이 공백이 없어("…밝혔다.청와대 관계자는…") 공백 기준 분리가 실패하므로
+            // 한국어 종결어미+마침표 뒤에서 자르고, 그래도 길면 140자에서 끊는다. (2026-09-23)
+            const m = desc.match(/^[\s\S]*?(?:다|요|까|음|함)\.(?=\s|$|[가-힣“”"‘'(【\[])/);
+            let firstSentence = (m ? m[0] : desc.split(/(?<=[.!?。])\s/)[0]).trim();
+            if (firstSentence.length > 140) firstSentence = firstSentence.slice(0, 137).replace(/\s+\S*$/, '') + '…';
             return firstSentence.length > 5 ? firstSentence : title;
         }
         return title;
