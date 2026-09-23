@@ -1,0 +1,86 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:'NotoKR';src:url('file:///C:/Users/lacoi/Desktop/hybrid-jury-system/scripts/fonts/notokr-400.ttf');font-weight:400}
+@font-face{font-family:'NotoKR';src:url('file:///C:/Users/lacoi/Desktop/hybrid-jury-system/scripts/fonts/notokr-700.ttf');font-weight:700}
+@font-face{font-family:'NotoKR';src:url('file:///C:/Users/lacoi/Desktop/hybrid-jury-system/scripts/fonts/notokr-900.ttf');font-weight:900}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1200px;height:900px;overflow:hidden}
+body{background:#0E1726;font-family:'NotoKR',sans-serif;color:#F4F2EA;position:relative;word-break:keep-all}
+/* 모든 애니메이션은 일시정지 상태로 두고 window.seek(t) 로 프레임을 맞춘다 */
+*{animation-play-state:paused!important;animation-fill-mode:both!important}
+
+.eye{position:absolute;left:72px;top:40px;font-size:30px;font-weight:700;color:#E5C566;letter-spacing:.05em;
+  animation:fadeUp .6s ease-out 0s}
+.eye small{display:block;font-size:22px;color:#8A93A3;font-weight:400;letter-spacing:0;margin-top:8px}
+
+/* 서류 */
+.doc{position:absolute;left:340px;top:128px;width:520px;height:300px;background:#FFFDF6;border-radius:8px;color:#1B2230;
+  box-shadow:0 10px 0 #0a1220;animation:pop .6s cubic-bezier(.2,.9,.3,1.2) .3s}
+.doc .h{position:absolute;left:0;right:0;top:0;height:64px;background:#1B2230;color:#FFFDF6;font-size:28px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;letter-spacing:.2em;border-radius:8px 8px 0 0}
+.doc .l{position:absolute;left:44px;right:44px;height:8px;background:#D8D3C4;border-radius:4px}
+.doc .slot{position:absolute;left:150px;top:132px;width:220px;height:130px;border:4px dashed #B9B2A0;border-radius:8px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8A8270;font-size:26px;font-weight:700;letter-spacing:.3em}
+.doc .slot b{font-size:20px;letter-spacing:.05em;color:#B0483F;margin-top:10px;font-weight:700;animation:blink 1.2s steps(2,end) 1s infinite}
+
+/* 도장 둘 */
+.stamp{position:absolute;top:172px;width:210px;height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-weight:900;color:#FFFDF6;text-align:center}
+.stamp .name{position:absolute;bottom:-52px;font-size:24px;font-weight:700;color:#C9CFDA;letter-spacing:.05em;white-space:nowrap}
+.stamp .word{font-size:64px;line-height:1;letter-spacing:.1em}
+.stamp .sub{font-size:20px;margin-top:8px;font-weight:700;opacity:.9}
+.s1{left:70px;background:#C8271E;border-radius:50%;border:12px double #FFFDF6;
+  animation:slideL .8s cubic-bezier(.2,.9,.3,1.1) 1.2s, shakeL .9s ease-in-out 3.0s 2}
+.s2{right:70px;background:#1F5FBF;border-radius:14px;border:12px double #FFFDF6;
+  animation:slideR .8s cubic-bezier(.2,.9,.3,1.1) 2.0s, shakeR .9s ease-in-out 3.0s 2}
+
+/* 말풍선 */
+.bub{position:absolute;top:462px;padding:14px 24px;border-radius:14px;font-size:28px;font-weight:700;background:#FFFDF6;color:#1B2230;white-space:nowrap}
+.bub:after{content:'';position:absolute;top:-16px;border:10px solid transparent;border-bottom-color:#FFFDF6;border-top:0}
+.b1{left:72px;animation:fadeUp .4s ease-out 3.3s}
+.b1:after{left:60px}
+.b2{right:72px;animation:fadeUp .4s ease-out 3.9s}
+.b2:after{right:60px}
+.vs{position:absolute;left:0;right:0;top:474px;text-align:center;font-size:40px;font-weight:900;color:#FF6B5B;letter-spacing:.2em;animation:fadeUp .3s ease-out 4.3s}
+
+/* 제목 */
+.title{position:absolute;left:72px;right:72px;top:548px;font-size:78px;font-weight:900;line-height:1.12;letter-spacing:-2px;color:#FFFDF6;
+  animation:fadeUp .7s ease-out 4.9s}
+.title em{font-style:normal;color:#FF6B5B}
+.sub2{position:absolute;left:72px;right:72px;top:734px;font-size:32px;line-height:1.3;color:#E5C566;font-weight:700;animation:fadeUp .6s ease-out 5.8s}
+.cnt{position:absolute;left:72px;right:72px;top:788px;font-size:24px;white-space:nowrap;color:#C9CFDA;animation:fadeUp .6s ease-out 6.4s}
+.cnt b{color:#FFFDF6;font-weight:900;font-size:27px}
+.foot{position:absolute;left:72px;right:72px;bottom:22px;display:flex;justify-content:space-between;font-size:22px;color:#8A93A3}
+.foot b{color:#E5C566;font-weight:700}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes blink{50%{opacity:.25}}
+@keyframes slideL{from{opacity:0;transform:translateX(-360px) rotate(-30deg)}to{opacity:1;transform:translateX(0) rotate(-8deg)}}
+@keyframes slideR{from{opacity:0;transform:translateX(360px) rotate(30deg)}to{opacity:1;transform:translateX(0) rotate(8deg)}}
+@keyframes shakeL{0%,100%{transform:translateX(0) rotate(-8deg)}30%{transform:translateX(70px) rotate(-2deg)}45%{transform:translateX(56px) rotate(-12deg)}60%{transform:translateX(74px) rotate(-4deg)}}
+@keyframes shakeR{0%,100%{transform:translateX(0) rotate(8deg)}30%{transform:translateX(-70px) rotate(2deg)}45%{transform:translateX(-56px) rotate(12deg)}60%{transform:translateX(-74px) rotate(4deg)}}
+</style></head><body>
+<div class="eye">헌법 제104조 제2항 · 대법관 한 자리 공석 여섯 달<small>「대법관은 대법원장의 제청으로 국회의 동의를 얻어 대통령이 임명한다」</small></div>
+
+<div class="doc">
+  <div class="h">대 법 관 임 명</div>
+  <div class="l" style="top:84px"></div><div class="l" style="top:106px;width:300px"></div>
+  <div class="slot">공 석<b>2026.3 → 9</b></div>
+</div>
+
+<div class="stamp s1"><span class="word">제청</span><span class="sub">8.18 서면 제청</span><span class="name">대법원장</span></div>
+<div class="stamp s2"><span class="word">임명</span><span class="sub">8.28 재제청 요구</span><span class="name">대통령</span></div>
+
+<div class="bub b1">「헌법적 근거가 없다」</div>
+<div class="vs">VS</div>
+<div class="bub b2">「다시 제청하라」</div>
+
+<div class="title">대법관 한 자리는<br><em>누구의 것</em>인가</div>
+<div class="sub2">도장 두 개의 싸움과 5천만 명의 재판</div>
+<div class="cnt">대법관 1인 · 1년 <b>3,500 ~ 4,600건</b> — 두 도장이 다투는 동안 재판을 기다리는 사람은 국민이다</div>
+<div class="foot"><span><b>시민법정.kr</b> · 칼럼/논평</span><span>주권자사법개혁추진준비위원회</span></div>
+<script>
+window.seek = (t) => { document.getAnimations().forEach(a => { a.pause(); a.currentTime = t * 1000; }); return document.getAnimations().length; };
+</script>
+</body></html>
