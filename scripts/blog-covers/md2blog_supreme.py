@@ -84,6 +84,7 @@ for raw in lines:
 
 close_lists()
 flush_table()
+out.append('<p><br></p>')
 out.append('<p style="margin-top:28px;color:#5C6470;font-size:0.9em">주권자사법개혁추진준비위원회 · 시민법정.kr</p>')
 res = '\n'.join(out)
 for bad in ('확인할 것', '초안', '블로그 게시본', '원문 확인'):
