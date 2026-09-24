@@ -19,16 +19,16 @@ out.append('<figure style="margin:28px 0"><img src="__IMAGE_URL__" alt="대법�
 state = {'table': [], 'ol': False, 'ul': False}
 
 def flush_table():
+    # 관리자 편집기(Quill)는 <table> 을 지원하지 않아 저장 시 셀 글자가 한 줄로 붙는다(2026-09-24).
+    # 그래서 표를 나라별 문단으로 푼다: 굵은 나라 이름 + 「항목: 값」 줄. Quill 이 보존하는 p/strong/br 만 쓴다.
     rows = state['table']
     if not rows:
         return
     head, body = rows[0], rows[1:]
-    h = '<div style="overflow-x:auto;margin:22px 0"><table style="border-collapse:collapse;width:100%;font-size:0.92em;line-height:1.5">'
-    h += '<thead><tr>' + ''.join(f'<th style="background:#1B2230;color:#FFFDF6;padding:10px 12px;text-align:left;border:1px solid #333">{inline(c)}</th>' for c in head) + '</tr></thead><tbody>'
     for r in body:
-        h += '<tr>' + ''.join(f'<td style="padding:10px 12px;border:1px solid #ddd;vertical-align:top">{inline(c)}</td>' for c in r) + '</tr>'
-    h += '</tbody></table></div>'
-    out.append(h)
+        name = r[0]
+        items = '<br>'.join(f'<strong>{inline(head[k])}</strong> — {inline(r[k])}' for k in range(1, min(len(head), len(r))))
+        out.append(f'<p style="margin:10px 0 12px;padding:10px 14px;border-left:4px solid #1B2230;background:#F6F7F9;line-height:1.75"><strong style="font-size:1.05em">{inline(name)}</strong><br>{items}</p>')
     state['table'] = []
 
 def close_lists():
