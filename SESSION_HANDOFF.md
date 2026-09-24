@@ -6,6 +6,23 @@
 
 ---
 
+## 2026-09-24 — 텔레그램 봇 토큰 교체 (lprc 세션에서 겸해 처리)
+
+- **증상**: `collectReformNewsCron`(us-central1, GitHub 워크플로 `reform-news-cron.yml`이 매일 HTTP 호출)의 텔레그램 발송이
+  09-24 01:01 부터 `error_code: 401 Unauthorized`. 수집·Firestore 저장은 정상, 채널 게시만 멈춤.
+- **원인**: 다른 프로젝트(lprc) 작업 중 캡처에 노출된 봇 토큰을 BotFather 에서 폐기(Revoke)했는데, 같은 봇
+  `@siminbupjung_bot` 을 이 함수가 `functions/.env` 의 `TELEGRAM_BOT_TOKEN` 으로 쓰고 있었다.
+- **조치**: 새 토큰을 `functions/.env` 에 넣고(사용자 승인 후) `firebase deploy --only functions:collectReformNewsCron
+  --project siminbupjung-blog` → 수동 호출 7/7 성공, 로그 `Telegram response: ok: true`. 토큰은 `.env`(gitignore)에만 있고
+  `defineSecret`/`functions.config()` 미사용이라 **토큰 바꾸면 이 함수를 재배포해야 반영**된다.
+- **같은 봇을 lprc 노동뉴스 채널 `@labornews_lprc` 에도 관리자로 넣어 함께 쓴다.** 다음에 토큰을 또 폐기하면 두 곳(이 함수 + lprc
+  GitHub secret `TELEGRAM_BOT_TOKEN`)이 같이 죽는다 — 폐기 전에 확인.
+- 미처리(선택): 이 저장소 GitHub secret `TELEGRAM_BOT_TOKEN`(CI 실패 알림용)은 옛 토큰 그대로 → 갱신 권장.
+- ⚠️ 배포 경고: **Node.js 20 런타임 2026-10-30 폐지** 예고. 그 전에 `functions/package.json` engines 를 22로 올리고 재배포 필요.
+  로그에 Gemini 무료 등급 분당 5회 제한 재시도도 보임(결과엔 영향 없음).
+
+---
+
 ## 2026-07-06 세션 요약 (임시로 K-VOTE 세션에서 겸해 작업함)
 
 전부 **라이브 배포 + GitHub push 완료** (origin/main `f72d3d8`, 동기화·저장소 깨끗).
