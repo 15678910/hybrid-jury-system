@@ -232,11 +232,19 @@ export default function Blog() {
                                         {/* 이미지 영역 (이미지가 있는 경우만) */}
                                         {post.imageUrl && post.imageUrl !== 'https://siminbupjung-blog.web.app/og-image.jpg' && (
                                             <Link to={`/blog/${post.id}`} className="block">
-                                                <div className="overflow-hidden aspect-video bg-gray-100">
+                                                {/* 카드 크기는 16:9 로 통일(2026-06 균일화 결정 유지)하되, 표지는 잘리지 않게 전부 보여 준다(object-contain).
+                                                    4:3 표지는 아래 제목 띠가 잘리던 문제(2026-09-26) — 남는 좌우는 같은 그림을 흐리게 깔아 메운다. */}
+                                                <div className="relative overflow-hidden aspect-video bg-gray-100">
+                                                    <img
+                                                        src={post.imageUrl}
+                                                        alt=""
+                                                        aria-hidden="true"
+                                                        className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-60"
+                                                    />
                                                     <img
                                                         src={post.imageUrl}
                                                         alt={post.title}
-                                                        className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
+                                                        className="relative w-full h-full object-contain hover:scale-105 transition-transform duration-300"
                                                     />
                                                 </div>
                                             </Link>
@@ -245,7 +253,7 @@ export default function Blog() {
                                         {/* 콘텐츠 영역 */}
                                         <div className="p-5 flex flex-col flex-1">
                                             <Link to={`/blog/${post.id}`}>
-                                                <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 mb-2 line-clamp-2">
+                                                <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 mb-2 line-clamp-2 break-keep">
                                                     {post.title}
                                                 </h2>
                                             </Link>
