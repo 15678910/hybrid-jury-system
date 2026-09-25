@@ -71,14 +71,15 @@ for raw in lines:
         if state['ol']:
             out.append('</ol>'); state['ol'] = False
         if not state['ul']:
-            out.append('<ul style="margin:8px 0 8px 22px;color:#444;font-size:0.95em;line-height:1.7">'); state['ul'] = True
-        out.append(f'<li>{inline(ln[2:])}</li>')
+            out.append('<ul style="margin:8px 0 8px 20px;color:#555;font-size:0.85em;line-height:1.65">'); state['ul'] = True
+        out.append(f'<li style="margin:0 0 10px">{inline(ln[2:])}</li>')  # 자료 항목끼리 간격(항목별 구분)
         continue
     close_lists()
     if ln == '':
         continue
     if ln == '---':
-        out.append('<hr style="margin:36px 0;border:0;border-top:1px solid #ddd">'); continue
+        out.append('<p style="margin:0;height:4px;line-height:0"><br></p>')  # 편집기 저장으로 hr 이 사라져도 빈 줄로 마디 구분이 남게
+        out.append('<hr style="margin:28px auto;width:40%;border:0;border-top:1px solid #ccc">'); continue
     if ln.startswith('## '):
         out.append('<p style="margin:0;height:6px;line-height:0"><br></p>')  # 소제목 앞 빈 줄: 스타일이 벗겨지는 화면(에디터·일부 앱)에서도 문단 구분이 보이게
         out.append(f'<h2 style="margin:14px 0 10px;font-size:1.35em;font-weight:700;line-height:1.35;color:#1B2230;border-left:6px solid #C8271E;padding-left:12px">{inline(ln[3:])}</h2>'); continue
