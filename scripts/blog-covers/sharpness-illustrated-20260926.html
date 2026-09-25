@@ -1,0 +1,29 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<!-- 표지(정지 이미지): 「선명성이 문제인가, 대통령의 의지가 문제인가」 2026-09-26 교체판.
+     그림 sharpness-illustration-20260926.webp 는 사용자가 이미지 생성기로 만든 삽화(글자 없음). 제목·연도 표시만 이 HTML 에서 얹는다.
+     렌더: node render_still.mjs <이 파일> <out.png> -->
+<style>
+@font-face{font-family:'NotoKR';src:url('file:///C:/Users/lacoi/Desktop/hybrid-jury-system/scripts/fonts/notokr-400.ttf');font-weight:400}
+@font-face{font-family:'NotoKR';src:url('file:///C:/Users/lacoi/Desktop/hybrid-jury-system/scripts/fonts/notokr-700.ttf');font-weight:700}
+@font-face{font-family:'NotoKR';src:url('file:///C:/Users/lacoi/Desktop/hybrid-jury-system/scripts/fonts/notokr-900.ttf');font-weight:900}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1200px;height:896px;overflow:hidden}
+body{background:#1a1616 url('sharpness-illustration-20260926.webp') no-repeat 0 0/1200px 896px;font-family:'NotoKR',sans-serif;color:#FFFDF6;position:relative;word-break:keep-all}
+/* 그림과 아래 띠 사이를 부드럽게 잇는 그라데이션 */
+.fade{position:absolute;left:0;right:0;top:600px;height:70px;background:linear-gradient(to bottom,rgba(26,22,22,0),rgba(30,26,27,.92))}
+.tag{position:absolute;top:22px;padding:6px 16px;border-radius:8px;font-size:26px;font-weight:900;letter-spacing:.02em;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.t04{left:22px;background:rgba(122,28,20,.92);color:#FFE4DC}
+.t26{right:22px;background:rgba(28,44,70,.92);color:#DCE6F7}
+.tag small{font-size:18px;font-weight:700;margin-left:8px;opacity:.9}
+.title{position:absolute;left:56px;right:56px;top:668px;font-size:60px;font-weight:900;line-height:1.16;letter-spacing:-1.5px}
+.title em{font-style:normal;color:#FF6B5B}
+.brand{position:absolute;left:56px;right:56px;bottom:22px;display:flex;justify-content:space-between;align-items:baseline;font-size:20px;color:#A7AEBB}
+.brand b{color:#E5C566;font-weight:700}
+.brand .q{color:#E5C566;font-weight:700;font-size:22px}
+</style></head><body>
+<div class="fade"></div>
+<div class="tag t04">2004.12.31<small>열린우리당 의총</small></div>
+<div class="tag t26">2026.9<small>국회 본회의</small></div>
+<div class="title">선명성이 문제인가,<br><em>대통령의 의지</em>가 문제인가</div>
+<div class="brand"><span class="q">그날 밤 의총은 열리기라도 했다</span><span><b>시민법정.kr</b> · 주권자사법개혁추진준비위원회</span></div>
+</body></html>
