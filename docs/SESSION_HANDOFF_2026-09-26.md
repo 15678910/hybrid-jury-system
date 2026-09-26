@@ -65,3 +65,10 @@
 2. task_3dbf0cfa 결과 확인(끝나면 이 세션에 알림이 옴).
 3. 캐리커처판 표지 그림 대기(생성 문구 전달함) — 오면 제목을 위쪽에 얹는 배치로.
 4. 칼럼 「확인할 것」 5건, 9.24 인수인계 미결 항목.
+
+## 9. 대기 중인 수정 — 사용자 요청(9.26): 「PC 에서 인스타그램 버튼」
+- **증상**: PC(윈도우 Edge/Chrome)에서 블로그 글 아래 인스타그램 버튼을 누르면 윈도우 공유 창이 뜬다. 그 창엔 인스타그램이 없어 쓸모가 없다.
+- **원인**: `src/components/SNSShareBar.jsx` 의 `shareToInstagram`/`shareToTikTok` 이 먼저 `nativeShare()`(navigator.share)를 부르는데, 윈도우 데스크톱 브라우저도 navigator.share 를 지원해서 대체 동작(`copyAndOpen` — 문구 복사 + instagram.com 열기)까지 가지 않는다.
+- **고칠 방향**: 휴대폰·태블릿(터치 기기)에서만 nativeShare 를 쓰고, PC 에서는 바로 `copyAndOpen('https://www.instagram.com/', '인스타그램')`. 판별은 `matchMedia('(pointer: coarse)').matches` 또는 UA(Android|iPhone|iPad). 틱톡 버튼도 같은 문제라 함께.
+- **시점**: task_3dbf0cfa(Helmet 메타·og:image, SNSShareBar.getOgImage 를 건드릴 수 있음)가 끝난 뒤 — 충돌 방지. 끝나면 이 세션에 알림이 온다. 수정 → 빌드 → 로컬 확인 → **사용자 배포 승인** → `firebase deploy --only hosting`.
+- 사용자는 PC 에서 instagram.com 「만들기」로 피드 게시물을 올리기로 했다. 바탕화면에 `인스타_선명성이_문제인가.jpg`·`인스타_설명문구.txt` 를 준비해 둠(저장소 밖).
