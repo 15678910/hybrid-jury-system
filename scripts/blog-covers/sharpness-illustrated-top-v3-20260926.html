@@ -1,0 +1,36 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<!-- 표지(정지): 「선명성이 문제인가, 대통령의 의지가 문제인가」 2026-09-26 v3 — 사용자가 준 새 삽화(v2)로 교체, 제목은 위쪽 띠.
+     블로그 목록 카드는 16:9 칸에 4:3 표지를 object-cover object-top 으로 채워 아래 25%가 잘린다.
+     그래서 제목을 위쪽(0~220px)에 두고, 삽화(사용자가 이미지 생성기로 만든 그림, 글자 없음)는 그 아래에 깐다.
+     그림 원본 아래의 빈 어두운 띠(생성기 표식 포함)는 화면 밖으로 밀려나므로 오른쪽 아래에 「그림: AI 생성」을 밝혀 둔다.
+     렌더: node render_still.mjs <이 파일> <out.png> -->
+<style>
+@font-face{font-family:'NotoKR';src:url('file:///C:/Users/lacoi/Desktop/hybrid-jury-system/scripts/fonts/notokr-400.ttf');font-weight:400}
+@font-face{font-family:'NotoKR';src:url('file:///C:/Users/lacoi/Desktop/hybrid-jury-system/scripts/fonts/notokr-700.ttf');font-weight:700}
+@font-face{font-family:'NotoKR';src:url('file:///C:/Users/lacoi/Desktop/hybrid-jury-system/scripts/fonts/notokr-900.ttf');font-weight:900}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1200px;height:896px;overflow:hidden}
+body{background:#1b1719;font-family:'NotoKR',sans-serif;color:#FFFDF6;position:relative;word-break:keep-all}
+/* 삽화 v2: 원본 2000×1495 중 위 1080px 가 그림. 높이 676px(220~896)에 맞춰 0.626배 → 가로 1252, 좌우 26px 씩 잘림 */
+.art{position:absolute;left:0;top:220px;width:1200px;height:676px;background:url('sharpness-illustration-v2-20260926.webp') no-repeat -26px 0/1252px 936px}
+.shade{position:absolute;left:0;right:0;top:220px;height:36px;background:linear-gradient(to bottom,rgba(27,23,25,.85),rgba(27,23,25,0))}
+.eye{position:absolute;left:56px;top:26px;font-size:24px;font-weight:700;color:#E5C566;letter-spacing:.02em}
+.brand{position:absolute;right:56px;top:30px;font-size:19px;color:#A7AEBB}
+.brand b{color:#E5C566}
+.title{position:absolute;left:56px;right:56px;top:62px;font-size:62px;font-weight:900;line-height:1.14;letter-spacing:-1.5px}
+.title em{font-style:normal;color:#FF6B5B}
+.tag{position:absolute;top:238px;padding:5px 14px;border-radius:8px;font-size:23px;font-weight:900;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.t04{left:20px;background:rgba(122,28,20,.92);color:#FFE4DC}
+.t26{right:20px;background:rgba(28,44,70,.92);color:#DCE6F7}
+.tag small{font-size:16px;font-weight:700;margin-left:8px;opacity:.9}
+.credit{position:absolute;right:14px;bottom:10px;padding:3px 10px;border-radius:6px;background:rgba(0,0,0,.45);font-size:14px;color:#D9DDE4}
+</style></head><body>
+<div class="art"></div>
+<div class="shade"></div>
+<div class="eye">대통령의 국가보안법 비유에 부쳐</div>
+<div class="brand"><b>시민법정.kr</b> · 칼럼</div>
+<div class="title">선명성이 문제인가,<br><em>대통령의 의지</em>가 문제인가</div>
+<div class="tag t04">2004.12.31<small>열린우리당 의총</small></div>
+<div class="tag t26">2026.9<small>국회 본회의</small></div>
+<div class="credit">그림: AI 생성</div>
+</body></html>
