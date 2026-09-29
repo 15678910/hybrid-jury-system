@@ -1,5 +1,5 @@
 {
- "_comment": "essay 무낭독(--silent) — 검은 화면·글자만, 음악 베드. 대법관후보추천위원회(법원조직법 제41조의2, docs/bills/법원조직법_20261001시행.txt 원문)와 미래대응기금운용심의회(기금법안 2221052 제15조, fund-articles-2026 장면 13 = 신·구조문대비표 원문)를 금색 조문 타이핑으로 맞세운다. 제안 장면은 우리 기존 요구(「열쇠는 입법부가」 — 칼럼 2026-09-21·분석 9-3·제안편)와 맞춘다: 기금 계획 수립·변경·전출은 국회 의결. 카드뉴스 scripts/gen-cardnews-한사람의위원회.mjs 와 내용이 같다. 렌더: python scripts/gen_motion_news.py --slug one-person-committee-2026 --silent --music public/music.mp3 --music-db=-14dB",
+ "_comment": "essay 무낭독(--silent) — 검은 화면·글자만, 음악 베드. 대법관후보추천위원회(법원조직법 제41조의2, docs/bills/법원조직법_20261001시행.txt 원문)와 미래대응기금운용심의회(기금법안 2221052 제15조, fund-articles-2026 장면 13 = 신·구조문대비표 원문)를 금색 조문 타이핑으로 맞세운다. 제안 장면은 우리 기존 요구(「열쇠는 입법부가」 — 칼럼 2026-09-21·분석 9-3·제안편)와 맞춘다: 기금 계획 수립·변경·전출은 국회 의결. 카드뉴스 scripts/gen-cardnews-한사람의위원회.mjs 와 내용이 같다. 렌더: python scripts/gen_motion_news.py --slug one-person-committee-2026 --silent --music public/music.mp3 --music-db=-14dB 엔딩(2026-09-29 사용자 요청): 헌법 제1조 ①·②를 조문 타이핑으로 세운 뒤 「이 권력은 국민으로부터 나오는가?」를 묻고 「결정은 국민의 대표에게」 → 「헌법 제1조에 맞는가, 판단은 주권자의 몫」으로 맺는다(헌법_원문.txt 제1조 대조).",
  "title": "AI 1분 개벽늬우스",
  "series": "",
  "scenes": [
@@ -295,17 +295,106 @@
   },
   {
    "type": "lines",
-   "dur": 7.0,
-   "step": 1.8,
+   "dur": 6.0,
+   "step": 1.6,
    "lines": [
     {
-     "text": "위원을 누가 고르든",
+     "text": "마지막으로",
      "size": "m",
      "tone": "dim"
     },
     {
-     "text": "결정은 국민의 대표에게",
+     "text": "헌법 첫 조문 앞에 세워 본다",
+     "size": "l"
+    }
+   ]
+  },
+  {
+   "type": "law",
+   "dur": 6.5,
+   "text": "대한민국은 <b>민주공화국</b>이다.",
+   "cite": "헌법 제1조 제1항",
+   "typeDur": 1.8,
+   "citeFirst": true,
+   "note": "공화국 — 권력은 한 사람의 것이 아니다"
+  },
+  {
+   "type": "law",
+   "dur": 8.5,
+   "text": "대한민국의 주권은 <b>국민에게</b> 있고, 모든 권력은 <b>국민으로부터</b> 나온다.",
+   "cite": "헌법 제1조 제2항",
+   "typeDur": 3.0,
+   "citeFirst": true
+  },
+  {
+   "type": "lines",
+   "dur": 11.0,
+   "step": 1.7,
+   "lines": [
+    {
+     "text": "대법관 후보를 고르는 권력 —",
+     "size": "s",
+     "tone": "dim"
+    },
+    {
+     "text": "대법원장 한 사람이 위촉한 위원회에서",
+     "size": "m"
+    },
+    {
+     "text": "162조 곳간을 여는 권력 —",
+     "size": "s",
+     "tone": "dim"
+    },
+    {
+     "text": "장관이 위원장인 심의회에서",
+     "size": "m"
+    },
+    {
+     "rule": true
+    },
+    {
+     "text": "이 권력은<br>국민으로부터 나오는가?",
      "size": "xl",
+     "tone": "red"
+    }
+   ]
+  },
+  {
+   "type": "lines",
+   "dur": 10.0,
+   "step": 1.8,
+   "lines": [
+    {
+     "text": "민주공화국에서 권력은",
+     "size": "m",
+     "tone": "dim"
+    },
+    {
+     "text": "주권자가 뽑은 대표를 거쳐 나온다",
+     "size": "l"
+    },
+    {
+     "rule": true
+    },
+    {
+     "text": "위원을 누가 고르든<br>결정은 국민의 대표에게",
+     "size": "xl",
+     "tone": "gold"
+    }
+   ]
+  },
+  {
+   "type": "lines",
+   "dur": 8.0,
+   "step": 1.9,
+   "lines": [
+    {
+     "text": "헌법 제1조에 맞는가,",
+     "size": "l"
+    },
+    {
+     "text": "판단은 주권자의 몫이다",
+     "size": "l",
      "tone": "gold"
     },
     {
