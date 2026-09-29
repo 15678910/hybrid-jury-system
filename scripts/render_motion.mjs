@@ -22,7 +22,9 @@ const W = spec.width || 1080, H = spec.height || 1920;
 
 const browser = await puppeteer.launch({
   executablePath: CHROME, headless: true,
-  args: ['--force-device-scale-factor=1', '--hide-scrollbars', '--font-render-hinting=none', '--disable-gpu'],
+  // 리눅스(원격 세션)에서는 root 로 돌아 샌드박스를 켤 수 없다
+  args: ['--force-device-scale-factor=1', '--hide-scrollbars', '--font-render-hinting=none', '--disable-gpu',
+    ...(process.platform === 'linux' ? ['--no-sandbox'] : [])],
 });
 try {
   const page = await browser.newPage();
