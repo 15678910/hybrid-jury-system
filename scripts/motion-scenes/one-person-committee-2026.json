@@ -1,5 +1,5 @@
 {
- "_comment": "essay 무낭독(--silent). 2026-09-29 사용자 요청으로 글자 최소화 판(15장면). 근거: 법원조직법 제41조의2(docs/bills/법원조직법_20261001시행.txt), 기금법안 제15조(fund-articles-2026 장면 13 = 신·구조문대비표 원문), 헌법 제1조·제54조(헌법_원문.txt), 대법원장 제청 경과는 칼럼 2026-09-23 머리글, 30%·13조는 칼럼 2026-09-21 셋째 항. 렌더: python scripts/gen_motion_news.py --slug one-person-committee-2026 --silent --music public/music.mp3 --music-db=-14dB",
+ "_comment": "essay 무낭독(--silent). 2026-09-30 사용자 지정 14장면판. 조문 화면의 「사법부」「기획예산처」는 어느 위원회인지 밝히는 머리말이고 그 뒤가 조문 문구다. 근거: 법원조직법 제41조의2(docs/bills/법원조직법_20261001시행.txt), 기금법안 제15조(fund-articles-2026 장면 13 = 신·구조문대비표 원문: 위원장은 기획예산처장관), 헌법 제1조·제54조(헌법_원문.txt), 대법원장 제청 경과는 칼럼 2026-09-23 머리글, 30%는 국가재정법 개정안 제70조 제3항 제2호. 렌더: python scripts/gen_motion_news.py --slug one-person-committee-2026 --silent --music public/music.mp3 --music-db=-14dB",
  "title": "AI 1분 개벽늬우스",
  "series": "",
  "scenes": [
@@ -22,7 +22,7 @@
   {
    "type": "law",
    "dur": 6.0,
-   "text": "위원은 … <b>대법원장이 임명하거나 위촉한다.</b>",
+   "text": "사법부 위원은 … <b>대법원장이 임명하거나 위촉한다.</b>",
    "cite": "법원조직법 제41조의2 제3항",
    "typeDur": 1.8,
    "citeFirst": true
@@ -30,18 +30,18 @@
   {
    "type": "law",
    "dur": 6.0,
-   "text": "위원은 … <b>기획예산처장관이 위촉하는 사람</b>",
+   "text": "기획예산처 위원은 … <b>기획예산처장관이 위촉하는 사람</b>",
    "cite": "미래대응기금법안 제15조 제3항",
    "typeDur": 1.8,
    "citeFirst": true
   },
   {
    "type": "lines",
-   "dur": 7.5,
+   "dur": 6.0,
    "step": 1.4,
    "lines": [
     {
-     "text": "위원장도",
+     "text": "사법부 위원장은",
      "size": "m",
      "tone": "dim"
     },
@@ -50,22 +50,19 @@
      "size": "l"
     },
     {
+     "text": "미래대응기금 위원장도",
+     "size": "m",
+     "tone": "dim"
+    },
+    {
      "text": "장관이 직접 맡는다",
      "size": "l"
-    },
-    {
-     "rule": true
-    },
-    {
-     "text": "고르는 사람이 곧 결정하는 사람",
-     "size": "m",
-     "tone": "gold"
     }
    ]
   },
   {
    "type": "lines",
-   "dur": 6.5,
+   "dur": 6.0,
    "step": 1.4,
    "lines": [
     {
@@ -74,31 +71,12 @@
      "tone": "gold"
     },
     {
-     "text": "추천받고 7개월 가까이 제청 안 함",
-     "size": "m"
+     "text": "대법관 추천받고<br>7개월 가까이 제청 안 함",
+     "size": "l"
     },
     {
      "text": "재제청 거부",
-     "size": "m"
-    },
-    {
-     "rule": true
-    },
-    {
-     "text": "대법관 한 자리<br>여섯 달 넘게 공석",
      "size": "l",
-     "tone": "red"
-    }
-   ]
-  },
-  {
-   "type": "lines",
-   "dur": 4.0,
-   "step": 1.4,
-   "lines": [
-    {
-     "text": "기다리는 건 국민",
-     "size": "xl",
      "tone": "red"
     }
    ]
@@ -121,7 +99,7 @@
      "rule": true
     },
     {
-     "text": "국회 없이 바꾼다",
+     "text": "국회 없이 바꿀 수 있다",
      "size": "xl",
      "tone": "red"
     }
@@ -129,18 +107,13 @@
   },
   {
    "type": "lines",
-   "dur": 4.5,
+   "dur": 4.0,
    "step": 1.4,
    "lines": [
     {
-     "text": "13조 이상",
+     "text": "국회는 통보만 받는다",
      "size": "xl",
      "tone": "red"
-    },
-    {
-     "text": "국회는 통보만 받는다",
-     "size": "m",
-     "tone": "dim"
     }
    ]
   },
@@ -161,7 +134,7 @@
      "rule": true
     },
     {
-     "text": "결국 국민에게<br>피해를 주는 제도",
+     "text": "행정부 권한 확대<br>아닌가",
      "size": "xl",
      "tone": "red"
     }
@@ -177,11 +150,11 @@
   },
   {
    "type": "lines",
-   "dur": 4.0,
+   "dur": 4.5,
    "step": 1.4,
    "lines": [
     {
-     "text": "열쇠는 입법부가",
+     "text": "권한은 입법부가<br>가져야 한다",
      "size": "xl",
      "tone": "gold"
     }
@@ -209,7 +182,7 @@
    "step": 1.4,
    "lines": [
     {
-     "text": "이 권력은<br>국민으로부터 나오는가?",
+     "text": "그런데<br>어디로 가고 있나?",
      "size": "xl",
      "tone": "red"
     }
