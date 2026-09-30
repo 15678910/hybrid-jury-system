@@ -168,3 +168,8 @@ export const CARD_NEWS_SERIES = [
 export const getCardNewsSeries = (slug) => CARD_NEWS_SERIES.find((s) => s.slug === slug) || null;
 
 export const cardImageUrl = (slug, n) => `/cardnews/${slug}/${n}.png`;
+
+// 공유 링크에서 특정 영상을 가리키는 짧은 이름 — 파일명에서 경로·?v=·.mp4 를 뗀 것(news, motion, proposal-essay …).
+// /cardnews/<slug>?play=<이름> 으로 열면 시리즈 페이지가 그 영상을 맨 위에 띄운다(카톡 등으로 보낸 영상이 바로 보이게).
+export const videoIdOf = (src) => String(src || '').split('?')[0].split('/').pop().replace(/\.mp4$/i, '');
+export const shortPlayUrl = (origin, slug, src) => `${origin}/cardnews/${slug}?play=${encodeURIComponent(videoIdOf(src))}`;

@@ -1,9 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
 import SNSShareBar from '../components/SNSShareBar';
-import { CARD_NEWS_SERIES, getCardNewsSeries, cardImageUrl } from '../data/cardNews';
+import { CARD_NEWS_SERIES, getCardNewsSeries, cardImageUrl, videoIdOf } from '../data/cardNews';
 
 // 카드뉴스 — 정적 시리즈 갤러리.
 // 이전의 Firestore 기반 CardNews.jsx(2026-01 비활성화)와 달리, 카드는 저장소의
@@ -114,6 +114,24 @@ function SeriesView({ series }) {
 
     const others = CARD_NEWS_SERIES.filter((s) => s.slug !== series.slug);
 
+    // ?play=<영상 이름> — 카톡 등으로 특정 영상을 보냈을 때, 받은 사람이 시리즈의 영상 여러 개 중에서
+    // 찾지 않도록 그 영상을 맨 위에 띄운다. 이름은 videoIdOf(파일명에서 경로·.mp4 뗀 것).
+    const [searchParams] = useSearchParams();
+    const playId = searchParams.get('play');
+    const seriesVideos = [
+        series.news && { src: series.news, kind: 'AI 1분 개벽늬우스', label: 'AI 음성 요약' },
+        series.motion && { src: series.motion, kind: '모션', label: 'AI 1분 개벽늬우스 — 모션 그래픽판' },
+        series.reel && { src: series.reel, kind: '릴스', label: '세로 요약 — 숏츠·틱톡' },
+        ...(series.extra || []).map((x) => ({ src: x.src, kind: x.kind, label: x.label, poster: x.poster, wide: !!x.wide, download: x.download })),
+    ].filter(Boolean);
+    const featured = playId ? seriesVideos.find((v) => videoIdOf(v.src) === playId) : null;
+    const featuredRef = useRef(null);
+    useEffect(() => {
+        // 모바일은 소리 있는 자동재생을 막는다 — 시도만 하고, 막히면 재생 버튼을 누르게 둔다
+        const v = featuredRef.current;
+        if (v) v.play().catch(() => {});
+    }, [featured?.src]);
+
     return (
         <div className="min-h-screen bg-gray-50">
             <SEOHead
@@ -131,6 +149,27 @@ function SeriesView({ series }) {
                         <span className="mx-2">›</span>
                         <span className="text-gray-700">{series.short}</span>
                     </nav>
+                    {featured && (
+                        <section className="mb-8" aria-label="보내 드린 영상">
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-xs font-bold text-white bg-red-600 rounded px-2 py-0.5">{featured.kind}</span>
+                                <span className="text-base font-bold text-gray-900">{featured.label}</span>
+                            </div>
+                            <div className={`mx-auto w-full rounded-2xl overflow-hidden shadow-lg border border-gray-200 bg-black ${featured.wide ? 'max-w-[960px]' : 'max-w-[420px]'}`}>
+                                <video
+                                    ref={featuredRef}
+                                    src={featured.src}
+                                    poster={featured.poster}
+                                    controls
+                                    playsInline
+                                    preload="auto"
+                                    className={`w-full block bg-black ${featured.wide ? 'aspect-video' : 'aspect-[9/16]'}`}
+                                    aria-label={`${series.short} ${featured.kind} — ${featured.label}`}
+                                />
+                            </div>
+                            <p className="mt-3 text-center text-sm text-gray-500">아래에서 이 시리즈의 카드와 다른 영상을 볼 수 있습니다.</p>
+                        </section>
+                    )}
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-snug">{series.title}</h1>
                     <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-500">
                         <span>{formatDate(series.date)}</span>

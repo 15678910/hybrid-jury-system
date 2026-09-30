@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { CARD_NEWS_SERIES } from '../data/cardNews';
+import { CARD_NEWS_SERIES, shortPlayUrl } from '../data/cardNews';
 import { collection, getDocs, query, orderBy, limit, startAfter } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Header from '../components/Header';
@@ -103,7 +103,7 @@ export default function Videos() {
     };
     const sendShort = async (sv) => {
         const origin = window.location.origin.includes('localhost') ? 'https://xn--lg3b0kt4n41f.kr' : window.location.origin;
-        const pageUrl = `${origin}/cardnews/${sv.slug}`;
+        const pageUrl = shortPlayUrl(origin, sv.slug, sv.src); // ?play= — 받은 사람에게 이 영상이 맨 위에 뜬다
         const text = `${sv.title} | 시민법정`;
         const shareLink = async () => {
             if (navigator.share) {
@@ -132,7 +132,7 @@ export default function Videos() {
         const shareKakao = () => {
             if (!(kakaoReady && window.Kakao?.isInitialized())) return false;
             const site = 'https://xn--lg3b0kt4n41f.kr'; // ⚠️ 카카오 공유는 영문(퓨니코드) 도메인 고정
-            const link = `${site}/cardnews/${sv.slug}`;
+            const link = shortPlayUrl(site, sv.slug, sv.src);
             const img = sv.poster
                 ? { imageUrl: `${site}${sv.poster.split('?')[0]}`, imageWidth: 720, imageHeight: 1280 }
                 : { imageUrl: `${site}/cardnews/${sv.slug}/1.png`, imageWidth: 1600, imageHeight: 1200 };
@@ -183,7 +183,7 @@ export default function Videos() {
     // 숏츠 SNS 개별 공유 — 링크는 카드뉴스 페이지(OG 이미지·제목은 SSR 메타로 나온다). ⚠️ 영문 도메인 고정, X 는 twitter.com/intent/tweet
     const shareShortTo = (sv, kind) => {
         const site = 'https://xn--lg3b0kt4n41f.kr';
-        const url = `${site}/cardnews/${sv.slug}`;
+        const url = shortPlayUrl(site, sv.slug, sv.src);
         const text = `${sv.title} | 시민법정`;
         const copy = async (t) => { try { await navigator.clipboard.writeText(t); return true; } catch (e) { return false; } };
         if (kind === 'kakao') {
@@ -208,7 +208,7 @@ export default function Videos() {
             return;
         }
         if (kind === 'telegram') {
-            window.open(`https://t.me/share/url?url=${encodeURIComponent(`${url}?t=${Date.now()}`)}&text=${encodeURIComponent(sv.title)}`, '_blank');
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(`${url}&t=${Date.now()}`)}&text=${encodeURIComponent(sv.title)}`, '_blank');
             return;
         }
         if (kind === 'facebook') {
