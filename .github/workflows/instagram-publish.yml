@@ -1,0 +1,64 @@
+name: 인스타그램 게시 (수동)
+
+# 수동 실행 전용이다. 버튼을 누르는 것이 곧 게시 승인이다(호스팅 배포와 같은 원칙).
+#
+# 쓰는 법: Actions → 「인스타그램 게시 (수동)」 → Run workflow
+#   video        : 사이트에 배포된 영상 경로 (예: cardnews/future-fund-key-2026/explainer-excerpt.mp4)
+#   caption_file : 저장소 안의 설명 파일 (예: docs/instagram/captions/explainer-excerpt.txt) — 여러 줄 설명은 이걸로
+#   confirm      : «게시» 라고 입력
+# 영상은 먼저 호스팅 배포가 돼 있어야 한다(인스타 서버가 시민법정.kr 에서 직접 받아 간다).
+#
+# 필요한 Secrets (Settings → Secrets and variables → Actions):
+#   IG_ACCESS_TOKEN — 인스타그램 로그인 방식 앱의 장기 액세스 토큰(60일, 만료 전에 갱신)
+#   IG_USER_ID      — 인스타그램 프로페셔널 계정 ID(숫자)
+# 준비 절차: docs/instagram/README.md
+
+on:
+  workflow_dispatch:
+    inputs:
+      video:
+        description: '배포된 영상 경로 (예: cardnews/future-fund-key-2026/explainer-excerpt.mp4)'
+        required: true
+        default: ''
+      caption_file:
+        description: '설명 파일 경로 (예: docs/instagram/captions/explainer-excerpt.txt)'
+        required: true
+        default: ''
+      confirm:
+        description: '게시를 확인하려면 "게시"라고 입력하세요'
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: instagram-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 확인 문구 검사
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "게시" ]; then
+            echo "::error::확인 문구가 «게시» 가 아닙니다. 실수로 눌린 실행을 막습니다."
+            exit 1
+          fi
+
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 릴스 게시
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          VIDEO: ${{ github.event.inputs.video }}
+          CAPTION_FILE: ${{ github.event.inputs.caption_file }}
+        run: node scripts/ig_publish.mjs --video "$VIDEO" --caption-file "$CAPTION_FILE"
