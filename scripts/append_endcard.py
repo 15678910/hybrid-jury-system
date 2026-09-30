@@ -28,6 +28,7 @@ ap.add_argument('--music')
 ap.add_argument('--music-ss', type=float, default=0.0, help='음악을 이 시각(초)부터 이어 튼다(본편 음악과 연속)')
 ap.add_argument('--music-db', default='-18dB')
 ap.add_argument('--seconds', type=float, default=3.0)
+ap.add_argument('--play', help='QR 이 시리즈 페이지의 이 영상을 맨 위에 띄우게 ?play=<영상이름> 을 붙인다(예: explainer). 화면에 쓰는 주소는 짧게 그대로')
 A = ap.parse_args()
 if not FFMPEG.exists():
     sys.exit(f'ffmpeg 없음: {FFMPEG}')
@@ -57,6 +58,8 @@ def title_font(s):
 
 # ── 종료 카드 이미지 ───────────────────────────────────────────────────
 url_puny = f'{PUNY_ORIGIN}/cardnews/{A.slug}'
+if A.play:
+    url_puny += f'?play={A.play}'
 img = Image.new('RGB', (W, H))
 px = img.load()
 for y in range(H):
