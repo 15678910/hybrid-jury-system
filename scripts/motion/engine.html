@@ -109,10 +109,12 @@ body{background:linear-gradient(180deg,#152741 0%,#0E1726 52%,#0a1220 100%);font
 body.essay{background:#000}
 body.essay #series,body.essay #caption{display:none}
 body.essay #badge{transform:scale(.72);transform-origin:left top;opacity:.85}
+/* essay 에서도 제목(series)을 주면 배지 아래 왼쪽에 끝까지 띄운다 — 이 영상이 무엇에 관한 것인지 어느 장면에서 봐도 알게 (2026-09-30) */
+body.essay.titled #series{display:block;left:44px;top:176px;width:992px;font-family:'NotoKR',sans-serif;font-size:40px;font-weight:700;line-height:1.3;color:#E5C566;letter-spacing:-.5px;white-space:pre-line}
 body.essay #foot{color:#5c6470}
 body.essay #stage{top:300px;height:1300px;left:80px;width:920px}
 .el{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;height:100%;gap:30px;padding:0 10px}
-.el .ln{font-family:'Noto Serif KR','NotoKR',serif;font-weight:700;color:#F4F2EA;line-height:1.35;letter-spacing:-.5px}
+.el .ln{font-family:'Noto Serif KR','NotoKR',serif;font-weight:700;color:#F4F2EA;line-height:1.35;letter-spacing:-.5px;white-space:pre-line}
 .el .ln.xl{font-size:92px;font-weight:900;line-height:1.22}
 .el .ln.l{font-size:70px;font-weight:900}
 .el .ln.m{font-size:54px}
@@ -552,6 +554,7 @@ body.wide .law .note{font-size:52px;margin-top:40px}
     document.body.classList.toggle('essay', !!spec.essay);
     document.getElementById('badge').textContent = spec.title || 'AI 1분 개벽늬우스';
     document.getElementById('series').textContent = spec.series || '';
+    document.body.classList.toggle('titled', !!(spec.essay && spec.series));
     const dots = document.getElementById('dots'); dots.innerHTML = spec.segments.map(() => '<i></i>').join('');
     const stage = document.getElementById('stage'); stage.innerHTML = '';
     document.body.classList.toggle('wide', !!spec.wide); document.documentElement.classList.toggle('wide', !!spec.wide);
