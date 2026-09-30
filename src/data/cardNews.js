@@ -9,6 +9,27 @@
 
 export const CARD_NEWS_SERIES = [
     {
+        // 한 사람의 위원회 — 대법관후보추천위원회(법원조직법 §41의2)와 미래대응기금운용심의회(기금법안 §15) 구조 대조.
+        // 카드: scripts/gen-cardnews-한사람의위원회.mjs(render-cardnews-linux.mjs) · 모션: scripts/motion-scenes/one-person-committee-2026.json
+        // (essay 무낭독 --silent, 음악·종료카드는 docs/cardnews/영상_제작_기준.md)
+        slug: 'one-person-committee-2026',
+        motion: '/cardnews/one-person-committee-2026/motion.mp4?v=20260930a',
+        title: '미래대응기금 신설안, 헌법 제1조에 부합하는가 — 대법원장과 같은 「한 사람의 위원회」',
+        short: '한 사람의 위원회',
+        description: '대법관후보추천위원회는 위원 전원을 대법원장이 임명·위촉하고 위원장도 대법원장이 정합니다(법원조직법 제41조의2). 미래대응기금운용심의회는 위원 절반 이상을 기획예산처장관이 위촉하고 장관이 위원장을 맡으며, 국회가 확정한 기금 지출의 30%를 국회 의결 없이 바꿉니다(기금법안 제15조, 국가재정법 개정안 제70조). 두 조문을 나란히 읽고 헌법 제54조·제1조 앞에 세웁니다.',
+        date: '2026-09-30',
+        count: 6,
+        steps: [
+            '위원도, 위원장도, 결론을 쓰는 사람도 — 한 사람',
+            '위원은 누가 고르나',
+            '위원장은 누구인가',
+            '결론은 어디로 가나',
+            '없는 자리, 그리고 다른 점',
+            '한 사람의 손에서 국민의 대표에게로 (제안)',
+        ],
+        tags: ['미래대응기금', '대법관후보추천위원회', '헌법 제1조', '헌법 제54조'],
+    },
+    {
         slug: 'future-fund-key-2026',
         news: '/cardnews/future-fund-key-2026/news.mp4?v=20260912d',
         // 모션 그래픽판 AI 뉴스 — scripts/gen_motion_news.py (장면: scripts/motion-scenes/<slug>.json). 카드판(news)과 나란히 보여준다.
