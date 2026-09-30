@@ -121,8 +121,16 @@ if A.silent:
     if not A.music: sys.exit('--silent 에는 --music 이 필요합니다')
     mp = Path(A.music) if Path(A.music).is_absolute() else ROOT / A.music
     vol = A.music_db if A.music_db != '-20dB' else '-12dB'  # 내레이션이 없으니 음악을 조금 키운다
-    run([FFMPEG, '-y', '-i', silent, '-stream_loop', '-1', '-i', mp, '-filter_complex',
-         f"[1:a]atrim=0:{T:.3f},asetpts=PTS-STARTPTS,volume={vol},afade=t=in:st=0:d=1.5,afade=t=out:st={max(T-2.5,0):.2f}:d=2.5[aout]",
+    if A.outro:
+        # 음악 기준(docs/cardnews/영상_제작_기준.md): 본편은 낮게, 끝 N초에 --outro-db 로 올려 그대로 종료카드로 넘긴다.
+        # 여기서 페이드아웃하지 않는다 — 줄이는 것은 종료카드(append_endcard.py)의 마지막 1.5초.
+        # 낭독이 없어 amix 가 없으므로 종료카드 --music-db 는 --outro-db 와 같은 값을 준다.
+        Tn = max(T - A.outro, 0); a = 10 ** (float(vol.replace('dB', '')) / 20); b = 10 ** (A.outro_db / 20)
+        vexpr = f"'if(lt(t,{Tn:.3f}),{a:.5f},if(lt(t,{Tn + 1:.3f}),{a:.5f}+({b:.5f}-{a:.5f})*(t-{Tn:.3f}),{b:.5f}))'"
+        af = f"[1:a]atrim=0:{T:.3f},asetpts=PTS-STARTPTS,volume={vexpr}:eval=frame,afade=t=in:st=0:d=1.5[aout]"
+    else:
+        af = f"[1:a]atrim=0:{T:.3f},asetpts=PTS-STARTPTS,volume={vol},afade=t=in:st=0:d=1.5,afade=t=out:st={max(T-2.5,0):.2f}:d=2.5[aout]"
+    run([FFMPEG, '-y', '-i', silent, '-stream_loop', '-1', '-i', mp, '-filter_complex', af,
          '-map', '0:v', '-map', '[aout]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', '-shortest', out])
     print(f'완료: {out} (essay, ≈{T:.1f}s, 1080×1920)'); sys.exit(0)
 avf = tmp / 'alist.txt'
