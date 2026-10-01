@@ -1,0 +1,92 @@
+name: 블로그 본문 수정 (수동)
+
+# 수동 실행 전용이다. 이미 올라간 글의 본문(content)만 바꾼다. 글 ID 가 유지되므로 공유 링크는 깨지지 않는다.
+#
+# 쓰는 법: Actions → 「블로그 본문 수정 (수동)」 → Run workflow
+#   post_id         : 글 ID (예: z1BFe7GdIi3rqnYEtMzG)
+#   spec            : 게시 명세 JSON (htmlFile 이 새 본문)
+#   expected_length : 마지막으로 올린 본문 길이 — 다르면 누군가 관리자 화면에서 고친 것이라 멈춘다
+#   confirm         : «수정» 이라고 입력
+#
+# 순서: Firestore 전체 백업 → 기존 본문 파일 백업 → 길이 대조 → content 교체. 두 백업 모두 아티팩트로 30일 보관.
+
+on:
+  workflow_dispatch:
+    inputs:
+      post_id:
+        description: '글 ID'
+        required: true
+        default: ''
+      spec:
+        description: '게시 명세 JSON 경로'
+        required: true
+        default: ''
+      expected_length:
+        description: '마지막으로 올린 본문 길이(글자 수)'
+        required: true
+        default: ''
+      confirm:
+        description: '수정을 확인하려면 "수정"이라고 입력하세요'
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: blog-publish
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 확인 문구 검사
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "수정" ]; then
+            echo "::error::확인 문구가 «수정» 이 아닙니다. 실수로 눌린 실행을 막습니다."
+            exit 1
+          fi
+
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 함수 의존성 설치
+        run: |
+          cd functions
+          npm install
+
+      - name: 서비스 계정 키 파일
+        env:
+          SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+        run: |
+          printenv SA_KEY > serviceAccountKey.json
+
+      - name: Firestore 백업 (쓰기 전 필수)
+        run: |
+          cd functions
+          node backup_firestore_ci.js
+
+      - name: 본문 교체
+        env:
+          POST_ID: ${{ github.event.inputs.post_id }}
+          SPEC: ${{ github.event.inputs.spec }}
+          EXPECTED: ${{ github.event.inputs.expected_length }}
+        run: node functions/update_blog_content_ci.cjs "$POST_ID" "$SPEC" "$EXPECTED"
+
+      - name: 백업 보관
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-before-blog-update-${{ github.run_id }}
+          path: backups/
+          retention-days: 30
+
+      - name: 키 파일 삭제
+        if: always()
+        run: rm -f serviceAccountKey.json

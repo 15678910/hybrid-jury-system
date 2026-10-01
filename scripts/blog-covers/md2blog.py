@@ -73,8 +73,8 @@ for raw in lines:
         if state['ol']:
             out.append('</ol>'); state['ol'] = False
         if not state['ul']:
-            out.append('<ul style="margin:8px 0 8px 20px;color:#555;font-size:0.85em;line-height:1.65">'); state['ul'] = True
-        out.append(f'<li style="margin:0 0 10px">{inline(ln[2:])}</li>')  # 자료 항목끼리 간격(항목별 구분)
+            out.append('<ul style="margin:8px 0 8px 20px;color:#555;font-size:0.75em;line-height:1.55">'); state['ul'] = True  # 출처 목록 글자 0.85→0.75em (2026-10-01 사용자 요청)
+        out.append(f'<li style="margin:0 0 6px">{inline(ln[2:])}</li>')  # 자료 항목끼리 간격(항목별 구분)
         continue
     close_lists()
     if ln == '':
