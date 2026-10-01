@@ -12,6 +12,8 @@ def inline(t):
     t = t.replace(NOTE, '').replace(', 2026.9.24 국가법령정보센터 원문 확인', '')
     t = html.escape(t, quote=False)
     t = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', t)
+    # [글](주소) → 새 창 링크 (출처 목록용, 2026-10-01)
+    t = re.sub(r'\[([^\]]+)\]\((https?://[^)\s]+)\)', r'<a href="\2" target="_blank" rel="noopener noreferrer" style="color:#1F5FBF">\1</a>', t)
     return t
 
 lines = io.open(SRC, encoding='utf-8').read().replace('\r\n', '\n').split('\n')

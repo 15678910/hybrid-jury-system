@@ -1,0 +1,72 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<!-- 칼럼 「권력이 흉기가 된 사회」(2026.10.1) 블로그 표지. 1200×900 정지 이미지.
+     목록 카드가 16:9 object-cover 라 위아래 약 112px 가 잘린다 → 제목·그림은 y 120~770 안에 둔다. -->
+<style>
+@font-face{font-family:'Pre';src:url('../fonts/Pretendard-Regular.otf');font-weight:400}
+@font-face{font-family:'Pre';src:url('../fonts/Pretendard-Bold.otf');font-weight:700}
+@font-face{font-family:'BHS';src:url('../fonts/blackhansans.ttf')}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1200px;height:900px;overflow:hidden}
+body{background:radial-gradient(ellipse at 70% 30%,#1B2740 0%,#0B1220 70%);font-family:'Pre',sans-serif;color:#F4F2EA;position:relative;word-break:keep-all}
+.eye{position:absolute;left:72px;top:44px;font-size:26px;font-weight:700;color:#E5C566;letter-spacing:.04em}
+svg{position:absolute;left:0;top:120px}
+.title{position:absolute;left:72px;right:72px;top:470px;font-family:'BHS','Pre',sans-serif;font-size:108px;line-height:1.05;color:#FFFDF6;letter-spacing:-1px}
+.title em{font-style:normal;color:#FF5A4A}
+.sub{position:absolute;left:76px;top:606px;font-size:38px;font-weight:700;color:#E5C566}
+.tags{position:absolute;left:76px;right:72px;top:672px;font-size:23px;color:#AEB6C4;line-height:1.5}
+.tags b{color:#FFFDF6;font-weight:700}
+.foot{position:absolute;left:72px;right:72px;bottom:40px;display:flex;justify-content:space-between;font-size:22px;color:#8A93A3}
+.foot b{color:#E5C566;font-weight:700}
+</style></head><body>
+<div class="eye">2026. 10. 2 · 검찰청 폐지, 78년 만에 간판을 내린다</div>
+
+<svg width="1200" height="340" viewBox="0 0 1200 340" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F2F4F7"/><stop offset=".48" stop-color="#B9C1CC"/>
+      <stop offset=".52" stop-color="#8C96A4"/><stop offset="1" stop-color="#D5DAE2"/>
+    </linearGradient>
+    <linearGradient id="grip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5A2A1E"/><stop offset="1" stop-color="#2E140D"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 떨어진 옛 간판 -->
+  <g transform="translate(470 22) rotate(-4)">
+    <rect x="0" y="0" width="250" height="84" rx="6" fill="#2A3348" stroke="#5C6577" stroke-width="3"/>
+    <text x="125" y="58" text-anchor="middle" font-family="BHS" font-size="48" fill="#A3ABBA" letter-spacing="8">검찰청</text>
+    <line x1="14" y1="12" x2="236" y2="72" stroke="#FF5A4A" stroke-width="6" opacity=".85" stroke-linecap="round"/>
+    <line x1="236" y1="12" x2="14" y2="72" stroke="#FF5A4A" stroke-width="6" opacity=".85" stroke-linecap="round"/>
+  </g>
+
+  <!-- 손잡이 하나 -->
+  <g transform="translate(0 200)">
+    <circle cx="96" cy="0" r="26" fill="#C9A646"/>
+    <rect x="112" y="-20" width="150" height="40" rx="10" fill="url(#grip)"/>
+    <g stroke="#1A0A06" stroke-width="3" opacity=".7">
+      <line x1="135" y1="-20" x2="150" y2="20"/><line x1="165" y1="-20" x2="180" y2="20"/>
+      <line x1="195" y1="-20" x2="210" y2="20"/><line x1="225" y1="-20" x2="240" y2="20"/>
+    </g>
+    <rect x="258" y="-74" width="30" height="148" rx="8" fill="#C9A646"/>
+  </g>
+
+  <!-- 칼날 둘: 위 = 공소청, 아래 = 중수청 -->
+  <g transform="translate(288 186) rotate(-7)">
+    <path d="M0 -24 L760 -24 L860 0 L760 24 L0 24 Z" fill="url(#steel)"/>
+    <line x1="10" y1="0" x2="790" y2="0" stroke="#7A8494" stroke-width="2"/>
+    <text x="60" y="13" font-family="BHS" font-size="36" fill="#2A3348" letter-spacing="10">공소청</text>
+  </g>
+  <g transform="translate(288 214) rotate(7)">
+    <path d="M0 -24 L760 -24 L860 0 L760 24 L0 24 Z" fill="url(#steel)"/>
+    <line x1="10" y1="0" x2="790" y2="0" stroke="#7A8494" stroke-width="2"/>
+    <text x="60" y="13" font-family="BHS" font-size="36" fill="#2A3348" letter-spacing="10">중수청</text>
+  </g>
+  <!-- 칼끝의 핏빛 -->
+  <circle cx="1130" cy="96" r="5" fill="#FF5A4A"/><circle cx="1130" cy="318" r="5" fill="#FF5A4A"/>
+</svg>
+
+<div class="title">권력이 <em>흉기</em>가 된 사회</div>
+<div class="sub">간판은 내려도 칼은 남는다</div>
+<div class="tags"><b>중수청·공소청</b> · 조희대 사법부 · 공수처법 · 의무공개매수 · 미래대응기금 · 국가보안법<br>그람시의 「수동혁명」으로 읽다</div>
+<div class="foot"><span><b>칼럼</b> · 주권자사법개혁추진준비위원회</span><span>시민법정.kr</span></div>
+</body></html>
