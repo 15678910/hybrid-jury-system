@@ -6,5 +6,8 @@
   "category": "칼럼/논평",
   "htmlFile": "docs/columns/publish/2026-10-01_권력이_흉기가_된_사회.html",
   "coverFile": "docs/columns/publish/2026-10-01_권력이_흉기가_된_사회.jpg",
-  "coverDest": "blog-images/power-as-weapon-column-20261001.jpg"
+  "coverDest": "blog-images/power-as-weapon-column-20261001.jpg",
+  "postId": "z1BFe7GdIi3rqnYEtMzG",
+  "lastPublishedLength": 23043,
+  "_note": "본문을 다시 고칠 때 blog-update.yml 의 expected_length 에 lastPublishedLength 를 넣고, 성공하면 새 길이로 갱신한다"
 }
