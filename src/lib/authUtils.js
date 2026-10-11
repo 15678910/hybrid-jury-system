@@ -16,6 +16,7 @@ const FN_BASE = 'https://asia-northeast3-siminbupjung-blog.cloudfunctions.net';
 const VERIFY_URL = `${FN_BASE}/verifyAccessCode`;
 const CHECK_DUP_URL = `${FN_BASE}/checkSignatureDuplicate`;
 const EXPORT_SIG_URL = `${FN_BASE}/exportSignatures`;
+const IG_PUBLISH_URL = `${FN_BASE}/publishInstagramReel`;
 
 /**
  * 작성자/관리자 접근 코드를 서버에서 검증한다.
@@ -93,5 +94,25 @@ export async function exportSignatures(code) {
     } catch (e) {
         console.error('서명 내보내기 통신 실패:', e);
         return { signatures: null, error: true };
+    }
+}
+
+/**
+ * 인스타그램 릴스 게시 — 관리자 전용 (동영상 페이지 인스타 아이콘). 서버가 영상을 인스타에 넘기고 처리될 때까지
+ * 기다리므로 1~3분 걸린다. 같은 영상이 이미 올라갔으면 409 와 기존 링크를 돌려준다(force 로 다시 올림).
+ * @returns {Promise<{ok: boolean, status: number, permalink?: string, error?: string}>}
+ */
+export async function publishInstagramReel({ code, video, caption, force = false }) {
+    try {
+        const res = await fetch(IG_PUBLISH_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, video, caption, force }),
+        });
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok && !!data.ok, status: res.status, permalink: data.permalink || null, error: data.error || null };
+    } catch (e) {
+        console.error('인스타그램 게시 통신 실패:', e);
+        return { ok: false, status: 0, error: '서버에 연결할 수 없습니다.' };
     }
 }

@@ -28,6 +28,21 @@ export const CARD_NEWS_SERIES = [
             '한 사람의 손에서 국민의 대표에게로 (제안)',
         ],
         tags: ['미래대응기금', '대법관후보추천위원회', '헌법 제1조', '헌법 제54조'],
+        // 인스타 릴스 설명(docs/instagram/captions/one-person-committee.txt 와 같음). 2026-10-11 게시: instagram.com/reel/DeW-PHplRQ1
+        igCaption: `미래대응기금 신설안, 헌법 제1조에 부합하는가
+
+사법부 대법관후보추천위원회 — 위원은 대법원장이 임명·위촉하고, 위원장도 대법원장이 정한다. (법원조직법 제41조의2)
+미래대응기금운용심의회 — 위원 절반 이상을 기획예산처장관이 위촉하고, 위원장은 장관이 직접 맡는다. (미래대응기금법안 제15조)
+
+국회가 확정한 기금의 30%를 국회 없이 바꿀 수 있고, 국회는 통보만 받는다.
+헌법 제54조: 국회는 국가의 예산안을 심의·확정한다.
+헌법 제1조: 대한민국의 주권은 국민에게 있고, 모든 권력은 국민으로부터 나온다.
+
+이재명 대통령은 답하시오.
+
+전체 카드·조문 원문 → 시민법정.kr (프로필 링크)
+
+#미래대응기금 #헌법제1조 #국회예산심의권 #대법관 #사법개혁 #시민법정 #참심제`,
     },
     {
         slug: 'future-fund-key-2026',
@@ -194,3 +209,16 @@ export const cardImageUrl = (slug, n) => `/cardnews/${slug}/${n}.png`;
 // /cardnews/<slug>?play=<이름> 으로 열면 시리즈 페이지가 그 영상을 맨 위에 띄운다(카톡 등으로 보낸 영상이 바로 보이게).
 export const videoIdOf = (src) => String(src || '').split('?')[0].split('/').pop().replace(/\.mp4$/i, '');
 export const shortPlayUrl = (origin, slug, src) => `${origin}/cardnews/${slug}?play=${encodeURIComponent(videoIdOf(src))}`;
+
+// 인스타그램 릴스 설명 — 동영상 페이지의 인스타 아이콘(관리자 게시)이 쓴다. 시리즈에 igCaption 이 있으면 그것,
+// 없으면 제목·설명·사이트 안내·태그로 만든다. 2,200자 한도는 함수(publishInstagramReel)가 다시 확인한다.
+// 문구를 미리 정해 두려면 시리즈 항목에 igCaption: '…' 을 넣는다(docs/instagram/captions/ 의 글을 옮기면 된다).
+export const instagramCaption = (series, sv) => {
+    if (series?.igCaption) return series.igCaption.trim();
+    const tags = ['시민법정', '참심제', '사법개혁', ...(series?.tags || [])]
+        .map((t) => '#' + t.replace(/\s+/g, '').replace(/[^\p{L}\p{N}_]/gu, ''))
+        .filter((t, i, a) => t.length > 1 && a.indexOf(t) === i)
+        .join(' ');
+    return [sv?.title || series?.title || '', '', series?.description || '', '', '전체 카드·조문 원문 → 시민법정.kr (프로필 링크)', '', tags]
+        .join('\n').replace(/\n{3,}/g, '\n\n').trim();
+};

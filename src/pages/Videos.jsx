@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { CARD_NEWS_SERIES, shortPlayUrl } from '../data/cardNews';
+import { CARD_NEWS_SERIES, shortPlayUrl, getCardNewsSeries, instagramCaption } from '../data/cardNews';
 import { collection, getDocs, query, orderBy, limit, startAfter } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { publishInstagramReel } from '../lib/authUtils';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
 import { KakaoIcon, FacebookIcon, XIcon, TelegramIcon, InstagramIcon, LinkIcon, ShareIcon } from '../components/icons';
@@ -69,6 +70,8 @@ export default function Videos() {
     const [videos, setVideos] = useState(cachedData || []);
     const [loading, setLoading] = useState(!cachedData); // 캐시 있으면 로딩 안함
     const [kakaoReady, setKakaoReady] = useState(false);
+    const [igPostingKey, setIgPostingKey] = useState(null); // 인스타 게시 진행 중인 숏츠 key
+    const igCodeRef = useRef(null);                          // 한 번 맞은 관리자 코드 — 이 페이지에 머무는 동안만 기억(저장 안 함)
     const [copiedVideoId, setCopiedVideoId] = useState(null);
     const [openShareMenu, setOpenShareMenu] = useState(null); // 열린 공유 메뉴 videoId
     const [loadingMore, setLoadingMore] = useState(false);
@@ -180,6 +183,40 @@ export default function Videos() {
         }
     };
 
+    // 인스타그램 릴스 게시(관리자 전용) — 인스타 아이콘을 누르면 관리자 코드를 묻고, 설명 문구를 확인한 뒤
+    // 함수 publishInstagramReel 이 인스타 API 로 올린다(GitHub Actions 「인스타그램 게시 (수동)」와 같은 3단계).
+    // 1~3분 걸리고, 같은 영상은 두 번 올라가지 않는다(서버가 기록해 두고 409 로 거절 → 확인 뒤 force).
+    const publishToInstagram = async (sv, onNotAdmin) => {
+        if (igPostingKey) { alert('다른 영상을 올리는 중입니다. 끝난 뒤 다시 눌러 주세요.'); return; }
+        if (sv.wide) { alert('가로(16:9) 영상은 릴스로 올릴 수 없습니다.\n세로 발췌판(scripts/excerpt_vertical.py)을 만들어 올려 주세요.'); return; }
+        let code = igCodeRef.current;
+        if (!code) {
+            code = window.prompt('인스타그램(@siminbupjung)에 이 영상을 릴스로 올립니다.\n관리자 코드를 입력하세요.\n(취소하면 직접 올리는 방법을 안내합니다)');
+            if (!code || !code.trim()) { onNotAdmin && onNotAdmin(); return; }
+            code = code.trim();
+        }
+        const caption = instagramCaption(getCardNewsSeries(sv.slug), sv);
+        if (!window.confirm(`아래 설명으로 게시합니다. 게시까지 1~3분 걸립니다.\n\n${caption}\n\n게시할까요?`)) return;
+        setIgPostingKey(sv.key);
+        try {
+            let r = await publishInstagramReel({ code, video: sv.src, caption });
+            if (r.status === 401) { igCodeRef.current = null; alert('관리자 코드가 올바르지 않습니다.'); return; }
+            igCodeRef.current = code;
+            if (r.status === 409) {
+                if (!window.confirm(`이미 올라간 영상입니다:\n${r.permalink || '(링크 없음)'}\n\n그래도 한 번 더 올릴까요?`)) return;
+                r = await publishInstagramReel({ code, video: sv.src, caption, force: true });
+            }
+            if (r.ok) {
+                alert(`인스타그램 게시 완료\n${r.permalink || ''}`);
+                if (r.permalink) window.open(r.permalink, '_blank');
+            } else {
+                alert(`게시 실패: ${r.error || `HTTP ${r.status}`}`);
+            }
+        } finally {
+            setIgPostingKey(null);
+        }
+    };
+
     // 숏츠 SNS 개별 공유 — 링크는 카드뉴스 페이지(OG 이미지·제목은 SSR 메타로 나온다). ⚠️ 영문 도메인 고정, X 는 twitter.com/intent/tweet
     const shareShortTo = (sv, kind) => {
         const site = 'https://xn--lg3b0kt4n41f.kr';
@@ -216,7 +253,10 @@ export default function Videos() {
             return;
         }
         if (kind === 'instagram') {
-            copy(`${text}\n${url}`).then(() => { alert('설명 글이 복사되었습니다.\n영상은 「저장」으로 내려받아 인스타그램 앱에서 릴스로 올리고, 설명란에 붙여넣기 해주세요.'); window.open('https://www.instagram.com/', '_blank'); });
+            publishToInstagram(sv, () => {
+                // 관리자가 아니면(코드 입력을 취소하면) 전처럼 직접 올리는 길을 안내한다
+                copy(`${text}\n${url}`).then(() => { alert('설명 글이 복사되었습니다.\n영상은 「저장」으로 내려받아 인스타그램 앱에서 릴스로 올리고, 설명란에 붙여넣기 해주세요.'); window.open('https://www.instagram.com/', '_blank'); });
+            });
             return;
         }
         copy(url).then((ok) => alert(ok ? `링크가 복사되었습니다:\n${url}` : '복사에 실패했습니다.'));
@@ -529,7 +569,7 @@ export default function Videos() {
                                                         <button type="button" onClick={() => shareShortTo(sv, 'x')} title="X" aria-label="X" className="p-1.5 rounded-full bg-black text-white hover:opacity-90"><XIcon className="w-4 h-4" /></button>
                                                         <button type="button" onClick={() => shareShortTo(sv, 'telegram')} title="텔레그램" aria-label="텔레그램" className="p-1.5 rounded-full bg-[#229ED9] text-white hover:opacity-90"><TelegramIcon className="w-4 h-4" /></button>
                                                         <button type="button" onClick={() => shareShortTo(sv, 'facebook')} title="페이스북(링크 복사)" aria-label="페이스북" className="p-1.5 rounded-full bg-[#1877F2] text-white hover:opacity-90"><FacebookIcon className="w-4 h-4" /></button>
-                                                        <button type="button" onClick={() => shareShortTo(sv, 'instagram')} title="인스타그램(저장 후 업로드)" aria-label="인스타그램" className="p-1.5 rounded-full bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white hover:opacity-90"><InstagramIcon className="w-4 h-4" /></button>
+                                                        <button type="button" onClick={() => shareShortTo(sv, 'instagram')} disabled={igPostingKey === sv.key} title={igPostingKey === sv.key ? '인스타그램에 올리는 중…' : '인스타그램(관리자: 바로 게시 / 그 외: 저장 후 업로드)'} aria-label="인스타그램" className={`p-1.5 rounded-full bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white hover:opacity-90 ${igPostingKey === sv.key ? 'animate-pulse' : ''}`}><InstagramIcon className="w-4 h-4" /></button>
                                                         <button type="button" onClick={() => shareShortTo(sv, 'link')} title="링크 복사" aria-label="링크 복사" className="p-1.5 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300"><LinkIcon className="w-4 h-4" /></button>
                                                     </div>
                                                     <Link to={`/cardnews/${sv.slug}`} className="mt-2 inline-block text-xs font-medium text-blue-600 hover:underline">

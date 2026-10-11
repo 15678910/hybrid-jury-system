@@ -228,6 +228,112 @@ async function isAuthorizedAccessCode(code) {
     return false;
 }
 
+// ============================================
+// 인스타그램 릴스 게시 (관리자 전용) — 2026-10-11
+// 동영상 페이지의 인스타 아이콘이 부른다. scripts/ig_publish.mjs(GitHub Actions 버튼)와 같은 3단계:
+//   ① /<IG_USER_ID>/media (REELS, video_url, caption) → 컨테이너
+//   ② 컨테이너 status_code 가 FINISHED 될 때까지 대기(인스타 서버가 시민법정.kr 에서 영상을 받아 처리)
+//   ③ /<IG_USER_ID>/media_publish → 게시물 → permalink
+// 환경변수(functions/.env): IG_ACCESS_TOKEN(장기 토큰, 60일), IG_USER_ID. GitHub Secrets 와 같은 값.
+//   ⚠️ .env 를 바꾸면 functions 전체 재배포(CLAUDE.md 2026-09-26 사건).
+// 인증: ACCESS_ADMIN_CODE 만 받는다(작성자 코드 불가 — 단체 계정에 올리는 일이라 관리자로 한정).
+// 중복 방지: 같은 영상은 instagramPosts/<영상ID> 에 기록돼 있으면 409 로 거절한다(force=true 면 다시 올림).
+// ============================================
+const IG_API = `https://graph.instagram.com/${process.env.IG_API_VERSION || 'v23.0'}`;
+const IG_SITE = 'https://xn--lg3b0kt4n41f.kr'; // 인스타 서버가 받을 주소는 퓨니코드로(한글 도메인 그대로는 못 받는다)
+
+async function igCall(method, path, params) {
+    const body = new URLSearchParams({ ...params, access_token: process.env.IG_ACCESS_TOKEN });
+    const res = method === 'GET'
+        ? await fetch(`${IG_API}${path}?${body}`)
+        : await fetch(`${IG_API}${path}`, { method, body });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || json.error) {
+        const e = json.error || {};
+        const err = new Error(`${e.message || JSON.stringify(json)}${e.code ? ` [code ${e.code}${e.error_subcode ? '/' + e.error_subcode : ''}]` : ''}`);
+        err.igCode = e.code;
+        throw err;
+    }
+    return json;
+}
+
+exports.publishInstagramReel = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 540, memory: '256MB' })
+    .https.onRequest(async (req, res) => {
+        setCorsHeaders(req, res);
+        if (req.method === 'OPTIONS') return res.status(204).send('');
+        if (req.method !== 'POST') return res.status(405).json({ error: 'POST만 허용됩니다.' });
+        if (!checkRateLimit(req, res, 10)) return;
+
+        const { code, video, caption, force } = req.body || {};
+        const adminCode = process.env.ACCESS_ADMIN_CODE;
+        if (!adminCode || !timingSafeStrEqual(typeof code === 'string' ? code : '', adminCode)) {
+            return res.status(401).json({ error: '관리자 코드가 올바르지 않습니다.' });
+        }
+        if (!process.env.IG_ACCESS_TOKEN || !process.env.IG_USER_ID) {
+            return res.status(503).json({ error: 'IG_ACCESS_TOKEN / IG_USER_ID 가 functions/.env 에 없습니다. 데스크탑에서 넣고 functions 전체를 다시 배포해야 합니다.' });
+        }
+        // 영상은 우리 사이트의 카드뉴스 영상만. 쿼리(?v=)는 떼고 경로만 본다.
+        const videoPath = typeof video === 'string' ? video.split('?')[0].replace(/^\/+/, '') : '';
+        if (!/^cardnews\/[a-z0-9-]{1,80}\/[a-z0-9_-]{1,80}\.mp4$/.test(videoPath)) {
+            return res.status(400).json({ error: '영상 경로가 올바르지 않습니다(cardnews/<시리즈>/<파일>.mp4 만 가능).' });
+        }
+        const text = typeof caption === 'string' ? caption.trim() : '';
+        if (!text || text.length > 2200) {
+            return res.status(400).json({ error: `설명은 1~2,200자여야 합니다(지금 ${text.length}자).` });
+        }
+
+        const videoId = videoPath.replace(/\//g, '__').replace(/\.mp4$/, '');
+        const recRef = db.collection('instagramPosts').doc(videoId);
+        try {
+            const prev = await recRef.get();
+            if (prev.exists && !force) {
+                const d = prev.data();
+                return res.status(409).json({ error: '이미 올라간 영상입니다.', permalink: d.permalink || null, postedAt: d.postedAt || null });
+            }
+        } catch (e) {
+            console.error('[publishInstagramReel] 기록 조회 실패:', e.message);
+        }
+
+        const videoUrl = `${IG_SITE}/${videoPath}`;
+        try {
+            // 배포 전 영상이면 인스타가 받지 못해 한참 뒤 ERROR 로 끝난다 — 먼저 열리는지 본다
+            const head = await fetch(videoUrl, { method: 'HEAD' });
+            const type = head.headers.get('content-type') || '';
+            if (!head.ok || !type.includes('video')) {
+                return res.status(400).json({ error: `영상 주소가 열리지 않습니다(HTTP ${head.status}). 호스팅 배포가 먼저입니다.` });
+            }
+
+            const { id: container } = await igCall('POST', `/${process.env.IG_USER_ID}/media`, {
+                media_type: 'REELS', video_url: videoUrl, caption: text, share_to_feed: 'true',
+            });
+            let status = '';
+            for (let i = 0; i < 48; i++) { // 최대 8분(함수 제한 9분 안)
+                await new Promise((r) => setTimeout(r, 10000));
+                const s = await igCall('GET', `/${container}`, { fields: 'status_code,status' });
+                status = s.status_code;
+                if (status === 'FINISHED') break;
+                if (status === 'ERROR' || status === 'EXPIRED') {
+                    return res.status(502).json({ error: `인스타 처리 실패: ${status} ${s.status || ''} — 세로 9:16·H.264·AAC·길이를 확인하세요.` });
+                }
+            }
+            if (status !== 'FINISHED') {
+                return res.status(504).json({ error: '8분 안에 처리가 끝나지 않았습니다. 인스타에서 올라갔는지 먼저 확인한 뒤 다시 시도하세요.' });
+            }
+            const { id: media } = await igCall('POST', `/${process.env.IG_USER_ID}/media_publish`, { creation_id: container });
+            const info = await igCall('GET', `/${media}`, { fields: 'permalink' });
+            const permalink = info.permalink || null;
+            await recRef.set({ video: videoPath, mediaId: media, permalink, caption: text, postedAt: admin.firestore.FieldValue.serverTimestamp() });
+            console.log('[publishInstagramReel] 게시 완료:', videoPath, permalink);
+            return res.json({ ok: true, permalink, mediaId: media });
+        } catch (e) {
+            console.error('[publishInstagramReel]', e.message);
+            const hint = e.igCode === 190 ? ' — 토큰이 만료됐습니다(60일). Meta 앱에서 다시 발급해 functions/.env 와 GitHub Secrets 를 바꾸고 functions 를 재배포하세요.' : '';
+            return res.status(502).json({ error: `인스타그램 API 오류: ${e.message}${hint}` });
+        }
+    });
+
 /**
  * 서명 전화번호 중복 확인 (서버측)
  * - 클라이언트가 전체 signatures(phone 포함)를 읽어 비교하던 것을 대체
