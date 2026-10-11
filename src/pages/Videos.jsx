@@ -213,7 +213,12 @@ export default function Videos() {
                 const set = await setInstagramToken({ code, token: t.trim() });
                 if (!set.ok) { alert(`토큰 저장 실패: ${set.error || ''}`); return; }
                 alert(`새 토큰을 저장했습니다(@${set.username || ''}). 이어서 게시합니다.`);
-                r = await publishInstagramReel({ code, video: sv.src, caption, force: true });
+                // force 없이 다시 — 토큰이 없던 경우엔 「이미 올라간 영상」 검사를 아직 안 거쳤으므로 여기서 409 가 나올 수 있다
+                r = await publishInstagramReel({ code, video: sv.src, caption });
+                if (r.status === 409) {
+                    if (!window.confirm(`이미 올라간 영상입니다:\n${r.permalink || '(링크 없음)'}\n\n그래도 한 번 더 올릴까요?`)) return;
+                    r = await publishInstagramReel({ code, video: sv.src, caption, force: true });
+                }
             }
             if (r.ok) {
                 alert(`인스타그램 게시 완료\n${r.permalink || ''}`);
