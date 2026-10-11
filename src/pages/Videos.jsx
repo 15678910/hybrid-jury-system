@@ -3,7 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { CARD_NEWS_SERIES, shortPlayUrl, getCardNewsSeries, instagramCaption } from '../data/cardNews';
 import { collection, getDocs, query, orderBy, limit, startAfter } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { publishInstagramReel } from '../lib/authUtils';
+import { publishInstagramReel, setInstagramToken } from '../lib/authUtils';
 import Header from '../components/Header';
 import SEOHead from '../components/SEOHead';
 import { KakaoIcon, FacebookIcon, XIcon, TelegramIcon, InstagramIcon, LinkIcon, ShareIcon } from '../components/icons';
@@ -204,6 +204,15 @@ export default function Videos() {
             igCodeRef.current = code;
             if (r.status === 409) {
                 if (!window.confirm(`이미 올라간 영상입니다:\n${r.permalink || '(링크 없음)'}\n\n그래도 한 번 더 올릴까요?`)) return;
+                r = await publishInstagramReel({ code, video: sv.src, caption, force: true });
+            }
+            if (!r.ok && r.tokenExpired) {
+                // 토큰(인스타가 준 출입증)이 만료·무효 — Meta 앱에서 새로 발급한 토큰을 붙여 넣으면 서버에 저장되고 바로 다시 올린다
+                const t = window.prompt(`${r.error}\n\n새 토큰을 붙여 넣으세요.\n(developers.facebook.com → 앱 「시민법정 인스타 게시」 → 인스타그램 → 액세스 토큰 생성)`);
+                if (!t || !t.trim()) return;
+                const set = await setInstagramToken({ code, token: t.trim() });
+                if (!set.ok) { alert(`토큰 저장 실패: ${set.error || ''}`); return; }
+                alert(`새 토큰을 저장했습니다(@${set.username || ''}). 이어서 게시합니다.`);
                 r = await publishInstagramReel({ code, video: sv.src, caption, force: true });
             }
             if (r.ok) {

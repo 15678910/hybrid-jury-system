@@ -242,8 +242,35 @@ async function isAuthorizedAccessCode(code) {
 const IG_API = `https://graph.instagram.com/${process.env.IG_API_VERSION || 'v23.0'}`;
 const IG_SITE = 'https://xn--lg3b0kt4n41f.kr'; // 인스타 서버가 받을 주소는 퓨니코드로(한글 도메인 그대로는 못 받는다)
 
-async function igCall(method, path, params) {
-    const body = new URLSearchParams({ ...params, access_token: process.env.IG_ACCESS_TOKEN });
+// 토큰 보관 — Firestore instagramAuth/current { accessToken, userId, expiresAt, refreshedAt, source }.
+//   ⚠️ settings 컬렉션은 누구나 읽을 수 있으므로 거기 두지 않는다. instagramAuth 는 규칙 기본값(전부 거부)이라 Admin SDK 만 읽는다.
+//   처음엔 functions/.env 의 IG_ACCESS_TOKEN·IG_USER_ID 를 쓰고 그 값을 Firestore 에 옮겨 적는다(seed). 그 뒤로는 Firestore 가 정본이고
+//   refreshInstagramToken 이 매주 연장해 저장하므로 .env 를 다시 고칠 일이 없다. 토큰이 아예 죽으면(연장 실패 60일 경과 등)
+//   setInstagramToken 으로 새 토큰을 넣는다(동영상 페이지가 만료 안내 뒤 붙여넣기 창을 띄운다).
+const IG_AUTH_REF = () => db.collection('instagramAuth').doc('current');
+async function getIgCredentials() {
+    try {
+        const snap = await IG_AUTH_REF().get();
+        if (snap.exists && snap.data().accessToken && snap.data().userId) return { ...snap.data(), fromEnv: false };
+    } catch (e) {
+        console.error('[getIgCredentials] Firestore 읽기 실패:', e.message);
+    }
+    if (process.env.IG_ACCESS_TOKEN && process.env.IG_USER_ID) {
+        const cred = { accessToken: process.env.IG_ACCESS_TOKEN, userId: process.env.IG_USER_ID, fromEnv: true };
+        try {
+            // .env 값을 Firestore 로 옮겨 적는다. 만료일은 모르므로 비워 두고, 첫 주간 연장 때 채워진다.
+            await IG_AUTH_REF().set({ accessToken: cred.accessToken, userId: cred.userId, expiresAt: null, refreshedAt: null, source: 'env', seededAt: admin.firestore.FieldValue.serverTimestamp() });
+            console.log('[getIgCredentials] .env 토큰을 instagramAuth/current 로 옮겨 적었습니다.');
+        } catch (e) {
+            console.error('[getIgCredentials] seed 실패:', e.message);
+        }
+        return cred;
+    }
+    return null;
+}
+
+async function igCall(method, path, params, token) {
+    const body = new URLSearchParams({ ...params, access_token: token });
     const res = method === 'GET'
         ? await fetch(`${IG_API}${path}?${body}`)
         : await fetch(`${IG_API}${path}`, { method, body });
@@ -271,8 +298,9 @@ exports.publishInstagramReel = functions
         if (!adminCode || !timingSafeStrEqual(typeof code === 'string' ? code : '', adminCode)) {
             return res.status(401).json({ error: '관리자 코드가 올바르지 않습니다.' });
         }
-        if (!process.env.IG_ACCESS_TOKEN || !process.env.IG_USER_ID) {
-            return res.status(503).json({ error: 'IG_ACCESS_TOKEN / IG_USER_ID 가 functions/.env 에 없습니다. 데스크탑에서 넣고 functions 전체를 다시 배포해야 합니다.' });
+        const cred = await getIgCredentials();
+        if (!cred) {
+            return res.status(503).json({ error: '인스타그램 토큰이 없습니다. functions/.env 의 IG_ACCESS_TOKEN·IG_USER_ID 를 넣고 functions 를 배포하거나, setInstagramToken 으로 넣어 주세요.', tokenMissing: true });
         }
         // 영상은 우리 사이트의 카드뉴스 영상만. 쿼리(?v=)는 떼고 경로만 본다.
         const videoPath = typeof video === 'string' ? video.split('?')[0].replace(/^\/+/, '') : '';
@@ -305,13 +333,13 @@ exports.publishInstagramReel = functions
                 return res.status(400).json({ error: `영상 주소가 열리지 않습니다(HTTP ${head.status}). 호스팅 배포가 먼저입니다.` });
             }
 
-            const { id: container } = await igCall('POST', `/${process.env.IG_USER_ID}/media`, {
+            const { id: container } = await igCall('POST', `/${cred.userId}/media`, {
                 media_type: 'REELS', video_url: videoUrl, caption: text, share_to_feed: 'true',
-            });
+            }, cred.accessToken);
             let status = '';
             for (let i = 0; i < 48; i++) { // 최대 8분(함수 제한 9분 안)
                 await new Promise((r) => setTimeout(r, 10000));
-                const s = await igCall('GET', `/${container}`, { fields: 'status_code,status' });
+                const s = await igCall('GET', `/${container}`, { fields: 'status_code,status' }, cred.accessToken);
                 status = s.status_code;
                 if (status === 'FINISHED') break;
                 if (status === 'ERROR' || status === 'EXPIRED') {
@@ -321,17 +349,82 @@ exports.publishInstagramReel = functions
             if (status !== 'FINISHED') {
                 return res.status(504).json({ error: '8분 안에 처리가 끝나지 않았습니다. 인스타에서 올라갔는지 먼저 확인한 뒤 다시 시도하세요.' });
             }
-            const { id: media } = await igCall('POST', `/${process.env.IG_USER_ID}/media_publish`, { creation_id: container });
-            const info = await igCall('GET', `/${media}`, { fields: 'permalink' });
+            const { id: media } = await igCall('POST', `/${cred.userId}/media_publish`, { creation_id: container }, cred.accessToken);
+            const info = await igCall('GET', `/${media}`, { fields: 'permalink' }, cred.accessToken);
             const permalink = info.permalink || null;
             await recRef.set({ video: videoPath, mediaId: media, permalink, caption: text, postedAt: admin.firestore.FieldValue.serverTimestamp() });
             console.log('[publishInstagramReel] 게시 완료:', videoPath, permalink);
             return res.json({ ok: true, permalink, mediaId: media });
         } catch (e) {
             console.error('[publishInstagramReel]', e.message);
-            const hint = e.igCode === 190 ? ' — 토큰이 만료됐습니다(60일). Meta 앱에서 다시 발급해 functions/.env 와 GitHub Secrets 를 바꾸고 functions 를 재배포하세요.' : '';
-            return res.status(502).json({ error: `인스타그램 API 오류: ${e.message}${hint}` });
+            const expired = e.igCode === 190;
+            const hint = expired ? ' — 토큰이 만료됐거나 무효입니다. Meta 앱에서 새 토큰을 발급해 붙여 넣으면 바로 이어서 쓸 수 있습니다.' : '';
+            return res.status(502).json({ error: `인스타그램 API 오류: ${e.message}${hint}`, tokenExpired: expired });
         }
+    });
+
+// 새 토큰 넣기(관리자 전용) — 토큰이 죽었을 때 동영상 페이지가 붙여넣기 창을 띄워 여기로 보낸다. 재배포 없이 바로 반영된다.
+// 넣기 전에 /me 로 토큰이 진짜 그 계정 것인지 확인한다(엉뚱한 문자열을 저장하지 않게).
+exports.setInstagramToken = functions
+    .region('asia-northeast3')
+    .https.onRequest(async (req, res) => {
+        setCorsHeaders(req, res);
+        if (req.method === 'OPTIONS') return res.status(204).send('');
+        if (req.method !== 'POST') return res.status(405).json({ error: 'POST만 허용됩니다.' });
+        if (!checkRateLimit(req, res, 5)) return;
+        const { code, token } = req.body || {};
+        const adminCode = process.env.ACCESS_ADMIN_CODE;
+        if (!adminCode || !timingSafeStrEqual(typeof code === 'string' ? code : '', adminCode)) {
+            return res.status(401).json({ error: '관리자 코드가 올바르지 않습니다.' });
+        }
+        const t = typeof token === 'string' ? token.trim() : '';
+        if (!/^[A-Za-z0-9_.-]{40,600}$/.test(t)) return res.status(400).json({ error: '토큰 형식이 아닙니다.' });
+        try {
+            const me = await igCall('GET', '/me', { fields: 'id,username' }, t);
+            const prev = await IG_AUTH_REF().get();
+            const prevUser = prev.exists ? prev.data().userId : process.env.IG_USER_ID;
+            if (prevUser && String(me.id) !== String(prevUser)) {
+                return res.status(400).json({ error: `이 토큰은 다른 계정(@${me.username || me.id})의 것입니다. 기존 계정 ID ${prevUser} 와 다릅니다.` });
+            }
+            const expiresAt = new Date(Date.now() + 60 * 86400000); // 새로 발급한 장기 토큰은 60일
+            await IG_AUTH_REF().set({ accessToken: t, userId: String(me.id), username: me.username || null, expiresAt, refreshedAt: null, source: 'manual', setAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+            console.log('[setInstagramToken] 새 토큰 저장 @' + (me.username || me.id));
+            return res.json({ ok: true, username: me.username || null, expiresAt: expiresAt.toISOString() });
+        } catch (e) {
+            console.error('[setInstagramToken]', e.message);
+            return res.status(400).json({ error: `토큰 확인 실패: ${e.message}` });
+        }
+    });
+
+// 토큰 자동 연장 — 매주 월요일 04:10(한국). 인스타 장기 토큰은 만료 전이고 발급 24시간이 지났으면
+// GET /refresh_access_token?grant_type=ig_refresh_token 으로 새 60일짜리를 받을 수 있다. 매주 연장하면 만료에 닿을 일이 없다.
+// 실패하면 텔레그램 그룹에 알린다(연속 실패 60일이면 토큰이 죽으므로 그 전에 사람이 알아야 한다).
+async function refreshInstagramTokenOnce() {
+    const cred = await getIgCredentials();
+    if (!cred) return { ok: false, error: '토큰 없음' };
+    const r = await igCall('GET', '/refresh_access_token', { grant_type: 'ig_refresh_token' }, cred.accessToken);
+    if (!r.access_token) throw new Error('응답에 access_token 이 없습니다');
+    const expiresAt = new Date(Date.now() + (Number(r.expires_in) || 60 * 86400) * 1000);
+    await IG_AUTH_REF().set({ accessToken: r.access_token, userId: cred.userId, expiresAt, refreshedAt: admin.firestore.FieldValue.serverTimestamp(), source: 'refresh', lastError: null }, { merge: true });
+    return { ok: true, expiresAt };
+}
+exports.refreshInstagramToken = functions
+    .region('asia-northeast3')
+    .runWith({ timeoutSeconds: 60, memory: '256MB' })
+    .pubsub.schedule('10 4 * * 1')
+    .timeZone('Asia/Seoul')
+    .onRun(async () => {
+        try {
+            const r = await refreshInstagramTokenOnce();
+            console.log('[refreshInstagramToken]', r.ok ? `연장 완료, 만료 ${r.expiresAt.toISOString().slice(0, 10)}` : r.error);
+        } catch (e) {
+            console.error('[refreshInstagramToken] 실패:', e.message);
+            try { await IG_AUTH_REF().set({ lastError: e.message, lastErrorAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true }); } catch (_) { /* 무시 */ }
+            try {
+                await sendTelegramMessage(GROUP_CHAT_ID, `⚠️ 인스타그램 토큰 자동 연장 실패\n${e.message}\n\n만료 전에 Meta 앱에서 새 토큰을 발급해 동영상 페이지 인스타 아이콘 → 토큰 붙여넣기로 넣어 주세요.`);
+            } catch (_) { /* 알림 실패는 무시 */ }
+        }
+        return null;
     });
 
 /**

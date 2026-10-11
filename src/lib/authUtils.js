@@ -17,6 +17,7 @@ const VERIFY_URL = `${FN_BASE}/verifyAccessCode`;
 const CHECK_DUP_URL = `${FN_BASE}/checkSignatureDuplicate`;
 const EXPORT_SIG_URL = `${FN_BASE}/exportSignatures`;
 const IG_PUBLISH_URL = `${FN_BASE}/publishInstagramReel`;
+const IG_TOKEN_URL = `${FN_BASE}/setInstagramToken`;
 
 /**
  * 작성자/관리자 접근 코드를 서버에서 검증한다.
@@ -110,9 +111,28 @@ export async function publishInstagramReel({ code, video, caption, force = false
             body: JSON.stringify({ code, video, caption, force }),
         });
         const data = await res.json().catch(() => ({}));
-        return { ok: res.ok && !!data.ok, status: res.status, permalink: data.permalink || null, error: data.error || null };
+        return { ok: res.ok && !!data.ok, status: res.status, permalink: data.permalink || null, error: data.error || null, tokenExpired: !!data.tokenExpired || !!data.tokenMissing };
     } catch (e) {
         console.error('인스타그램 게시 통신 실패:', e);
         return { ok: false, status: 0, error: '서버에 연결할 수 없습니다.' };
+    }
+}
+
+/**
+ * 인스타그램 토큰 교체 — 관리자 전용. 토큰이 만료·무효일 때 새로 발급한 장기 토큰을 서버(Firestore)에 넣는다. 재배포 불필요.
+ * @returns {Promise<{ok: boolean, username?: string, error?: string}>}
+ */
+export async function setInstagramToken({ code, token }) {
+    try {
+        const res = await fetch(IG_TOKEN_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, token }),
+        });
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok && !!data.ok, username: data.username || null, error: data.error || null };
+    } catch (e) {
+        console.error('인스타그램 토큰 교체 통신 실패:', e);
+        return { ok: false, error: '서버에 연결할 수 없습니다.' };
     }
 }

@@ -54,5 +54,5 @@
 2. **[데스크탑]** 추경호 11.18 선고 시각, 윤석열 항소심 10.13 결심 원문 대조.
 3. 10.13 윤석열 항소심 결심 결과 반영, 11.18 추경호 선고 반영.
 4. 발제문 인쇄 전 확인 4가지(§5) — 10.16 전.
-5. 11월 말 전 인스타그램 토큰 갱신.
+5. ~~11월 말 전 인스타그램 토큰 갱신~~ → 10.11 자동 연장(`refreshInstagramToken`, 매주 월 04:10)으로 대체. 토큰은 Firestore `instagramAuth/current`. 사이트 인스타 아이콘 = 관리자 바로 게시(`publishInstagramReel`). **데스크탑 배포 필요**: `functions/.env` 에 IG_ACCESS_TOKEN·IG_USER_ID 넣고 `firebase deploy --only functions`(전체) + 호스팅.
 6. (선택) 백업 아티팩트 범위 좁히기(§1).
