@@ -236,7 +236,8 @@ async function isAuthorizedAccessCode(code) {
 //   ③ /<IG_USER_ID>/media_publish → 게시물 → permalink
 // 환경변수(functions/.env): IG_ACCESS_TOKEN(장기 토큰, 60일), IG_USER_ID. GitHub Secrets 와 같은 값.
 //   ⚠️ .env 를 바꾸면 functions 전체 재배포(CLAUDE.md 2026-09-26 사건).
-// 인증: ACCESS_ADMIN_CODE 만 받는다(작성자 코드 불가 — 단체 계정에 올리는 일이라 관리자로 한정).
+// 인증: ACCESS_ADMIN_CODE 또는 ACCESS_WRITER_CODE(.env 의 두 코드). Firestore 의 개별 작성자 코드는 받지 않는다.
+//   2026-10-11: 처음엔 관리자 코드만 받았으나 /admin 로그인이 두 코드를 구분 없이 받아 사용자가 쓰는 코드가 작성자 코드였다 → 둘 다 허용.
 // 중복 방지: 같은 영상은 instagramPosts/<영상ID> 에 기록돼 있으면 409 로 거절한다(force=true 면 다시 올림).
 // ============================================
 const IG_API = `https://graph.instagram.com/${process.env.IG_API_VERSION || 'v23.0'}`;
@@ -247,6 +248,12 @@ const IG_SITE = 'https://xn--lg3b0kt4n41f.kr'; // 인스타 서버가 받을 주
 //   처음엔 functions/.env 의 IG_ACCESS_TOKEN·IG_USER_ID 를 쓰고 그 값을 Firestore 에 옮겨 적는다(seed). 그 뒤로는 Firestore 가 정본이고
 //   refreshInstagramToken 이 매주 연장해 저장하므로 .env 를 다시 고칠 일이 없다. 토큰이 아예 죽으면(연장 실패 60일 경과 등)
 //   setInstagramToken 으로 새 토큰을 넣는다(동영상 페이지가 만료 안내 뒤 붙여넣기 창을 띄운다).
+// 사이트 운영 코드 둘(.env) 가운데 하나와 일치하는가 — 인스타 게시·토큰 교체에 쓴다
+function isSiteAccessCode(code) {
+    if (typeof code !== 'string' || !code) return false;
+    const a = process.env.ACCESS_ADMIN_CODE, w = process.env.ACCESS_WRITER_CODE;
+    return (!!a && timingSafeStrEqual(code, a)) || (!!w && timingSafeStrEqual(code, w));
+}
 const IG_AUTH_REF = () => db.collection('instagramAuth').doc('current');
 async function getIgCredentials() {
     try {
@@ -294,8 +301,7 @@ exports.publishInstagramReel = functions
         if (!checkRateLimit(req, res, 10)) return;
 
         const { code, video, caption, force } = req.body || {};
-        const adminCode = process.env.ACCESS_ADMIN_CODE;
-        if (!adminCode || !timingSafeStrEqual(typeof code === 'string' ? code : '', adminCode)) {
+        if (!isSiteAccessCode(code)) {
             return res.status(401).json({ error: '관리자 코드가 올바르지 않습니다.' });
         }
         const cred = await getIgCredentials();
@@ -373,8 +379,7 @@ exports.setInstagramToken = functions
         if (req.method !== 'POST') return res.status(405).json({ error: 'POST만 허용됩니다.' });
         if (!checkRateLimit(req, res, 5)) return;
         const { code, token } = req.body || {};
-        const adminCode = process.env.ACCESS_ADMIN_CODE;
-        if (!adminCode || !timingSafeStrEqual(typeof code === 'string' ? code : '', adminCode)) {
+        if (!isSiteAccessCode(code)) {
             return res.status(401).json({ error: '관리자 코드가 올바르지 않습니다.' });
         }
         const t = typeof token === 'string' ? token.trim() : '';
