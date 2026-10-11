@@ -40,4 +40,5 @@
 - **하루 게시 수 제한**이 있다(API 게시 기준). 여러 편을 한 번에 몰아 올리지 않는다.
 - 실패 메시지는 Actions 실행 기록에 한국어로 남는다(영상 주소 안 열림 / 토큰 없음 / 처리 실패 등).
 - **검증됨(2026-09-30 첫 게시)**: 해설편 1 발췌 세로판(2분 28초, 4.3MB) → https://www.instagram.com/reel/Dd5pw3eDOG2/ . 처리 대기 약 70초, 전체 1분 20초. 앱은 「개발 모드」 그대로, 심사 없이 게시됐다.
+- **2번째 게시(2026-10-11)**: 「한 사람의 위원회」 모션(1분 23초, 2.5MB, 세로 원본 그대로) → https://www.instagram.com/reel/DeW-PHplRQ1/ . 처리 대기 50초, 전체 1분. 영상 확인 단계에 「0.0 MB」로 찍히지만(호스팅이 Content-Length 를 안 줌) 게시에는 지장 없다.
 - 준비 기록: Meta 앱 「시민법정 인스타 게시」(기존 앱 「시민법관 참심제」와 별개), 이용 사례 「Instagram에서 메시지 및 콘텐츠 관리」 → 「Instagram 로그인이 포함된 API」. 권한 `instagram_business_basic`·`instagram_business_content_publish`(추가 버튼이 한 번 「문제가 발생했습니다」로 실패 → 새로고침 후 성공). 계정 추가 전에 역할 「Instagram 테스터」로 siminbupjung 을 넣고 instagram.com/accounts/manage_access/ 「테스터 초대」에서 수락해야 했다. Webhook 구독은 쓰지 않는다.
