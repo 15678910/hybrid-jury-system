@@ -55,5 +55,7 @@
 3. 10.13 윤석열 항소심 결심 결과 반영, 11.18 추경호 선고 반영.
 4. 발제문 인쇄 전 확인 4가지(§5) — 10.16 전.
 5. ~~11월 말 전 인스타그램 토큰 갱신~~ → 10.11 자동 연장(`refreshInstagramToken`, 매주 월 04:10)으로 대체. 토큰은 Firestore `instagramAuth/current`. 사이트 인스타 아이콘 = 관리자 바로 게시(`publishInstagramReel`). **데스크탑 배포 필요**: `functions/.env` 에 IG_ACCESS_TOKEN·IG_USER_ID 넣고 `firebase deploy --only functions`(전체) + 호스팅.
-6. **[데스크탑, 10.30 전 필수]** 함수 런타임 Node 20 → 22 (`functions/package.json` engines, 10.11 커밋). Node 20 은 2026-10-30 폐기 → 그 뒤엔 함수 배포 자체가 막힌다. `firebase deploy --only functions`(전체)로 올려야 적용. 로컬 Node 22 에서 모듈 로드(65 exports) 확인함.
+6. ~~**[데스크탑, 10.30 전 필수]** 함수 런타임 Node 20 → 22~~ — **10.12 완료**(65개 전부 Node 22, firebase.json runtime 이 정본 — CLAUDE.md 2026-10-12 사건) (`functions/package.json` engines, 10.11 커밋). Node 20 은 2026-10-30 폐기 → 그 뒤엔 함수 배포 자체가 막힌다. `firebase deploy --only functions`(전체)로 올려야 적용. 로컬 Node 22 에서 모듈 로드(65 exports) 확인함.
 7. (선택) 백업 아티팩트 범위 좁히기(§1).
+8. **인스타 토큰 넣기·아이콘 확인** — 함수·호스팅 배포는 끝났고, 사이트 인스타 아이콘에서 Meta 앱 새 토큰을 붙여 넣는 단계만 남음(「이미 올라간 영상입니다」가 뜨면 정상).
+9. **공용 서버**: `docs/ops/SERVER_PLAN.md` — K-VOTE·election 백엔드만 카페24로(사용자 확정 10.12). 다음은 K-VOTE 세션에서 이전.

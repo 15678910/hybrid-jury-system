@@ -126,6 +126,10 @@ firebase deploy --only functions                  # 백엔드 함수
 
 ## 자주 발생하는 실수 (반복 방지)
 
+### 🚨 2026-10-12 사건 (함수 런타임 Node 20→22 전환이 세 번 만에 됨)
+- **사건**: Node 20 이 2026-10-30 폐기(이후 함수 배포 불가)라 22 로 올리는데 ① `functions/package.json` engines 만 바꿔 배포 → 그대로 Node 20 ② `firebase.json` 의 `functions.runtime: nodejs20` 이 package.json 보다 **우선**이라 그것도 바꿈 → 경고는 사라졌지만 전 함수 「Skipped (No changes detected)」 ③ 없는 실험 플래그(`skipdeployingnoopfunctions`)를 안내해 헛걸음
+- **규칙**: ① 런타임은 **`firebase.json` 의 `functions.runtime`** 이 정본이다 — 거기부터 고친다 ② 배포 도구는 **코드가 안 바뀌면 런타임만 바뀌어도 건너뛴다** → `functions/index.js` 에 주석 한 줄이라도 바꿔 커밋한 뒤 전체 배포한다 ③ 성공 확인은 로그의 `updating Node.js 22 (1st Gen)` 줄과 맨 앞 폐기 경고 소멸로 ④ 배포 로그가 길면 `firebase deploy --only functions 2>&1 | Tee-Object deploy.log` 뒤 `Get-Content deploy.log -Head 25`
+
 ### 🚨 2026-09-30 사건 (영상 배경음악·종료카드 기준을 놓침)
 - **사건**: 낭독 없는 essay 모션뉴스를 만들며 QR 종료카드를 빠뜨렸고, 붙인 뒤에도 음악이 본편 끝에서 줄었다가 QR 에서 다시 작게 시작했다. 기존 기준(본편은 낮게 → QR 이 나올 때 올렸다가 → 줄이며 끝)과 반대였다
 - **규칙**: 영상을 만들거나 다시 뽑기 전 **`docs/cardnews/영상_제작_기준.md`** 를 읽고 그대로 따른다(음악 값·종료카드·상시 제목·글자 수). 기준을 바꾸려면 사용자 승인 후 그 문서부터 고친다
