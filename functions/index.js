@@ -1,3 +1,4 @@
+// 런타임: Node.js 22 (2026-10-12 전환 — firebase.json functions.runtime). 이 줄은 전환 배포를 강제하려고 넣었다(코드가 바뀌어야 배포 도구가 전 함수를 다시 올린다).
 const functions = require('firebase-functions/v1');
 const fetch = require('node-fetch');
 const admin = require('firebase-admin');
