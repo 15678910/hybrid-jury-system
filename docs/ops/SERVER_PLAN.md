@@ -62,23 +62,23 @@
 - 복구 리허설을 한 번은 한다(복구 안 해 본 백업은 백업이 아니다).
 
 ## 6. 설치 순서
-| 단계 | 할 일 | 어느 세션에서 | 전제 |
-|---|---|---|---|
-| 0 | §4 보안 기본, nginx·certbot·python3·git 설치 | 아무 세션(서버 SSH) | OS 확인 |
-| 1 | K-VOTE: `/srv/k-vote` 클론, 계정·systemd·nginx, **PC의 공개용 DB(`public.db`)·키 파일 이전**, `KVOTE_ALLOWED_HOSTS` | **K-VOTE 세션(데스크탑)** — DB·키가 그 PC에 있음 | THREAT_MODEL 「재오픈 전 필수 수정」 판단, 운영 비번 새로 |
-| 2 | Cloudflare DNS: k-vote.ai.kr 터널 CNAME → A 175.118.124.190(프록시) → 확인 뒤 PC 터널 끄기 | 사용자 | 1 완료 |
-| 3 | election 백엔드: 같은 방식(계정·systemd·nginx), SQLite·`.env` 이전, Vercel `VITE_API_URL` 변경 | **election 세션(데스크탑)** | — |
-| 4 | DNS: api.election.re.kr → 서버. PC의 「Election Public Server」 예약 작업 해제 | 사용자 | 3 완료 |
-| 5 | GitHub Actions SSH 배포 연결(두 저장소), Secrets 등록 | 각 저장소 세션 | 1·3 |
-| 6 | 백업(§5)·감시(업타임 체크 → 텔레그램) | 아무 세션 | — |
-| 7 | (선택) worldforum2 뷰어, 시민법정 긴 작업 | 해당 세션 | — |
+| 단계 | 할 일 | 어느 세션에서 | 전제 | 상태 |
+|---|---|---|---|---|
+| 0 | §4 보안 기본, nginx·python3·git 설치 (certbot 대신 **Cloudflare Origin CA** — 아래 메모) | 아무 세션(서버 SSH) | OS 확인 | **🚧 진행 중 (2026-10-12 K-VOTE 세션)** — 명령은 k-vote-demo `docs/VPS_SETUP.md` 0단계. 클라우드 세션은 서버에 닿지 않아 **소유자가 실행** |
+| 1 | K-VOTE: `/srv/k-vote` 클론, 계정·systemd·nginx, **PC의 공개용 DB(`public.db`)·키 파일 이전**, `KVOTE_ALLOWED_HOSTS` | **K-VOTE 세션(데스크탑)** — DB·키가 그 PC에 있음 | THREAT_MODEL 「재오픈 전 필수 수정」 판단, 운영 비번 새로 | **🚧 진행 중** — `docs/VPS_SETUP.md` 1단계. THREAT_MODEL #4 ◐는 **그대로 두고 진행**으로 판정(근거: k-vote-demo `docs/THREAT_MODEL.md` 「재오픈 전 필수 수정」 표 아래 2026-10-12 판정 — DB 사본 위험이지 네트워크 노출면이 아니고, 같은 코드가 10-07부터 이미 공개, 공개 DB는 무작위 솔트). 운영 비번은 2.3에서 신규 |
+| 2 | Cloudflare DNS: k-vote.ai.kr 터널 CNAME → A 175.118.124.190(프록시) → 확인 뒤 PC 터널 끄기 | 사용자 | 1 완료 | **🚧 진행 중** — `docs/VPS_SETUP.md` 2단계(PC 공개 중단 → 최신 DB → 비번 신규 → DNS → PC 터널 끄기 → 되돌리기 방법) |
+| 3 | election 백엔드: 같은 방식(계정·systemd·nginx), SQLite·`.env` 이전, Vercel `VITE_API_URL` 변경 | **election 세션(데스크탑)** | — | — |
+| 4 | DNS: api.election.re.kr → 서버. PC의 「Election Public Server」 예약 작업 해제 | 사용자 | 3 완료 | — |
+| 5 | GitHub Actions SSH 배포 연결(두 저장소), Secrets 등록 | 각 저장소 세션 | 1·3 | — |
+| 6 | 백업(§5)·감시(업타임 체크 → 텔레그램) | 아무 세션 | — | — |
+| 7 | (선택) worldforum2 뷰어, 시민법정 긴 작업 | 해당 세션 | — | — |
 
 ## 7. 결정할 것 (사용자)
-- [ ] 서버 OS 확인(카페24 콘솔) — Ubuntu이면 이 문서 그대로, CentOS/Rocky이면 패키지 명령만 바뀜.
+- [x] 서버 OS — **Ubuntu 24.04**(신청 때 선택, 2026-10-12). 0단계 첫 접속에서 `python3 --version`(3.12)으로 다시 확인.
 - [ ] **자동연장** 켤지(권장) — 꺼 두면 매달 11일 전에 직접 연장.
 - [x] worldforum2 — 보류(공개 호스팅 없음, 필요할 때).
 - [x] 시민법정 — 유지. 긴 작업은 필요할 때.
-- [ ] 역프록시: nginx(기존 기록 재사용) vs Caddy(인증서 자동, 설정 짧음). **제안: nginx** — K-VOTE 문서가 nginx 기준.
+- [x] 역프록시: **nginx**(2026-10-12). 인증서는 certbot(Let's Encrypt)이 아니라 **Cloudflare Origin CA**(15년) — 이유: DNS를 서버로 바꾸기 **전에** HTTPS까지 검증해야 하는데 HTTP-01은 DNS가 먼저 바뀌어야 발급된다. Cloudflare 프록시 뒤라 nginx `realip`(`CF-Connecting-IP`)로 실제 방문자 IP를 복원해야 IP 기준 제한이 깨지지 않는다(절차서 1.7). IP 직접 접속은 nginx 기본 server가 444로 끊는다.
 - [x] `_ops/PROJECTS.md` — 사용자가 모르는 파일이라 건너뜀(저장소 7개를 직접 읽어 §2 작성).
 
 ## 8. 이 문서가 생긴 경위
