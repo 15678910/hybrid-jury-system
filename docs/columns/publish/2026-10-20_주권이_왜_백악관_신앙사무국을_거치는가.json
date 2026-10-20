@@ -6,5 +6,8 @@
   "category": "칼럼/논평",
   "htmlFile": "docs/columns/publish/2026-10-20_주권이_왜_백악관_신앙사무국을_거치는가.html",
   "coverFile": "docs/columns/publish/2026-10-20_주권이_왜_백악관_신앙사무국을_거치는가.jpg",
-  "coverDest": "blog-images/faith-office-collage-column-20261020.jpg"
+  "coverDest": "blog-images/faith-office-collage-column-20261020.jpg",
+  "postId": "3dqXZQYHk4dh96JnyfSd",
+  "lastPublishedLength": 37048,
+  "_note": "본문을 다시 고칠 때 blog-update.yml 의 expected_length 에 lastPublishedLength 를 넣고, 성공하면 새 길이로 갱신한다"
 }
