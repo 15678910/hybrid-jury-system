@@ -25,6 +25,10 @@ on:
         description: '마지막으로 올린 본문 길이(글자 수)'
         required: true
         default: ''
+      swap_cover:
+        description: '표지도 교체하려면 "true" (spec 의 coverFile → coverDest 새 파일명으로 업로드, imageUrl 갱신)'
+        required: false
+        default: 'false'
       confirm:
         description: '수정을 확인하려면 "수정"이라고 입력하세요'
         required: true
@@ -77,7 +81,11 @@ jobs:
           POST_ID: ${{ github.event.inputs.post_id }}
           SPEC: ${{ github.event.inputs.spec }}
           EXPECTED: ${{ github.event.inputs.expected_length }}
-        run: node functions/update_blog_content_ci.cjs "$POST_ID" "$SPEC" "$EXPECTED"
+          SWAP: ${{ github.event.inputs.swap_cover }}
+        run: |
+          EXTRA=""
+          if [ "$SWAP" = "true" ]; then EXTRA="--swap-cover"; fi
+          node functions/update_blog_content_ci.cjs "$POST_ID" "$SPEC" "$EXPECTED" $EXTRA
 
       - name: 백업 보관
         if: always()

@@ -1,5 +1,7 @@
 // 블로그 글 본문 교체 (GitHub Actions 「블로그 본문 수정 (수동)」 전용, 2026-10-01).
-// 사용: node functions/update_blog_content_ci.cjs <postId> <spec.json> <expectedLength>   (저장소 루트에서)
+// 사용: node functions/update_blog_content_ci.cjs <postId> <spec.json> <expectedLength> [--swap-cover]   (저장소 루트에서)
+//   --swap-cover: spec 의 coverFile 을 coverDest(새 파일명이어야 함 — 같은 경로 덮어쓰기는 CDN 캐시에 막힌다)로 올리고
+//                 imageUrl 과 본문 속 표지 주소를 함께 바꾼다. 2026-10-20 수채화 표지 교체용.
 // CLAUDE.md 2026-09-24 규칙을 코드로 지킨다:
 //   ① 교체 전 기존 본문을 backups/post-content/ 에 파일로 남긴다(워크플로가 아티팩트로 보관)
 //   ② 지금 본문 길이가 내가 마지막으로 올린 길이(expectedLength)와 다르면 사용자가 고친 것 → 덮어쓰지 않고 멈춘다
@@ -9,12 +11,15 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
+const BUCKET = 'siminbupjung-blog.firebasestorage.app';
 const serviceAccount = require(path.join(ROOT, 'serviceAccountKey.json'));
-admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+admin.initializeApp({ credential: admin.credential.cert(serviceAccount), storageBucket: BUCKET });
 
 async function main() {
-    const [postId, specPath, expectedArg] = process.argv.slice(2);
-    if (!postId || !specPath || !expectedArg) throw new Error('인자: <postId> <spec.json> <expectedLength>');
+    const args = process.argv.slice(2);
+    const swapCover = args.includes('--swap-cover');
+    const [postId, specPath, expectedArg] = args.filter((a) => !a.startsWith('--'));
+    if (!postId || !specPath || !expectedArg) throw new Error('인자: <postId> <spec.json> <expectedLength> [--swap-cover]');
     const expected = Number(expectedArg);
     const spec = JSON.parse(fs.readFileSync(path.join(ROOT, specPath), 'utf-8'));
 
@@ -38,11 +43,25 @@ async function main() {
     let content = fs.readFileSync(path.join(ROOT, spec.htmlFile), 'utf-8');
     if (!content.trim().startsWith('<')) throw new Error('본문은 HTML 이어야 합니다');
     for (const bad of ['확인할 것', '블로그 게시본', '초안', '미게시']) if (content.includes(bad)) throw new Error('본문에 금지 문구: ' + bad);
-    content = content.split('__IMAGE_URL__').join(cur.imageUrl || '');
-    if (!cur.imageUrl) throw new Error('글에 imageUrl 이 없어 표지 자리를 채울 수 없습니다');
+    let imageUrl = cur.imageUrl;
+    if (swapCover) {
+        if (!spec.coverFile || !spec.coverDest) throw new Error('--swap-cover 에는 spec.coverFile·coverDest 가 필요합니다');
+        const bucket = admin.storage().bucket();
+        const [exists] = await bucket.file(spec.coverDest).exists();
+        if (exists) throw new Error(`Storage 에 ${spec.coverDest} 가 이미 있습니다 — 같은 경로 덮어쓰기는 캐시 때문에 화면에 안 바뀝니다. 새 파일명을 쓰세요.`);
+        const ext = path.extname(spec.coverFile).toLowerCase();
+        const contentType = ext === '.png' ? 'image/png' : ext === '.gif' ? 'image/gif' : ext === '.webp' ? 'image/webp' : 'image/jpeg';
+        await bucket.upload(path.join(ROOT, spec.coverFile), { destination: spec.coverDest, metadata: { contentType, cacheControl: 'public, max-age=31536000' } });
+        await bucket.file(spec.coverDest).makePublic();
+        imageUrl = `https://storage.googleapis.com/${bucket.name}/${spec.coverDest}`;
+        console.log('새 표지 업로드:', imageUrl, '(옛 표지:', cur.imageUrl, ')');
+    }
+    if (!imageUrl) throw new Error('글에 imageUrl 이 없어 표지 자리를 채울 수 없습니다');
+    content = content.split('__IMAGE_URL__').join(imageUrl);
+    if (cur.imageUrl && imageUrl !== cur.imageUrl) content = content.split(cur.imageUrl).join(imageUrl);
 
-    await ref.update({ content });
-    console.log('본문 교체 완료 id=', postId, '새 길이=', content.length);
+    await ref.update(swapCover ? { content, imageUrl } : { content });
+    console.log('본문 교체 완료 id=', postId, '새 길이=', content.length, swapCover ? '· 표지 교체됨' : '');
     if (process.env.GITHUB_STEP_SUMMARY) {
         fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `### 블로그 본문 수정 완료\n- 제목: ${spec.title}\n- 주소: https://xn--lg3b0kt4n41f.kr/blog/${postId}\n- 길이: ${expected} → ${content.length} (다음 수정 때 expected_length 로 쓴다)\n`);
     }

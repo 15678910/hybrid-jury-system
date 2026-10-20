@@ -1,0 +1,30 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<!-- 표지(정지) 「주권이 왜 백악관 신앙사무국을 거치는가」 2026-10-20 수채화판 — 사용자가 Gemini 로 만든 수채 콜라주(1024×572, 글자 일부 포함) 위에 제목 띠를 얹는다.
+     콜라주 CSS 판(faith-office-collage-20261020.html)을 사용자 요청으로 교체. 구조는 sharpness-illustrated-top-v3 와 같다: 제목은 위 220px, 그림은 그 아래.
+     렌더: CHROME_PATH=… node scripts/blog-covers/render_still_linux.mjs <이 파일> <out.png> 1200 896 -->
+<style>
+@font-face{font-family:'Pre';src:url('../fonts/Pretendard-Regular.otf');font-weight:400}
+@font-face{font-family:'Pre';src:url('../fonts/Pretendard-Bold.otf');font-weight:700}
+@font-face{font-family:'BHS';src:url('../fonts/blackhansans.ttf')}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1200px;height:896px;overflow:hidden}
+body{background:#17161A;font-family:'Pre',sans-serif;color:#FFFDF6;position:relative;word-break:keep-all}
+/* 그림 1024×572 → 1208×675 (1.18배), 220~895. 좌우 4px 잘림 */
+.art{position:absolute;left:0;top:220px;width:1200px;height:676px;background:url('faith-office-watercolor-20261020.webp') no-repeat -4px 0/1208px 675px}
+.shade{position:absolute;left:0;right:0;top:220px;height:40px;background:linear-gradient(to bottom,rgba(23,22,26,.9),rgba(23,22,26,0))}
+.eye{position:absolute;left:56px;top:26px;font-size:24px;font-weight:700;color:#E5C566;letter-spacing:.02em}
+.brand{position:absolute;right:56px;top:30px;font-size:19px;color:#A7AEBB}
+.brand b{color:#E5C566}
+.title{position:absolute;left:56px;right:56px;top:64px;font-family:'BHS','Pre',sans-serif;font-size:72px;line-height:1.1;letter-spacing:-1px}
+.title em{font-style:normal;color:#FF6B5B}
+.sub{position:absolute;left:56px;right:56px;top:170px;font-size:23px;font-weight:700;color:#D9DDE4;letter-spacing:-.2px}
+.credit{position:absolute;right:14px;bottom:10px;padding:3px 10px;border-radius:6px;background:rgba(0,0,0,.45);font-size:14px;color:#D9DDE4}
+</style></head><body>
+<div class="art"></div>
+<div class="shade"></div>
+<div class="eye">헌법 제1조 — 모든 권력은 국민으로부터 나온다</div>
+<div class="brand"><b>시민법정.kr</b> · 칼럼</div>
+<div class="title">주권이 왜 <em>백악관 신앙사무국</em>을 거치는가</div>
+<div class="sub">김민석의 새벽, 윤호중의 감찰, 그리고 민주당에 들어온 복음주의와 외교</div>
+<div class="credit">그림: AI 생성(수채화 콜라주)</div>
+</body></html>
