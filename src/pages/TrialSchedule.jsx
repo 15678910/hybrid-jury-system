@@ -84,10 +84,14 @@ function EventCard({ e, upcoming: isUp, today }) {
                 )}
             </div>
             {e.note && <p className="text-sm text-gray-700 mt-2 leading-relaxed">{e.note}</p>}
-            {e.source && (
+            {e.source && e.source.url && (
                 <a href={e.source.url} target="_blank" rel="noopener noreferrer" className="inline-block text-xs text-blue-600 hover:underline mt-2">
                     출처: {e.source.name} ↗
                 </a>
+            )}
+            {/* url 이 null 인 출처(원문 미확보·사용자 제공 요약)는 링크 없이 글자만 보인다 */}
+            {e.source && !e.source.url && (
+                <span className="inline-block text-xs text-gray-500 mt-2">출처: {e.source.name}</span>
             )}
         </div>
     );
