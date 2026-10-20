@@ -32,6 +32,15 @@ const courthouse = (court) => {
     return court;
 };
 
+// note 의 **굵게** 표시를 <strong> 으로 바꾼다. 데이터는 마크다운식 ** 로 적혀 있었는데 그동안 글자 그대로 보였다(2026-10-20 사용자 캡처로 확인).
+// 줄바꿈(\n)은 whitespace-pre-line 으로 살린다. 다른 마크다운 문법은 다루지 않는다.
+const renderNote = (text) =>
+    text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+        part.startsWith('**') && part.endsWith('**')
+            ? <strong key={i} className="font-semibold text-gray-900">{part.slice(2, -2)}</strong>
+            : part
+    );
+
 // 이벤트 카드 — 모듈 최상위 정의(부모 리렌더 시 리마운트 방지). today는 D-day 계산용.
 function EventCard({ e, upcoming: isUp, today }) {
     const cat = EVENT_CATEGORIES[e.category];
@@ -83,7 +92,7 @@ function EventCard({ e, upcoming: isUp, today }) {
                     </>
                 )}
             </div>
-            {e.note && <p className="text-sm text-gray-700 mt-2 leading-relaxed">{e.note}</p>}
+            {e.note && <p className="text-sm text-gray-700 mt-2 leading-relaxed whitespace-pre-line">{renderNote(e.note)}</p>}
             {e.source && e.source.url && (
                 <a href={e.source.url} target="_blank" rel="noopener noreferrer" className="inline-block text-xs text-blue-600 hover:underline mt-2">
                     출처: {e.source.name} ↗
