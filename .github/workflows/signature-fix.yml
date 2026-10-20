@@ -1,0 +1,99 @@
+name: 서명 구분 수정 (수동)
+
+# 수동 실행 전용이다. signatures 문서 한 건의 type(individual/organization)만 바로잡는다. 문서 ID 는 유지된다.
+#
+# 쓰는 법: Actions → 「서명 구분 수정 (수동)」 → Run workflow
+#   doc_id        : signatures 문서 ID (최신 백업 backups/firestore_backup_*.json 의 signatures 에서 찾는다)
+#   expected_name : 그 문서의 name — 다르면 멈춘다
+#   from_type     : 지금 값 (예: organization) — 다르면 멈춘다
+#   to_type       : 바꿀 값 (예: individual)
+#   confirm       : «수정» 이라고 입력
+#
+# 순서: Firestore 전체 백업(아티팩트 30일 보관) → 이름·현재값 대조 → type 한 필드 update.
+
+on:
+  workflow_dispatch:
+    inputs:
+      doc_id:
+        description: 'signatures 문서 ID'
+        required: true
+        default: ''
+      expected_name:
+        description: '문서의 name (대조용)'
+        required: true
+        default: ''
+      from_type:
+        description: '지금 type (individual / organization)'
+        required: true
+        default: 'organization'
+      to_type:
+        description: '바꿀 type (individual / organization)'
+        required: true
+        default: 'individual'
+      confirm:
+        description: '수정을 확인하려면 "수정"이라고 입력하세요'
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: blog-publish
+  cancel-in-progress: false
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 확인 문구 검사
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "수정" ]; then
+            echo "::error::확인 문구가 «수정» 이 아닙니다. 실수로 눌린 실행을 막습니다."
+            exit 1
+          fi
+
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 함수 의존성 설치
+        run: |
+          cd functions
+          npm install
+
+      - name: 서비스 계정 키 파일
+        env:
+          SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+        run: |
+          printenv SA_KEY > serviceAccountKey.json
+
+      - name: Firestore 백업 (쓰기 전 필수)
+        run: |
+          cd functions
+          node backup_firestore_ci.js
+
+      - name: 서명 구분 수정
+        env:
+          DOC_ID: ${{ github.event.inputs.doc_id }}
+          EXPECTED_NAME: ${{ github.event.inputs.expected_name }}
+          FROM_TYPE: ${{ github.event.inputs.from_type }}
+          TO_TYPE: ${{ github.event.inputs.to_type }}
+        run: |
+          node functions/fix_signature_type_ci.cjs "$DOC_ID" "$EXPECTED_NAME" "$FROM_TYPE" "$TO_TYPE"
+
+      - name: 백업 보관
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-before-signature-fix-${{ github.run_id }}
+          path: backups/
+          retention-days: 30
+
+      - name: 키 파일 삭제
+        if: always()
+        run: rm -f serviceAccountKey.json
