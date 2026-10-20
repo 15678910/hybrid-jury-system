@@ -8,7 +8,7 @@
   "coverFile": "docs/columns/publish/2026-10-20_주권이_왜_백악관_신앙사무국을_거치는가_수채화.jpg",
   "coverDest": "blog-images/faith-office-watercolor-column-20261020.jpg",
   "postId": "3dqXZQYHk4dh96JnyfSd",
-  "lastPublishedLength": 36924,
+  "lastPublishedLength": 36858,
   "_note": "본문을 다시 고칠 때 blog-update.yml 의 expected_length 에 lastPublishedLength 를 넣고, 성공하면 새 길이로 갱신한다",
   "_cover_note": "2026-10-20 콜라주 CSS 표지(faith-office-collage-column-20261020.jpg)로 첫 게시 → 사용자 Gemini 수채화 콜라주에 제목을 얹은 판으로 교체(blog-update.yml swap_cover=true)"
 }
