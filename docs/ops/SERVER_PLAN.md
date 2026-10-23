@@ -14,7 +14,7 @@
 |---|---|
 | 상품 | 카페24 SSD 가상서버 퍼스트클래스 (아이디 `coiffure`) |
 | 사양 | RAM 3G · SSD 50G · 트래픽 800G/월 |
-| IP | 175.118.124.190 (고정) |
+| IP | <서버IP> (고정) |
 | 계정 | root (초기) → 설치 때 비root 운영 계정으로 바꾼다 |
 | 기간 | 2026-10-12 ~ 11-11, **자동연장 미사용** → 자동연장 설정하거나 11-05 알림을 건다. 연장을 놓치면 서버와 데이터가 함께 사라진다 |
 | OS | 확인 필요(Ubuntu 22.04/24.04 기대) |
@@ -37,7 +37,7 @@
 
 ## 3. 서버 구조 (제안)
 ```
-인터넷 → Cloudflare(DNS·프록시, 기존 계정) → 175.118.124.190
+인터넷 → Cloudflare(DNS·프록시, 기존 계정) → <서버IP>
           nginx (80/443, Let's Encrypt)  ─┬─ k-vote.ai.kr        → 127.0.0.1:8090  (systemd k-vote)
                                            ├─ api.election.re.kr  → 127.0.0.1:8000  (systemd election-api)
                                            └─ (worldforum2 뷰어)  → /srv/worldforum2/viewer (정적)
@@ -64,13 +64,13 @@
 ## 6. 설치 순서
 | 단계 | 할 일 | 어느 세션에서 | 전제 | 상태 |
 |---|---|---|---|---|
-| 0 | §4 보안 기본, nginx·python3·git 설치 (certbot 대신 **Cloudflare Origin CA** — 아래 메모) | 아무 세션(서버 SSH) | OS 확인 | **🚧 진행 중 (2026-10-12 K-VOTE 세션)** — 명령은 k-vote-demo `docs/VPS_SETUP.md` 0단계. 클라우드 세션은 서버에 닿지 않아 **소유자가 실행** |
-| 1 | K-VOTE: `/srv/k-vote` 클론, 계정·systemd·nginx, **PC의 공개용 DB(`public.db`)·키 파일 이전**, `KVOTE_ALLOWED_HOSTS` | **K-VOTE 세션(데스크탑)** — DB·키가 그 PC에 있음 | THREAT_MODEL 「재오픈 전 필수 수정」 판단, 운영 비번 새로 | **🚧 진행 중** — `docs/VPS_SETUP.md` 1단계. THREAT_MODEL #4 ◐는 **그대로 두고 진행**으로 판정(근거: k-vote-demo `docs/THREAT_MODEL.md` 「재오픈 전 필수 수정」 표 아래 2026-10-12 판정 — DB 사본 위험이지 네트워크 노출면이 아니고, 같은 코드가 10-07부터 이미 공개, 공개 DB는 무작위 솔트). 운영 비번은 2.3에서 신규 |
-| 2 | Cloudflare DNS: k-vote.ai.kr 터널 CNAME → A 175.118.124.190(프록시) → 확인 뒤 PC 터널 끄기 | 사용자 | 1 완료 | **🚧 진행 중** — `docs/VPS_SETUP.md` 2단계(PC 공개 중단 → 최신 DB → 비번 신규 → DNS → PC 터널 끄기 → 되돌리기 방법) |
+| 0 | §4 보안 기본, nginx·python3·git 설치 (certbot 대신 **Cloudflare Origin CA** — 아래 메모) | 아무 세션(서버 SSH) | OS 확인 | **✅ 완료 2026-10-16** (K-VOTE 세션) — k-vote-demo `docs/VPS_SETUP.md` 0단계 |
+| 1 | K-VOTE: `/srv/k-vote` 클론, 계정·systemd·nginx, **PC의 공개용 DB(`public.db`)·키 파일 이전**, `KVOTE_ALLOWED_HOSTS` | **K-VOTE 세션(데스크탑)** — DB·키가 그 PC에 있음 | THREAT_MODEL 「재오픈 전 필수 수정」 판단, 운영 비번 새로 | **✅ 완료 2026-10-16** — k-vote-demo `docs/VPS_SETUP.md` 1단계 |
+| 2 | Cloudflare DNS: k-vote.ai.kr 터널 CNAME → A <서버IP>(프록시) → 확인 뒤 PC 터널 끄기 | 사용자 | 1 완료 | **✅ 완료 2026-10-16** — k-vote-demo `docs/VPS_SETUP.md` 2단계 (PC 터널은 꺼 두고 예비로만) |
 | 3 | election 백엔드: 같은 방식(계정·systemd·nginx), SQLite·`.env` 이전, Vercel `VITE_API_URL` 변경 | **election 세션(데스크탑)** | — | — |
 | 4 | DNS: api.election.re.kr → 서버. PC의 「Election Public Server」 예약 작업 해제 | 사용자 | 3 완료 | — |
 | 5 | GitHub Actions SSH 배포 연결(두 저장소), Secrets 등록 | 각 저장소 세션 | 1·3 | — |
-| 6 | 백업(§5)·감시(업타임 체크 → 텔레그램) | 아무 세션 | — | — |
+| 6 | 백업(§5)·감시(업타임 체크 → 텔레그램) | 아무 세션 | — | **K-VOTE 부분 ✅** — 서버 밖 백업 2026-10-22(v3.26: 앱이 매일 암호화 묶음을 만들고 운영자 PC가 받아 옴, 복원 리허설 함) · 감시 2026-10-23(v3.27: 텔레그램 대신 운영자 PC 예약 작업 `K-VOTE Watch` — `/health`와 백업 받기를 10분마다 보고 Windows 알림, PC가 켜져 있고 로그인해 있을 때만) — k-vote-demo `docs/VPS_SETUP.md` 3·4단계. **election 부분은 election 세션 몫(아직)** |
 | 7 | (선택) worldforum2 뷰어, 시민법정 긴 작업 | 해당 세션 | — | — |
 
 ## 7. 결정할 것 (사용자)
@@ -83,11 +83,12 @@
 
 ## 8. 이 문서가 생긴 경위
 - 2026-10-11 K-VOTE 세션에서 「하나의 서버에 여러 프로젝트」 결정 → 사용자가 10-12 카페24 가상서버 신청. 그 대화는 저장소에 남지 않아 10-12 시민법정 세션이 저장소 7개를 읽고 이 초안을 썼다(Oracle Cloud 대신 카페24를 고른 이유는 K-VOTE 세션에 물어 적을 것).
+- 2026-10-23 K-VOTE 세션: §6의 0·1·2단계(2026-10-16)와 6단계의 K-VOTE 부분(서버 밖 백업 2026-10-22 · 감시 2026-10-23)을 완료로 표시. 이 저장소는 공개라 서버 IP를 `<서버IP>`로 가림(실제 값은 운영자만 보관 — git 이력에는 남아 있음).
 
 ## 9. K-VOTE 세션에 넘기는 지시문 (복사해서 그 대화에 붙여넣기)
 ```
 hybrid-jury-system 저장소의 docs/ops/SERVER_PLAN.md 를 읽고(https://github.com/15678910/hybrid-jury-system/blob/main/docs/ops/SERVER_PLAN.md),
-카페24 가상서버(175.118.124.190)로 K-VOTE 공개 서버를 옮기는 작업을 §6 의 0·1·2 단계 순서로 진행해줘.
+카페24 가상서버(<서버IP>)로 K-VOTE 공개 서버를 옮기는 작업을 §6 의 0·1·2 단계 순서로 진행해줘.
 - 먼저 §4 보안 기본(비root 계정, SSH 키 로그인만, ufw 22/80/443, fail2ban)을 끝내고 그 다음에 앱을 올린다.
 - THREAT_MODEL.md 「재오픈 전 필수 수정」 표의 미완(#4 ◐)을 공개 IP 재오픈 전에 어떻게 할지 먼저 판단해 알려줘.
 - 이전할 것은 PC 의 공개용 DB(public.db)와 그 키 파일이다. 옮기기 전에 keys backup 으로 백업하고, 서버에서는 /srv/k-vote/data 와 /etc/k-vote 로 나눠 둔다.
